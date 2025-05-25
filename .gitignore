@@ -1,0 +1,35 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS folder attributes
+Icon?
+._*
+
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+*.env
+
+# Poetry
+poetry.lock
+
+# VS Code settings
+.vscode/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# cache folder for standards inputs and model outputs
+cache/

@@ -1,0 +1,30 @@
+[project]
+name = "dcmspec"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "David Wikler",email = "david.wikler@ulb.ac.be"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anytree (>=2.13.0,<3.0.0) ; python_version >= \"3.12\" and python_version < \"4.0\"",
+    "platformdirs (>=4.3.8,<5.0.0)",
+    "unidecode (>=1.4.0,<2.0.0)",
+    "bs4 (>=0.0.2,<0.0.3)",
+    "requests (>=2.32.3,<3.0.0)",
+    "lxml (>=5.4.0,<6.0.0)",
+    "rich (>=14.0.0,<15.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "dcmspec", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+dataelements = "dcmspec.cli.dataelements:main"
