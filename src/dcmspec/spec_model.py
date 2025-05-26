@@ -136,6 +136,11 @@ class SpecModel:
         Returns:
             True if the node has only the key "0" attribute.
         """
+        # Irrelevant if columns 0 not extracted
+        if 0 not in column_to_attr:
+            return False
+        
+        # Perform the check
         key_0_attr = column_to_attr[0]
         for key, attr_name in column_to_attr.items():
             if key == 0:

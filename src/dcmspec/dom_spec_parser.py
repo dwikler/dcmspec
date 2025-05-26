@@ -196,14 +196,63 @@ class DOMSpecParser(SpecParser):
         Returns:
             A dictionary containing the extracted data from the row.
         """
+        # Initialize rowspan trackers if not present
+        if not hasattr(self, "_rowspan_trackers") or self._rowspan_trackers is None:
+            self._rowspan_trackers = []
+
         cells = []
         colspans = []
+        rowspans = []
 
-        for cell in row.find_all("td"):
+        # Insert any pending rowspan values from previous rows
+        col_idx = 0
+        pending_rowspan_cells = []
+        for tracker in self._rowspan_trackers:
+            if tracker and tracker["rows_left"] > 0:
+                cells.append(tracker["value"])
+                colspans.append(tracker["colspan"])
+                rowspans.append(tracker["rows_left"])
+                tracker["rows_left"] -= 1
+                col_idx += tracker["colspan"]
+            else:
+                pending_rowspan_cells.append(None)
+
+        # Now process the actual cells in this row
+        cell_iter = iter(row.find_all("td"))
+        while True:
+            if col_idx >= len(self._rowspan_trackers):
+                self._rowspan_trackers.append(None)
+            if self._rowspan_trackers[col_idx] and self._rowspan_trackers[col_idx]["rows_left"] > 0:
+                # Already filled by rowspan above
+                col_idx += self._rowspan_trackers[col_idx]["colspan"]
+                continue
+            try:
+                cell = next(cell_iter)
+            except StopIteration:
+                break
             paragraphs = cell.find_all("p")
             cell_text = "\n".join(p.text.strip() for p in paragraphs) if paragraphs else ""
+            colspan = int(cell.get("colspan", 1))
+            rowspan = int(cell.get("rowspan", 1))
             cells.append(cell_text)
-            colspans.append(int(cell.get("colspan", 1)))
+            colspans.append(colspan)
+            rowspans.append(rowspan)
+            # If rowspan > 1, track for future rows
+            if rowspan > 1:
+                for i in range(colspan):
+                    self._rowspan_trackers[col_idx + i] = {
+                        "value": cell_text,
+                        "rows_left": rowspan - 1,
+                        "colspan": 1,
+                    }
+            else:
+                for i in range(colspan):
+                    self._rowspan_trackers[col_idx + i] = None
+            col_idx += colspan
+
+        # Clean up trackers for columns that are no longer needed
+        if len(self._rowspan_trackers) > col_idx:
+            self._rowspan_trackers = self._rowspan_trackers[:col_idx]
 
         row_data: Dict[str, Any] = {}
         attr_index = 0
