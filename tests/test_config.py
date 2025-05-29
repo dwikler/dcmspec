@@ -66,6 +66,28 @@ def test_save_config():
     config2 = Config(app_name="dcmspec_test", config_file=config.config_file)
     assert config2.get_param("cache_dir") == "./cache"
 
+def test_save_config_updates_top_level_cache_dir(tmp_path):
+    """Test that save_config updates top-level cache_dir to match param value."""
+    config_path = tmp_path / "test_config.json"
+    # Write a config with different top-level and param cache_dir values
+    config_data = {
+        "cache_dir": "/tmp/old_cache",
+        "params": {
+            "cache_dir": "/tmp/new_cache"
+        }
+    }
+    with open(config_path, "w", encoding="utf-8") as f:
+        json.dump(config_data, f)
+    config = Config(app_name="dcmspec_test", config_file=str(config_path))
+    # Confirm initial state
+    assert config.get_param("cache_dir") == "/tmp/new_cache"
+    # Save config, which should update top-level cache_dir
+    config.save_config()
+    with open(config_path, "r", encoding="utf-8") as f:
+        saved = json.load(f)
+    assert saved["cache_dir"] == "/tmp/new_cache"
+    assert saved["params"]["cache_dir"] == "/tmp/new_cache"
+
 def _raise_oserror(*args, **kwargs):
     raise OSError("Simulated write failure")
 
