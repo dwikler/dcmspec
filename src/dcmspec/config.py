@@ -27,7 +27,11 @@ class Config:
         os.makedirs(self.get_param("cache_dir"), exist_ok=True)
 
     def save_config(self):
-        config = {"cache_dir": self.cache_dir, "params": self.params}
+        # Save the current cache_dir (from params) and all params
+        config = {
+            "cache_dir": self.get_param("cache_dir"),
+            "params": self.params
+        }
         try:
             os.makedirs(os.path.dirname(self.config_file), exist_ok=True)
             with open(self.config_file, "w", encoding="utf-8") as f:
