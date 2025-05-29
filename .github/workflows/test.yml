@@ -28,7 +28,10 @@ jobs:
       - name: Get full Python version
         id: full-python-version
         shell: bash
-        run: echo ::set-output name=version::$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))")
+        run: |
+          python_version=$(python -c 'import sys; print("-".join(str(v) for v in sys.version_info))')
+          echo "version=$python_version" >> $GITHUB_OUTPUT
+          echo "Python version is $python_version"
 
       - name: Setup Poetry
         uses: pronovic/setup-poetry@v2

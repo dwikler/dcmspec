@@ -1,5 +1,3 @@
 {
-  "params": {
-    "cache_dir": "./cache"
-  }
+  "cache_dir": "./cache"
 }
