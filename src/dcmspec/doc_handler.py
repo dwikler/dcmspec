@@ -1,3 +1,7 @@
+"""Document handler base class for DICOM document processing in dcmspec.
+
+Defines the DocHandler abstract base class for reading, parsing, and downloading DICOM documents.
+"""
 from typing import Any, Optional
 import logging
 from abc import ABC, abstractmethod
@@ -6,8 +10,7 @@ from dcmspec.config import Config
 
 
 class DocHandler(ABC):
-    """
-    Abstract base class for DICOM document handlers.
+    """Abstract base class for DICOM document handlers.
 
     The DICOM documents may be in various formats (e.g., XHTML, XML, etc.).
     Subclasses must implement the `read_dom` and `download` methods to handle
@@ -15,12 +18,12 @@ class DocHandler(ABC):
     """
 
     def __init__(self, config: Optional[Config] = None, logger: Optional[logging.Logger] = None):
-        """
-        Initializes the document handler with an optional logger.
+        """Initialize the document handler with an optional logger.
 
         Args:
             config (Optional[Config]): Config instance to use. If None, a default Config is created.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+
         """
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
@@ -42,24 +45,24 @@ class DocHandler(ABC):
 
     @abstractmethod
     def get_dom(self, file_path: str) -> Any:
-        """
-        Reads and parses the document file, returning a DOM object.
+        """Read and parses the document file, returning a DOM object.
 
         Args:
             file_path (str): Path to the document file.
 
         Returns:
             Any: The parsed DOM object.
+
         """
         pass
 
     @abstractmethod
     def download(self, url: str, file_path: str) -> None:
-        """
-        Downloads the file from a URL and saves it to the specified path.
+        """Download the file from a URL and saves it to the specified path.
 
         Args:
             url (str): The URL to download the file from.
             file_path (str): The path to save the downloaded file.
+
         """
         pass
