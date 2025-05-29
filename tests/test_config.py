@@ -1,18 +1,7 @@
 """Tests for the Config class in dcmspec.config."""
 import os
 import json
-import pytest
 from dcmspec.config import Config
-
-
-@pytest.fixture(autouse=True)
-def patch_dirs(monkeypatch, tmp_path):
-    """Patch platformdirs' user_cache_dir and user_config_dir to use unique temporary directories for each test."""
-    cache_dir = tmp_path / "cache"
-    config_dir = tmp_path / "config"
-    monkeypatch.setattr("dcmspec.config.user_cache_dir", lambda app_name: str(cache_dir))
-    monkeypatch.setattr("dcmspec.config.user_config_dir", lambda app_name: str(config_dir))
-    return tmp_path
 
 def test_default_config_sets_cache_dir():
     """Test that the default cache_dir is set and the directory is created."""
