@@ -29,15 +29,12 @@ class DocHandler(ABC):
             raise TypeError("logger must be an instance of logging.Logger or None")
         self.logger = logger or logging.getLogger(self.__class__.__name__)
 
-        # Set the default logging level to INFO
-        self.logger.setLevel(logging.INFO)
-
-        # Create a console handler and set its level to INFO
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-
-        # Add the handler to the logger
-        self.logger.addHandler(console_handler)
+        # Add a StreamHandler and set level if there are no handlers
+        if not self.logger.handlers:
+            self.logger.setLevel(logging.INFO)
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)
+            self.logger.addHandler(console_handler)
 
         if config is not None and not isinstance(config, Config):
             raise TypeError("config must be an instance of Config or None")

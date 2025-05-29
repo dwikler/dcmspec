@@ -1,3 +1,5 @@
+[![tests](https://github.com/dwikler/dcmspec/actions/workflows/test.yml/badge.svg)](https://github.com/dwikler/dcmspec/actions/workflows/test.yml)
+
 # dcmspec
 
 ## Overview
@@ -53,20 +55,18 @@ If you want to contribute to the project, follow these steps:
 
 After installing and activating your environment, you can use the CLI tools provided by **dcmspec**.
 
-### DICOM Standard parsers scripts
+### DICOM Standard Parsers Scripts
 
-- `dataelements.py`: parses Data Elements definitions from Part 6: Data Dictionary
-- `uidvalues.py`: parses Unique Identifiers (UIDs) definitions from Part 6: Data Dictionary
+- `dataelements`: parses Data Elements definitions from Part 6: Data Dictionary
+- `uidvalues`: parses Unique Identifiers (UIDs) definitions from Part 6: Data Dictionary
 - `modattributes`: parses Module Attributes specification from Part 3: Information Object Definitions
-- `upsattributes.py`: parses UPS Attributes specification from Part 4: Service Class Specifications
+- `upsattributes`: parses UPS Attributes specification from Part 4: Service Class Specifications
 
-The DICOM Standards documents and their structured representation data models will be saved in the default cache folder or in a folder you define using the configuration file.
+The DICOM Standards documents and their structured data models will be saved in the default cache folder or in a folder you define using the configuration file.
 
 ```json
 {
-  "params": {
-    "cache_dir": "./cache"
-  }
+  "cache_dir": "./cache"
 }
 ```
 
@@ -91,24 +91,27 @@ Windows:
 
 ~/.cache/dcmspec
 
-#### Example: Parsing a DICOM IOD Module Attributes Table
+### Example: Parsing a DICOM IOD Module Attributes Table
 
-To parse the Part 6 Data Elements table and print it as an ASCII table, run:
+To parse the Part 6 Data Elements table and print it as an ASCII table,
 
-```bash
-poetry run python -m src.dcmspec.cli.dataelements
-```
+- **run the CLI app module as a script:**
 
-or just
+  ```bash
+  poetry run python -m src.dcmspec.cli.dataelements
+  ```
 
-```bash
-poetry run dataelements
-```
+- **run the script directly using the registered entry point**  
+  (see `[tool.poetry.scripts]` in `pyproject.toml`)
 
-or without using poetry
+  ```bash
+  poetry run dataelements
+  ```
 
-```bash
-export PYTHONPATH=$(pwd)/src
-source ./.venv/bin/activate
-python -m dcmspec.cli.dataelements
-```
+- **run the CLI app module as a script directly (without Poetry):**
+
+  ```bash
+  export PYTHONPATH=$(pwd)/src
+  source ./.venv/bin/activate
+  python -m dcmspec.cli.dataelements
+  ```

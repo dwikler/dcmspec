@@ -9,5 +9,5 @@ def patch_dirs(monkeypatch, tmp_path):
     config_dir = tmp_path / "config"
     monkeypatch.setattr("dcmspec.config.user_cache_dir", lambda app_name: str(cache_dir))
     monkeypatch.setattr("dcmspec.config.user_config_dir", lambda app_name: str(config_dir))
-    print(f"Test temp directory {tmp_path}")
+    # print(f"Test temp directory {tmp_path}")  # Uncomment for debugging with pytest -s
     return tmp_path
