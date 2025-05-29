@@ -20,11 +20,17 @@ dependencies = [
 [tool.poetry]
 packages = [{include = "dcmspec", from = "src"}]
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.poetry.scripts]
 dataelements = "dcmspec.cli.dataelements:main"
+
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "D"]  # E includes line-too-long (E501), D includes docstrings checks
