@@ -32,7 +32,8 @@ class XHTMLDocHandler(DocHandler):
 
         """
         cache_file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
-        if force_download or (not os.path.exists(cache_file_path)):
+        need_download = force_download or (not os.path.exists(cache_file_path))
+        if need_download:
             if not url:
                 raise ValueError("URL must be provided to download the file.")
             cache_file_path = self.download(url, cache_file_name)
@@ -82,6 +83,7 @@ class XHTMLDocHandler(DocHandler):
         response.raise_for_status()
         # Force UTF-8 decoding to avoid getting Ã (/u00C3) characters
         response.encoding = "utf-8"
+        # IN the future we may want to manually decode the content and ignore errors:
         # html_content = response.content.decode("utf-8", errors="ignore")
         # return html_content
         return response.text

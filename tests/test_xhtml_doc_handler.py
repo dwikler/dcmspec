@@ -68,16 +68,16 @@ def test_save_content_cleans_and_writes():
     assert "\u00a0" not in content
     assert "AB C" in content
 
-def mock_ensure_dir_exists(path, call_log):
+def _mock_ensure_dir_exists(path, call_log):
     """Mock _ensure_dir_exists method."""
     call_log.append(("ensure_dir_exists", path))
 
-def mock_fetch_url_content(url, call_log):
+def _mock_fetch_url_content(url, call_log):
     """Mock _fetch_url_content method."""
     call_log.append(("fetch_url_content", url))
     return "<html>content</html>"
 
-def mock_save_content(path, content, call_log):
+def _mock_save_content(path, content, call_log):
     """Mock _save_content method."""
     call_log.append(("save_content", path, content))
 
@@ -90,9 +90,9 @@ def test_download_success(monkeypatch, caplog):
 
     call_log = []
 
-    monkeypatch.setattr(handler, "_ensure_dir_exists", lambda path: mock_ensure_dir_exists(path, call_log))
-    monkeypatch.setattr(handler, "_fetch_url_content", lambda url: mock_fetch_url_content(url, call_log))
-    monkeypatch.setattr(handler, "_save_content", lambda path, content: mock_save_content(path, content, call_log))
+    monkeypatch.setattr(handler, "_ensure_dir_exists", lambda path: _mock_ensure_dir_exists(path, call_log))
+    monkeypatch.setattr(handler, "_fetch_url_content", lambda url: _mock_fetch_url_content(url, call_log))
+    monkeypatch.setattr(handler, "_save_content", lambda path, content: _mock_save_content(path, content, call_log))
 
     with caplog.at_level("INFO"):
         result = handler.download("http://example.com", file_name)
@@ -107,15 +107,15 @@ def test_download_success(monkeypatch, caplog):
     assert f"Document downloaded to {file_path}" in caplog.text
 
 
-def fail_ensure_dir_exists(path):
+def _mock_ensure_dir_exists_fails(path):
     """Mock _ensure_dir_exists that always fails."""
     raise OSError("cannot create dir")
 
-def fail_fetch_url_content(url):
+def _mock_fetch_url_content_fails(url):
     """Mock _fetch_url_content that always fails."""
     raise RequestException("fetch failed")
 
-def fail_save_content(path, content):
+def _mock_save_content_fails(path, content):
     """Mock _save_content that always fails."""
     raise OSError("save failed")
 
@@ -126,7 +126,7 @@ def test_download_ensure_dir_fails(monkeypatch, caplog):
     file_name = "test.xhtml"
     file_path = os.path.join(cache_dir, "standard", file_name)
 
-    monkeypatch.setattr(handler, "_ensure_dir_exists", fail_ensure_dir_exists)
+    monkeypatch.setattr(handler, "_ensure_dir_exists", _mock_ensure_dir_exists_fails)
     monkeypatch.setattr(handler, "_fetch_url_content", lambda url: "<html>content</html>")
     monkeypatch.setattr(handler, "_save_content", lambda path, content: None)
 
@@ -142,7 +142,7 @@ def test_download_fetch_url_fails(monkeypatch, caplog):
     file_name = "test.xhtml"
 
     monkeypatch.setattr(handler, "_ensure_dir_exists", lambda path: None)
-    monkeypatch.setattr(handler, "_fetch_url_content", fail_fetch_url_content)
+    monkeypatch.setattr(handler, "_fetch_url_content", _mock_fetch_url_content_fails)
     monkeypatch.setattr(handler, "_save_content", lambda path, content: None)
 
     with caplog.at_level("ERROR"), pytest.raises(RuntimeError) as excinfo:
@@ -159,7 +159,7 @@ def test_download_save_content_fails(monkeypatch, caplog):
 
     monkeypatch.setattr(handler, "_ensure_dir_exists", lambda path: None)
     monkeypatch.setattr(handler, "_fetch_url_content", lambda url: "<html>content</html>")
-    monkeypatch.setattr(handler, "_save_content", fail_save_content)
+    monkeypatch.setattr(handler, "_save_content", _mock_save_content_fails)
 
     with caplog.at_level("ERROR"), pytest.raises(RuntimeError) as excinfo:
         handler.download("http://example.com", file_name)
