@@ -224,13 +224,31 @@ class DOMTableSpecParser(SpecParser):
         if not hasattr(self, "_rowspan_trackers") or self._rowspan_trackers is None:
             self._rowspan_trackers = []
 
+        # Add cells from pending rowspans
+        cells, colspans, rowspans, col_idx = self._handle_pending_rowspans()
+
+        # Process the actual cells in this row
+        col_idx = self._process_actual_cells(row, cells, colspans, rowspans, col_idx)
+
+        # Clean up rowspan trackers for cells that are no longer needed
+        if len(self._rowspan_trackers) > col_idx:
+            self._rowspan_trackers = self._rowspan_trackers[:col_idx]
+
+        # Build row_data dictionary
+        row_data: Dict[str, Any] = {}
+        attr_index = 0
+        for cell, colspan in zip(cells, colspans):
+            if attr_index in self.column_to_attr:
+                row_data[self.column_to_attr[attr_index]] = cell
+            attr_index += colspan
+
+        return row_data
+
+    def _handle_pending_rowspans(self):
         cells = []
         colspans = []
         rowspans = []
-
-        # Insert any pending rowspan values from previous rows
         col_idx = 0
-        pending_rowspan_cells = []
         for tracker in self._rowspan_trackers:
             if tracker and tracker["rows_left"] > 0:
                 cells.append(tracker["value"])
@@ -238,10 +256,9 @@ class DOMTableSpecParser(SpecParser):
                 rowspans.append(tracker["rows_left"])
                 tracker["rows_left"] -= 1
                 col_idx += tracker["colspan"]
-            else:
-                pending_rowspan_cells.append(None)
+        return cells, colspans, rowspans, col_idx
 
-        # Now process the actual cells in this row
+    def _process_actual_cells(self, row, cells, colspans, rowspans, col_idx):
         cell_iter = iter(row.find_all("td"))
         while True:
             if col_idx >= len(self._rowspan_trackers):
@@ -268,7 +285,7 @@ class DOMTableSpecParser(SpecParser):
 
             for i in range(colspan):
                 while len(self._rowspan_trackers) <= col_idx + i:
-                    self._rowspan_trackers.append(None)                
+                    self._rowspan_trackers.append(None)
                 # If rowspan > 1, track for future rows
                 if rowspan > 1:
                     self._rowspan_trackers[col_idx + i] = {
@@ -279,19 +296,7 @@ class DOMTableSpecParser(SpecParser):
                 else:
                     self._rowspan_trackers[col_idx + i] = None
             col_idx += colspan
-
-        # Clean up trackers for columns that are no longer needed
-        if len(self._rowspan_trackers) > col_idx:
-            self._rowspan_trackers = self._rowspan_trackers[:col_idx]
-
-        row_data: Dict[str, Any] = {}
-        attr_index = 0
-        for cell, colspan in zip(cells, colspans):
-            if attr_index in self.column_to_attr:
-                row_data[self.column_to_attr[attr_index]] = cell
-            attr_index += colspan
-
-        return row_data
+        return col_idx
 
     def _parse_included_table(
         self,
