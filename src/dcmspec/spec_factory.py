@@ -5,7 +5,7 @@ from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 from dcmspec.json_spec_store import JSONSpecStore
-from dcmspec.dom_spec_parser import DOMSpecParser
+from dcmspec.dom_table_spec_parser import DOMTableSpecParser
 
 
 class SpecFactory:
@@ -13,7 +13,7 @@ class SpecFactory:
         self,
         input_handler: Optional[XHTMLDocHandler] = None,
         model_store: Optional[JSONSpecStore] = None,
-        table_parser: Optional[DOMSpecParser] = None,
+        table_parser: Optional[DOMTableSpecParser] = None,
         column_to_attr: Dict[int, str] = None,
         name_attr: str = None,
         config: Optional[Config] = None,
@@ -24,7 +24,7 @@ class SpecFactory:
 
         self.input_handler = input_handler or XHTMLDocHandler(config=self.config)
         self.model_store = model_store or JSONSpecStore()
-        self.table_parser = table_parser or DOMSpecParser()
+        self.table_parser = table_parser or DOMTableSpecParser()
         self.column_to_attr = column_to_attr or {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
         self.name_attr = name_attr or "elem_name"
 

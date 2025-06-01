@@ -74,7 +74,8 @@ class XHTMLDocHandler(DocHandler):
 
     def _ensure_dir_exists(self, file_path: str) -> None:
         """Ensure the directory for the file path exists."""
-        if dir_name := os.path.dirname(file_path):
+        dir_name = os.path.dirname(file_path)
+        if dir_name:
             os.makedirs(dir_name, exist_ok=True)
 
     def _fetch_url_content(self, url: str) -> str:

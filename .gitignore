@@ -35,6 +35,9 @@ dist/
 .pytest_cache/
 .coverage
 
+# sourcery
+.sourcery.yaml
+
 # cache folder for standards inputs and model outputs
 cache/
 
