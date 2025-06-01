@@ -16,7 +16,7 @@ from .fixtures_dom_tables import (
 )
 
 def test_parse_table_returns_node(docbook_sample_dom_1):  # noqa: F811
-    """Test that parse_table returns a Node with correct children."""
+    """Test that parse_table returns a Node with correct children and sanitized names."""
     parser = DOMTableSpecParser()
     column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
     node = parser.parse_table(
@@ -27,11 +27,13 @@ def test_parse_table_returns_node(docbook_sample_dom_1):  # noqa: F811
     )
     children = list(node.children)
     assert len(children) == 2
-    assert children[0].elem_name == "AttrName1"
+    assert children[0].elem_name == "Attr Name (Tést)"
+    assert children[0].name == "attr_name_-test-"  # sanitized string
     assert children[0].elem_tag == "(0101,0001)"
     assert children[0].elem_type == "1"
     assert children[0].elem_desc == "Desc1"
     assert children[1].elem_name == "AttrName2"
+    assert children[1].name == "attrname2"
     assert children[1].elem_tag == "(0101,0002)"
     assert children[1].elem_type == "2"
     assert children[1].elem_desc == "Desc2"
@@ -99,7 +101,7 @@ def test_parse_returns_metadata_and_content(docbook_sample_dom_1):  # noqa: F811
     assert metadata.version == "2025b"
     children = list(content.children)
     assert len(children) == 2
-    assert children[0].elem_name == "AttrName1"
+    assert children[0].name == "attr_name_-test-"  # sanitized string
     assert children[1].elem_name == "AttrName2"
 
 
@@ -174,7 +176,6 @@ def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F81
     assert children[3].col1 == "AttrName11"
 
 def test_parse_table_include_with_gt_nests_under_previous(table_include_dom):  # noqa: F811
-    # sourcery skip: extract-duplicate-method
     """Test that parse_table nests included table rows under the previous node if '>' is present before Include."""
     # Modify the fixture to use '>Include' instead of 'Include'
     html = str(table_include_dom)
@@ -198,3 +199,23 @@ def test_parse_table_include_with_gt_nests_under_previous(table_include_dom):  #
     assert len(included_children) == 2
     assert included_children[0].col1 == ">AttrName10"
     assert included_children[1].col1 == ">AttrName11"
+
+def test_parse_table_include_missing_table(table_include_dom):  # noqa: F811
+    """Test that parse_table raises ValueError when an 'Include' row references a non-existent table."""
+    parser = DOMTableSpecParser()
+    dom = table_include_dom
+
+    # Find the "Include" row (the one with colspan=4)
+    include_row = dom.find("td", {"colspan": "4"}).parent
+    # Find the <a class="xref"> in that row and change its href to a non-existent table
+    include_anchor = include_row.find("a", {"class": "xref"})
+    include_anchor["href"] = "#non_existent_table"
+
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3", 3: "col4"}
+    with pytest.raises(ValueError):
+        parser.parse_table(
+            dom=dom,
+            table_id="table_MAIN",
+            column_to_attr=column_to_attr,
+            name_attr="col1"
+        )

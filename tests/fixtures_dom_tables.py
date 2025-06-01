@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 @pytest.fixture
 def docbook_sample_dom_1():
-    """Return a BeautifulSoup DOM mimicking DICOM DocBook in CHTML."""
+    """Return a BeautifulSoup DOM mimicking DICOM DocBook in CHTML, with a name to test _sanitize_string."""
     xhtml = """
     <html xmlns="http://www.w3.org/1999/xhtml">
         <body>
@@ -37,7 +37,7 @@ def docbook_sample_dom_1():
                     </thead>
                     <tbody>
                     <tr valign="top">
-                        <td align="left"><p>AttrName1</p></td>
+                        <td align="left"><p>Attr Name (Tést)</p></td>
                         <td align="center"><p>(0101,0001)</p></td>
                         <td align="center"><p>1</p></td>
                         <td align="left"><p>Desc1</p></td>
