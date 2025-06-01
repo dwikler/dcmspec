@@ -1,6 +1,6 @@
-"""Document handler base class for DICOM document processing in dcmspec.
+"""Abstract base class for handling DICOM document processing in dcmspec.
 
-Defines the DocHandler abstract base class for reading, parsing, and downloading DICOM documents.
+Defines the DocHandler interface for reading, parsing, and downloading DICOM documents.
 """
 from typing import Any, Optional
 import logging
@@ -12,8 +12,8 @@ from dcmspec.config import Config
 class DocHandler(ABC):
     """Abstract base class for DICOM document handlers.
 
-    The DICOM documents may be in various formats (e.g., XHTML, XML, etc.).
-    Subclasses must implement the `read_dom` and `download` methods to handle
+    Handles DICOM documents in various formats (e.g., XHTML, XML).
+    Subclasses must implement the `get_dom` and `download` methods to handle
     reading/parsing input files and downloading files from URLs.
     """
 

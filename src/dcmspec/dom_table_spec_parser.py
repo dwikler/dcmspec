@@ -1,3 +1,8 @@
+"""DOM specification parser class for DICOM standard processing in dcmspec.
+
+Provides the DOMSpecParser class for parsing DICOM specification tables from XHTML documents,
+converting them into structured in-memory representations using anytree.
+"""
 import re
 from unidecode import unidecode
 from anytree import Node
@@ -6,19 +11,39 @@ from typing import Any, Dict, Optional
 from dcmspec.spec_parser import SpecParser
 
 
-class DOMSpecParser(SpecParser):
+class DOMTableSpecParser(SpecParser):
+    """Parser for DICOM specification tables in XHTML DOM format.
+
+    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,
+    returning anytree Node objects as structured in-memory representations.
+    Inherits logging from SpecParser.
+    """
+
     def parse(
         self,
         dom: BeautifulSoup,
         table_id: str,
         column_to_attr: Dict[int, str],
         name_attr: str,
-        table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
-    ):
-        """
-        Parses specification metadata and content from tables within the DOM of a DICOM document
-        and converts the document format into a structured representation.
+    ) -> tuple[Node, Node]:
+        """Parse specification metadata and content from tables in the DOM.
+
+        Parses tables within the DOM of a DICOM document and returns a tuple containing
+        the metadata node and the table content node as structured in-memory representations.
+
+        Args:
+            dom (BeautifulSoup): The parsed XHTML DOM object.
+            table_id (str): The ID of the table to parse.
+            column_to_attr (Dict[int, str]): Mapping from column indices to attribute names for tree nodes.
+            name_attr (str): The attribute name to use for building node names.
+            table_nesting_level (int, optional): The nesting level of the table (used for recursion). Defaults to 0.
+            include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
+                None means unlimited.
+
+        Returns:
+            Tuple[Node, Node]: The metadata node and the table content node.
+
         """
         metadata = self.parse_metadata(dom, table_id, column_to_attr)
         attr_tree = self.parse_table(dom, table_id, column_to_attr, name_attr, include_depth=include_depth)
@@ -33,8 +58,7 @@ class DOMSpecParser(SpecParser):
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
     ) -> Node:
-        """
-        Parses specification content from tables within the DOM of a DICOM document.
+        """Parse specification content from tables within the DOM of a DICOM document.
 
         This method extracts data from each row of the table, handles nested
         tables indicated by "Include" links, and builds a tree-like structure
@@ -51,6 +75,7 @@ class DOMSpecParser(SpecParser):
 
         Returns:
             root: The root node of the tree representation of the specification table.
+
         """
         self.logger.info(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
         # Maps column indices in the DICOM standard table to corresponding node attribute names
@@ -97,18 +122,18 @@ class DOMSpecParser(SpecParser):
         table_id: str,
         column_to_attr: Dict[int, str],
     ) -> Node:
-        """
-        Parses specification metadata from the document and the table within the DOM of a DICOM document.
+        """Parse specification metadata from the document and the table within the DOM of a DICOM document.
 
         This method extracts the version of the DICOM standard and the headers of the tables.
 
         Args:
             dom: The BeautifulSoup DOM object.
             table_id: The ID of the table to parse.
-            column_to_attr: Mapping between index of columns to parse and attributes name
+            column_to_attr: Mapping between index of columns to parse and attributes name.
 
         Returns:
             metadata_node: The root node of the tree representation of the specification metadata.
+
         """
         table = self.get_table(dom, table_id)
         if not table:
@@ -125,7 +150,7 @@ class DOMSpecParser(SpecParser):
         return metadata
 
     def get_version(self, dom: BeautifulSoup, table_id: str) -> str:
-        """Retrieves the DICOM Standard version from the DOM.
+        """Retrieve the DICOM Standard version from the DOM.
 
         Args:
             dom: The BeautifulSoup DOM object.
@@ -133,6 +158,7 @@ class DOMSpecParser(SpecParser):
 
         Returns:
             info_node: The info tree node.
+
         """
         version = self._version_from_book(dom) or self._version_from_section(dom)
         if not version:
@@ -141,23 +167,19 @@ class DOMSpecParser(SpecParser):
         return version
 
     def _version_from_book(self, dom):
-        """Extracts version of DICOM books in HTML format"""
+        """Extract version of DICOM books in HTML format."""
         titlepage = dom.find("div", class_="titlepage")
         if titlepage:
             subtitle = titlepage.find("h2", class_="subtitle")
-        if subtitle:
-            return subtitle.text.split()[2]
-        return None
+        return subtitle.text.split()[2] if subtitle else None
 
     def _version_from_section(self, dom):
-        """Extracts version of DICOM sections in the CHTML format"""
+        """Extract version of DICOM sections in the CHTML format."""
         document_release = dom.find("span", class_="documentreleaseinformation")
-        if document_release:
-            return document_release.text.split()[2]
-        return None
+        return document_release.text.split()[2] if document_release else None
 
     def get_table(self, dom: BeautifulSoup, table_id: str) -> Optional[Tag]:
-        """Retrieves the table element with the specified ID from the DOM.
+        """Retrieve the table element with the specified ID from the DOM.
 
         DocBook XML to XHTML conversion stylesheets enclose tables in a
         <div class="table"> with the table identifier in <a id="table_ID"></a>
@@ -171,6 +193,7 @@ class DOMSpecParser(SpecParser):
 
         Returns:
             The table element if found, otherwise None.
+
         """
         anchor = dom.find("a", {"id": table_id})
         if anchor is None:
@@ -183,7 +206,7 @@ class DOMSpecParser(SpecParser):
         return table
 
     def _extract_row_data(self, row: Tag, table_nesting_level: int) -> Dict[str, Any]:
-        """Extracts data from a table row.
+        """Extract data from a table row.
 
         Processes each cell in the row, handling colspans and extracting text
         content from paragraphs within the cells. Constructs a dictionary
@@ -195,6 +218,7 @@ class DOMSpecParser(SpecParser):
 
         Returns:
             A dictionary containing the extracted data from the row.
+
         """
         # Initialize rowspan trackers if not present
         if not hasattr(self, "_rowspan_trackers") or self._rowspan_trackers is None:
@@ -231,22 +255,28 @@ class DOMSpecParser(SpecParser):
             except StopIteration:
                 break
             paragraphs = cell.find_all("p")
-            cell_text = "\n".join(p.text.strip() for p in paragraphs) if paragraphs else ""
+            if paragraphs:
+                cell_text = "\n".join(p.text.strip() for p in paragraphs)
+            else:
+                # Handle cases where no <p> tags present
+                cell_text = cell.get_text(strip=True)
             colspan = int(cell.get("colspan", 1))
             rowspan = int(cell.get("rowspan", 1))
             cells.append(cell_text)
             colspans.append(colspan)
             rowspans.append(rowspan)
-            # If rowspan > 1, track for future rows
-            if rowspan > 1:
-                for i in range(colspan):
+
+            for i in range(colspan):
+                while len(self._rowspan_trackers) <= col_idx + i:
+                    self._rowspan_trackers.append(None)                
+                # If rowspan > 1, track for future rows
+                if rowspan > 1:
                     self._rowspan_trackers[col_idx + i] = {
                         "value": cell_text,
                         "rows_left": rowspan - 1,
                         "colspan": 1,
                     }
-            else:
-                for i in range(colspan):
+                else:
                     self._rowspan_trackers[col_idx + i] = None
             col_idx += colspan
 
@@ -274,7 +304,7 @@ class DOMSpecParser(SpecParser):
         level_nodes: Dict[int, Node],
         root: Node,
     ) -> None:
-        """Recursively parse Included Table"""
+        """Recursively parse Included Table."""
         include_anchor = row.find("a", {"class": "xref"})
         if not include_anchor:
             self.logger.warning(f"Nesting Level: {table_nesting_level}, Include Table Id not found")
@@ -315,12 +345,14 @@ class DOMSpecParser(SpecParser):
         level_nodes[row_nesting_level] = node
 
     def _extract_header(self, table: Tag, column_to_attr: Dict[int, str]) -> list:
-        """Extracts headers from the table and saves them in the headers attribute.
+        """Extract headers from the table and saves them in the headers attribute.
 
         Only extracts headers of the columns corresponding to the keys in column_to_attr.
 
         Args:
             table: The table element from which to extract headers.
+            column_to_attr: Mapping between index of columns to parse and attributes name. 
+
         """
         cells = table.find_all("th")
         header = [header.get_text(strip=True) for i, header in enumerate(cells) if i in column_to_attr]
@@ -328,8 +360,8 @@ class DOMSpecParser(SpecParser):
         return header
 
     def _sanitize_string(self, input_string: str) -> str:
-        """
-        Sanitize string to use it as a node attribute name:
+        """Sanitize string to use it as a node attribute name.
+
         - Convert non-ASCII characters to closest ASCII equivalents
         - Replace space characters with underscores
         - Replace parentheses characters with dashes
@@ -339,9 +371,12 @@ class DOMSpecParser(SpecParser):
 
         Returns:
             str: The sanitized string.
+
         """
         # Normalize the string to NFC form and transliterate to ASCII
         normalized_str = unidecode(input_string.lower())
-        # Replace specified characters with underscores or hyphens
-        sanitized_str = re.sub(r"[ \-()']", lambda match: "-" if match.group(0) in "()" else "_", normalized_str)
-        return sanitized_str
+        return re.sub(
+            r"[ \-()']",
+            lambda match: "-" if match.group(0) in "()" else "_",
+            normalized_str,
+        )
