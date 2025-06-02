@@ -57,11 +57,11 @@ class SpecFactory:
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_download:
             try:
-                metadata, content = self.model_store.load(json_file_path)
+                model = self.model_store.load(json_file_path)
                 print(f"Loaded model from cache {json_file_path}")
                 model = SpecModel(
-                    metadata=metadata,
-                    content=content,
+                    metadata=model.metadata,
+                    content=model.content,
                     **kwargs,
                 )
                 return model
