@@ -49,6 +49,23 @@ def test_load_raises_on_invalid_json(tmp_path):
     with pytest.raises(RuntimeError):
         store.load(str(bad_path))
 
+def test_load_raises_on_invalid_structure(tmp_path):
+    """Test that load raises RuntimeError if the JSON file has an invalid structure."""
+    store = JSONSpecStore()
+    # Create a invalid JSON structure with missing metadata
+    from anytree import Node
+    root = Node("dcmspec")
+    Node("content", parent=root)
+
+    # Export to JSON
+    exporter = JsonExporter(indent=4, sort_keys=False)
+    json_path = tmp_path / "model.json"
+    with open(json_path, "w", encoding="utf-8") as f:
+        exporter.write(root, f)
+
+    with pytest.raises(RuntimeError):
+        store.load(str(json_path))        
+
 def test_save_raises_on_write_error(tmp_path, simple_spec_model):
     """Test that save raises RuntimeError if writing the file fails."""
     store = JSONSpecStore()

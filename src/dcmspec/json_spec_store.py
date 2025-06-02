@@ -33,7 +33,7 @@ class JSONSpecStore(SpecStore):
             SpecModel: The specification model containing both metadata and content nodes.
 
         Raises:
-            RuntimeError: If the file cannot be read or parsed.
+            RuntimeError: If the file cannot be read, parsed, or has an invalid structure.
 
         """
         try:
@@ -41,9 +41,20 @@ class JSONSpecStore(SpecStore):
             with open(path, "r", encoding="utf-8") as json_file:
                 root = importer.read(json_file)
 
-            # Search for metadata and content nodes
+            # Check that the root node is named "dcmspec"
+            if root.name != "dcmspec":
+                raise RuntimeError(f"Invalid model structure in JSON file {path}: root node must be 'dcmspec'.")
+
+            # Search for metadata and content nodes directly under the root
             metadata = next((node for node in root.children if node.name == "metadata"), None)
             content = next((node for node in root.children if node.name == "content"), None)
+
+            if metadata is None or content is None:
+                raise RuntimeError(
+                    f"Invalid model structure in JSON file {path}: "
+                    f"Both 'metadata' and 'content' nodes must be present as children of 'dcmspec'."
+                )
+
             # Detach the model nodes from the file root node
             metadata.parent = None
             content.parent = None
