@@ -94,7 +94,7 @@ class SpecFactory:
         )
 
         # TODO: add exclude_titles argument with default to True
-        model.exclude_module_titles()
+        model.exclude_titles()
         # TODO: add filter_required argument with default to False
         # model.filter_required("elem_type")
         # Always cache after building
