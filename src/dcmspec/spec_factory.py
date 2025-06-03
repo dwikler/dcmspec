@@ -93,11 +93,8 @@ class SpecFactory:
             **kwargs,
         )
 
-        # TODO: add exclude_titles argument with default to True
-        model.exclude_module_titles()
-        # TODO: add filter_required argument with default to False
-        # model.filter_required("elem_type")
-        # Always cache after building
+        model.exclude_titles()
+
         try:
             self.model_store.save(model, json_file_path)
         except Exception as e:
