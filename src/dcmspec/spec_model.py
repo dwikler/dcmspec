@@ -27,9 +27,9 @@ class SpecModel:
         content: Node,
         logger: logging.Logger = None,
     ):
-        """Initialize the DICOMAttributeModel.
+        """Initialize the SpecModel.
 
-        Sets up the logger and initializes the attribute model.
+        Sets up the logger and initializes the specification model.
 
         Args:
             metadata (Node): Node holding table and document metadata, such as headers, version, and table ID.

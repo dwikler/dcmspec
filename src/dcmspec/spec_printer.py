@@ -71,7 +71,7 @@ class SpecPrinter:
                     "yellow"
                     if self.model._is_include(node)
                     else "magenta"
-                    if self.model._is_module_title(node)
+                    if self.model._is_title(node)
                     else LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
                 )
             table.add_row(*row, style=row_style)
