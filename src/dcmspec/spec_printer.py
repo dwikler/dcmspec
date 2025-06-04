@@ -118,3 +118,4 @@ class SpecPrinter:
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
+
