@@ -1,3 +1,8 @@
+"""Printer class for specification model in dcmspec.
+
+Provides the SpecPrinter class for printing DICOM specification models (SpecModel)
+to standard output, either as a hierarchical tree or as a flat table, using rich formatting.
+"""
 from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
@@ -16,13 +21,19 @@ LEVEL_COLORS = [
 
 
 class SpecPrinter:
+    """Printer for DICOM specification models.
+
+    Provides methods to print a SpecModel as a hierarchical tree or as a flat table,
+    using rich formatting for console output. Supports colorized output and customizable logging.
+    """
+
     def __init__(self, model, logger: Optional[logging.Logger] = None):
-        """
-        Initializes the input handler with an optional logger.
+        """Initialize the input handler with an optional logger.
 
         Args:
-            model: An instance of DICOMAttributeModel.
+            model: An instance of SpecModel.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+
         """
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
@@ -30,29 +41,59 @@ class SpecPrinter:
 
         self.model = model
         self.console = Console(highlight=False)
+    def print_tree(
+        self,
+        attr_names: Optional[list[str]] = None,
+        attr_widths: Optional[list[int]] = None,
+        colorize: bool = False,
+    ):
+        """Print the specification model as a hierarchical tree to the console.
 
-    def print_tree(self, colorize: bool = False):
+        Args:
+            attr_names (Optional[Union[str, list[str]]]): Attribute name(s) to display for each node.
+                If None, only the node's name is displayed.
+                If a string, displays that single attribute.
+                If a list of strings, displays all specified attributes.
+            attr_widths (Optional[list[int]]): List of widths for each attribute in attr_names.
+                If provided, each attribute will be padded/truncated to the specified width.
+            colorize (bool): Whether to colorize the output by node depth.
+
+        Example:
+            # This will nicely align the tag, type, and name values in the tree output:
+            printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64])
+
         """
-        Prints the attribute model tree to the console.
-
-        Traverses the tree structure and prints each node's name,
-        tag (if available), along with its hierarchical representation.
-        """
-        # for pre, fill, node in RenderTree(self.attribute_model):
-        #     node_display = f"{node.name}"
-        #     if hasattr(node, "tag") and node.tag:
-        #         node_display += f" {node.tag}"
-        #     print(f"{pre}{node_display}")
-
-        # TODO: make it independent of specific node attribute
-        for pre, fill, node in RenderTree(self.model.attribute_model):
+        for pre, fill, node in RenderTree(self.model.content):
             style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"
             pre_text = Text(pre)
-            node_text = Text(f"{node.name} {getattr(node, 'elem_tag', '')}", style=style)
+            if attr_names is None:
+                node_text = Text(str(node.name), style=style)
+            else:
+                if isinstance(attr_names, str):
+                    attr_names = [attr_names]
+                values = [str(getattr(node, attr, "")) for attr in attr_names]
+                if attr_widths:
+                    # Pad/truncate each value to the specified width
+                    values = [
+                        v.ljust(w)[:w] if w is not None else v
+                        for v, w in zip(values, attr_widths)
+                    ]
+                attr_text = " ".join(values)
+                node_text = Text(attr_text, style=style)
             self.console.print(pre_text + node_text)
 
+
+
     def print_table(self, colorize: bool = False):
-        """Prints the attribute model tree as a flat table using rich."""
+        """Print the specification model as a flat table to the console.
+
+        Traverses the content tree and prints each node's attributes in a flat table,
+        using column headers from the metadata node. Optionally colorizes rows.
+
+        Args:
+            colorize (bool): Whether to colorize the output by node depth.
+
+        """
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         # Define the columns using the extracted headers
@@ -77,3 +118,4 @@ class SpecPrinter:
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
+
