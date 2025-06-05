@@ -103,6 +103,25 @@ def test_init_type_error():
     with pytest.raises(TypeError):
         SpecFactory(config="not_a_config")
 
+def test_from_url_default_json_file_name(monkeypatch, patch_dirs):
+    """Test from_url uses default json_file_name if not provided."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    cache_file_name = "file.xhtml"
+    # Do NOT provide json_file_name
+    factory.from_url(
+        url="http://example.com",
+        cache_file_name=cache_file_name,
+        table_id="table1",
+        force_download=True,
+        # json_file_name is omitted
+    )
+    expected_path = str(patch_dirs / "cache" / "model" / "file.json")
+    assert ms.saved[1] == expected_path
+
 def test_from_url_loads_from_cache(monkeypatch, patch_dirs):
     """Test from_url loads model from cache if present and not force_download."""
     ms = DummyModelStore()
@@ -161,16 +180,19 @@ def test_from_url_force_download(monkeypatch):
     assert ih.called
     assert tp.called
 
+def raise_save_failure(*args, **kwargs):
+    """Simulate a save failure by raising an IOError."""
+    raise IOError("Simulated save failure")
+
 def test_from_url_save_failure(monkeypatch, capsys):
-    # sourcery skip: simplify-generator
     """Test from_url handles failure of model_store.save gracefully."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
     monkeypatch.setattr("os.path.exists", lambda path: False)
-    # Patch model_store.save to raise an exception using a lambda
-    monkeypatch.setattr(ms, "save", lambda model, path: (_ for _ in ()).throw(IOError("Simulated save failure")))
+    # Patch model_store.save to raise an exception
+    monkeypatch.setattr(ms, "save", raise_save_failure)
     factory.from_url(
         url="http://example.com",
         cache_file_name="file.xhtml",

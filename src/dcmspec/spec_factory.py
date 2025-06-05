@@ -89,6 +89,7 @@ class SpecFactory:
             table_id: Optional table identifier for model parsing.
             force_download: If True, always download the input file and generate the model even if cached.
             json_file_name: Optional filename to save the cached JSON model.
+                Defaults to the base name of `cache_file_name` with a `.json` extension.
             **kwargs: Additional arguments for model construction.
 
         Returns:
@@ -102,7 +103,7 @@ class SpecFactory:
         if os.path.exists(json_file_path) and not force_download:
             try:
                 model = self.model_store.load(json_file_path)
-                print(f"Loaded model from cache {json_file_path}")
+                self.input_handler.logger.info(f"Loaded model from cache {json_file_path}")
                 model = SpecModel(
                     metadata=model.metadata,
                     content=model.content,
@@ -110,7 +111,7 @@ class SpecFactory:
                 )
                 return model
             except Exception as e:
-                print(f"Warning: Failed to load model from cache {json_file_path}: {e}")
+                self.input_handler.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
                 # Fallback to input file
 
         dom = self.input_handler.get_dom(cache_file_name=cache_file_name, url=url, force_download=force_download)
@@ -142,6 +143,5 @@ class SpecFactory:
         try:
             self.model_store.save(model, json_file_path)
         except Exception as e:
-            # Log or handle the error as appropriate for your application
-            print(f"Warning: Failed to cache model to {json_file_path}: {e}")
+            self.input_handler.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
         return model
