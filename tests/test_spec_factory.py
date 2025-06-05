@@ -1,4 +1,5 @@
 """Tests for the SpecFactory class in dcmspec.spec_factory."""
+import logging
 import pytest
 from anytree import Node
 from dcmspec.spec_factory import SpecFactory
@@ -11,6 +12,7 @@ class DummyInputHandler:
     def __init__(self):
         """Initialize the dummy input handler."""
         self.called = False
+        self.logger = logging.getLogger("DummyInputHandler")
 
     def get_dom(self, cache_file_name, url=None, force_download=False):
         """Simulate getting a DOM from a file or URL."""
@@ -184,7 +186,7 @@ def raise_save_failure(*args, **kwargs):
     """Simulate a save failure by raising an IOError."""
     raise IOError("Simulated save failure")
 
-def test_from_url_save_failure(monkeypatch, capsys):
+def test_from_url_save_failure(monkeypatch, caplog):
     """Test from_url handles failure of model_store.save gracefully."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
@@ -193,13 +195,15 @@ def test_from_url_save_failure(monkeypatch, capsys):
     monkeypatch.setattr("os.path.exists", lambda path: False)
     # Patch model_store.save to raise an exception
     monkeypatch.setattr(ms, "save", raise_save_failure)
-    factory.from_url(
-        url="http://example.com",
-        cache_file_name="file.xhtml",
-        table_id="table1",
-        force_download=True,
-        json_file_name="file.json",
-    )
-    captured = capsys.readouterr()
-    assert "Warning: Failed to cache model" in captured.out
-    assert "Simulated save failure" in captured.out
+    with caplog.at_level("WARNING"):
+        factory.from_url(
+            url="http://example.com",
+            cache_file_name="file.xhtml",
+            table_id="table1",
+            force_download=True,
+            json_file_name="file.json",
+        )
+    log_output = caplog.text
+    assert "Failed to cache model" in log_output
+    assert "Simulated save failure" in log_output
+
