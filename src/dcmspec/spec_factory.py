@@ -1,3 +1,8 @@
+"""Factory for DICOM specification model creation in dcmspec.
+
+Provides the SpecFactory class, which orchestrates downloading, parsing, and caching
+of DICOM specification tables from standard sources, producing structured SpecModel objects.
+"""
 import os
 from typing import Optional, Dict
 
@@ -9,6 +14,17 @@ from dcmspec.dom_table_spec_parser import DOMTableSpecParser
 
 
 class SpecFactory:
+    """Factory for DICOM specification models.
+
+    Coordinates the downloading, parsing, and caching of DICOM specification tables.
+    Uses input handlers, table parsers, and model stores to produce SpecModel objects
+    from URLs or cached files. Supports flexible configuration and caching strategies.
+
+    Typical usage:
+        factory = SpecFactory(...)
+        model = factory.from_url(...)
+    """
+
     def __init__(
         self,
         input_handler: Optional[XHTMLDocHandler] = None,
@@ -18,6 +34,29 @@ class SpecFactory:
         name_attr: str = None,
         config: Optional[Config] = None,
     ):
+        """Initialize the SpecFactory.
+
+        The default values for `column_to_attr` and `name_attr` are designed for parsing
+        DICOM PS3.3 module attribute tables, where columns typically represent element name,
+        tag, type, and description.
+
+        Args:
+            input_handler (Optional[XHTMLDocHandler]): Handler for downloading and parsing input files.
+                If None, a default XHTMLDocHandler is used.
+            model_store (Optional[JSONSpecStore]): Store for loading and saving models.
+                If None, a default JSONSpecStore is used.
+            table_parser (Optional[DOMTableSpecParser]): Parser for extracting tables from documents.
+                If None, a default DOMTableSpecParser is used.
+            column_to_attr (Dict[int, str], optional): Mapping from column indices to names of attributes
+                of model nodes. If None, a default mapping is used.
+            name_attr (str, optional): Attribute name to use for node names in the model.
+                If None, defaults to "elem_name".
+            config (Optional[Config]): Configuration object. If None, a default Config is created.
+
+        Raises:
+            TypeError: If config is not a Config instance or None.
+
+        """
         if config is not None and not isinstance(config, Config):
             raise TypeError("config must be an instance of Config or None")
         self.config = config or Config()
@@ -37,9 +76,12 @@ class SpecFactory:
         json_file_name: Optional[str] = None,
         **kwargs,
     ) -> SpecModel:
-        """
-        Downloads (if needed) and parses an input file from a URL, builds the DICOMAttributeModel,
-        and caches the result as JSON.
+        """Create and cache a DICOM specification model from a URL.
+
+        Downloads (if needed) and parses an input file from a URL, creates the DICOMAttributeModel,
+        and caches the result as JSON. This method orchestrates the full workflow: downloading
+        (or using a cached file), parsing the DICOM specification table, constructing the model,
+        and saving it as a JSON file for future use.
 
         Args:
             url: The URL to download the input file from.
@@ -47,18 +89,21 @@ class SpecFactory:
             table_id: Optional table identifier for model parsing.
             force_download: If True, always download the input file and generate the model even if cached.
             json_file_name: Optional filename to save the cached JSON model.
+                Defaults to the base name of `cache_file_name` with a `.json` extension.
             **kwargs: Additional arguments for model construction.
 
         Returns:
             DICOMAttributeModel: The constructed model.
-        """
 
-        json_file_name = json_file_name or (os.path.splitext(cache_file_name)[0] + ".json")
+        """
+        json_file_name = (
+            json_file_name or f"{os.path.splitext(cache_file_name)[0]}.json"
+        )
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_download:
             try:
                 model = self.model_store.load(json_file_path)
-                print(f"Loaded model from cache {json_file_path}")
+                self.input_handler.logger.info(f"Loaded model from cache {json_file_path}")
                 model = SpecModel(
                     metadata=model.metadata,
                     content=model.content,
@@ -66,7 +111,7 @@ class SpecFactory:
                 )
                 return model
             except Exception as e:
-                print(f"Warning: Failed to load model from cache {json_file_path}: {e}")
+                self.input_handler.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
                 # Fallback to input file
 
         dom = self.input_handler.get_dom(cache_file_name=cache_file_name, url=url, force_download=force_download)
@@ -98,6 +143,5 @@ class SpecFactory:
         try:
             self.model_store.save(model, json_file_path)
         except Exception as e:
-            # Log or handle the error as appropriate for your application
-            print(f"Warning: Failed to cache model to {json_file_path}: {e}")
+            self.input_handler.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
         return model

@@ -2,7 +2,7 @@
 
 Defines the SpecStore interface for loading and saving DICOM specification models.
 """
-from typing import Any, Optional
+from typing import Optional
 import logging
 from abc import ABC, abstractmethod
 

@@ -46,8 +46,8 @@ class DOMTableSpecParser(SpecParser):
 
         """
         metadata = self.parse_metadata(dom, table_id, column_to_attr)
-        attr_tree = self.parse_table(dom, table_id, column_to_attr, name_attr, include_depth=include_depth)
-        return metadata, attr_tree
+        content = self.parse_table(dom, table_id, column_to_attr, name_attr, include_depth=include_depth)
+        return metadata, content
 
     def parse_table(
         self,
