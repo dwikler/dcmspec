@@ -205,6 +205,46 @@ class DOMTableSpecParser(SpecParser):
             return None
         return table
 
+    def get_table_id_from_section(self, dom: BeautifulSoup, section_id: str) -> Optional[str]:
+        """Get the id of the first table ina  section.
+        
+        Retrieve the first table_id (anchor id) of a <div class="table"> inside a <div class="section">
+        that contains an <a> anchor with the given section id.
+
+        Args:
+            dom (BeautifulSoup): The parsed XHTML DOM object.
+            section_id (str): The id of the section to search for the table_id.
+
+        Returns:
+            Optional[str]: The id of the first table anchor found, or None if not found.
+
+        """
+        # Find the anchor with the given id
+        anchor = dom.find("a", {"id": section_id})
+        if not anchor:
+            self.logger.warning(f"Section with id '{section_id}' not found.")
+            return None
+
+        # Find the parent section div
+        section_div = anchor.find_parent("div", class_="section")
+        if not section_div:
+            self.logger.warning(f"No parent <div class='section'> found for section id '{section_id}'.")
+            return None
+
+        # Find the first <div class="table"> inside the section
+        table_div = section_div.find("div", class_="table")
+        if not table_div:
+            self.logger.warning(f"No <div class='table'> found in section for section id '{section_id}'.")
+            return None
+
+        # Find the first anchor with an id inside the table div (the table id)
+        table_anchor = table_div.find("a", id=True)
+        if table_anchor and table_anchor.get("id"):
+            return table_anchor["id"]
+
+        self.logger.warning(f"No table id found in <div class='table'> for section id '{section_id}'.")
+        return None
+
     def _extract_row_data(self, row: Tag, table_nesting_level: int) -> Dict[str, Any]:
         """Extract data from a table row.
 

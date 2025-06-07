@@ -13,6 +13,7 @@ from .fixtures_dom_tables import (
     table_rowspan_dom,  # noqa: F401
     table_colspan_rowspan_dom, # noqa: F401
     table_include_dom,  # noqa: F401
+    section_dom,  # noqa: F401
 )
 
 def test_parse_table_returns_node(docbook_sample_dom_1):  # noqa: F811
@@ -219,3 +220,80 @@ def test_parse_table_include_missing_table(table_include_dom):  # noqa: F811
             column_to_attr=column_to_attr,
             name_attr="col1"
         )
+
+def test_get_table_id_from_section(section_dom):  # noqa: F811
+    """Test get_table_id_from_section returns the correct table id for a section anchor."""
+    parser = DOMTableSpecParser()
+    section_anchor = "sect_C.7.1.1"
+    table_id = parser.get_table_id_from_section(section_dom, section_anchor)
+    assert table_id == "table_C.7-1"
+
+def test_get_table_id_from_section_not_found(section_dom, caplog):  # noqa: F811
+    """Test get_table_id_from_section returns None if the section anchor is not found and logs a warning."""
+    parser = DOMTableSpecParser()
+    section_anchor = "sect_DOES_NOT_EXIST"
+    with caplog.at_level("WARNING"):
+        table_id = parser.get_table_id_from_section(section_dom, section_anchor)
+    assert table_id is None
+    assert "Section with id 'sect_DOES_NOT_EXIST' not found." in caplog.text
+
+def test_get_table_id_from_section_no_parent_section(caplog):
+    """Test get_table_id_from_section returns None if the anchor is not inside a section div."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div>
+                <a id="sect_XYZ"></a>
+                <div class="table">
+                    <a id="table_XYZ"></a>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    parser = DOMTableSpecParser()
+    with caplog.at_level("WARNING"):
+        table_id = parser.get_table_id_from_section(dom, "sect_XYZ")
+    assert table_id is None
+    assert "No parent <div class='section'> found for section id 'sect_XYZ'." in caplog.text
+
+def test_get_table_id_from_section_no_table_in_section(caplog):
+    """Test get_table_id_from_section returns None if there is no table div in the section."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div class="section">
+                <a id="sect_XYZ"></a>
+                <p>No table here.</p>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    parser = DOMTableSpecParser()
+    with caplog.at_level("WARNING"):
+        table_id = parser.get_table_id_from_section(dom, "sect_XYZ")
+    assert table_id is None
+    assert "No <div class='table'> found in section for section id 'sect_XYZ'." in caplog.text
+
+def test_get_table_id_from_section_no_table_anchor(caplog):
+    """Test get_table_id_from_section returns None if there is no anchor with id in the table div."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div class="section">
+                <a id="sect_XYZ"></a>
+                <div class="table">
+                    <p>No anchor here.</p>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    parser = DOMTableSpecParser()
+    with caplog.at_level("WARNING"):
+        table_id = parser.get_table_id_from_section(dom, "sect_XYZ")
+    assert table_id is None
+    assert "No table id found in <div class='table'> for section id 'sect_XYZ'." in caplog.text

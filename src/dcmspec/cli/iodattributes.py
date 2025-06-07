@@ -1,9 +1,10 @@
 import os
 import argparse
-from dcmspec.config import Config
 
+from dcmspec.config import Config
+from dcmspec.iod_spec_builder import IODSpecBuilder
+from dcmspec.iod_spec_printer import IODSpecPrinter
 from dcmspec.spec_factory import SpecFactory
-from dcmspec.spec_printer import SpecPrinter
 
 
 def main():
@@ -11,14 +12,12 @@ def main():
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
-    # parser.add_argument("table", help="Table ID")
     parser.add_argument("table", nargs="?", default="table_A.3-1", help="Table ID")
-
     parser.add_argument("--config", help="Path to the configuration file")
     args = parser.parse_args()
 
     cache_file_name = "Part3.xhtml"
-    model_file_name = f"Part3_{args.table}.json"
+    model_file_name = f"Part3_{args.table}_expanded.json"
     table_id = args.table 
 
     # Determine config file location
@@ -27,15 +26,23 @@ def main():
     # Initialize configuration
     config = Config(app_name="dcmspec", config_file=config_file)
 
-    # Create the factory
-    factory = SpecFactory(
+    # Create the IOD and module factories
+    iod_factory = SpecFactory(
         column_to_attr={0: "ie", 1: "module", 2: "ref", 3: "usage"}, 
         name_attr="module",
         config=config,
     )
+    module_factory = SpecFactory(
+        column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
+        name_attr="elem_name",
+        config=config,
+    )
 
-    # Download, parse, and cache the model
-    model = factory.create_model(
+    # Create the builder
+    builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory)
+
+    # Download, parse, and cache the combined model
+    model = builder.build_from_url(
         url=url,
         cache_file_name=cache_file_name,
         json_file_name=model_file_name,
@@ -44,7 +51,7 @@ def main():
     )
 
     # Print the model as a table
-    printer = SpecPrinter(model)
+    printer = IODSpecPrinter(model)
     printer.print_table(colorize=True)
 
 
