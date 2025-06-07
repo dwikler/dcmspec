@@ -285,7 +285,7 @@ def test_build_model_raises_if_no_json_or_cache(monkeypatch):
         )
 
 def test_create_model(monkeypatch, fake_load_and_build):
-    """Test create_model calls load_dom and build_model with correct arguments."""
+    """Test create_model uses default force_download=False when not specified."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
@@ -295,20 +295,21 @@ def test_create_model(monkeypatch, fake_load_and_build):
     monkeypatch.setattr(factory, "load_dom", fake_load_dom)
     monkeypatch.setattr(factory, "build_model", fake_build_model)
 
+    # Do not pass force_download, should default to False
     result = factory.create_model(
         url="http://example.com",
         cache_file_name="file.xhtml",
         table_id="table1",
-        force_download=True,
         json_file_name="file.json",
         include_depth=2,
     )
     assert result == "FAKE_MODEL"
-    assert called["load_dom"] == ("http://example.com", "file.xhtml", True)
-    assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, True)
+    # Assert that force_download is False by default
+    assert called["load_dom"] == ("http://example.com", "file.xhtml", False)
+    assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, False)
 
 def test_create_model_force_download(monkeypatch, fake_load_and_build):
-    """Test create_model passes force_download to build_model if force_parse is not set."""
+    """Test create_model uses force_download=True when specified."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
@@ -331,7 +332,7 @@ def test_create_model_force_download(monkeypatch, fake_load_and_build):
     assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, True)
 
 def test_create_model_force_parse(monkeypatch, fake_load_and_build):
-    """Test create_model passes force_parse to build_model and it takes precedence over force_download."""
+    """Test create_model uses force_parse=True and it takes precedence over force_download."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
