@@ -32,7 +32,7 @@ def main():
     )
 
     # Download, parse, and cache the model
-    model = factory.from_url(
+    model = factory.create_model(
         url=url,
         cache_file_name=cache_file_name,
         json_file_name=model_file_name,

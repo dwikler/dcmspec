@@ -4,11 +4,14 @@ Provides the XHTMLDocHandler class for downloading, caching, and parsing XHTML d
 from the DICOM standard, returning a BeautifulSoup DOM object.
 """
 
+import logging
 import os
 import re
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional
+
+from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
 
 
@@ -18,6 +21,11 @@ class XHTMLDocHandler(DocHandler):
     Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.
     Inherits configuration and logging from DocHandler.
     """
+
+    def __init__(self, config: Optional[Config] = None, logger: Optional[logging.Logger] = None):
+        """Initialize the XHTML document handler and set cache_file_name to None."""
+        super().__init__(config=config, logger=logger)
+        self.cache_file_name = None
 
     def get_dom(self, cache_file_name: str, url: Optional[str] = None, force_download: bool = False) -> BeautifulSoup:
         """Open and parse an XHTML file, downloading it if needed.
@@ -31,6 +39,9 @@ class XHTMLDocHandler(DocHandler):
             BeautifulSoup: Parsed DOM.
 
         """
+        # Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)
+        self.cache_file_name = cache_file_name
+
         cache_file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         need_download = force_download or (not os.path.exists(cache_file_path))
         if need_download:

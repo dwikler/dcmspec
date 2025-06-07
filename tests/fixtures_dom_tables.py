@@ -304,3 +304,45 @@ def table_include_dom():
     </html>
     """
     return BeautifulSoup(xhtml, "lxml-xml")
+
+@pytest.fixture
+def section_dom():
+    """Return a BeautifulSoup DOM with a section and a table for get_table_id_from_section tests."""
+    xhtml = """
+    <div class="section">
+        <div class="titlepage">
+            <div>
+                <div>
+                    <h4 class="title">
+                        <a id="sect_C.7.1.1" shape="rect"></a>C.7.1.1&nbsp;Patient Module</h4>
+                </div>
+            </div>
+        </div>
+        <p>
+            <a class="xref" href="#table_C.7-1" title="Table&nbsp;C.7-1.&nbsp;Patient Module Attributes" shape="rect">Table&nbsp;C.7-1</a>
+        </p>
+        <div class="table">
+            <a id="table_C.7-1" shape="rect"></a>
+            <p class="title">
+                <strong>Table&nbsp;C.7-1.&nbsp;Patient Module Attributes</strong>
+            </p>
+            <div class="table-contents">
+                <table frame="box" rules="all">
+                    <thead>
+                        <tr>
+                            <th>Attribute Name</th>
+                            <th>Tag</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Patient's Name</td>
+                            <td>(0010,0010)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    """
+    return BeautifulSoup(xhtml, "lxml-xml")
