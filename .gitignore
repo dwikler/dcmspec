@@ -35,6 +35,9 @@ dist/
 .pytest_cache/
 .coverage
 
+# MkDocs
+site/
+
 # cache folder for standards inputs and model outputs
 cache/
 
