@@ -24,6 +24,11 @@ packages = [{include = "dcmspec", from = "src"}]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 
+[tool.poetry.group.dev.dependencies]
+mkdocs = "^1.6.1"
+mkdocstrings = {extras = ["python"], version = "^0.29.1"}
+mkdocs-material = "^9.6.14"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
