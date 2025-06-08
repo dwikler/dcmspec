@@ -154,5 +154,7 @@ class IODSpecBuilder:
                 self.iod_factory.model_store.save(iod_model, iod_json_file_path)
             except Exception as e:
                 self.logger.warning(f"Failed to cache combined model to {iod_json_file_path}: {e}")
+        else:
+            self.logger.info("No json_file_name specified; IOD model not cached.")
 
         return iod_model

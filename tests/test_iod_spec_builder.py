@@ -200,6 +200,32 @@ def test_iod_spec_builder_save_failure_logs_warning(monkeypatch, tmp_path, caplo
     assert "Failed to cache combined model to" in caplog.text
     assert "Simulated save failure" in caplog.text
 
+def test_iod_spec_builder_no_save_when_no_json_file(monkeypatch, tmp_path, caplog):
+    """Test IODSpecBuilder does not call save if json_file_name is not specified and logs an info message."""
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir=str(tmp_path))
+
+    factory.model_store = DummyModelStore()
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+    builder.iod_factory.model_store = factory.model_store
+
+    # Patch os.path.exists to always return False (force build, not cache)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+
+    with caplog.at_level("INFO"):
+        model = builder.build_from_url(
+            url="http://example.com",
+            cache_file_name="file.xhtml",
+            table_id="table_IOD",
+            force_download=False,
+            json_file_name=None,
+        )
+    assert isinstance(model, SpecModel)
+    # The model should NOT have been saved
+    assert factory.model_store.saved == {}
+    # Should log an info message about not caching
+    assert "No json_file_name specified; IOD model not cached." in caplog.text
 
 def test_iod_spec_builder_load_cache_success(monkeypatch, tmp_path):
     """Test IODSpecBuilder returns cached model if available."""
