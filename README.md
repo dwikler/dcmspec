@@ -24,7 +24,7 @@ To install the package using Poetry, follow these steps:
    dcmspec = { git = "https://github.com/dwikler/dcmspec.git", tag = "v0.1.0" }
    ```
 
-2. **Install the DependenciesÒ**:
+2. **Install the Dependencies**:
    ```bash
    poetry install
    ```
