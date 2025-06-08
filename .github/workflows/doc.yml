@@ -1,4 +1,4 @@
-name: Deploy MkDocs to GitHub Pages
+name: mkdocs-build-deployment
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
           cache-poetry: "true"
 
       - name: Install dependencies
-        run: poetry install --with dev
+        run: poetry install --with docs --without test
 
       - name: Build docs
         run: poetry run mkdocs build --clean
@@ -36,3 +36,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+          destination_dir: site
