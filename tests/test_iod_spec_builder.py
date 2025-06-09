@@ -86,6 +86,10 @@ def test_iod_spec_builder_combines_iod_and_module(monkeypatch):
     factory = DummyFactory()
     # Patch table_parser on the factory to our dummy
     factory.table_parser = factory
+    # Add a dummy config for cache_dir to support module cache loading
+    factory.config = DummyConfig(cache_dir="cache")
+    # Add a dummy model_store to support module cache loading
+    factory.model_store = DummyModelStore()
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
     model = builder.build_from_url(
         url="http://example.com",
@@ -94,7 +98,7 @@ def test_iod_spec_builder_combines_iod_and_module(monkeypatch):
         force_download=False,
         json_file_name=None,
     )
-    # The combined model should have a content node with the iod_node and the module's attr as children
+    # The expanded model should have a content node with the iod_node and the module's attr as children
     iod_node = next(iter(model.content.children))
     assert getattr(iod_node, "ref", None) == "PATIENT"
     # The module's attribute node should be a child of the iod_node
@@ -141,8 +145,8 @@ def test_iod_spec_builder_missing_module_table(monkeypatch):
             json_file_name=None,
         )
 
-def test_iod_spec_builder_saves_combined_model(monkeypatch, tmp_path):
-    """Test IODSpecBuilder saves the combined model if json_file_name is provided."""
+def test_iod_spec_builder_saves_expanded_model(monkeypatch, tmp_path):
+    """Test IODSpecBuilder saves the expanded model if json_file_name is provided."""
     factory = DummyFactory()
     factory.table_parser = factory
     factory.config = DummyConfig(cache_dir=str(tmp_path))
@@ -159,18 +163,18 @@ def test_iod_spec_builder_saves_combined_model(monkeypatch, tmp_path):
         cache_file_name="file.xhtml",
         table_id="table_IOD",
         force_download=False,
-        json_file_name="combined.json",
+        json_file_name="expanded.json",
     )
     # The model should have been saved
     saved = factory.model_store.saved
     assert "model" in saved
     assert "path" in saved
-    assert saved["path"].endswith("combined.json")
+    assert saved["path"].endswith("expanded.json")
     # The saved model should be the same as the returned model
     assert saved["model"] is model
 
 def test_iod_spec_builder_save_failure_logs_warning(monkeypatch, tmp_path, caplog):
-    """Test IODSpecBuilder logs a warning if saving the combined model fails."""
+    """Test IODSpecBuilder logs a warning if saving the expanded model fails."""
     factory = DummyFactory()
     factory.table_parser = factory
     factory.config = DummyConfig(cache_dir=str(tmp_path))
@@ -192,12 +196,12 @@ def test_iod_spec_builder_save_failure_logs_warning(monkeypatch, tmp_path, caplo
             cache_file_name="file.xhtml",
             table_id="table_IOD",
             force_download=False,
-            json_file_name="combined.json",
+            json_file_name="expanded.json",
         )
     # The model should still be returned
     assert isinstance(model, SpecModel)
     # The warning should be logged
-    assert "Failed to cache combined model to" in caplog.text
+    assert "Failed to cache expanded model to" in caplog.text
     assert "Simulated save failure" in caplog.text
 
 def test_iod_spec_builder_no_save_when_no_json_file(monkeypatch, tmp_path, caplog):
@@ -251,7 +255,7 @@ def test_iod_spec_builder_load_cache_success(monkeypatch, tmp_path):
     assert result == "CACHED_MODEL"
 
 def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
-    """Test IODSpecBuilder logs a warning if loading the cached model fails and falls back to build."""
+    """Test IODSpecBuilder logs a warning if loading the cached model or a module model fails."""
     factory = DummyFactory()
     factory.table_parser = factory
     factory.config = DummyConfig(cache_dir=str(tmp_path))
@@ -273,10 +277,14 @@ def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
             cache_file_name="file.xhtml",
             table_id="table_IOD",
             force_download=False,
-            json_file_name="combined.json",
+            json_file_name="expanded.json",
         )
     # The model should still be returned (built, not loaded)
     assert isinstance(model, SpecModel)
-    # The warning should be logged
-    assert "Failed to load combined model from cache" in caplog.text
+    # The warnings for both expanded IOD and Module model should be logged
+    assert (
+        "Failed to load expanded IOD model from cache" in caplog.text
+        or "Failed to load expanded model from cache" in caplog.text
+    )
+    assert "Failed to load module model from cache" in caplog.text
     assert "Simulated load failure" in caplog.text
