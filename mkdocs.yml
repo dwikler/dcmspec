@@ -8,6 +8,7 @@ nav:
   - API Reference:
       - Core:
           - SpecModel: api/spec_model.md
+          - ServiceAttributeModel: api/service_attribute_model.md
           - SpecFactory: api/spec_factory.md
           - IODSpecBuilder: api/iod_spec_builder.md
       - Parse:
@@ -16,6 +17,7 @@ nav:
       - Load/Store:
           - DocHandler: api/doc_handler.md
           - XHTMLDocHandler: api/xhtml_doc_handler.md
+          - UPSXHTMLDocHandler: api/ups_xhtml_doc_handler.md
           - SpecStore: api/spec_store.md
           - JSONSpecStore: api/json_spec_store.md
       - Print:
@@ -23,6 +25,7 @@ nav:
           - IODSpecPrinter: api/iod_spec_printer.md
       - Utils:
           - Config: api/config.md
+          - DOMUtils: api/dom_utils.md
 
 plugins:
   - search

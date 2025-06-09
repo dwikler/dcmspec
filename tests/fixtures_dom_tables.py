@@ -1,3 +1,4 @@
+"""Fixtures providing DocBook samples for tests."""
 import pytest
 from bs4 import BeautifulSoup
 

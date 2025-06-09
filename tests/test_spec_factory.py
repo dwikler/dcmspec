@@ -6,6 +6,14 @@ from dcmspec.spec_factory import SpecFactory
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
 
+class DummySpecModel(SpecModel):
+    """A dummy spec model."""
+
+    def __init__(self, metadata, content, logger=None):
+        """Initialize the dummy spec model."""
+        super().__init__(metadata, content, logger=logger)
+        self.custom_flag = True
+
 class DummyInputHandler:
     """A dummy input handler that simulates downloading and parsing input files."""
 
@@ -139,6 +147,23 @@ def test_build_model(monkeypatch, patch_dirs):
     expected_path = str(patch_dirs / "cache" / "model" / "file.json")
     assert ms.saved[1] == expected_path
     assert tp.called
+
+def test_build_model_with_custom_model_class(monkeypatch, patch_dirs):
+    """Test build_model instantiates and returns a custom model class if specified."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp, model_class=DummySpecModel)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    dom = "DOM"
+    model = factory.build_model(
+        dom=dom,
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="custom.json",
+    )
+    assert isinstance(model, DummySpecModel)
+    assert getattr(model, "custom_flag", False) is True
 
 def test_build_model_with_custom_json_file_name(monkeypatch, patch_dirs):
     """Test build_model uses the provided custom json_file_name."""

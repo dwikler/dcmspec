@@ -9,7 +9,7 @@ from anytree import Node
 from bs4 import BeautifulSoup, Tag
 from typing import Any, Dict, Optional
 from dcmspec.spec_parser import SpecParser
-
+from dcmspec.dom_utils import DOMUtils
 
 class DOMTableSpecParser(SpecParser):
     """Parser for DICOM specification tables in XHTML DOM format.
@@ -18,6 +18,18 @@ class DOMTableSpecParser(SpecParser):
     returning anytree Node objects as structured in-memory representations.
     Inherits logging from SpecParser.
     """
+
+    def __init__(self, logger=None):
+        """Initialize the DOMTableSpecParser.
+
+        Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.
+
+        Args:
+            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+
+        """
+        super().__init__(logger=logger)
+        self.dom_utils = DOMUtils(logger=self.logger)
 
     def parse(
         self,
@@ -82,7 +94,7 @@ class DOMTableSpecParser(SpecParser):
         # for constructing a tree-like representation of the table's data.
         # self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}
 
-        table = self.get_table(dom, table_id)
+        table = self.dom_utils.get_table(dom, table_id)
         if not table:
             raise ValueError(f"Table with id '{table_id}' not found.")
 
@@ -135,7 +147,7 @@ class DOMTableSpecParser(SpecParser):
             metadata_node: The root node of the tree representation of the specification metadata.
 
         """
-        table = self.get_table(dom, table_id)
+        table = self.dom_utils.get_table(dom, table_id)
         if not table:
             raise ValueError(f"Table with id '{table_id}' not found.")
 
@@ -177,73 +189,6 @@ class DOMTableSpecParser(SpecParser):
         """Extract version of DICOM sections in the CHTML format."""
         document_release = dom.find("span", class_="documentreleaseinformation")
         return document_release.text.split()[2] if document_release else None
-
-    def get_table(self, dom: BeautifulSoup, table_id: str) -> Optional[Tag]:
-        """Retrieve the table element with the specified ID from the DOM.
-
-        DocBook XML to XHTML conversion stylesheets enclose tables in a
-        <div class="table"> with the table identifier in <a id="table_ID"></a>
-
-        Searches for an anchor tag with the given ID and then finds the next
-        table element.
-
-        Args:
-            dom: The BeautifulSoup DOM object.
-            table_id: The ID of the table to retrieve.
-
-        Returns:
-            The table element if found, otherwise None.
-
-        """
-        anchor = dom.find("a", {"id": table_id})
-        if anchor is None:
-            self.logger.warning(f"Table Id {table_id} not found.")
-            return None
-        table = anchor.find_next("table")
-        if not table:
-            self.logger.warning(f"Table {table_id} not found.")
-            return None
-        return table
-
-    def get_table_id_from_section(self, dom: BeautifulSoup, section_id: str) -> Optional[str]:
-        """Get the id of the first table ina  section.
-        
-        Retrieve the first table_id (anchor id) of a <div class="table"> inside a <div class="section">
-        that contains an <a> anchor with the given section id.
-
-        Args:
-            dom (BeautifulSoup): The parsed XHTML DOM object.
-            section_id (str): The id of the section to search for the table_id.
-
-        Returns:
-            Optional[str]: The id of the first table anchor found, or None if not found.
-
-        """
-        # Find the anchor with the given id
-        anchor = dom.find("a", {"id": section_id})
-        if not anchor:
-            self.logger.warning(f"Section with id '{section_id}' not found.")
-            return None
-
-        # Find the parent section div
-        section_div = anchor.find_parent("div", class_="section")
-        if not section_div:
-            self.logger.warning(f"No parent <div class='section'> found for section id '{section_id}'.")
-            return None
-
-        # Find the first <div class="table"> inside the section
-        table_div = section_div.find("div", class_="table")
-        if not table_div:
-            self.logger.warning(f"No <div class='table'> found in section for section id '{section_id}'.")
-            return None
-
-        # Find the first anchor with an id inside the table div (the table id)
-        table_anchor = table_div.find("a", id=True)
-        if table_anchor and table_anchor.get("id"):
-            return table_anchor["id"]
-
-        self.logger.warning(f"No table id found in <div class='table'> for section id '{section_id}'.")
-        return None
 
     def _extract_row_data(self, row: Tag, table_nesting_level: int) -> Dict[str, Any]:
         """Extract data from a table row.

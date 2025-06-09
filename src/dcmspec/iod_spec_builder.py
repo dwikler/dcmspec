@@ -7,6 +7,7 @@ import logging
 import os
 
 from anytree import Node
+from dcmspec.dom_utils import DOMUtils
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_model import SpecModel
 
@@ -40,6 +41,7 @@ class IODSpecBuilder:
         self.logger = logger or logging.getLogger(self.__class__.__name__)
         self.iod_factory = iod_factory or SpecFactory(logger=self.logger)
         self.module_factory = module_factory or self.iod_factory
+        self.dom_utils = DOMUtils(logger=self.logger)
 
     def build_from_url(
         self,
@@ -143,7 +145,7 @@ class IODSpecBuilder:
             if not ref_value:
                 continue
             section_id = f"sect_{ref_value}"
-            module_table_id = self.iod_factory.table_parser.get_table_id_from_section(dom, section_id)
+            module_table_id = self.dom_utils.get_table_id_from_section(dom, section_id)
             if not module_table_id:
                 self.logger.warning(f"No table found for section id {section_id}")
                 continue
