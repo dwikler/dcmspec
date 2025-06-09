@@ -282,9 +282,6 @@ def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
     # The model should still be returned (built, not loaded)
     assert isinstance(model, SpecModel)
     # The warnings for both expanded IOD and Module model should be logged
-    assert (
-        "Failed to load expanded IOD model from cache" in caplog.text
-        or "Failed to load expanded model from cache" in caplog.text
-    )
+    assert "Failed to load expanded IOD model from cache" in caplog.text
     assert "Failed to load module model from cache" in caplog.text
     assert "Simulated load failure" in caplog.text

@@ -1,4 +1,8 @@
 site_name: DCMspec Documentation
+
+# NOTE: The API Reference section uses logical ordering (by functional area and workflow)
+# rather than alphabetical order. This is to help users find related concepts together
+# and to reflect the typical usage flow of the library.
 nav:
   - Home: index.md
   - API Reference:

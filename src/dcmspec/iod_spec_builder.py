@@ -143,12 +143,12 @@ class IODSpecBuilder:
             if not ref_value:
                 continue
             section_id = f"sect_{ref_value}"
-            table_id = self.iod_factory.table_parser.get_table_id_from_section(dom, section_id)
-            if not table_id:
+            module_table_id = self.iod_factory.table_parser.get_table_id_from_section(dom, section_id)
+            if not module_table_id:
                 self.logger.warning(f"No table found for section id {section_id}")
                 continue
 
-            module_json_file_name = f"{table_id}.json"
+            module_json_file_name = f"{module_table_id}.json"
             module_json_file_path = os.path.join(
                 self.module_factory.config.get_param("cache_dir"), "model", module_json_file_name
             )
@@ -159,14 +159,14 @@ class IODSpecBuilder:
                     self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
                     module_model = self.module_factory.build_model(
                         dom=dom,
-                        table_id=table_id,
+                        table_id=module_table_id,
                         url=url,
                         json_file_name=module_json_file_name,
                     )
             else:
                 module_model = self.module_factory.build_model(
                     dom=dom,
-                    table_id=table_id,
+                    table_id=module_table_id,
                     url=url,
                     json_file_name=module_json_file_name,
                 )
