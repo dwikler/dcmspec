@@ -128,17 +128,21 @@ class ServiceAttributeModel(SpecModel):
                     delattr(node, attr)
 
     def _update_metadata_for_dimse(self, dimse_attributes, all_attributes):
-        """Remove DIMSE header and column_to_attr items that are not belonging to the selected DIMSE."""
         if hasattr(self.metadata, "header") and hasattr(self.metadata, "column_to_attr"):
-            all_indices = [k for k, v in self.metadata.column_to_attr.items() if v in all_attributes]
-            keep_indices = [k for k, v in self.metadata.column_to_attr.items() if v in dimse_attributes]
-            # Retaining headers for non-DIMSE attributes
-            self.metadata.header = [
-                cell for i, cell in enumerate(self.metadata.header)
-                if (i in keep_indices) or (i not in all_indices)
-            ]
-        if hasattr(self.metadata, "column_to_attr"):
-            # Retain mapping for non-DIMSE attributes
+            # Build new header and mapping, keeping original indices for column_to_attr
+            new_header = []
+            new_column_to_attr = {}
+            for i, cell in enumerate(self.metadata.header):
+                # Only keep columns that are in the selected DIMSE or not in ALL_DIMSE
+                if i in self.metadata.column_to_attr:
+                    attr = self.metadata.column_to_attr[i]
+                    if (attr in dimse_attributes) or (attr not in all_attributes):
+                        new_header.append(cell)
+                        new_column_to_attr[i] = attr
+            self.metadata.header = new_header
+            self.metadata.column_to_attr = new_column_to_attr
+        elif hasattr(self.metadata, "column_to_attr"):
+            # Only update column_to_attr if no header in metadata
             self.metadata.column_to_attr = {
                 key: value
                 for key, value in self.metadata.column_to_attr.items()

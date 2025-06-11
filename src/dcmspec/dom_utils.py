@@ -58,9 +58,13 @@ class DOMUtils:
         if anchor is None:
             self.logger.warning(f"Table Id {table_id} not found.")
             return None
-        table = anchor.find_next("table")
+        table_div = anchor.find_parent("div", class_="table")
+        if not table_div:
+            self.logger.warning(f"Parent <div class='table'> for Table Id {table_id} not found.")
+            return None
+        table = table_div.find("table")
         if not table:
-            self.logger.warning(f"Table {table_id} not found.")
+            self.logger.warning(f"Table for Table Id {table_id} not found inside its <div class='table'>.")
             return None
         return table
     

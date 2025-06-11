@@ -66,10 +66,13 @@ class UPSXHTMLDocHandler(XHTMLDocHandler):
         element = dom.find(id=target_element_id).find_parent()
         span_element = element.find("span", class_="italic")
         if span_element:
-            for child in span_element.children:
-                if isinstance(child, str) and ">Include" in child:
-                    new_text = child.replace(">Include", ">>Include")
-                    child.replace_with(new_text)
+            children_to_modify = [
+                child for child in span_element.children
+                if isinstance(child, str) and ">Include" in child
+            ]
+            for child in children_to_modify:
+                new_text = child.replace(">Include", ">>Include")
+                child.replace_with(new_text)
 
     def _search_element_id(self, dom, table_id, sequence_label):
         table = self.dom_utils.get_table(dom, table_id)
@@ -96,9 +99,10 @@ class UPSXHTMLDocHandler(XHTMLDocHandler):
 
         if target_found:
             tr = tr.find_next("tr")
-            first_td = tr.find("td")
-            if first_td and first_td.get_text(strip=True).startswith(">Include"):
-                self.logger.debug("Include <tr> found")
-                return first_td.find("a")["id"]
+            if tr is not None:
+                first_td = tr.find("td")
+                if first_td and first_td.get_text(strip=True).startswith(">Include"):
+                    self.logger.debug("Include <tr> found")
+                    return first_td.find("a")["id"]
 
         return None
