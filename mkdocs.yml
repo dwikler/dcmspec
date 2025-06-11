@@ -9,6 +9,7 @@ nav:
       - Core:
           - SpecModel: api/spec_model.md
           - ServiceAttributeModel: api/service_attribute_model.md
+          - Service Attribute Defaults: api/service_attribute_defaults.md
           - SpecFactory: api/spec_factory.md
           - IODSpecBuilder: api/iod_spec_builder.md
       - Parse:
@@ -36,7 +37,7 @@ plugins:
           options:
             docstring_style: google
             docstring_section_style: spacy
-            show_root_heading: no
+            show_root_heading: yes
             show_symbol_type_heading: true
             show_symbol_type_toc: true
 

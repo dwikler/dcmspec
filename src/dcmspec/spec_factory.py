@@ -116,7 +116,9 @@ class SpecFactory:
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
             model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
-
+                Use this to supply extra parameters required by custom SpecModel subclasses.
+                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
+                `model_kwargs={"foo": foo_value, "bar": bar_value}`.
         If `json_file_name` is not provided, the factory will attempt to use
         `self.input_handler.cache_file_name` to generate a default JSON file name.
         If neither is set, a ValueError is raised.
@@ -216,7 +218,10 @@ class SpecFactory:
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
-
+                Use this to supply extra parameters required by custom SpecModel subclasses.
+                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
+                `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+                
         Returns:
             SpecModel: The constructed model.
 

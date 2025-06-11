@@ -6,6 +6,7 @@ from dcmspec.service_attribute_model import ServiceAttributeModel
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_printer import SpecPrinter
 from dcmspec.ups_xhtml_doc_handler import UPSXHTMLDocHandler
+from dcmspec.service_attribute_defaults import UPS_DIMSE_MAPPING, UPS_COLUMNS_MAPPING, UPS_NAME_ATTR
 
 
 def main():
@@ -34,39 +35,13 @@ def main():
     url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_CC.2.5.html"
     cache_file_name = "UPSattributes.xhtml"
     table_id = "table_CC.2.5-3"  
-    columns_mapping = {
-        0: "elem_name",
-        1: "elem_tag",
-        2: "dimse_ncreate",
-        3: "dimse_nset",
-        4: "dimse_final",
-        5: "dimse_nget",
-        6: "key_matching",
-        7: "key_return",
-        8: "type_remark",
-    }
-    UPS_DIMSE_MAPPING = {
-    "ALL_DIMSE": {
-        2: "dimse_ncreate", 
-        3: "dimse_nset", 
-        4: "dimse_final", 
-        5: "dimse_nget", 
-        6: "key_matching", 
-        7: "key_return", 
-        8: "type_remark"
-        },
-    "N-CREATE": {2: "dimse_ncreate", 8: "type_remark"},
-    "N-SET": {3: "dimse_nset", 8: "type_remark"},
-    "N-GET": {5: "dimse_nget", 8: "type_remark"},
-    "C-FIND": {6: "key_matching", 7: "key_return", 8: "type_remark"},
-    "FINAL": {4: "dimse_final", 8: "type_remark"},
-    }
+    
     # Create the factory with UPSXHTMLDocHandler for UPS-specific table patching
     factory = SpecFactory(
         model_class=ServiceAttributeModel,
         input_handler=UPSXHTMLDocHandler(config=config),
-        column_to_attr=columns_mapping,
-        name_attr="elem_name",
+        column_to_attr=UPS_COLUMNS_MAPPING,
+        name_attr=UPS_NAME_ATTR,
         config=config
     )
 
