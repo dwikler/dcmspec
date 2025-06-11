@@ -1172,7 +1172,11 @@ fixing the nesting level of the 'Include' row.</p>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UPSXHTMLDocHandler</span><span class="p">(</span><span class="n">XHTMLDocHandler</span><span class="p">):</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UPSXHTMLDocHandler</span><span class="p">(</span><span class="n">XHTMLDocHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;XHTMLDocHandler subclass for UPS, with table patching.</span>
 
 <span class="sd">    This handler applies UPS-specific patching to DICOM XHTML tables after parsing.</span>
@@ -1230,10 +1234,13 @@ fixing the nesting level of the 'Include' row.</p>
         <span class="n">element</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">target_element_id</span><span class="p">)</span><span class="o">.</span><span class="n">find_parent</span><span class="p">()</span>
         <span class="n">span_element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;italic&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">span_element</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">span_element</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;&gt;Include&quot;</span> <span class="ow">in</span> <span class="n">child</span><span class="p">:</span>
-                    <span class="n">new_text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&gt;Include&quot;</span><span class="p">)</span>
-                    <span class="n">child</span><span class="o">.</span><span class="n">replace_with</span><span class="p">(</span><span class="n">new_text</span><span class="p">)</span>
+            <span class="n">children_to_modify</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">child</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">span_element</span><span class="o">.</span><span class="n">children</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;&gt;Include&quot;</span> <span class="ow">in</span> <span class="n">child</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children_to_modify</span><span class="p">:</span>
+                <span class="n">new_text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&gt;Include&quot;</span><span class="p">)</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">replace_with</span><span class="p">(</span><span class="n">new_text</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_search_element_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">sequence_label</span><span class="p">):</span>
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
@@ -1260,10 +1267,11 @@ fixing the nesting level of the 'Include' row.</p>
 
         <span class="k">if</span> <span class="n">target_found</span><span class="p">:</span>
             <span class="n">tr</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)</span>
-            <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">first_td</span> <span class="ow">and</span> <span class="n">first_td</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Include &lt;tr&gt; found&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">first_td</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">first_td</span> <span class="ow">and</span> <span class="n">first_td</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Include &lt;tr&gt; found&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">first_td</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
