@@ -9,9 +9,12 @@ from typing import Optional, Dict
 
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
-from dcmspec.xhtml_doc_handler import XHTMLDocHandler
+from dcmspec.doc_handler import DocHandler
 from dcmspec.json_spec_store import JSONSpecStore
 from dcmspec.dom_table_spec_parser import DOMTableSpecParser
+from dcmspec.spec_parser import SpecParser
+from dcmspec.spec_store import SpecStore
+from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 
 
 class SpecFactory:
@@ -28,9 +31,10 @@ class SpecFactory:
 
     def __init__(
         self,
-        input_handler: Optional[XHTMLDocHandler] = None,
-        model_store: Optional[JSONSpecStore] = None,
-        table_parser: Optional[DOMTableSpecParser] = None,
+        input_handler: Optional[DocHandler] = None,
+        model_class: Optional[SpecModel] = None,
+        model_store: Optional[SpecStore] = None,
+        table_parser: Optional[SpecParser] = None,
         column_to_attr: Dict[int, str] = None,
         name_attr: str = None,
         config: Optional[Config] = None,
@@ -43,11 +47,13 @@ class SpecFactory:
         tag, type, and description.
 
         Args:
-            input_handler (Optional[XHTMLDocHandler]): Handler for downloading and parsing input files.
+            model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).
+                If None, defaults to SpecModel.
+            input_handler (Optional[DocHandler]): Handler for downloading and parsing input files.
                 If None, a default XHTMLDocHandler is used.
-            model_store (Optional[JSONSpecStore]): Store for loading and saving models.
+            model_store (Optional[SpecStore]): Store for loading and saving models.
                 If None, a default JSONSpecStore is used.
-            table_parser (Optional[DOMTableSpecParser]): Parser for extracting tables from documents.
+            table_parser (Optional[SpecParser]): Parser for extracting tables from documents.
                 If None, a default DOMTableSpecParser is used.
             column_to_attr (Dict[int, str], optional): Mapping from column indices to names of attributes
                 of model nodes. If None, a default mapping is used.
@@ -67,6 +73,7 @@ class SpecFactory:
         self.config = config or Config()
 
         self.logger = logger or logging.getLogger(self.__class__.__name__)
+        self.model_class = model_class or SpecModel
         self.input_handler = input_handler or XHTMLDocHandler(config=self.config, logger=self.logger)
         self.model_store = model_store or JSONSpecStore(logger=self.logger)
         self.table_parser = table_parser or DOMTableSpecParser(logger=self.logger)
@@ -97,7 +104,7 @@ class SpecFactory:
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
         force_parse: bool = False,
-        **kwargs,
+        model_kwargs: Optional[dict] = None,
     ) -> SpecModel:
         """Build and cache a DICOM specification model from a parsed DOM.
 
@@ -108,8 +115,10 @@ class SpecFactory:
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
-            **kwargs: Additional arguments for model construction.
-
+            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
+                Use this to supply extra parameters required by custom SpecModel subclasses.
+                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
+                `model_kwargs={"foo": foo_value, "bar": bar_value}`.
         If `json_file_name` is not provided, the factory will attempt to use
         `self.input_handler.cache_file_name` to generate a default JSON file name.
         If neither is set, a ValueError is raised.
@@ -144,10 +153,12 @@ class SpecFactory:
                     )
                     # Fallback to parsing: do not return cached model
                 else:
-                    model = SpecModel(
+                    if isinstance(model, self.model_class):
+                        return model
+                    model = self.model_class(
                         metadata=model.metadata,
                         content=model.content,
-                        **kwargs,
+                        **(model_kwargs or {}),
                     )
                     return model
             except Exception as e:
@@ -160,7 +171,6 @@ class SpecFactory:
             include_depth=include_depth,
             column_to_attr=self.column_to_attr,
             name_attr=self.name_attr,
-            **kwargs,
         )
         # Complete metadata
         metadata.url = url
@@ -171,10 +181,10 @@ class SpecFactory:
         metadata.column_to_attr = self.column_to_attr
         metadata.name_attr = self.name_attr
 
-        model = SpecModel(
+        model = self.model_class(
             metadata=metadata,
             content=content,
-            **kwargs,
+            **(model_kwargs or {}),
         )
 
         model.exclude_titles()
@@ -195,7 +205,7 @@ class SpecFactory:
         force_download: bool = False,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
-        **kwargs,
+        model_kwargs: Optional[dict] = None,
     ) -> SpecModel:
         """Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.
 
@@ -207,8 +217,11 @@ class SpecFactory:
             force_download (bool): If True, always download the input file and generate the model even if cached.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
-            **kwargs: Additional arguments for model construction.
-
+            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
+                Use this to supply extra parameters required by custom SpecModel subclasses.
+                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
+                `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+                
         Returns:
             SpecModel: The constructed model.
 
@@ -220,8 +233,8 @@ class SpecFactory:
             url=url,
             json_file_name=json_file_name,
             include_depth=include_depth,
-            force_parse=force_parse or force_download, 
-            **kwargs,
+            force_parse=force_parse or force_download,
+            model_kwargs=model_kwargs,
         )
 
 

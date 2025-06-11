@@ -48,11 +48,6 @@ class DummyFactory:
         """Patch for compatibility."""
         return self
 
-    def get_table_id_from_section(self, dom, section_id):
-        """Patch table_id retrieval."""
-        # Always return a dummy table id for the referenced module
-        return "table_PATIENT" if section_id == "sect_PATIENT" else None
-
 class DummyConfig:
     """A dummy Config that returns a cache directory."""
 
@@ -91,6 +86,10 @@ def test_iod_spec_builder_combines_iod_and_module(monkeypatch):
     # Add a dummy model_store to support module cache loading
     factory.model_store = DummyModelStore()
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+
     model = builder.build_from_url(
         url="http://example.com",
         cache_file_name="file.xhtml",
@@ -130,12 +129,15 @@ def test_iod_spec_builder_no_referenced_modules(monkeypatch):
 
 def test_iod_spec_builder_missing_module_table(monkeypatch):
     """Test IODSpecBuilder skips missing module tables and raises if none found."""
-    class MissingTableFactory(DummyFactory):
-        def get_table_id_from_section(self, dom, section_id):
-            return None  # Always missing
-    factory = MissingTableFactory()
+    factory = DummyFactory()
     factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")  # <-- Add this line
+
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: None)
+
     with pytest.raises(RuntimeError, match="No module models were found"):
         builder.build_from_url(
             url="http://example.com",
@@ -155,6 +157,8 @@ def test_iod_spec_builder_saves_expanded_model(monkeypatch, tmp_path):
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
     builder.iod_factory.model_store = factory.model_store
 
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
     # Patch os.path.exists to always return False (force build, not cache)
     monkeypatch.setattr("os.path.exists", lambda path: False)
 
@@ -187,6 +191,8 @@ def test_iod_spec_builder_save_failure_logs_warning(monkeypatch, tmp_path, caplo
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
     builder.iod_factory.model_store = factory.model_store
 
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
     # Patch os.path.exists to always return False (force build, not cache)
     monkeypatch.setattr("os.path.exists", lambda path: False)
 
@@ -214,6 +220,8 @@ def test_iod_spec_builder_no_save_when_no_json_file(monkeypatch, tmp_path, caplo
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
     builder.iod_factory.model_store = factory.model_store
 
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
     # Patch os.path.exists to always return False (force build, not cache)
     monkeypatch.setattr("os.path.exists", lambda path: False)
 
@@ -268,6 +276,8 @@ def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
     builder.iod_factory.model_store = factory.model_store
 
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
     # Patch os.path.exists to always return True (simulate cache exists)
     monkeypatch.setattr("os.path.exists", lambda path: True)
 
