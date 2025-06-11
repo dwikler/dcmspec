@@ -359,6 +359,52 @@
   
   
     <li class="md-nav__item">
+      <a href="../service_attribute_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ServiceAttributeModel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service_attribute_defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Service Attribute Defaults
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../spec_factory/" class="md-nav__link">
         
   
@@ -434,9 +480,10 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label=" IODSpecBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#dcmspec.iod_spec_builder.IODSpecBuilder.__init__" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
@@ -444,13 +491,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#dcmspec.iod_spec_builder.IODSpecBuilder.build_from_url" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;build_from_url
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -641,6 +693,29 @@
   
   <span class="md-ellipsis">
     XHTMLDocHandler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ups_xhtml_doc_handler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UPSXHTMLDocHandler
     
   </span>
   
@@ -862,6 +937,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DOMUtils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -908,9 +1006,10 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
+    <nav class="md-nav" aria-label=" IODSpecBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#dcmspec.iod_spec_builder.IODSpecBuilder.__init__" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
@@ -918,13 +1017,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#dcmspec.iod_spec_builder.IODSpecBuilder.build_from_url" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;build_from_url
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -950,7 +1054,13 @@
 
 
 
-<a id="dcmspec.iod_spec_builder.IODSpecBuilder"></a>
+<h2 id="dcmspec.iod_spec_builder.IODSpecBuilder" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>dcmspec.iod_spec_builder.IODSpecBuilder</code>
+
+
+</h2>
+
+
     <div class="doc doc-contents first">
 
 
@@ -967,8 +1077,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 13</span>
-<span class="normal"> 14</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 14</span>
 <span class="normal"> 15</span>
 <span class="normal"> 16</span>
 <span class="normal"> 17</span>
@@ -1148,7 +1257,9 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Orchestrates the construction of a expanded DICOM IOD specification model.</span>
 
 <span class="sd">    The IODSpecBuilder uses a factory to build the IOD Modules model and, for each referenced module,</span>
@@ -1178,6 +1289,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1281,7 +1393,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_value</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">section_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sect_</span><span class="si">{</span><span class="n">ref_value</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">module_table_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span><span class="o">.</span><span class="n">table_parser</span><span class="o">.</span><span class="n">get_table_id_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">section_id</span><span class="p">)</span>
+            <span class="n">module_table_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table_id_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">section_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module_table_id</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No table found for section id </span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
@@ -1348,10 +1460,10 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 <div class="doc doc-object doc-function">
 
 
-<h2 id="dcmspec.iod_spec_builder.IODSpecBuilder.__init__" class="doc doc-heading">
+<h3 id="dcmspec.iod_spec_builder.IODSpecBuilder.__init__" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">iod_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-</h2>
+</h3>
 
 
     <div class="doc doc-contents ">
@@ -1436,8 +1548,7 @@ factory is used for both, but a different factory can be provided for modules if
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
@@ -1457,7 +1568,9 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
-<span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">iod_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">module_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1479,6 +1592,7 @@ factory is used for both, but a different factory can be provided for modules if
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1488,10 +1602,10 @@ factory is used for both, but a different factory can be provided for modules if
 <div class="doc doc-object doc-function">
 
 
-<h2 id="dcmspec.iod_spec_builder.IODSpecBuilder.build_from_url" class="doc doc-heading">
+<h3 id="dcmspec.iod_spec_builder.IODSpecBuilder.build_from_url" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">build_from_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-</h2>
+</h3>
 
 
     <div class="doc doc-contents ">
@@ -1645,7 +1759,7 @@ factory is used for both, but a different factory can be provided for modules if
                 <p>
                   <span class="doc-returns-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
+                      <code><a class="autorefs autorefs-internal" title="            dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
                   </span>
                 </p>
             </td>
@@ -1656,9 +1770,7 @@ factory is used for both, but a different factory can be provided for modules if
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
 <span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
@@ -1732,7 +1844,9 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
-<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>

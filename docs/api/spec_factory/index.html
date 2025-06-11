@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../spec_model/">
+        <link rel="prev" href="../service_attribute_defaults/">
       
       
         <link rel="next" href="../iod_spec_builder/">
@@ -356,6 +356,52 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../service_attribute_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ServiceAttributeModel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../service_attribute_defaults/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Service Attribute Defaults
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -682,6 +728,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../ups_xhtml_doc_handler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UPSXHTMLDocHandler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../spec_store/" class="md-nav__link">
         
   
@@ -886,6 +955,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    DOMUtils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1030,10 +1122,7 @@ model = factory.create_model(...)</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 17</span>
-<span class="normal"> 18</span>
-<span class="normal"> 19</span>
-<span class="normal"> 20</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
 <span class="normal"> 21</span>
 <span class="normal"> 22</span>
 <span class="normal"> 23</span>
@@ -1238,7 +1327,20 @@ model = factory.create_model(...)</p>
 <span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
-<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for DICOM specification models.</span>
 
 <span class="sd">    Coordinates the downloading, parsing, and caching of DICOM specification tables.</span>
@@ -1252,9 +1354,10 @@ model = factory.create_model(...)</p>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">XHTMLDocHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">model_store</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">JSONSpecStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">table_parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DOMTableSpecParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DocHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">model_store</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">table_parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1267,11 +1370,13 @@ model = factory.create_model(...)</p>
 <span class="sd">        tag, type, and description.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            input_handler (Optional[XHTMLDocHandler]): Handler for downloading and parsing input files.</span>
+<span class="sd">            model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).</span>
+<span class="sd">                If None, defaults to SpecModel.</span>
+<span class="sd">            input_handler (Optional[DocHandler]): Handler for downloading and parsing input files.</span>
 <span class="sd">                If None, a default XHTMLDocHandler is used.</span>
-<span class="sd">            model_store (Optional[JSONSpecStore]): Store for loading and saving models.</span>
+<span class="sd">            model_store (Optional[SpecStore]): Store for loading and saving models.</span>
 <span class="sd">                If None, a default JSONSpecStore is used.</span>
-<span class="sd">            table_parser (Optional[DOMTableSpecParser]): Parser for extracting tables from documents.</span>
+<span class="sd">            table_parser (Optional[SpecParser]): Parser for extracting tables from documents.</span>
 <span class="sd">                If None, a default DOMTableSpecParser is used.</span>
 <span class="sd">            column_to_attr (Dict[int, str], optional): Mapping from column indices to names of attributes</span>
 <span class="sd">                of model nodes. If None, a default mapping is used.</span>
@@ -1291,6 +1396,7 @@ model = factory.create_model(...)</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span> <span class="o">=</span> <span class="n">model_class</span> <span class="ow">or</span> <span class="n">SpecModel</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">input_handler</span> <span class="ow">or</span> <span class="n">XHTMLDocHandler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table_parser</span> <span class="o">=</span> <span class="n">table_parser</span> <span class="ow">or</span> <span class="n">DOMTableSpecParser</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -1321,7 +1427,7 @@ model = factory.create_model(...)</p>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build and cache a DICOM specification model from a parsed DOM.</span>
 
@@ -1332,8 +1438,10 @@ model = factory.create_model(...)</p>
 <span class="sd">            json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">            include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">            force_parse (bool): If True, always parse and (over)write the JSON cache file.</span>
-<span class="sd">            **kwargs: Additional arguments for model construction.</span>
-
+<span class="sd">            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.</span>
+<span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
+<span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
+<span class="sd">                `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 <span class="sd">        If `json_file_name` is not provided, the factory will attempt to use</span>
 <span class="sd">        `self.input_handler.cache_file_name` to generate a default JSON file name.</span>
 <span class="sd">        If neither is set, a ValueError is raised.</span>
@@ -1368,10 +1476,12 @@ model = factory.create_model(...)</p>
                     <span class="p">)</span>
                     <span class="c1"># Fallback to parsing: do not return cached model</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">model</span> <span class="o">=</span> <span class="n">SpecModel</span><span class="p">(</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="n">model</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span>
                         <span class="n">metadata</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
                         <span class="n">content</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
-                        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                        <span class="o">**</span><span class="p">(</span><span class="n">model_kwargs</span> <span class="ow">or</span> <span class="p">{}),</span>
                     <span class="p">)</span>
                     <span class="k">return</span> <span class="n">model</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1384,7 +1494,6 @@ model = factory.create_model(...)</p>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
             <span class="n">column_to_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">,</span>
             <span class="n">name_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Complete metadata</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
@@ -1395,10 +1504,10 @@ model = factory.create_model(...)</p>
         <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span>
 
-        <span class="n">model</span> <span class="o">=</span> <span class="n">SpecModel</span><span class="p">(</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span>
             <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
             <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">model_kwargs</span> <span class="ow">or</span> <span class="p">{}),</span>
         <span class="p">)</span>
 
         <span class="n">model</span><span class="o">.</span><span class="n">exclude_titles</span><span class="p">()</span>
@@ -1419,7 +1528,7 @@ model = factory.create_model(...)</p>
         <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
 
@@ -1431,7 +1540,10 @@ model = factory.create_model(...)</p>
 <span class="sd">            force_download (bool): If True, always download the input file and generate the model even if cached.</span>
 <span class="sd">            json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">            include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
-<span class="sd">            **kwargs: Additional arguments for model construction.</span>
+<span class="sd">            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.</span>
+<span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
+<span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
+<span class="sd">                `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: The constructed model.</span>
@@ -1444,8 +1556,8 @@ model = factory.create_model(...)</p>
             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
             <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
-            <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span> 
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span>
+            <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -1466,7 +1578,7 @@ model = factory.create_model(...)</p>
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">input_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_store</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">input_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_store</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1489,6 +1601,27 @@ tag, type, and description.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
+                <code>model_class</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The class to instantiate for the model (must be a subclass of SpecModel).
+If None, defaults to SpecModel.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="type">type</span>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>input_handler</code>
             </td>
             <td class="doc-param-details">
@@ -1499,7 +1632,7 @@ If None, a default XHTMLDocHandler is used.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="dcmspec.xhtml_doc_handler.XHTMLDocHandler" href="../xhtml_doc_handler/#dcmspec.xhtml_doc_handler.XHTMLDocHandler">XHTMLDocHandler</a>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            dcmspec.doc_handler.DocHandler" href="../doc_handler/#dcmspec.doc_handler.DocHandler">DocHandler</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -1520,7 +1653,7 @@ If None, a default JSONSpecStore is used.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="dcmspec.json_spec_store.JSONSpecStore" href="../json_spec_store/#dcmspec.json_spec_store.JSONSpecStore">JSONSpecStore</a>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            dcmspec.spec_store.SpecStore" href="../spec_store/#dcmspec.spec_store.SpecStore">SpecStore</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -1541,7 +1674,7 @@ If None, a default DOMTableSpecParser is used.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="dcmspec.dom_table_spec_parser.DOMTableSpecParser" href="../dom_table_spec_parser/#dcmspec.dom_table_spec_parser.DOMTableSpecParser">DOMTableSpecParser</a>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            dcmspec.spec_parser.SpecParser" href="../spec_parser/#dcmspec.spec_parser.SpecParser">SpecParser</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -1603,7 +1736,7 @@ If None, defaults to "elem_name".</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="dcmspec.config.Config" href="../config/#dcmspec.config.Config">Config</a>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            dcmspec.config.Config" href="../config/#dcmspec.config.Config">Config</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -1663,10 +1796,7 @@ If None, a default logger is created.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
@@ -1708,11 +1838,19 @@ If None, a default logger is created.</p>
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
-<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">input_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">XHTMLDocHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">model_store</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">JSONSpecStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">table_parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DOMTableSpecParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">input_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DocHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_store</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecStore</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">table_parser</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecParser</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1725,11 +1863,13 @@ If None, a default logger is created.</p>
 <span class="sd">    tag, type, and description.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        input_handler (Optional[XHTMLDocHandler]): Handler for downloading and parsing input files.</span>
+<span class="sd">        model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).</span>
+<span class="sd">            If None, defaults to SpecModel.</span>
+<span class="sd">        input_handler (Optional[DocHandler]): Handler for downloading and parsing input files.</span>
 <span class="sd">            If None, a default XHTMLDocHandler is used.</span>
-<span class="sd">        model_store (Optional[JSONSpecStore]): Store for loading and saving models.</span>
+<span class="sd">        model_store (Optional[SpecStore]): Store for loading and saving models.</span>
 <span class="sd">            If None, a default JSONSpecStore is used.</span>
-<span class="sd">        table_parser (Optional[DOMTableSpecParser]): Parser for extracting tables from documents.</span>
+<span class="sd">        table_parser (Optional[SpecParser]): Parser for extracting tables from documents.</span>
 <span class="sd">            If None, a default DOMTableSpecParser is used.</span>
 <span class="sd">        column_to_attr (Dict[int, str], optional): Mapping from column indices to names of attributes</span>
 <span class="sd">            of model nodes. If None, a default mapping is used.</span>
@@ -1749,6 +1889,7 @@ If None, a default logger is created.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span> <span class="o">=</span> <span class="n">model_class</span> <span class="ow">or</span> <span class="n">SpecModel</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">input_handler</span> <span class="ow">or</span> <span class="n">XHTMLDocHandler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">table_parser</span> <span class="o">=</span> <span class="n">table_parser</span> <span class="ow">or</span> <span class="n">DOMTableSpecParser</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -1764,7 +1905,7 @@ If None, a default logger is created.</p>
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.build_model" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">build_model</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">build_model</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1896,16 +2037,23 @@ If None, a default logger is created.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>**kwargs</code>
+                <code>model_kwargs</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Additional arguments for model construction.</p>
+                <p>Additional keyword arguments for model construction.
+Use this to supply extra parameters required by custom SpecModel subclasses.
+For example, if your model class is <code>MyModel(metadata, content, foo, bar)</code>, pass
+<code>model_kwargs={"foo": foo_value, "bar": bar_value}</code>.</p>
               </div>
               <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="dict">dict</span>]</code>
+                  </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
-                      <code>{}</code>
+                      <code>None</code>
                   </span>
               </p>
             </td>
@@ -1936,7 +2084,7 @@ If neither is set, a ValueError is raised.</p>
                 <p>
                   <span class="doc-returns-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
+                      <code><a class="autorefs autorefs-internal" title="            dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
                   </span>
                 </p>
             </td>
@@ -1947,14 +2095,7 @@ If neither is set, a ValueError is raised.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
@@ -2042,7 +2183,17 @@ If neither is set, a ValueError is raised.</p>
 <span class="normal">184</span>
 <span class="normal">185</span>
 <span class="normal">186</span>
-<span class="normal">187</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2050,7 +2201,7 @@ If neither is set, a ValueError is raised.</p>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build and cache a DICOM specification model from a parsed DOM.</span>
 
@@ -2061,8 +2212,10 @@ If neither is set, a ValueError is raised.</p>
 <span class="sd">        json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">        include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">        force_parse (bool): If True, always parse and (over)write the JSON cache file.</span>
-<span class="sd">        **kwargs: Additional arguments for model construction.</span>
-
+<span class="sd">        model_kwargs (Optional[dict]): Additional keyword arguments for model construction.</span>
+<span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
+<span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
+<span class="sd">            `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 <span class="sd">    If `json_file_name` is not provided, the factory will attempt to use</span>
 <span class="sd">    `self.input_handler.cache_file_name` to generate a default JSON file name.</span>
 <span class="sd">    If neither is set, a ValueError is raised.</span>
@@ -2097,10 +2250,12 @@ If neither is set, a ValueError is raised.</p>
                 <span class="p">)</span>
                 <span class="c1"># Fallback to parsing: do not return cached model</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">model</span> <span class="o">=</span> <span class="n">SpecModel</span><span class="p">(</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">model</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span>
                     <span class="n">metadata</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
                     <span class="n">content</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">,</span>
-                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">(</span><span class="n">model_kwargs</span> <span class="ow">or</span> <span class="p">{}),</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">model</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -2113,7 +2268,6 @@ If neither is set, a ValueError is raised.</p>
         <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
         <span class="n">column_to_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">,</span>
         <span class="n">name_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Complete metadata</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
@@ -2124,10 +2278,10 @@ If neither is set, a ValueError is raised.</p>
     <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">SpecModel</span><span class="p">(</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_class</span><span class="p">(</span>
         <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
         <span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="o">**</span><span class="p">(</span><span class="n">model_kwargs</span> <span class="ow">or</span> <span class="p">{}),</span>
     <span class="p">)</span>
 
     <span class="n">model</span><span class="o">.</span><span class="n">exclude_titles</span><span class="p">()</span>
@@ -2148,7 +2302,7 @@ If neither is set, a ValueError is raised.</p>
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.create_model" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_model</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_model</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2300,16 +2454,23 @@ If neither is set, a ValueError is raised.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>**kwargs</code>
+                <code>model_kwargs</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Additional arguments for model construction.</p>
+                <p>Additional keyword arguments for model construction.
+Use this to supply extra parameters required by custom SpecModel subclasses.
+For example, if your model class is <code>MyModel(metadata, content, foo, bar)</code>, pass
+<code>model_kwargs={"foo": foo_value, "bar": bar_value}</code>.</p>
               </div>
               <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="dict">dict</span>]</code>
+                  </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
-                      <code>{}</code>
+                      <code>None</code>
                   </span>
               </p>
             </td>
@@ -2337,7 +2498,7 @@ If neither is set, a ValueError is raised.</p>
                 <p>
                   <span class="doc-returns-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
+                      <code><a class="autorefs autorefs-internal" title="            dcmspec.spec_model.SpecModel" href="../spec_model/#dcmspec.spec_model.SpecModel">SpecModel</a></code>
                   </span>
                 </p>
             </td>
@@ -2348,17 +2509,7 @@ If neither is set, a ValueError is raised.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
@@ -2384,7 +2535,20 @@ If neither is set, a ValueError is raised.</p>
 <span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
-<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2393,7 +2557,7 @@ If neither is set, a ValueError is raised.</p>
     <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
 
@@ -2405,7 +2569,10 @@ If neither is set, a ValueError is raised.</p>
 <span class="sd">        force_download (bool): If True, always download the input file and generate the model even if cached.</span>
 <span class="sd">        json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">        include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
-<span class="sd">        **kwargs: Additional arguments for model construction.</span>
+<span class="sd">        model_kwargs (Optional[dict]): Additional keyword arguments for model construction.</span>
+<span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
+<span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
+<span class="sd">            `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        SpecModel: The constructed model.</span>
@@ -2418,8 +2585,8 @@ If neither is set, a ValueError is raised.</p>
         <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
-        <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span> 
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span>
+        <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2529,20 +2696,20 @@ If neither is set, a ValueError is raised.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the DOM.</span>
 
 <span class="sd">    Args:</span>
