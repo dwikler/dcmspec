@@ -25,16 +25,20 @@ def test_get_table_anchor_not_found(docbook_sample_dom_1, caplog):  # noqa: F811
 
 def test_get_table_table_not_found(docbook_sample_dom_1, caplog):  # noqa: F811
     """Test DOMUtils.get_table returns None and logs a warning if the table is not found after the anchor."""
-    # Remove the table after the anchor to simulate missing table
+    # Arrange
     dom = docbook_sample_dom_1
     anchor = dom.find("a", {"id": "table_SAMPLE"})
     next_table = anchor.find_next("table")
     next_table.decompose()
     dom_utils = DOMUtils()
+
+    # Act
     with caplog.at_level("WARNING"):
         table = dom_utils.get_table(dom, "table_SAMPLE")
+
+    # Assert
     assert table is None
-    assert "Table table_SAMPLE not found." in caplog.text
+    assert "Table for Table Id table_SAMPLE not found inside its <div class='table'>." in caplog.text
 
 def test_get_table_id_from_section(section_dom):  # noqa: F811
     """Test DOMUtils.get_table_id_from_section returns the correct table id for a section anchor."""

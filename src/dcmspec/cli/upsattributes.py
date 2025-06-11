@@ -54,7 +54,7 @@ def main():
         model_kwargs={"dimse_mapping": UPS_DIMSE_MAPPING},
     )
 
-    if args.dimse:
+    if args.dimse!= "ALL_DIMSE":
         model.select_dimse(args.dimse)
     if args.role:
         if args.dimse == "ALL_DIMSE":
