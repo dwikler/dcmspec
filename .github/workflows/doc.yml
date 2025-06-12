@@ -31,9 +31,11 @@ jobs:
       - name: Build docs
         run: poetry run mkdocs build --clean
 
+      - name: Copy hidden README.md to site root
+        run: cp docs/README.md site/README.md
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
-          destination_dir: docs
