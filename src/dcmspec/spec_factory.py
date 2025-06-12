@@ -5,7 +5,7 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Type
 
 from bs4 import BeautifulSoup
 
@@ -34,7 +34,7 @@ class SpecFactory:
     def __init__(
         self,
         input_handler: Optional[DocHandler] = None,
-        model_class: Optional[type] = None,
+        model_class: Optional[Type[SpecModel]] = None,
         model_store: Optional[SpecStore] = None,
         table_parser: Optional[SpecParser] = None,
         column_to_attr: Optional[Dict[int, str]] = None,
@@ -51,7 +51,7 @@ class SpecFactory:
         Args:
             input_handler (Optional[DocHandler]): Handler for downloading and parsing input files.
                 If None, a default XHTMLDocHandler is used.
-            model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).
+            model_class (Optional[Type[SpecModel]]): The class to instantiate for the model.
                 If None, defaults to SpecModel.
             model_store (Optional[SpecStore]): Store for loading and saving models.
                 If None, a default JSONSpecStore is used.
@@ -130,6 +130,7 @@ class SpecFactory:
             SpecModel: The constructed model.
 
         """
+        # Determine cache file name
         if json_file_name is None:
             cache_file_name = getattr(self.input_handler, "cache_file_name", None)
             if cache_file_name is None:
@@ -137,66 +138,25 @@ class SpecFactory:
             json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
 
+        # Load model from cache file if any and check its include depth is as expected
+        model = None
         if os.path.exists(json_file_path) and not force_parse:
-            try:
-                model = self.model_store.load(json_file_path)
-                self.logger.info(f"Loaded model from cache {json_file_path}")
-                # Check if include_depth matches the cached model's metadata
-                cached_depth = getattr(model.metadata, "include_depth", None)
-                if (
-                    (include_depth is not None and cached_depth is not None and int(cached_depth) != int(include_depth))
-                    or (include_depth is None and cached_depth is not None)
-                    or (include_depth is not None and cached_depth is None)
-                ):
-                    self.logger.info(
-                        (
-                            f"Cached model include_depth ({cached_depth}) "
-                            f"does not match requested ({include_depth}), reparsing."
-                        )
-                    )
-                    # Fallback to parsing: do not return cached model
-                else:
-                    if isinstance(model, self.model_class):
-                        return model
-                    model = self.model_class(
-                        metadata=model.metadata,
-                        content=model.content,
-                        **(model_kwargs or {}),
-                    )
-                    return model
-            except Exception as e:
-                self.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
-                # Fallback to parsing
+            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs)
+            if model is not None:
+                return model
 
-        metadata, content = self.table_parser.parse(
-            dom,
-            table_id=table_id,
-            include_depth=include_depth,
-            column_to_attr=self.column_to_attr,
-            name_attr=self.name_attr,
-        )
-        # Complete metadata
-        metadata.url = url
-        metadata.table_id = table_id
-        # Store include_depth as int if not None, else omit from metadata
-        if include_depth is not None:
-            metadata.include_depth = int(include_depth)
-        metadata.column_to_attr = self.column_to_attr
-        metadata.name_attr = self.name_attr
-
-        model = self.model_class(
-            metadata=metadata,
-            content=content,
-            **(model_kwargs or {}),
+        # Parse provided DOM otherwise
+        model = self._parse_and_build_model(
+            dom, table_id, url, include_depth, model_kwargs
         )
 
-        model.exclude_titles()
-
+        # Cache the newly built model if requested
         if json_file_name:
             try:
                 self.model_store.save(model, json_file_path)
             except Exception as e:
                 self.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
+
         return model
 
     def create_model(
@@ -241,5 +201,80 @@ class SpecFactory:
             model_kwargs=model_kwargs,
         )
 
+    def _load_model_from_cache(
+        self,
+        json_file_path: str,
+        include_depth: Optional[int],
+        model_kwargs: Optional[Dict[str, Any]],
+    ) -> Optional[SpecModel]:
+        """Load model from cache file if include depth is valid."""
+        try:
+            # Load the model from cache
+            model = self.model_store.load(json_file_path)
+            self.logger.info(f"Loaded model from cache {json_file_path}")
 
+            # Do not use cache if include_depth does not match the cached model's metadata
+            cached_depth = getattr(model.metadata, "include_depth", None)
+            if (
+                (include_depth is not None and cached_depth is not None and int(cached_depth) != int(include_depth))
+                or (include_depth is None and cached_depth is not None)
+                or (include_depth is not None and cached_depth is None)
+            ):
+                self.logger.info(
+                    (
+                        f"Cached model include_depth ({cached_depth}) "
+                        f"does not match requested ({include_depth}), reparsing."
+                    )
+                )
+                return None
 
+            # Return the cached model, reconstructing it to the required subclass if necessary        
+            if isinstance(model, self.model_class):
+                return model
+            return self.model_class(
+                metadata=model.metadata,
+                content=model.content,
+                **(model_kwargs or {}),
+            )
+        
+        except Exception as e:
+            self.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
+            return None
+
+    def _parse_and_build_model(
+        self,
+        dom: BeautifulSoup,
+        table_id: Optional[str],
+        url: Optional[str],
+        include_depth: Optional[int],
+        model_kwargs: Optional[Dict[str, Any]],
+    ) -> SpecModel:
+        """Parse and Build model from provided DOM object."""
+        # Parse content and some metadata from DOM
+        metadata, content = self.table_parser.parse(
+            dom,
+            table_id=table_id,
+            include_depth=include_depth,
+            column_to_attr=self.column_to_attr,
+            name_attr=self.name_attr,
+        )
+
+        # Add args values to model metadata
+        metadata.url = url
+        metadata.table_id = table_id
+        if include_depth is not None:
+            metadata.include_depth = int(include_depth)
+        metadata.column_to_attr = self.column_to_attr
+        metadata.name_attr = self.name_attr
+
+        # Build the model from parsed content and metadata
+        model = self.model_class(
+            metadata=metadata,
+            content=content,
+            **(model_kwargs or {}),
+        )
+
+        # Clean up model from title nodes
+        model.exclude_titles()
+
+        return model

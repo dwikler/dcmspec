@@ -6,7 +6,9 @@ enables selection and filtering of attributes and columns based on DIMSE service
 allowing extraction of service- and role-specific attribute sets from a combined table.
 """
 
-from anytree import PreOrderIter
+import logging
+from typing import Optional, Sequence
+from anytree import Node, PreOrderIter
 
 from dcmspec.spec_model import SpecModel
 
@@ -21,10 +23,10 @@ class ServiceAttributeModel(SpecModel):
 
     def __init__(
         self,
-        metadata: object,
-        content: object,
+        metadata: Node,
+        content: Node,
         dimse_mapping: dict,
-        logger: object = None
+        logger: Optional[logging.Logger] = None
     ) -> None:
         """Initialize the ServiceAttributeModel.
 
@@ -126,7 +128,7 @@ class ServiceAttributeModel(SpecModel):
         self._update_metadata_for_dimse(dimse_attributes, all_attributes)
 
 
-    def _filter_node_attributes(self, dimse_attributes: list, all_attributes: list) -> None:
+    def _filter_node_attributes(self, dimse_attributes: Sequence[str], all_attributes: Sequence[str]) -> None:
         """Remove DIMSE attributes that are not belonging to the selected DIMSE."""
         for node in PreOrderIter(self.content):
             for attr in list(node.__dict__.keys()):
@@ -134,7 +136,7 @@ class ServiceAttributeModel(SpecModel):
                 if attr in all_attributes and attr not in dimse_attributes:
                     delattr(node, attr)
 
-    def _update_metadata_for_dimse(self, dimse_attributes: list, all_attributes: list) -> None:
+    def _update_metadata_for_dimse(self, dimse_attributes: Sequence[str], all_attributes: Sequence[str]) -> None:
         if hasattr(self.metadata, "header") and hasattr(self.metadata, "column_to_attr"):
             # Build new header and mapping, keeping original indices for column_to_attr
             new_header = []
