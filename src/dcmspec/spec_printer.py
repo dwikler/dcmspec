@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
 from anytree import RenderTree, PreOrderIter
-from typing import Optional
+from typing import Optional, List, Union
 import logging
 
 LEVEL_COLORS = [
@@ -19,7 +19,6 @@ LEVEL_COLORS = [
     "rgb(0,0,255)",  # Node depth 5, Table Level 4: Blue
 ]
 
-
 class SpecPrinter:
     """Printer for DICOM specification models.
 
@@ -27,11 +26,11 @@ class SpecPrinter:
     using rich formatting for console output. Supports colorized output and customizable logging.
     """
 
-    def __init__(self, model, logger: Optional[logging.Logger] = None):
+    def __init__(self, model: object, logger: Optional[logging.Logger] = None) -> None:
         """Initialize the input handler with an optional logger.
 
         Args:
-            model: An instance of SpecModel.
+            model (object): An instance of SpecModel.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
 
         """
@@ -41,12 +40,13 @@ class SpecPrinter:
 
         self.model = model
         self.console = Console(highlight=False)
+
     def print_tree(
         self,
-        attr_names: Optional[list[str]] = None,
-        attr_widths: Optional[list[int]] = None,
+        attr_names: Optional[Union[str, List[str]]] = None,
+        attr_widths: Optional[List[int]] = None,
         colorize: bool = False,
-    ):
+    ) -> None:
         """Print the specification model as a hierarchical tree to the console.
 
         Args:
@@ -61,6 +61,9 @@ class SpecPrinter:
         Example:
             # This will nicely align the tag, type, and name values in the tree output:
             printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64])
+
+        Returns:
+            None
 
         """
         for pre, fill, node in RenderTree(self.model.content):
@@ -82,9 +85,7 @@ class SpecPrinter:
                 node_text = Text(attr_text, style=style)
             self.console.print(pre_text + node_text)
 
-
-
-    def print_table(self, colorize: bool = False):
+    def print_table(self, colorize: bool = False) -> None:
         """Print the specification model as a flat table to the console.
 
         Traverses the content tree and prints each node's attributes in a flat table,
@@ -93,6 +94,9 @@ class SpecPrinter:
         Args:
             colorize (bool): Whether to colorize the output by node depth.
 
+        Returns:
+            None
+            
         """
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
@@ -118,4 +122,3 @@ class SpecPrinter:
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
-

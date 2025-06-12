@@ -49,7 +49,6 @@ class DOMTableSpecParser(SpecParser):
             table_id (str): The ID of the table to parse.
             column_to_attr (Dict[int, str]): Mapping from column indices to attribute names for tree nodes.
             name_attr (str): The attribute name to use for building node names.
-            table_nesting_level (int, optional): The nesting level of the table (used for recursion). Defaults to 0.
             include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
                 None means unlimited.
 

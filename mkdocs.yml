@@ -5,6 +5,7 @@ site_name: DCMspec Documentation
 # and to reflect the typical usage flow of the library.
 nav:
   - Home: index.md
+  - Installation: installation.md
   - API Reference:
       - Core:
           - SpecModel: api/spec_model.md
@@ -37,7 +38,7 @@ plugins:
           options:
             docstring_style: google
             docstring_section_style: spacy
-            show_root_heading: yes
+            show_root_heading: true
             show_symbol_type_heading: true
             show_symbol_type_toc: true
 
