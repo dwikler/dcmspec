@@ -43,7 +43,7 @@ class SpecModel:
         self.metadata = metadata
         self.content = content
 
-    def exclude_titles(self):
+    def exclude_titles(self) -> None:
         """Remove nodes corresponding to title rows from the content tree.
 
         Title rows are typically found in some DICOM tables and represent section headers
@@ -63,7 +63,7 @@ class SpecModel:
                 self.logger.debug(f"Removing title node: {node.name}")
                 node.parent = None
 
-    def filter_required(self, type_attr_name: str, keep: Optional[str] = None, remove: Optional[str] = None):
+    def filter_required(self, type_attr_name: str, keep: Optional[str] = None, remove: Optional[str] = None) -> None:
         """Remove nodes that are considered optional according to DICOM requirements.
 
         This method traverses the content tree and removes nodes whose requirement
@@ -108,10 +108,14 @@ class SpecModel:
                     for descendant in node.descendants:
                         descendant.parent = None
 
-    def _create_default_logger(self):
+    def _create_default_logger(self) -> logging.Logger:
         """Create a default logger for the class.
 
         Configures a logger with a console handler and a specific format.
+
+        Returns:
+            logging.Logger: The configured logger instance.
+
         """
         logger = logging.getLogger("DICOMAttributeModel")
         logger.setLevel(logging.DEBUG)

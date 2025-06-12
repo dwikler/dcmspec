@@ -19,7 +19,13 @@ class ServiceAttributeModel(SpecModel):
     DIMSE Services and Roles are combined.
     """
 
-    def __init__(self, metadata, content, dimse_mapping, logger=None):
+    def __init__(
+        self,
+        metadata: object,
+        content: object,
+        dimse_mapping: dict,
+        logger: object = None
+    ) -> None:
         """Initialize the ServiceAttributeModel.
 
         Sets up the model with metadata, content, and a DIMSE mapping for filtering.
@@ -42,10 +48,11 @@ class ServiceAttributeModel(SpecModel):
         ```
             
         Args:
-            metadata: Node holding table and document metadata.
-            content: Node holding the hierarchical content tree of the DICOM specification.
-            dimse_mapping: Dictionary defining DIMSE and role-based attribute requirements.
-            logger (optional): Logger instance to use. If None, a default logger is created.
+            metadata (Node): Node holding table and document metadata.
+            content (Node): Node holding the hierarchical content tree of the DICOM specification.
+            dimse_mapping (dict): Dictionary defining DIMSE and role-based attribute requirements.
+            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+>
 
         Example:
             ```python
@@ -90,7 +97,7 @@ class ServiceAttributeModel(SpecModel):
         self.role = None
 
 
-    def select_dimse(self, dimse):
+    def select_dimse(self, dimse: str) -> None:
         """Filter the model to only retain attributes relevant to the specified DIMSE SOP Class.
 
         This method updates the model so that only the attributes required for the selected
@@ -100,7 +107,7 @@ class ServiceAttributeModel(SpecModel):
         updated to reflect the retained attributes.
 
         Args:
-            dimse: The key of DIMSE_MAPPING to select.
+            dimse (str): The key of DIMSE_MAPPING to select.
 
         """
         if dimse not in self.DIMSE_MAPPING:
@@ -119,7 +126,7 @@ class ServiceAttributeModel(SpecModel):
         self._update_metadata_for_dimse(dimse_attributes, all_attributes)
 
 
-    def _filter_node_attributes(self, dimse_attributes, all_attributes):
+    def _filter_node_attributes(self, dimse_attributes: list, all_attributes: list) -> None:
         """Remove DIMSE attributes that are not belonging to the selected DIMSE."""
         for node in PreOrderIter(self.content):
             for attr in list(node.__dict__.keys()):
@@ -127,7 +134,7 @@ class ServiceAttributeModel(SpecModel):
                 if attr in all_attributes and attr not in dimse_attributes:
                     delattr(node, attr)
 
-    def _update_metadata_for_dimse(self, dimse_attributes, all_attributes):
+    def _update_metadata_for_dimse(self, dimse_attributes: list, all_attributes: list) -> None:
         if hasattr(self.metadata, "header") and hasattr(self.metadata, "column_to_attr"):
             # Build new header and mapping, keeping original indices for column_to_attr
             new_header = []
@@ -149,7 +156,7 @@ class ServiceAttributeModel(SpecModel):
                 if (value in dimse_attributes) or (value not in all_attributes)
             }
 
-    def select_role(self, role):
+    def select_role(self, role: str) -> None:
         """Filter the model to only retain requirements for a specific role (SCU or SCP) of the selected DIMSE.
 
         This method updates the model so that, for attributes with role-specific requirements (e.g., "SCU/SCP"),
@@ -157,6 +164,9 @@ class ServiceAttributeModel(SpecModel):
         "1/2", selecting "SCU" will keep "1" and selecting "SCP" will keep "2". Any additional comments
         after a newline are preserved in a separate "comment" attribute. The model's metadata is also
         updated to reflect the changes in attributes.
+
+        Args:
+            role (str): The role to filter for ("SCU" or "SCP").
 
         Note:
             You must call select_dimse() before calling select_role(), or a RuntimeError will be raised.
@@ -182,7 +192,7 @@ class ServiceAttributeModel(SpecModel):
         comment_needed = self._filter_role_attributes(req_attributes, req_separator, role)
         self._update_metadata_for_role(comment_needed, role)
 
-    def _filter_role_attributes(self, req_attributes, req_separator, role):
+    def _filter_role_attributes(self, req_attributes: list, req_separator: str, role: str) -> bool:
         """Filter node attributes for the selected role, handle comments, and return if comment column is needed."""
         comment_needed = False
         for req_attr in req_attributes:
@@ -205,7 +215,7 @@ class ServiceAttributeModel(SpecModel):
                         setattr(node, attribute_name, sub_parts[0] if role == "SCU" else sub_parts[1])
         return comment_needed
 
-    def _update_metadata_for_role(self, comment_needed, role):
+    def _update_metadata_for_role(self, comment_needed: bool, role: str) -> None:
         """Update metadata (header and column_to_attr) for role-specific requirements and comments."""
         if comment_needed:
             if hasattr(self.metadata, "column_to_attr") and "comment" not in self.metadata.column_to_attr.values():

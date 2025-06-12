@@ -5,7 +5,9 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
-from typing import Optional, Dict
+from typing import Any, Optional, Dict
+
+from bs4 import BeautifulSoup
 
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
@@ -32,13 +34,13 @@ class SpecFactory:
     def __init__(
         self,
         input_handler: Optional[DocHandler] = None,
-        model_class: Optional[SpecModel] = None,
+        model_class: Optional[type] = None,
         model_store: Optional[SpecStore] = None,
         table_parser: Optional[SpecParser] = None,
-        column_to_attr: Dict[int, str] = None,
-        name_attr: str = None,
+        column_to_attr: Optional[Dict[int, str]] = None,
+        name_attr: Optional[str] = None,
         config: Optional[Config] = None,
-        logger: Optional["logging.Logger"] = None,
+        logger: Optional[logging.Logger] = None,
     ):
         """Initialize the SpecFactory.
 
@@ -47,17 +49,17 @@ class SpecFactory:
         tag, type, and description.
 
         Args:
-            model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).
-                If None, defaults to SpecModel.
             input_handler (Optional[DocHandler]): Handler for downloading and parsing input files.
                 If None, a default XHTMLDocHandler is used.
+            model_class (Optional[type]): The class to instantiate for the model (must be a subclass of SpecModel).
+                If None, defaults to SpecModel.
             model_store (Optional[SpecStore]): Store for loading and saving models.
                 If None, a default JSONSpecStore is used.
             table_parser (Optional[SpecParser]): Parser for extracting tables from documents.
                 If None, a default DOMTableSpecParser is used.
-            column_to_attr (Dict[int, str], optional): Mapping from column indices to names of attributes
+            column_to_attr (Optional[Dict[int, str]]): Mapping from column indices to names of attributes
                 of model nodes. If None, a default mapping is used.
-            name_attr (str, optional): Attribute name to use for node names in the model.
+            name_attr (Optional[str]): Attribute name to use for node names in the model.
                 If None, defaults to "elem_name".
             config (Optional[Config]): Configuration object. If None, a default Config is created.
             logger (Optional[logging.Logger]): Logger instance to use.
@@ -80,7 +82,7 @@ class SpecFactory:
         self.column_to_attr = column_to_attr or {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
         self.name_attr = name_attr or "elem_name"
 
-    def load_dom(self, url: str, cache_file_name: str, force_download: bool = False):
+    def load_dom(self, url: str, cache_file_name: str, force_download: bool = False) -> BeautifulSoup:
         """Download, cache, and parse the specification file from a URL, returning the DOM.
 
         Args:
@@ -89,7 +91,7 @@ class SpecFactory:
             force_download (bool): If True, always download the input file even if cached.
 
         Returns:
-            object: The parsed DOM (e.g., BeautifulSoup object).
+            BeautifulSoup: The parsed DOM.
 
         """
         # This will download if needed and always parse/return the DOM
@@ -98,27 +100,28 @@ class SpecFactory:
 
     def build_model(
         self,
-        dom,
+        dom: BeautifulSoup,
         table_id: Optional[str] = None,
         url: Optional[str] = None,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
         force_parse: bool = False,
-        model_kwargs: Optional[dict] = None,
+        model_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Build and cache a DICOM specification model from a parsed DOM.
 
         Args:
-            dom: The parsed DOM object (e.g., BeautifulSoup).
+            dom (BeautifulSoup): The parsed DOM object (e.g., BeautifulSoup).
             table_id (Optional[str]): Table identifier for model parsing.
             url (Optional[str]): The URL the DOM was fetched from (for metadata).
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
-            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
+            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+
         If `json_file_name` is not provided, the factory will attempt to use
         `self.input_handler.cache_file_name` to generate a default JSON file name.
         If neither is set, a ValueError is raised.
@@ -205,7 +208,7 @@ class SpecFactory:
         force_download: bool = False,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
-        model_kwargs: Optional[dict] = None,
+        model_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.
 
@@ -217,10 +220,11 @@ class SpecFactory:
             force_download (bool): If True, always download the input file and generate the model even if cached.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
-            model_kwargs (Optional[dict]): Additional keyword arguments for model construction.
+            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+
                 
         Returns:
             SpecModel: The constructed model.
