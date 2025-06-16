@@ -9,6 +9,7 @@ nav:
   - API Reference:
       - Core:
           - SpecModel: api/spec_model.md
+          - SpecMerger: api/spec_merger.md
           - ServiceAttributeModel: api/service_attribute_model.md
           - Service Attribute Defaults: api/service_attribute_defaults.md
           - SpecFactory: api/spec_factory.md
