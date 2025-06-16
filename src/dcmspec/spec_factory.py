@@ -97,6 +97,25 @@ class SpecFactory:
         # This will download if needed and always parse/return the DOM
         return self.input_handler.get_dom(cache_file_name=cache_file_name, url=url, force_download=force_download)
 
+    def try_load_cache(
+        self,
+        json_file_name: Optional[str],
+        include_depth: Optional[int],
+        model_kwargs: Optional[Dict[str, Any]],
+        force_parse: bool = False,
+    ) -> Optional[SpecModel]:
+        """Check for and load a model from cache if available and not force_parse."""
+        if json_file_name is None:
+            cache_file_name = getattr(self.input_handler, "cache_file_name", None)
+            if cache_file_name is None:
+                raise ValueError("input_handler.cache_file_name not set")
+            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
+        json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
+        if os.path.exists(json_file_path) and not force_parse:
+            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs)
+            if model is not None:
+                return model
+        return None
 
     def build_model(
         self,
@@ -130,20 +149,10 @@ class SpecFactory:
             SpecModel: The constructed model.
 
         """
-        # Determine cache file name
-        if json_file_name is None:
-            cache_file_name = getattr(self.input_handler, "cache_file_name", None)
-            if cache_file_name is None:
-                raise ValueError("input_handler.cache_file_name not set")
-            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
-        json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
-
-        # Load model from cache file if any and check its include depth is as expected
-        model = None
-        if os.path.exists(json_file_path) and not force_parse:
-            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs)
-            if model is not None:
-                return model
+        # Try to load from cache first
+        model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse)
+        if model is not None:
+            return model
 
         # Parse provided DOM otherwise
         model = self._parse_and_build_model(
@@ -152,6 +161,7 @@ class SpecFactory:
 
         # Cache the newly built model if requested
         if json_file_name:
+            json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
             try:
                 self.model_store.save(model, json_file_path)
             except Exception as e:
@@ -178,6 +188,7 @@ class SpecFactory:
             table_id (Optional[str]): Table identifier for model parsing.
             force_parse (bool): If True, always parse the DOM and generate the JSON model, even if cached.
             force_download (bool): If True, always download the input file and generate the model even if cached.
+                Note: force_download also implies force_parse.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
@@ -185,11 +196,15 @@ class SpecFactory:
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
 
-                
         Returns:
             SpecModel: The constructed model.
 
         """
+        # Try to load from cache before loading DOM
+        model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse or force_download)
+        if model is not None:
+            return model
+
         dom = self.load_dom(url=url, cache_file_name=cache_file_name, force_download=force_download)
         return self.build_model(
             dom=dom,

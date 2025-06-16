@@ -2,6 +2,7 @@
 
 Defines the SpecModel class, which represents a DICOM specification as a structured, hierarchical model.
 """
+from collections import defaultdict
 import logging
 from typing import Optional, Dict
 
@@ -38,7 +39,7 @@ class SpecModel:
                 If None, a default logger will be created.
 
         """
-        self.logger = logger or self._create_default_logger()
+        self.logger = logger or logging.getLogger(self.__class__.__name__)
 
         self.metadata = metadata
         self.content = content
@@ -108,23 +109,159 @@ class SpecModel:
                     for descendant in node.descendants:
                         descendant.parent = None
 
-    def _create_default_logger(self) -> logging.Logger:
-        """Create a default logger for the class.
+    def merge_matching_path(
+        self,
+        other: "SpecModel",
+        match_by: str = "name",  # or "attribute"
+        attribute_name: Optional[str] = None,
+        merge_attrs: Optional[list[str]] = None,
+    ) -> "SpecModel":
+        """Merge with another SpecModel, producing a new model with attributes merged for nodes with matching paths.
 
-        Configures a logger with a console handler and a specific format.
+        The path for matching is constructed at each level using either the node's `name`
+        (if match_by="name") or a specified attribute (if match_by="attribute" and attribute_name is given).
+        Only nodes whose full path matches (by the chosen key) will be merged.
+
+        This method is useful for combining DICOM specification models from different parts of the standard.
+        For example, it can be used to merge a PS3.3 model of a normalized IOD specification with a PS3.4 model of a
+        SOP class specification.
+
+        Args:
+            other (SpecModel): The other model to merge with the current model.
+            match_by (str): "name" to match by node.name path, "attribute" to match by a specific attribute path.
+            attribute_name (str, optional): The attribute name to use for matching if match_by="attribute".
+            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.
 
         Returns:
-            logging.Logger: The configured logger instance.
+            SpecModel: A new merged SpecModel.
 
         """
-        logger = logging.getLogger("DICOMAttributeModel")
-        logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        return logger
+        import copy
+        merged = copy.deepcopy(self)
+
+        # Build a dict mapping node path (the matchkey) to nodes in the 'other' model
+        if match_by == "name":
+            other_matchkey_to_node_map = {
+                self._get_path_by_name(node): node
+                for node in PreOrderIter(other.content)
+            }
+            def get_path(node): return self._get_path_by_name(node)
+
+        elif match_by == "attribute" and attribute_name:
+            other_matchkey_to_node_map = {
+                self._get_path_by_attr(node, attribute_name): node
+                for node in PreOrderIter(other.content)
+            }
+            def get_path(node): return self._get_path_by_attr(node, attribute_name)
+            
+        else:
+            raise ValueError("Invalid match_by or missing attribute_name")
+
+        # Merge attributes
+        for node in PreOrderIter(merged.content):
+            key = get_path(node)
+            if key in other_matchkey_to_node_map:
+                other_node = other_matchkey_to_node_map[key]
+                for attr in (merge_attrs or []):
+                    if attr is not None and hasattr(other_node, attr):
+                        setattr(node, attr, getattr(other_node, attr))
+
+        return merged
+
+    def merge_matching_node(
+        self,
+        other: "SpecModel",
+        match_by: str = "name",  # or "attribute"
+        attribute_name: Optional[str] = None,
+        merge_attrs: Optional[list[str]] = None,
+    ) -> "SpecModel":
+        """Merge two SpecModel trees by matching nodes at any level using a single key (name or attribute).
+
+        For each node in the current model, this method finds a matching node in the other model
+        using either the node's name (if match_by="name") or a specified attribute (if match_by="attribute").
+        If a match is found, the specified attributes from the other model's node are merged into the current node.
+
+        This is useful for enrichment scenarios, such as adding VR/VM/Keyword from the Part 6 dictionary
+        to a Part 3 module, where nodes are matched by a unique attribute like elem_tag.
+
+        - Matching is performed globally (not by path): any node in the current model is matched to any node
+          in the other model with the same key value, regardless of their position in the tree.
+        - It is expected that there is only one matching node per key in the other model.
+        - If multiple nodes in the other model have the same key, a warning is logged and only the last one
+          found in pre-order traversal is used for merging.
+
+        Example use cases:
+            - Enrich a PS3.3 module attribute specification with VR/VM from the PS3.6 data elements dictionary.
+            - Merge any two models where a unique key (name or attribute) can be used for node correspondence.
+
+        Args:
+            other (SpecModel): The other model to merge with the current model.
+            match_by (str): "name" to match by node.name (stripped of leading '>' and whitespace),
+                or "attribute" to match by a specific attribute value.
+            attribute_name (str, optional): The attribute name to use for matching if match_by="attribute".
+            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.
+
+        Returns:
+            SpecModel: A new merged SpecModel with attributes from the other model merged in.
+
+        Raises:
+            ValueError: If match_by is invalid or attribute_name is missing when required.
+
+        """
+        import copy
+        merged = copy.deepcopy(self)
+
+        # Build a dict mapping matching node or attribute name (the matchkey) to nodes in the 'other' model
+        if match_by == "name":
+            self.logger.debug("Matching models by node name (stripped of leading > and whitespace).")
+            def key_func(node):
+                return self._strip_leading_gt(node.name)
+        elif match_by == "attribute" and attribute_name:
+            self.logger.debug(f"Matching models by attribute name: {attribute_name}.")
+            def key_func(node):
+                return getattr(node, attribute_name, None)
+        else:
+            raise ValueError(
+                f"Invalid match_by value '{match_by}'. "
+                f"Valid options are 'name' or 'attribute'. "
+                f"If using 'attribute', attribute_name must be provided."
+            )
+
+        # Build a mapping from key to list of nodes
+        key_to_nodes = defaultdict(list)
+        for node in PreOrderIter(other.content):
+            key = key_func(node)
+            key_to_nodes[key].append(node)
+
+        # Warn if any key has more than one node
+        for key, nodes in key_to_nodes.items():
+            if key is not None and len(nodes) > 1:
+                self.logger.warning(
+                    f"Multiple nodes found in 'other' model for key '{key}': "
+                    f"{[getattr(n, 'name', None) for n in nodes]}. "
+                    "Only the last one will be used for merging."
+                )
+
+        # Use only the last node for each key (to preserve current behavior)
+        other_matchkey_to_node_map = {key: nodes[-1] for key, nodes in key_to_nodes.items()}
+        def get_key(node): return key_func(node)
+        # Merge attributes for any matching node
+        for node in PreOrderIter(merged.content):
+            key = get_key(node)
+            if key in other_matchkey_to_node_map and key is not None:
+                other_node = other_matchkey_to_node_map[key]
+                for attr in (merge_attrs or []):
+                    if attr is not None and hasattr(other_node, attr):
+                        setattr(node, attr, getattr(other_node, attr))
+                        self.logger.debug(f"Enriched node {getattr(node, 'name', None)} "
+                                          f"(key={key}) with {attr}={getattr(other_node, attr)}")
+            else:
+                self.logger.debug(f"No match for node {getattr(node, 'name', None)} (key={key})")
+        return merged
+
+    def _strip_leading_gt(self, name):
+        """Strip leading '>' and whitespace from a node name for matching."""
+        return name.lstrip(">").lstrip().rstrip() if isinstance(name, str) else name
 
     def _is_include(self, node: Node) -> bool:
         """Determine if a node represents an 'Include' of a Macro table.
@@ -155,7 +292,8 @@ class SpecModel:
         )
 
     def _has_only_key_0_attr(self, node: Node, column_to_attr: Dict[int, str]) -> bool:
-        """Check for presence of only the key 0 attribute.
+        # sourcery skip: merge-duplicate-blocks, use-any
+        """Check that only the key 0 attribute is present.
 
         Determines if a node has only the attribute specified by the item with key "0"
         in column_to_attr, corresponding to the first column of the table.
@@ -171,14 +309,29 @@ class SpecModel:
         # Irrelevant if columns 0 not extracted
         if 0 not in column_to_attr:
             return False
-        
-        # Perform the check
+
+        # Check that only the key 0 attribute is present
         key_0_attr = column_to_attr[0]
         for key, attr_name in column_to_attr.items():
             if key == 0:
                 if not hasattr(node, key_0_attr):
                     return False
-            else:
-                if hasattr(node, attr_name):
-                    return False
+            elif hasattr(node, attr_name):
+                return False
         return True
+
+    @staticmethod
+    def _get_node_path(node: Node, attr: str = "name") -> tuple:
+        """Return a tuple representing the path of the node using the given attribute."""
+        return tuple(getattr(n, attr, None) for n in node.path)
+
+
+    @staticmethod
+    def _get_path_by_name(node: Node) -> tuple:
+        """Return the path of the node using node.name at each level."""
+        return SpecModel._get_node_path(node, "name")
+
+    @staticmethod
+    def _get_path_by_attr(node: Node, attr: str) -> tuple:
+        """Return the path of the node using the given attribute at each level."""
+        return SpecModel._get_node_path(node, attr)

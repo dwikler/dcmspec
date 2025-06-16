@@ -123,5 +123,129 @@ def test_filter_required_custom_keep_remove():
     assert node_b not in children
     assert node_c not in children
 
+def assert_node_attrs(node: Node, expected: dict) -> None:
+    """Assert that a node has all expected attributes with expected values (helper function)."""
+    for k, v in expected.items():
+        assert getattr(node, k) == v
 
+def test_merge_matching_path_by_name(merge_by_path_test_models):
+    """Test merge_matching_path merges attributes of nodes with matching node path."""
+    # Arrange
+    current, other = merge_by_path_test_models
 
+    # Act
+    merged = current.merge_matching_path(other, match_by="name", merge_attrs=["n-set"])
+
+    # Assert
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)", "n-set": "1"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "3"})
+
+    # Assert
+    merged_first = next(child for child in merged.content.children if child.name == "my_element")
+    assert_node_attrs(merged_first, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "2"})
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)", "n-set": "1"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "3"})
+
+def test_merge_matching_path_by_attribute(merge_by_path_test_models):
+    """Test merge_matching_path merges attributes of nodes with matching attribute path."""
+    # Arrange
+    current, other = merge_by_path_test_models
+
+    # Act
+    merged = current.merge_matching_path(other, match_by="attribute", attribute_name="elem_tag", merge_attrs=["n-set"])
+
+    # Assert
+    merged_first = next(child for child in merged.content.children if child.name == "my_element")
+    assert_node_attrs(merged_first, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "2"})
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)", "n-set": "1"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "3"})
+
+def test_merge_matching_path_by_attribute_different_path_no_merge(merge_test_models_different_path):
+    """Test merge_matching_path does not merge nodes if attribute path differs at any level."""
+    # Arrange
+    current, other = merge_test_models_different_path
+
+    # Act
+    merged = current.merge_matching_path(other, match_by="attribute", attribute_name="elem_tag", merge_attrs=["n-set"])
+
+    # Assert
+    merged_parent = next(
+        child for child in merged.content.children
+        if getattr(child, "elem_tag", None) == "(0101,1010)"
+    )
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)"})
+
+def test_merge_matching_path_invalid_match_by_raises(merge_test_models_different_path):
+    """Test merge_matching_path raises ValueError for invalid match_by argument."""
+    # Arrange
+    current, other = merge_test_models_different_path
+
+    # Act & Assert
+    with pytest.raises(ValueError):
+        current.merge_matching_path(other, match_by="invalid")
+
+def test_merge_matching_node_by_name_node_match(merge_by_node_test_models):
+    """Test merge_matching_node merges attributes of nodes with matching node name (node match)."""
+    # Arrange
+    current, other = merge_by_node_test_models
+
+    # Act
+    merged = current.merge_matching_node(other, match_by="name", merge_attrs=["vr"])
+
+    # Assert
+    merged_first = next(child for child in merged.content.children if child.name == "my_element")
+    assert_node_attrs(merged_first, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "vr": "DS"})
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)", "vr": "CS"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "vr": "DS"})
+
+def test_merge_matching_node_by_attribute_node_match(merge_by_node_test_models):
+    """Test merge_matching_node merges attributes of nodes with matching attribute value (node match)."""
+    # Arrange
+    current, other = merge_by_node_test_models
+
+    # Act
+    merged = current.merge_matching_node(other, match_by="attribute", attribute_name="elem_tag", merge_attrs=["vr"])
+
+    # Assert
+    merged_first = next(child for child in merged.content.children if child.name == "my_element")
+    assert_node_attrs(merged_first, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "vr": "DS"})
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)", "vr": "CS"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "vr": "DS"})
+
+def test_merge_matching_node_by_attribute_no_merge_node_match(merge_test_models_different_path):
+    """Test merge_matching_node does not merge attributes if attribute value does not match (node match)."""
+    # Arrange
+    current, other = merge_test_models_different_path
+
+    # Act
+    merged = current.merge_matching_node(other, match_by="attribute", attribute_name="elem_tag", merge_attrs=["vr"])
+
+    # Assert
+    merged_parent = next(
+        child for child in merged.content.children
+        if getattr(child, "elem_tag", None) == "(0101,1010)"
+    )
+    assert_node_attrs(merged_parent, {"elem_name": "My Element Sequence", "elem_tag": "(0101,1010)"})
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)"})
+
+def test_merge_matching_node_invalid_match_by_raises_node_match(merge_by_node_test_models):
+    """Test merge_matching_node raises ValueError for invalid match_by argument (node match)."""
+    # Arrange
+    current, other = merge_by_node_test_models
+
+    # Act & Assert
+    with pytest.raises(ValueError):
+        current.merge_matching_node(other, match_by="invalid")
