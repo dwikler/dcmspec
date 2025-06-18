@@ -381,6 +381,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../spec_merger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SpecMerger
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../service_attribute_model/" class="md-nav__link">
         
   
@@ -513,6 +536,15 @@
   <a href="#dcmspec.spec_factory.SpecFactory.load_dom" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load_dom
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dcmspec.spec_factory.SpecFactory.try_load_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;try_load_cache
     </span>
   </a>
   
@@ -1085,6 +1117,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#dcmspec.spec_factory.SpecFactory.try_load_cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;try_load_cache
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1402,7 +1443,22 @@ model = factory.create_model(...)</p>
 <span class="normal">277</span>
 <span class="normal">278</span>
 <span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for DICOM specification models.</span>
 
 <span class="sd">    Coordinates the downloading, parsing, and caching of DICOM specification tables.</span>
@@ -1480,6 +1536,25 @@ model = factory.create_model(...)</p>
         <span class="c1"># This will download if needed and always parse/return the DOM</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_dom</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for and load a model from cache if available and not force_parse.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
+            <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
+        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">model</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1513,20 +1588,10 @@ model = factory.create_model(...)</p>
 <span class="sd">            SpecModel: The constructed model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Determine cache file name</span>
-        <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
-            <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
-        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
-
-        <span class="c1"># Load model from cache file if any and check its include depth is as expected</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
-            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">model</span>
+        <span class="c1"># Try to load from cache first</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model</span>
 
         <span class="c1"># Parse provided DOM otherwise</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_and_build_model</span><span class="p">(</span>
@@ -1535,6 +1600,7 @@ model = factory.create_model(...)</p>
 
         <span class="c1"># Cache the newly built model if requested</span>
         <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
+            <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">json_file_path</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1561,6 +1627,7 @@ model = factory.create_model(...)</p>
 <span class="sd">            table_id (Optional[str]): Table identifier for model parsing.</span>
 <span class="sd">            force_parse (bool): If True, always parse the DOM and generate the JSON model, even if cached.</span>
 <span class="sd">            force_download (bool): If True, always download the input file and generate the model even if cached.</span>
+<span class="sd">                Note: force_download also implies force_parse.</span>
 <span class="sd">            json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">            include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
@@ -1568,11 +1635,15 @@ model = factory.create_model(...)</p>
 <span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
 <span class="sd">                `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 
-
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: The constructed model.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Try to load from cache before loading DOM</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model</span>
+
         <span class="n">dom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_dom</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span>
             <span class="n">dom</span><span class="o">=</span><span class="n">dom</span><span class="p">,</span>
@@ -2201,26 +2272,7 @@ If neither is set, a ValueError is raised.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
@@ -2260,7 +2312,17 @@ If neither is set, a ValueError is raised.</p>
 <span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2292,20 +2354,10 @@ If neither is set, a ValueError is raised.</p>
 <span class="sd">        SpecModel: The constructed model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Determine cache file name</span>
-    <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
-        <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
-    <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
-
-    <span class="c1"># Load model from cache file if any and check its include depth is as expected</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">model</span>
+    <span class="c1"># Try to load from cache first</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model</span>
 
     <span class="c1"># Parse provided DOM otherwise</span>
     <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_and_build_model</span><span class="p">(</span>
@@ -2314,6 +2366,7 @@ If neither is set, a ValueError is raised.</p>
 
     <span class="c1"># Cache the newly built model if requested</span>
     <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
+        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">json_file_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -2426,7 +2479,8 @@ If neither is set, a ValueError is raised.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>If True, always download the input file and generate the model even if cached.</p>
+                <p>If True, always download the input file and generate the model even if cached.
+Note: force_download also implies force_parse.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2537,17 +2591,7 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span>
@@ -2577,7 +2621,22 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="normal">199</span>
 <span class="normal">200</span>
 <span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2596,6 +2655,7 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="sd">        table_id (Optional[str]): Table identifier for model parsing.</span>
 <span class="sd">        force_parse (bool): If True, always parse the DOM and generate the JSON model, even if cached.</span>
 <span class="sd">        force_download (bool): If True, always download the input file and generate the model even if cached.</span>
+<span class="sd">            Note: force_download also implies force_parse.</span>
 <span class="sd">        json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">        include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">        model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
@@ -2603,11 +2663,15 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
 <span class="sd">            `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
 
-
 <span class="sd">    Returns:</span>
 <span class="sd">        SpecModel: The constructed model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to load from cache before loading DOM</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model</span>
+
     <span class="n">dom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_dom</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span>
         <span class="n">dom</span><span class="o">=</span><span class="n">dom</span><span class="p">,</span>
@@ -2759,6 +2823,65 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># This will download if needed and always parse/return the DOM</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">get_dom</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="dcmspec.spec_factory.SpecFactory.try_load_cache" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Check for and load a model from cache if available and not force_parse.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check for and load a model from cache if available and not force_parse.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
+        <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
+    <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
