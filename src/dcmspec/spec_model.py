@@ -288,7 +288,8 @@ class SpecModel:
             other (SpecModel): The other model to merge with.
             match_by (str): "name" to match by node name, or "attribute" to match by a specific attribute.
             attribute_name (str, optional): The attribute name to use for matching if match_by="attribute".
-            is_path_based (bool): If True, use the full path of names/attributes as the key; if False, use only the value.
+            is_path_based (bool): If True, use the full path of names/attributes as the key; if False, 
+                use only the value.
 
         Returns:
             tuple: (node_map, key_func)
