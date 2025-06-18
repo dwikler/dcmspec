@@ -33,7 +33,7 @@ def create_module_model(config, table_id, force_parse, force_download, include_d
 def create_part6_model(config, logger=None):
     url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html"
     cache_file_name = "DataElements.xhtml"
-    json_cache_path = "DataElements.json"
+    json_file_name = "DataElements.json"
     table_id = "table_6-1"
     factory = SpecFactory(
         column_to_attr={
@@ -47,13 +47,14 @@ def create_part6_model(config, logger=None):
         config=config,
         logger=logger,
     )
-    logger.debug(f"Creating part6 model: cache_file_name={cache_file_name}, json_cache_path={json_cache_path}")
+    if logger:
+        logger.debug(f"Creating part6 model: cache_file_name={cache_file_name}, json_cache_path={json_file_name}")
     return factory.create_model(
         url=url,
         cache_file_name=cache_file_name,
         table_id=table_id,
         force_download=False,
-        json_file_name=json_cache_path,
+        json_file_name=json_file_name,
     )
 
 def main():
