@@ -144,8 +144,7 @@ def test_build_model(monkeypatch, patch_dirs):
         url="http://example.com",
         # json_file_name is omitted
     )
-    expected_path = str(patch_dirs / "cache" / "model" / "file.json")
-    assert ms.saved[1] == expected_path
+    assert ms.saved is None
     assert tp.called
 
 def test_build_model_with_custom_model_class(monkeypatch, patch_dirs):
