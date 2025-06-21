@@ -13,21 +13,19 @@ def main():
     args = parser.parse_args()
 
     # Set up logger
-    logger = logging.getLogger("modattributes")
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    if not logger.hasHandlers():
-        logger.addHandler(handler)
     if args.debug:
-        logger.setLevel(logging.DEBUG)
-        handler.setLevel(logging.DEBUG)
+        log_level = logging.DEBUG
     elif args.verbose:
-        logger.setLevel(logging.INFO)
-        handler.setLevel(logging.INFO)
+        log_level = logging.INFO
     else:
-        logger.setLevel(logging.WARNING)
-        handler.setLevel(logging.WARNING)
+        log_level = logging.WARNING
+
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logger = logging.getLogger("modattributes")
+
     
     # Set up module definition configuration
     pdf_file = "IHE_RO_Suppl_TDW_II.pdf"
