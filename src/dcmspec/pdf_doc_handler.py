@@ -119,9 +119,17 @@ class PDFDocHandler(DocHandler):
             List[dict]: List of dicts, each with keys 'page', 'index', 'data' (table as list of rows),
             and 'header' (list of header cells).
 
+        Raises:
+            IndexError: If a page number is out of range for the PDF.
+
         """
         all_tables = []
+        num_pages = len(pdf.pages)
         for page_num in page_numbers:
+            if not (1 <= page_num <= num_pages):
+                raise IndexError(
+                    f"Page number {page_num} is out of range for this PDF (valid range: 1 to {num_pages})"
+                )
             page = pdf.pages[page_num - 1]
             tables = page.extract_tables()
             if tables:
@@ -146,7 +154,6 @@ class PDFDocHandler(DocHandler):
         tables: List[dict],
         table_indices: List[tuple],
         table_id: str = None,
-        pad_columns: int = None
     ) -> dict:
         """Concatenate selected tables (across pages or by specification) into a single logical table.
 
@@ -155,7 +162,6 @@ class PDFDocHandler(DocHandler):
             table_indices (List[tuple]): List of (page, index) tuples specifying which tables to concatenate,
                 in the order they should be concatenated.
             table_id (str, optional): An identifier for the concatenated table.
-            pad_columns (int, optional): If set, pad each row to this number of columns.
 
         Returns:
             dict: A dict with keys 'table_id' (if provided), 'header' (from the first table), 
@@ -167,8 +173,7 @@ class PDFDocHandler(DocHandler):
             concatenated = handler.concat_tables(
                 all_tables,
                 table_indices,
-                table_id="tdwii_ups_scheduled_info_base",
-                pad_columns=4
+                table_id="tdwii_ups_scheduled_info_base"
             )
             ```
 
@@ -187,9 +192,10 @@ class PDFDocHandler(DocHandler):
                             f"Header mismatch in concatenated tables: {header} != {table.get('header', [])} "
                             f"(page {page}, index {idx})"
                         )
+                    n_columns = len(header)
                     for row in table["data"]:
-                        if pad_columns is not None:
-                            row = row + [""] * (pad_columns - len(row))
+                        # Always pad/truncate to header length
+                        row = (row + [""] * (n_columns - len(row)))[:n_columns]
                         grouped_table.append(row)
         result = {"header": header, "data": grouped_table}
         if table_id is not None:
@@ -242,6 +248,7 @@ class PDFDocHandler(DocHandler):
             if text:
                 lines = text.split("\n")
                 for line in lines:
+                    # Always skip header/footer lines, even in note continuation
                     if header_footer_re.search(line):
                         continue
                     if end_note_re.search(line):
@@ -260,6 +267,6 @@ class PDFDocHandler(DocHandler):
                     elif current_note:
                         line = line_number_re.sub("", line).strip()
                         notes[current_note]["text"] += f" {line}"
-        for note in notes:
-            self.logger.debug(f"{note} {notes[note]}")
+        if notes:
+            self.logger.debug(f"Extracted notes: {list(notes.keys())}")
         return notes

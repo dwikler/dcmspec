@@ -172,6 +172,17 @@ def test_extract_tables_empty(monkeypatch, patch_dirs):
     # Assert
     assert result == []
 
+def test_extract_tables_page_num_out_of_range(monkeypatch, patch_dirs):
+    """Test extract_tables raises IndexError if page number is out of range."""
+    # Arrange
+    handler = make_handler()
+    dummy_pdf = MagicMock()
+    dummy_page = MagicMock()
+    dummy_pdf.pages = [dummy_page]  # Only 1 page
+    # Act & Assert
+    with pytest.raises(IndexError, match="Page number 2 is out of range for this PDF"):
+        handler.extract_tables(dummy_pdf, [2])
+
 def test_concat_tables_basic(monkeypatch, patch_dirs):
     """Test concat_tables concatenates tables with matching headers."""
     # Arrange
@@ -187,19 +198,20 @@ def test_concat_tables_basic(monkeypatch, patch_dirs):
     assert result["header"] == ["A", "B"]
     assert result["data"] == [["C", "D"], ["E", "F"]]
 
-def test_concat_tables_with_pad(monkeypatch, patch_dirs):
-    """Test concat_tables pads rows if pad_columns is specified."""
+def test_concat_tables_pads_and_truncates_to_header(monkeypatch, patch_dirs):
+    """Test concat_tables pads or truncates rows to match header length."""
     # Arrange
     handler = make_handler()
     tables = [
-        {"page": 1, "index": 0, "header": ["A", "B"], "data": [["C"]]},
+        {"page": 1, "index": 0, "header": ["A", "B"], "data": [["C"], ["D", "E", "F"]]},
     ]
     table_indices = [(1, 0)]
     # Act
-    result = handler.concat_tables(tables, table_indices, pad_columns=2)
+    result = handler.concat_tables(tables, table_indices)
     # Assert
     assert result["header"] == ["A", "B"]
-    assert result["data"] == [["C", ""]]
+    # First row is padded, second row is truncated
+    assert result["data"] == [["C", ""], ["D", "E"]]
 
 def test_concat_tables_header_mismatch(monkeypatch, caplog, patch_dirs):
     """Test concat_tables logs a warning if headers do not match."""
@@ -247,3 +259,50 @@ def test_extract_notes_with_table_id(monkeypatch, patch_dirs):
     # Assert
     assert "Note 1:" in result
     assert result["Note 1:"]["table_id"] == "T-1"
+
+def test_extract_notes_multi_page(monkeypatch, patch_dirs):
+    """Test extract_notes can extract notes spanning multiple pages."""
+    # Arrange
+    handler = make_handler()
+    dummy_pdf = MagicMock()
+    dummy_page1 = MagicMock()
+    dummy_page2 = MagicMock()
+    # Note starts on page 1 and continues on page 2
+    dummy_page1.extract_text.return_value = "Header\nNote 1: This is a note that starts on page 1"
+    dummy_page2.extract_text.return_value = "and continues on page 2. Footer"
+    dummy_pdf.pages = [dummy_page1, dummy_page2]
+
+    # Act
+    result = handler.extract_notes(dummy_pdf, [1, 2])
+
+    # Assert
+    # The note should be concatenated across both pages
+    assert "Note 1:" in result
+    assert "This is a note that starts on page 1 and continues on page 2." in result["Note 1:"]["text"]
+
+def test_extract_notes_interrupted_by_headers_footers(monkeypatch, patch_dirs):
+    """Test extract_notes handles notes interrupted by headers, footers, or end patterns."""
+    handler = make_handler()
+    dummy_pdf = MagicMock()
+    dummy_page1 = MagicMock()
+    dummy_page2 = MagicMock()
+    # Note starts on page 1, continues on page 2, both have headers/footers as separate lines
+    dummy_page1.extract_text.return_value = "Header\nNote 2: This note is interrupted by a header."
+    dummy_page2.extract_text.return_value = "Header\nStill part of note 2.\nFooter\nEnd of Notes"
+    dummy_pdf.pages = [dummy_page1, dummy_page2]
+
+    # Act
+    result = handler.extract_notes(
+        dummy_pdf,
+        [1, 2],
+        header_footer_pattern=r"^(Header|Footer|End of Notes)$"
+    )
+
+    # Assert
+    # The note should be correctly concatenated and not include headers/footers
+    assert "Note 2:" in result
+    assert "This note is interrupted by a header. Still part of note 2." in result["Note 2:"]["text"]
+    assert "Header" not in result["Note 2:"]["text"]
+    assert "Footer" not in result["Note 2:"]["text"]
+    assert "End of Notes" not in result["Note 2:"]["text"]
+
