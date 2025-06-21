@@ -59,7 +59,7 @@ class CSVTableSpecParser(SpecParser):
 
         Returns:
             Node: The root node of the tree.
-            
+
         """
         root = Node("content")
         parent_nodes = {0: root}
@@ -74,6 +74,10 @@ class CSVTableSpecParser(SpecParser):
                     row_data[attr] = value
                 node_name = row_data[name_attr]
                 level = node_name.count(">") + 1
+                # Ensure all parent levels exist
+                if (level - 1) not in parent_nodes:
+                    # If a parent is missing, attach to root
+                    parent_nodes[level - 1] = root
                 parent = parent_nodes[level - 1]
                 child = Node(node_name, parent=parent, **row_data)
                 parent_nodes[level] = child
