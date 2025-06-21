@@ -11,14 +11,14 @@ class DummyFactory:
         """Initialize."""
         self.called = []
 
-    def load_dom(self, url, cache_file_name, force_download=False):
+    def load_document(self, url, cache_file_name, force_download=False):
         """Patch loading the DOM."""
-        self.called.append(("load_dom", url, cache_file_name, force_download))
+        self.called.append(("load_document", url, cache_file_name, force_download))
         return "FAKE_DOM"
 
-    def build_model(self, dom, table_id, url, json_file_name, **kwargs):
+    def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
         """Patch building the model."""
-        self.called.append(("build_model", dom, table_id, url, json_file_name))
+        self.called.append(("build_model", doc_object, table_id, url, json_file_name))
         metadata = self._create_metadata_node()
         content = Node("content")
         # Add a node with a ref attribute
@@ -108,7 +108,7 @@ def test_iod_spec_builder_combines_iod_and_module(monkeypatch):
 def test_iod_spec_builder_no_referenced_modules(monkeypatch):
     """Test IODSpecBuilder raises if no referenced modules are found."""
     class NoRefFactory(DummyFactory):
-        def build_model(self, dom, table_id, url, json_file_name, **kwargs):
+        def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
             metadata = Node("metadata")
             metadata.header = ["Attr1", "Attr2"]
             metadata.column_to_attr = {0: "attr1", 1: "attr2"}

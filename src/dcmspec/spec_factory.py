@@ -7,8 +7,6 @@ import logging
 import os
 from typing import Any, Optional, Dict, Type
 
-from bs4 import BeautifulSoup
-
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
 from dcmspec.doc_handler import DocHandler
@@ -82,8 +80,8 @@ class SpecFactory:
         self.column_to_attr = column_to_attr or {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
         self.name_attr = name_attr or "elem_name"
 
-    def load_dom(self, url: str, cache_file_name: str, force_download: bool = False) -> BeautifulSoup:
-        """Download, cache, and parse the specification file from a URL, returning the DOM.
+    def load_document(self, url: str, cache_file_name: str, force_download: bool = False) -> Any:
+        """Download, cache, and parse the specification file from a URL, returning the document object.
 
         Args:
             url (str): The URL to download the input file from.
@@ -91,11 +89,11 @@ class SpecFactory:
             force_download (bool): If True, always download the input file even if cached.
 
         Returns:
-            BeautifulSoup: The parsed DOM.
+            Any: The document object.
 
         """
         # This will download if needed and always parse/return the DOM
-        return self.input_handler.get_dom(cache_file_name=cache_file_name, url=url, force_download=force_download)
+        return self.input_handler.load_document(cache_file_name=cache_file_name, url=url, force_download=force_download)
 
     def try_load_cache(
         self,
@@ -119,7 +117,7 @@ class SpecFactory:
 
     def build_model(
         self,
-        dom: BeautifulSoup,
+        doc_object: Any,
         table_id: Optional[str] = None,
         url: Optional[str] = None,
         json_file_name: Optional[str] = None,
@@ -127,12 +125,15 @@ class SpecFactory:
         force_parse: bool = False,
         model_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
-        """Build and cache a DICOM specification model from a parsed DOM.
+        """Build and cache a DICOM specification model from a parsed document object.
 
         Args:
-            dom (BeautifulSoup): The parsed DOM object (e.g., BeautifulSoup).
+            doc_object (Any): The parsed document object to be parsed into a model.
+                - For XHTML: a BeautifulSoup DOM object.
+                - For PDF: a grouped table dict (from PDFDocHandler).
+                - For other formats: as defined by the handler/parser.
             table_id (Optional[str]): Table identifier for model parsing.
-            url (Optional[str]): The URL the DOM was fetched from (for metadata).
+            url (Optional[str]): The URL the document was fetched from (for metadata).
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
@@ -148,15 +149,21 @@ class SpecFactory:
         Returns:
             SpecModel: The constructed model.
 
+        Note:
+            The type of `doc_object` depends on the handler/parser used:
+            - For XHTML: a BeautifulSoup DOM object.
+            - For PDF: a grouped table dict as returned by PDFDocHandler.
+            - For other formats: as defined by the handler/parser.
+
         """
         # Try to load from cache first
         model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse)
         if model is not None:
             return model
 
-        # Parse provided DOM otherwise
+        # Parse provided document otherwise
         model = self._parse_and_build_model(
-            dom, table_id, url, include_depth, model_kwargs
+            doc_object, table_id, url, include_depth, model_kwargs
         )
 
         # Cache the newly built model if requested
@@ -178,6 +185,7 @@ class SpecFactory:
         force_download: bool = False,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
+        handler_kwargs: Optional[Dict[str, Any]] = None,
         model_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.
@@ -191,6 +199,7 @@ class SpecFactory:
                 Note: force_download also implies force_parse.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
+            handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler's methods.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
@@ -200,14 +209,23 @@ class SpecFactory:
             SpecModel: The constructed model.
 
         """
-        # Try to load from cache before loading DOM
+        # Set cache_file_name on the handler before checking cache
+        self.input_handler.cache_file_name = cache_file_name
+
+        # Try to load from cache before loading document object
         model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse or force_download)
         if model is not None:
             return model
 
-        dom = self.load_dom(url=url, cache_file_name=cache_file_name, force_download=force_download)
+        # Pass handler_kwargs to load_document
+        doc_object = self.input_handler.load_document(
+            cache_file_name=cache_file_name,
+            url=url,
+            force_download=force_download,
+            **(handler_kwargs or {})
+        )
         return self.build_model(
-            dom=dom,
+            doc_object=doc_object,
             table_id=table_id,
             url=url,
             json_file_name=json_file_name,
@@ -258,16 +276,16 @@ class SpecFactory:
 
     def _parse_and_build_model(
         self,
-        dom: BeautifulSoup,
+        doc_object: Any,
         table_id: Optional[str],
         url: Optional[str],
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
     ) -> SpecModel:
-        """Parse and Build model from provided DOM object."""
-        # Parse content and some metadata from DOM
+        """Parse and Build model from provided parsed document object."""
+        # Parse content and some metadata from the parsed document object
         metadata, content = self.table_parser.parse(
-            dom,
+            doc_object,
             table_id=table_id,
             include_depth=include_depth,
             column_to_attr=self.column_to_attr,
