@@ -7,26 +7,30 @@ nav:
   - Home: index.md
   - Installation: installation.md
   - API Reference:
-      - Core:
+      - Constants Modules:
+          - Service Attribute Defaults: api/service_attribute_defaults.md
+      - Core Classes:
           - SpecModel: api/spec_model.md
           - SpecMerger: api/spec_merger.md
           - ServiceAttributeModel: api/service_attribute_model.md
-          - Service Attribute Defaults: api/service_attribute_defaults.md
           - SpecFactory: api/spec_factory.md
           - IODSpecBuilder: api/iod_spec_builder.md
-      - Parse:
+      - Parse Classes:
           - SpecParser: api/spec_parser.md
           - DOMTableSpecParser: api/dom_table_spec_parser.md
-      - Load/Store:
+          - CSVTableSpecParser: api/csv_table_spec_parser.md
+      - Load Classes:
           - DocHandler: api/doc_handler.md
           - XHTMLDocHandler: api/xhtml_doc_handler.md
           - UPSXHTMLDocHandler: api/ups_xhtml_doc_handler.md
+          - PDFDocHandler: api/pdf_doc_handler.md
+      - Store Classes:
           - SpecStore: api/spec_store.md
           - JSONSpecStore: api/json_spec_store.md
-      - Print:
+      - Print Classes:
           - SpecPrinter: api/spec_printer.md
           - IODSpecPrinter: api/iod_spec_printer.md
-      - Utils:
+      - Utils Classes:
           - Config: api/config.md
           - DOMUtils: api/dom_utils.md
 

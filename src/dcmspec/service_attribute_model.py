@@ -54,7 +54,7 @@ class ServiceAttributeModel(SpecModel):
             content (Node): Node holding the hierarchical content tree of the DICOM specification.
             dimse_mapping (dict): Dictionary defining DIMSE and role-based attribute requirements.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
->
+
 
         Example:
             ```python

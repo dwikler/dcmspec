@@ -164,9 +164,15 @@ class PDFDocHandler(DocHandler):
             and 'data' (the concatenated table as a list of rows).
 
         Example:
+            ```python
             table_indices = [(57, 1), (58, 0), (60, 0)]
-            concatenated = handler.concat_tables(all_tables, table_indices, table_id="T-7.5-1", pad_columns=4)
-            # concatenated = {"table_id": "T-7.5-1", "header": [...], "data": [[...], ...]}
+            concatenated = handler.concat_tables(
+                all_tables,
+                table_indices,
+                table_id="tdwii_ups_scheduled_info_base",
+                pad_columns=4
+            )
+            ```
 
         """
         grouped_table = []
