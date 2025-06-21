@@ -80,7 +80,7 @@ class IODSpecBuilder:
             return cached_model
 
         # Load the DOM from cache file or download and cache DOM in memory.
-        dom = self.iod_factory.load_dom(
+        dom = self.iod_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,
             force_download=force_download,
@@ -88,7 +88,7 @@ class IODSpecBuilder:
 
         # Build the IOD Modules model from the DOM
         iodmodules_model = self.iod_factory.build_model(
-            dom=dom,
+            doc_object=dom,
             table_id=table_id,
             url=url,
             json_file_name=json_file_name,
@@ -160,14 +160,14 @@ class IODSpecBuilder:
                 except Exception as e:
                     self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
                     module_model = self.module_factory.build_model(
-                        dom=dom,
+                        doc_object=dom,
                         table_id=module_table_id,
                         url=url,
                         json_file_name=module_json_file_name,
                     )
             else:
                 module_model = self.module_factory.build_model(
-                    dom=dom,
+                    doc_object=dom,
                     table_id=module_table_id,
                     url=url,
                     json_file_name=module_json_file_name,

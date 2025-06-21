@@ -7,7 +7,6 @@ from the DICOM standard, returning a BeautifulSoup DOM object.
 import logging
 import os
 import re
-import requests
 from bs4 import BeautifulSoup
 from typing import Optional
 
@@ -27,7 +26,11 @@ class XHTMLDocHandler(DocHandler):
         super().__init__(config=config, logger=logger)
         self.cache_file_name = None
 
-    def get_dom(self, cache_file_name: str, url: Optional[str] = None, force_download: bool = False) -> BeautifulSoup:
+    def load_document(
+            self, cache_file_name: str,
+            url: Optional[str] = None,
+            force_download: bool = False
+    ) -> BeautifulSoup:
         """Open and parse an XHTML file, downloading it if needed.
 
         Args:
@@ -53,6 +56,8 @@ class XHTMLDocHandler(DocHandler):
     def download(self, url: str, cache_file_name: str) -> str:
         """Download and cache an XHTML file from a URL.
 
+        Uses the base class download method, saving as UTF-8 text and cleaning ZWSP/NBSP.
+
         Args:
             url: The URL of the XHTML document to download.
             cache_file_name: The filename of the cached document.
@@ -65,48 +70,23 @@ class XHTMLDocHandler(DocHandler):
 
         """
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
-        self.logger.info(f"Downloading XHTML document from {url} to {file_path}")
-        try:
-            self._ensure_dir_exists(file_path)  # Fail before download if directory can't be created
-        except OSError as e:
-            self.logger.error(f"Failed to create directory for {file_path}: {e}")
-            raise RuntimeError(f"Failed to create directory for {file_path}: {e}") from e
-        try:
-            html_content = self._fetch_url_content(url)
-            self._save_content(file_path, html_content)
-            self.logger.info(f"Document downloaded to {file_path}")
-            return file_path
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"Failed to download {url}: {e}")
-            raise RuntimeError(f"Failed to download {url}: {e}") from e
-        except OSError as e:
-            self.logger.error(f"Failed to save file {file_path}: {e}")
-            raise RuntimeError(f"Failed to save file {file_path}: {e}") from e
+        return super().download(url, file_path, binary=False)
 
-    def _ensure_dir_exists(self, file_path: str) -> None:
-        """Ensure the directory for the file path exists."""
-        dir_name = os.path.dirname(file_path)
-        if dir_name:
-            os.makedirs(dir_name, exist_ok=True)
+    def clean_text(self, text: str) -> str:
+        """Clean text content before saving.
 
-    def _fetch_url_content(self, url: str) -> str:
-        """Fetch content from a URL and return as UTF-8 text."""
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        # Force UTF-8 decoding to avoid getting Ã (/u00C3) characters
-        response.encoding = "utf-8"
-        # IN the future we may want to manually decode the content and ignore errors:
-        # html_content = response.content.decode("utf-8", errors="ignore")
-        # return html_content
-        return response.text
+        Removes zero-width space (ZWSP) and non-breaking space (NBSP) characters.
 
-    def _save_content(self, file_path: str, html_content: str) -> None:
-        """Clean and save HTML content to a file."""
-        with open(file_path, "w", encoding="utf-8") as f:
-            # Replace ZWSP with nothing and NBSP with a regular space
-            cleaned_content = re.sub(r"\u200b", "", html_content)
-            cleaned_content = re.sub(r"\u00a0", " ", cleaned_content)
-            f.write(cleaned_content)
+        Args:
+            text (str): The text content to clean.
+
+        Returns:
+            str: The cleaned text.
+
+        """
+        cleaned_content = re.sub(r"\u200b", "", text)
+        cleaned_content = re.sub(r"\u00a0", " ", cleaned_content)
+        return cleaned_content
 
     def parse_dom(self, file_path: str) -> BeautifulSoup:
         """Parse a cached XHTML file into a BeautifulSoup DOM object.

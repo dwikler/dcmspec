@@ -23,7 +23,7 @@ class DummyInputHandler:
         self.logger = logging.getLogger("DummyInputHandler")
         self.cache_file_name = "file.xhtml"
 
-    def get_dom(self, cache_file_name, url=None, force_download=False):
+    def load_document(self, cache_file_name, url=None, force_download=False):
         """Simulate getting a DOM from a file or URL."""
         self.called = True
         return "DOM"
@@ -43,7 +43,7 @@ class DummyTableParser:
         """Initialize the dummy table parser."""
         self.called = False
 
-    def parse(self, dom, table_id, include_depth, column_to_attr, name_attr, **kwargs):
+    def parse(self, doc_object, table_id, include_depth, column_to_attr, name_attr, **kwargs):
         """Simulate parsing a DOM and returning dummy metadata and content nodes."""
         self.called = True
         # Return dummy metadata and content nodes as anytree Nodes
@@ -123,10 +123,10 @@ def test_init_type_error():
         SpecFactory(config="not_a_config")
 
 def test_load_dom(monkeypatch):
-    """Test load_dom returns the DOM and calls input_handler.get_dom."""
+    """Test load_dom returns the DOM and calls input_handler.load_document."""
     ih = DummyInputHandler()
     factory = SpecFactory(input_handler=ih)
-    dom = factory.load_dom(url="http://example.com", cache_file_name="file.xhtml", force_download=True)
+    dom = factory.load_document(url="http://example.com", cache_file_name="file.xhtml", force_download=True)
     assert dom == "DOM"
     assert ih.called
 
@@ -139,7 +139,7 @@ def test_build_model(monkeypatch, patch_dirs):
     monkeypatch.setattr("os.path.exists", lambda path: False)
     dom = "DOM"
     factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         # json_file_name is omitted
@@ -156,7 +156,7 @@ def test_build_model_with_custom_model_class(monkeypatch, patch_dirs):
     monkeypatch.setattr("os.path.exists", lambda path: False)
     dom = "DOM"
     model = factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         json_file_name="custom.json",
@@ -174,7 +174,7 @@ def test_build_model_with_custom_json_file_name(monkeypatch, patch_dirs):
     dom = "DOM"
     custom_json_file_name = "custom_model.json"
     factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         json_file_name=custom_json_file_name,
@@ -192,7 +192,7 @@ def test_build_model_loads_from_cache(monkeypatch, patch_dirs):
     monkeypatch.setattr("os.path.exists", lambda path: True)
     dom = "DOM"
     model = factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         json_file_name="file.json",
@@ -214,7 +214,7 @@ def test_build_model_fallback_to_parser(monkeypatch):
     monkeypatch.setattr(ms, "save", lambda model, path: None)
     dom = "DOM"
     factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         json_file_name="file.json",
@@ -232,7 +232,7 @@ def test_build_model_force_parse(monkeypatch):
     monkeypatch.setattr(ms, "save", lambda model, path: None)
     dom = "DOM"
     factory.build_model(
-        dom=dom,
+        doc_object=dom,
         table_id="table1",
         url="http://example.com",
         json_file_name="file.json",
@@ -256,7 +256,7 @@ def test_build_model_save_failure(monkeypatch, caplog):
     dom = "DOM"
     with caplog.at_level("WARNING"):
         factory.build_model(
-            dom=dom,
+            doc_object=dom,
             table_id="table1",
             url="http://example.com",
             json_file_name="file.json",
@@ -267,31 +267,32 @@ def test_build_model_save_failure(monkeypatch, caplog):
 
 @pytest.fixture
 def fake_load_and_build(monkeypatch):
-    """Fixture providing fake load_dom and build_model methods for SpecFactory tests.
+    """Fixture providing fake load_document and build_model methods for SpecFactory tests.
 
     Returns:
-        tuple: (called, fake_load_dom, fake_build_model)
+        tuple: (called, fake_load_document, fake_build_model)
             - called: dict to record the arguments with which the fakes are called.
-            - fake_load_dom: function to patch load_dom, records its arguments and returns a fake dom.
+            - fake_load_document: function to patch load_document, records its arguments and returns a fake dom.
             - fake_build_model: function to patch build_model, records its arguments and returns a fake model.
 
     Usage:
-        called, fake_load_dom, fake_build_model = fake_load_and_build
-        monkeypatch.setattr(factory, "load_dom", fake_load_dom)
+        called, fake_load_document, fake_build_model = fake_load_and_build
+        monkeypatch.setattr(factory, "load_document", fake_load_document)
         monkeypatch.setattr(factory, "build_model", fake_build_model)
 
     """
     called = {}
 
-    def fake_load_dom(url, cache_file_name, force_download):
-        called["load_dom"] = (url, cache_file_name, force_download)
+    def fake_load_document(cache_file_name, url=None, force_download=False, **kwargs):
+        # Only record if actually called
+        called["load_document"] = (cache_file_name, url, force_download)
         return "FAKE_DOM"
 
-    def fake_build_model(dom, table_id, url, json_file_name, include_depth, force_parse, **kwargs):
-        called["build_model"] = (dom, table_id, url, json_file_name, include_depth, force_parse)
+    def fake_build_model(doc_object, table_id, url, json_file_name, include_depth, force_parse, **kwargs):
+        called["build_model"] = (doc_object, table_id, url, json_file_name, include_depth, force_parse)
         return "FAKE_MODEL"
 
-    return called, fake_load_dom, fake_build_model
+    return called, fake_load_document, fake_build_model
 
 def test_build_model_raises_if_no_json_or_cache(monkeypatch):
     """Test build_model raises ValueError if neither json_file_name nor cache_file_name is set."""
@@ -302,7 +303,7 @@ def test_build_model_raises_if_no_json_or_cache(monkeypatch):
     dom = "DOM"
     with pytest.raises(ValueError, match="input_handler.cache_file_name not set"):
         factory.build_model(
-            dom=dom,
+            doc_object=dom,
             table_id="table1",
             url="http://example.com",
             # json_file_name is omitted
@@ -315,8 +316,9 @@ def test_create_model(monkeypatch, fake_load_and_build):
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
 
-    called, fake_load_dom, fake_build_model = fake_load_and_build
-    monkeypatch.setattr(factory, "load_dom", fake_load_dom)
+    called, fake_load_document, fake_build_model = fake_load_and_build
+    # Patch the input_handler's load_document
+    monkeypatch.setattr(factory.input_handler, "load_document", fake_load_document)
     monkeypatch.setattr(factory, "build_model", fake_build_model)
 
     # Do not pass force_download, should default to False
@@ -329,7 +331,8 @@ def test_create_model(monkeypatch, fake_load_and_build):
     )
     assert result == "FAKE_MODEL"
     # Assert that force_download is False by default
-    assert called["load_dom"] == ("http://example.com", "file.xhtml", False)
+    assert "load_document" in called, f"called keys: {list(called.keys())}"
+    assert called["load_document"] == ("file.xhtml", "http://example.com", False)
     assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, False)
 
 def test_create_model_force_download(monkeypatch, fake_load_and_build):
@@ -339,8 +342,9 @@ def test_create_model_force_download(monkeypatch, fake_load_and_build):
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
 
-    called, fake_load_dom, fake_build_model = fake_load_and_build
-    monkeypatch.setattr(factory, "load_dom", fake_load_dom)
+    called, fake_load_document, fake_build_model = fake_load_and_build
+    # Patch the input_handler's load_document
+    monkeypatch.setattr(factory.input_handler, "load_document", fake_load_document)
     monkeypatch.setattr(factory, "build_model", fake_build_model)
 
     result = factory.create_model(
@@ -352,7 +356,7 @@ def test_create_model_force_download(monkeypatch, fake_load_and_build):
         include_depth=2,
     )
     assert result == "FAKE_MODEL"
-    assert called["load_dom"] == ("http://example.com", "file.xhtml", True)
+    assert called["load_document"] == ("file.xhtml", "http://example.com", True)
     assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, True)
 
 def test_create_model_force_parse(monkeypatch, fake_load_and_build):
@@ -362,8 +366,9 @@ def test_create_model_force_parse(monkeypatch, fake_load_and_build):
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
 
-    called, fake_load_dom, fake_build_model = fake_load_and_build
-    monkeypatch.setattr(factory, "load_dom", fake_load_dom)
+    called, fake_load_document, fake_build_model = fake_load_and_build
+    # Patch the input_handler's load_document
+    monkeypatch.setattr(factory.input_handler, "load_document", fake_load_document)
     monkeypatch.setattr(factory, "build_model", fake_build_model)
 
     result = factory.create_model(
@@ -376,5 +381,21 @@ def test_create_model_force_parse(monkeypatch, fake_load_and_build):
         include_depth=2,
     )
     assert result == "FAKE_MODEL"
-    assert called["load_dom"] == ("http://example.com", "file.xhtml", False)
+    assert called["load_document"] == ("file.xhtml", "http://example.com",  False)
     assert called["build_model"] == ("FAKE_DOM", "table1", "http://example.com", "file.json", 2, True)
+
+def test_create_model_raises_if_no_json_or_cache(monkeypatch):
+    """Test create_model raises ValueError if neither json_file_name nor cache_file_name is set."""
+    ms = DummyModelStore()
+    ih = NoCacheFileNameInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    # Remove cache_file_name from handler to simulate the error
+    ih.cache_file_name = None
+    with pytest.raises(ValueError, match="input_handler.cache_file_name not set"):
+        factory.create_model(
+            url="http://example.com",
+            cache_file_name=None,  # Explicitly pass None
+            table_id="table1",
+            # json_file_name is omitted
+        )
