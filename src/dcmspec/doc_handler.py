@@ -110,8 +110,8 @@ class DocHandler:
         cache_file_name: str,
         url: Optional[str] = None,
         force_download: bool = False,
-        *args,
-        **kwargs
+        *args: Any,
+        **kwargs: Any
     ) -> Any:
         """Implement this method to read and parse the document file, returning a parsed object.
 

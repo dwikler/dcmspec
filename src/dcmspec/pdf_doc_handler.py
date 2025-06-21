@@ -43,7 +43,6 @@ class PDFDocHandler(DocHandler):
         table_indices: Optional[list] = None,
         pad_columns: Optional[int] = None,
         table_id: Optional[str] = None,
-        **kwargs
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
 
@@ -55,7 +54,6 @@ class PDFDocHandler(DocHandler):
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             pad_columns (int, optional): If set, pad each row to this number of columns.
             table_id (str, optional): An identifier for the concatenated table.
-            **kwargs: Ignored, for compatibility.
 
         Returns:
             dict: The specification table dict with keys 'header', 'data', and optionally 'table_id'.

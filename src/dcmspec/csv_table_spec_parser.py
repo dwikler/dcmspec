@@ -3,6 +3,7 @@
 Provides the CSVTableSpecParser class for parsing DICOM specification tables in CSV format,
 converting them into structured in-memory representations using anytree.
 """
+from typing import Tuple
 from anytree import Node
 
 from dcmspec.spec_parser import SpecParser
@@ -17,7 +18,7 @@ class CSVTableSpecParser(SpecParser):
         name_attr="elem_name",
         table_id=None,
         include_depth=None,
-    ):
+    ) -> Tuple[Node, Node]:
         """Parse specification metadata and content from a single table dict.
 
         Args:
