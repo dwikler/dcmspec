@@ -12,8 +12,14 @@ def main():
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("table", nargs="?", default="table_A.3-1", help="Table ID")
+    parser.add_argument("table", help="Table ID")
     parser.add_argument("--config", help="Path to the configuration file")
+    parser.add_argument(
+        "--print-mode", 
+        choices=["table", "tree", "none"],
+        default="table",
+        help="Print as 'table' (default), 'tree', or 'none' to skip printing"
+    )
     args = parser.parse_args()
 
     cache_file_name = "Part3.xhtml"
@@ -26,15 +32,31 @@ def main():
     # Initialize configuration
     config = Config(app_name="dcmspec", config_file=config_file)
 
-    # Create the IOD and module factories
+    # Check table_id belongs to either Composite or Normalized IODs annexes
+    if "table_A." in table_id:
+        composite_iod = True
+    elif "table_B." in table_id:
+        composite_iod = False
+    else:
+        print(f"table {table_id} does not correspond to a Composite or Normalized IOD")
+        exit(1)
+
+    # Create the IOD specification factory
+    c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
+    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+    iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
     iod_factory = SpecFactory(
-        column_to_attr={0: "ie", 1: "module", 2: "ref", 3: "usage"}, 
+        column_to_attr=iod_columns_mapping, 
         name_attr="module",
         config=config,
     )
+
+    # Create the modules specification factory
+    parser_kwargs=None if composite_iod else {"skip_columns": [2]}
     module_factory = SpecFactory(
         column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
         name_attr="elem_name",
+        parser_kwargs=parser_kwargs,
         config=config,
     )
 
@@ -50,10 +72,13 @@ def main():
         force_download=False,
     )
 
-    # Print the model as a table
+    # Print the model
     printer = IODSpecPrinter(model)
-    printer.print_table(colorize=True)
-
+    if args.print_mode == "tree":
+        printer.print_tree(colorize=True)
+    elif args.print_mode == "table":
+        printer.print_table(colorize=True)
+    # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":
     main()

@@ -38,6 +38,7 @@ class DOMTableSpecParser(SpecParser):
         column_to_attr: Dict[int, str],
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
+        skip_columns: Optional[list[int]] = None,
     ) -> tuple[Node, Node]:
         """Parse specification metadata and content from tables in the DOM.
 
@@ -51,13 +52,30 @@ class DOMTableSpecParser(SpecParser):
             name_attr (str): The attribute name to use for building node names.
             include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
                 None means unlimited.
+            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
 
         Returns:
             Tuple[Node, Node]: The metadata node and the table content node.
 
         """
-        metadata = self.parse_metadata(dom, table_id, column_to_attr)
-        content = self.parse_table(dom, table_id, column_to_attr, name_attr, include_depth=include_depth)
+        self._skipped_columns_flag = False
+
+        content = self.parse_table(
+            dom, table_id, column_to_attr, name_attr, include_depth=include_depth, skip_columns=skip_columns
+        )
+
+        # If we ever skipped columns, remove them from metadata.column_to_attr and realign keys
+        if skip_columns and self._skipped_columns_flag:
+            kept_items = [(k, v) for k, v in column_to_attr.items() if k not in skip_columns]
+            filtered_column_to_attr = {i: v for i, (k, v) in enumerate(kept_items)}
+        else:
+            filtered_column_to_attr = column_to_attr
+
+        metadata = self.parse_metadata(dom, table_id, filtered_column_to_attr)
+        metadata.column_to_attr = filtered_column_to_attr
+        metadata.table_id = table_id
+        if include_depth is not None:
+            metadata.include_depth = int(include_depth)
         return metadata, content
 
     def parse_table(
@@ -68,6 +86,7 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
+        skip_columns: Optional[list[int]] = None,
     ) -> Node:
         """Parse specification content from tables within the DOM of a DICOM document.
 
@@ -83,6 +102,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr: tree node attribute name to use to build node name
             table_nesting_level: The nesting level of the table (used for recursion call only).
             include_depth: The depth to which included tables should be parsed.
+            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
 
         Returns:
             root: The root node of the tree representation of the specification table.
@@ -106,7 +126,7 @@ class DOMTableSpecParser(SpecParser):
         level_nodes: Dict[int, Node] = {0: root}
 
         for row in table.find_all("tr")[1:]:
-            row_data = self._extract_row_data(row, table_nesting_level)
+            row_data = self._extract_row_data(row, skip_columns=skip_columns)
 
             row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
 
@@ -189,16 +209,22 @@ class DOMTableSpecParser(SpecParser):
         document_release = dom.find("span", class_="documentreleaseinformation")
         return document_release.text.split()[2] if document_release else None
 
-    def _extract_row_data(self, row: Tag, table_nesting_level: int) -> Dict[str, Any]:
+    def _extract_row_data(
+            self, row: Tag, skip_columns: Optional[list[int]] = None) -> Dict[str, Any]:
         """Extract data from a table row.
 
         Processes each cell in the row, handling colspans and extracting text
         content from paragraphs within the cells. Constructs a dictionary
         containing the extracted data.
 
+        If the row has one less cell than the mapping and skip_columns is set,
+        those columns will be skipped for this row, allowing for robust alignment when
+        a column is sometimes missing.
+
         Args:
             row: The table row element (BeautifulSoup Tag).
             table_nesting_level: The nesting level of the table.
+            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
 
         Returns:
             A dictionary containing the extracted data from the row.
@@ -220,12 +246,19 @@ class DOMTableSpecParser(SpecParser):
 
         # Build row_data dictionary
         row_data: Dict[str, Any] = {}
-        attr_index = 0
-        for cell, colspan in zip(cells, colspans):
-            if attr_index in self.column_to_attr:
-                row_data[self.column_to_attr[attr_index]] = cell
-            attr_index += colspan
+        attr_indices = list(self.column_to_attr.keys())
 
+        # If the row is missing exactly the number of columns specified in skip_columns,
+        # skip those columns to align the remaining cells with the correct attributes.
+        if skip_columns and len(cells) == len(self.column_to_attr) - len(skip_columns):
+            attr_indices = [i for i in attr_indices if i not in skip_columns]
+            # Flag if the skipped_columns were actually skipped
+            self._skipped_columns_flag = True
+        for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
+            if attr_index < len(attr_indices):
+                col_idx_map = attr_indices[attr_index]
+                attr = self.column_to_attr[col_idx_map]
+                row_data[attr] = cell
         return row_data
 
     def _handle_pending_rowspans(self):
@@ -336,7 +369,9 @@ class DOMTableSpecParser(SpecParser):
     def _extract_header(self, table: Tag, column_to_attr: Dict[int, str]) -> list:
         """Extract headers from the table and saves them in the headers attribute.
 
-        Only extracts headers of the columns corresponding to the keys in column_to_attr.
+        Realign the keys in column_to_attr to consecutive indices if the number of columns in the table
+        is less than the maximum key in column_to_attr, to handle cases where the mapping is out of sync
+        with the actual table structure.
 
         Args:
             table: The table element from which to extract headers.
@@ -344,7 +379,18 @@ class DOMTableSpecParser(SpecParser):
 
         """
         cells = table.find_all("th")
-        header = [header.get_text(strip=True) for i, header in enumerate(cells) if i in column_to_attr]
+        num_columns = len(cells)
+        # If the mapping has non-consecutive keys and the table has fewer columns, realign
+        if max(column_to_attr.keys()) >= num_columns:
+            # Map consecutive indices to the same attribute names, skipping as needed
+            sorted_attrs = [column_to_attr[k] for k in sorted(column_to_attr.keys())]
+            realigned_col_to_attr = {i: attr for i, attr in enumerate(sorted_attrs)}
+            column_to_attr = realigned_col_to_attr
+
+        header = []
+        for col_idx in column_to_attr:
+            if col_idx < len(cells):
+                header.append(cells[col_idx].get_text(strip=True))
         self.logger.info(f"Extracted Header: {header}")
         return header
 

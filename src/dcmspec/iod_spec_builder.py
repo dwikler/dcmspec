@@ -92,7 +92,6 @@ class IODSpecBuilder:
             table_id=table_id,
             url=url,
             json_file_name=json_file_name,
-            **kwargs,
         )
 
         # Find all nodes with a "ref" attribute in the IOD Modules model
@@ -180,6 +179,7 @@ class IODSpecBuilder:
         # Use the first module's metadata node for the expanded model
         first_module = next(iter(module_models.values()))
         iod_metadata = first_module.metadata
+        iod_metadata.table_id = iodmodules_model.metadata.table_id
 
         # The content node will have as children the IOD model's nodes,
         # and for each referenced module, its content's children will be attached directly under the iod node

@@ -112,6 +112,65 @@ class SpecMerger:
             force_update=force_update,
         )
 
+    def merge_path_with_default(
+        self,
+        model1: SpecModel,
+        model2: SpecModel,
+        match_by: str = "name",
+        attribute_name: str = None,
+        merge_attrs: list[str] = None,
+        default_attr: str = "elem_type",
+        default_value: str = "3",
+        default_value_func: callable = None,
+    ) -> SpecModel:
+        """Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.
+
+        This method merges two models using the path-based merge strategy (matching nodes by their
+        hierarchical path and optionally by a specific attribute), and then sets `default_attr` to
+        `default_value` for any node in the merged model that does not already have that attribute.
+
+        This is especially useful for workflows where you want to enrich a normalized IOD model
+        (e.g., from DICOM PS3.3) with a service attribute model (e.g., from DICOM PS3.4 or an IHE
+        profile), and you want to ensure that all nodes in the merged model have a value for the
+        Type attribute.
+
+        Use case:
+            - Merging a DICOM PS3.3 normalized IOD attributes specification (e.g., built with IODSpecBuilder)
+              with a DICOM PS3.4 DIMSE SCU or SCP attributes specification (e.g., built with ServiceAttributeModel
+              and select_dimse/select_role). After merging, any node present in the normalized IOD model but
+              missing from the service attribute model will have its "Type" (or other specified attribute)
+              set to the default value (e.g., "3"), ensuring the merged model is complete and ready for
+              further processing or export.
+
+        Args:
+            model1 (SpecModel): The first model (e.g., normalized IOD).
+            model2 (SpecModel): The second model (e.g., service attribute model).
+            match_by (str, optional): "name" to match by node name, "attribute" to match by a specific attribute.
+            attribute_name (str, optional): The attribute name to use for matching.
+            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.
+            default_attr (str, optional): The attribute to set if missing (default: "elem_type").
+            default_value (str, optional): The value to set for missing attributes (default: "3").
+            default_value_func (callable, optional): A function to determine the default value for missing attributes.
+                If provided, it will be called as
+                `default_value_func(node, merged_model, service_model, default_attr, default_value)`
+                and should return the value to use for the missing attribute.
+                
+        Returns:
+            SpecModel: The merged SpecModel instance with default values set for missing attributes.
+
+        """
+        merged = self.merge_path(
+            model1, model2, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs
+        )
+        for node in merged.content.descendants:
+            if not hasattr(node, default_attr):
+                if default_value_func is not None:
+                    value = default_value_func(node, merged, model2, default_attr, default_value)
+                else:
+                    value = default_value
+                setattr(node, default_attr, value)
+        return merged
+
     def merge_many(
         self,
         models: list[SpecModel],
