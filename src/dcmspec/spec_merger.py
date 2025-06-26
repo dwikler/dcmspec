@@ -47,6 +47,7 @@ class SpecMerger:
         merge_attrs: list[str] = None,
         json_file_name: str = None,
         force_update: bool = False,
+        ignore_module_level: bool = False,
     ) -> SpecModel:
         """Merge two DICOM SpecModel objects using the node merge method, with optional caching.
 
@@ -73,6 +74,7 @@ class SpecMerger:
             merge_attrs_list=[merge_attrs],
             json_file_name=json_file_name,
             force_update=force_update,
+            ignore_module_level=ignore_module_level,
         )
 
     def merge_path(
@@ -84,6 +86,7 @@ class SpecMerger:
         merge_attrs: list[str] = None,
         json_file_name: str = None,
         force_update: bool = False,
+        ignore_module_level: bool = False,
     ) -> SpecModel:
         """Merge two DICOM SpecModel objects using the path merge method, with optional caching.
 
@@ -110,6 +113,7 @@ class SpecMerger:
             merge_attrs_list=[merge_attrs],
             json_file_name=json_file_name,
             force_update=force_update,
+            ignore_module_level=ignore_module_level,
         )
 
     def merge_path_with_default(
@@ -122,6 +126,7 @@ class SpecMerger:
         default_attr: str = "elem_type",
         default_value: str = "3",
         default_value_func: callable = None,
+        ignore_module_level: bool = False,
     ) -> SpecModel:
         """Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.
 
@@ -160,7 +165,7 @@ class SpecMerger:
 
         """
         merged = self.merge_path(
-            model1, model2, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs
+            model1, model2, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs, ignore_module_level=ignore_module_level
         )
         for node in merged.content.descendants:
             if not hasattr(node, default_attr):
@@ -180,6 +185,7 @@ class SpecMerger:
         merge_attrs_list: list = None,
         json_file_name: str = None,
         force_update: bool = False,
+        ignore_module_level: bool = False,
     ) -> SpecModel:
         """Merge a sequence of DICOM SpecModel objects using the specified merge method, with optional caching.
 
@@ -217,7 +223,7 @@ class SpecMerger:
 
         self._validate_merge_args(models, attribute_names, merge_attrs_list)
         merged = self._merge_models(
-            models, method=method, match_by=match_by, attribute_names=attribute_names, merge_attrs_list=merge_attrs_list
+            models, method=method, match_by=match_by, attribute_names=attribute_names, merge_attrs_list=merge_attrs_list, ignore_module_level=ignore_module_level
             )
         self._update_metadata(merged, models, merge_attrs_list)
         self._save_cache(merged, json_file_name)
@@ -265,6 +271,7 @@ class SpecMerger:
         match_by: str = "name",
         attribute_names: list = None,
         merge_attrs_list: list = None,
+        ignore_module_level: bool = False,
     ) -> SpecModel:
         """Perform the actual merging of models using the specified method."""
         merged = models[0]
@@ -275,10 +282,12 @@ class SpecMerger:
             attribute_name = attribute_names[i]
             merge_attrs = merge_attrs_list[i]
             if method == "matching_path":
+                self.logger.debug(f"Merging model {i+1} by path with match_by={match_by}, attribute_name={attribute_name}, merge_attrs={merge_attrs}, ignore_module_level={ignore_module_level}")
                 merged = merged.merge_matching_path(
-                    model, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs
+                    model, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs, ignore_module_level=ignore_module_level
                     )
             elif method == "matching_node":
+                self.logger.debug(f"Merging model {i+1} by node with match_by={match_by}, attribute_name={attribute_name}, merge_attrs={merge_attrs}")
                 merged = merged.merge_matching_node(
                     model, match_by=match_by, attribute_name=attribute_name, merge_attrs=merge_attrs
                     )

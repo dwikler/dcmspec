@@ -29,6 +29,7 @@ class DOMTableSpecParser(SpecParser):
 
         """
         super().__init__(logger=logger)
+
         self.dom_utils = DOMUtils(logger=self.logger)
 
     def parse(

@@ -41,7 +41,6 @@ class SpecModel:
 
         """
         self.logger = logger or logging.getLogger(self.__class__.__name__)
-
         self.metadata = metadata
         self.content = content
 
@@ -118,6 +117,7 @@ class SpecModel:
         match_by: str = "name",
         attribute_name: Optional[str] = None,
         merge_attrs: Optional[list[str]] = None,
+        ignore_module_level: bool = False,
     ) -> "SpecModel":
         """Merge with another SpecModel, producing a new model with attributes merged for nodes with matching paths.
 
@@ -134,6 +134,7 @@ class SpecModel:
             match_by (str): "name" to match by node.name path, "attribute" to match by a specific attribute path.
             attribute_name (str, optional): The attribute name to use for matching if match_by="attribute".
             merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.
+            ignore_module_level (bool, optional): If True, skip the module level in the path for matching.
 
         Returns:
             SpecModel: A new merged SpecModel.
@@ -144,7 +145,8 @@ class SpecModel:
             match_by=match_by,
             attribute_name=attribute_name,
             merge_attrs=merge_attrs,
-            is_path_based=True
+            is_path_based=True,
+            ignore_module_level=ignore_module_level
         )
 
     def merge_matching_node(
@@ -370,7 +372,8 @@ class SpecModel:
         match_by: str,
         attribute_name: Optional[str] = None,
         merge_attrs: Optional[list[str]] = None,
-        is_path_based: bool = False
+        is_path_based: bool = False,
+        ignore_module_level: bool = False,
     ) -> "SpecModel":
         """Merge this SpecModel with another, enriching nodes by matching keys.
 
@@ -384,6 +387,7 @@ class SpecModel:
             attribute_name (str, optional): The attribute name to use for matching if match_by="attribute".
             merge_attrs (list[str], optional): List of attribute names to copy from the matching node.
             is_path_based (bool): If True, match nodes by their full path; if False, match globally by key.
+            ignore_module_level (bool): If True, skip the module level in the path for matching.
 
         Returns:
             SpecModel: A deep copy of this model, with attributes merged from the other model where matches are found.
@@ -395,13 +399,52 @@ class SpecModel:
 
         """
         merged = copy.deepcopy(self)
-        
-        node_map, key_func = self._build_node_map(
-            other, match_by, attribute_name, is_path_based
-        )
-        
+        merged.logger = self.logger 
+
+        def strip_module_level(path_tuple):
+            # path_tuple: e.g. ('content', 'module', 'attribute')
+            if ignore_module_level and len(path_tuple) > 2 and path_tuple[0] == "content":
+                # Remove the module level (second element)
+                return (path_tuple[0],) + path_tuple[2:]
+            return path_tuple
+
+        if is_path_based and ignore_module_level:
+            # Build node_map with stripped paths
+            if match_by == "name":
+                node_map = {
+                    strip_module_level(self._get_path_by_name(node)): node
+                    for node in PreOrderIter(other.content)
+                }
+                def key_func(node):
+                    return strip_module_level(self._get_path_by_name(node))
+            elif match_by == "attribute" and attribute_name:
+                node_map = {
+                    strip_module_level(self._get_path_by_attr(node, attribute_name)): node
+                    for node in PreOrderIter(other.content)
+                }
+                def key_func(node):
+                    return strip_module_level(self._get_path_by_attr(node, attribute_name))
+            else:
+                raise ValueError("Invalid match_by or missing attribute_name")
+            # Debug: print first 20 keys in node_map
+            self.logger.debug(f"First 20 keys in node_map (ignore_module_level): {list(node_map.keys())[:20]}")
+        else:
+            node_map, key_func = self._build_node_map(
+                other, match_by, attribute_name, is_path_based
+            )
+            # Debug: print first 20 keys in node_map
+            self.logger.debug(f"First 20 keys in node_map: {list(node_map.keys())[:20]}")
+
+        # Debug: print the key for a specific node you care about
+        for node in PreOrderIter(merged.content):
+            if getattr(node, "name", None) == "sop_class_uid":
+                self.logger.debug(f"Key for IOD node 'sop_class_uid': {key_func(node)}")
+
         for node in PreOrderIter(merged.content):
             key = key_func(node)
+            if getattr(node, "name", None) == "sop_class_uid":
+                self.logger.debug(f"Trying to match IOD node 'sop_class_uid' with key: {key}")
+                self.logger.debug(f"All keys in node_map: {list(node_map.keys())[:50]}")
             if key in node_map and key is not None:
                 other_node = node_map[key]
                 for attr in (merge_attrs or []):
@@ -409,7 +452,5 @@ class SpecModel:
                         setattr(node, attr, getattr(other_node, attr))
                         self.logger.debug(f"Enriched node {getattr(node, 'name', None)} "
                                         f"(key={key}) with {attr}={getattr(other_node, attr)}")
-            else:
-                self.logger.debug(f"No match for node {getattr(node, 'name', None)} (key={key})")
-                
+
         return merged

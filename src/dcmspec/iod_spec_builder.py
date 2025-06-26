@@ -39,6 +39,7 @@ class IODSpecBuilder:
 
         """
         self.logger = logger or logging.getLogger(self.__class__.__name__)
+
         self.iod_factory = iod_factory or SpecFactory(logger=self.logger)
         self.module_factory = module_factory or self.iod_factory
         self.dom_utils = DOMUtils(logger=self.logger)
@@ -77,6 +78,7 @@ class IODSpecBuilder:
         # Load from cache if the expanded IOD model is already present
         cached_model = self._load_expanded_model_from_cache(json_file_name, force_download)
         if cached_model is not None:
+            cached_model.logger = self.logger
             return cached_model
 
         # Load the DOM from cache file or download and cache DOM in memory.

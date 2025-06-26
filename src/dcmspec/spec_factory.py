@@ -76,6 +76,7 @@ class SpecFactory:
         self.config = config or Config()
 
         self.logger = logger or logging.getLogger(self.__class__.__name__)
+
         self.model_class = model_class or SpecModel
         self.input_handler = input_handler or XHTMLDocHandler(config=self.config, logger=self.logger)
         self.model_store = model_store or JSONSpecStore(logger=self.logger)
@@ -275,13 +276,15 @@ class SpecFactory:
 
             # Return the cached model, reconstructing it to the required subclass if necessary        
             if isinstance(model, self.model_class):
+                model.logger = self.logger
                 return model
             return self.model_class(
                 metadata=model.metadata,
                 content=model.content,
+                logger=self.logger,
                 **(model_kwargs or {}),
             )
-        
+
         except Exception as e:
             self.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
             return None
@@ -313,6 +316,7 @@ class SpecFactory:
         model = self.model_class(
             metadata=metadata,
             content=content,
+            logger=self.logger,
             **(model_kwargs or {}),
         )
 
