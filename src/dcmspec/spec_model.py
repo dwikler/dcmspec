@@ -247,15 +247,19 @@ class SpecModel:
         if 0 not in column_to_attr:
             return False
 
-        # Check that only the key 0 attribute is present
         key_0_attr = column_to_attr[0]
+        # key 0 must be present and not None
+        if not hasattr(node, key_0_attr) or getattr(node, key_0_attr) is None:
+            return False
+
+        # all other keys must be absent or None
         for key, attr_name in column_to_attr.items():
             if key == 0:
-                if not hasattr(node, key_0_attr):
-                    return False
-            elif hasattr(node, attr_name):
+                continue
+            if hasattr(node, attr_name) and getattr(node, attr_name) is not None:
                 return False
         return True
+
 
     @staticmethod
     def _get_node_path(node: Node, attr: str = "name") -> tuple:
@@ -401,56 +405,57 @@ class SpecModel:
         merged = copy.deepcopy(self)
         merged.logger = self.logger 
 
-        def strip_module_level(path_tuple):
-            # path_tuple: e.g. ('content', 'module', 'attribute')
-            if ignore_module_level and len(path_tuple) > 2 and path_tuple[0] == "content":
-                # Remove the module level (second element)
-                return (path_tuple[0],) + path_tuple[2:]
-            return path_tuple
-
         if is_path_based and ignore_module_level:
             # Build node_map with stripped paths
             if match_by == "name":
                 node_map = {
-                    strip_module_level(self._get_path_by_name(node)): node
+                    self._strip_module_level(self._get_path_by_name(node)): node
                     for node in PreOrderIter(other.content)
                 }
                 def key_func(node):
-                    return strip_module_level(self._get_path_by_name(node))
+                    return self._strip_module_level(self._get_path_by_name(node))
             elif match_by == "attribute" and attribute_name:
                 node_map = {
-                    strip_module_level(self._get_path_by_attr(node, attribute_name)): node
+                    self._strip_module_level(self._get_path_by_attr(node, attribute_name)): node
                     for node in PreOrderIter(other.content)
                 }
                 def key_func(node):
-                    return strip_module_level(self._get_path_by_attr(node, attribute_name))
+                    return self._strip_module_level(self._get_path_by_attr(node, attribute_name))
             else:
                 raise ValueError("Invalid match_by or missing attribute_name")
-            # Debug: print first 20 keys in node_map
-            self.logger.debug(f"First 20 keys in node_map (ignore_module_level): {list(node_map.keys())[:20]}")
         else:
             node_map, key_func = self._build_node_map(
                 other, match_by, attribute_name, is_path_based
             )
-            # Debug: print first 20 keys in node_map
-            self.logger.debug(f"First 20 keys in node_map: {list(node_map.keys())[:20]}")
 
-        # Debug: print the key for a specific node you care about
+        enriched_count = 0
+        total_nodes = 0
         for node in PreOrderIter(merged.content):
-            if getattr(node, "name", None) == "sop_class_uid":
-                self.logger.debug(f"Key for IOD node 'sop_class_uid': {key_func(node)}")
-
-        for node in PreOrderIter(merged.content):
+            total_nodes += 1
             key = key_func(node)
-            if getattr(node, "name", None) == "sop_class_uid":
-                self.logger.debug(f"Trying to match IOD node 'sop_class_uid' with key: {key}")
-                self.logger.debug(f"All keys in node_map: {list(node_map.keys())[:50]}")
+
             if key in node_map and key is not None:
                 other_node = node_map[key]
+                enriched_this_node = False
                 for attr in (merge_attrs or []):
                     if attr is not None and hasattr(other_node, attr):
                         setattr(node, attr, getattr(other_node, attr))
-                        self.logger.debug(f"Enriched node {getattr(node, 'name', None)} "
-                                        f"(key={key}) with {attr}={getattr(other_node, attr)}")
+                        attr_val = getattr(other_node, attr)
+                        self.logger.debug(
+                            f"Enriched node {getattr(node, 'name', None)} "
+                            f"(key={key}) with {attr}={str(attr_val)[:10]}"
+                        )
+                        enriched_this_node = True
+                if enriched_this_node:
+                    enriched_count += 1
 
+        self.logger.info(f"Total nodes enriched during merge: {enriched_count} / {total_nodes}")
         return merged
+
+    def _strip_module_level(self, path_tuple):
+        # Remove all but the last leading None or the module level for path matching
+        # This ensures (None, None, '(0010,0010)') and (None, '(0010,0010)') both become (None, '(0010,0010)')
+        path = list(path_tuple)
+        while len(path) > 2 and path[0] is None:
+            path.pop(0)
+        return tuple(path)

@@ -87,6 +87,88 @@ def test_specmerger_merge_path(merge_by_path_test_models, merger):
     # Also check that the header includes the new column
     assert any("n-set" in h.lower() for h in merged.metadata.header)
 
+def test_specmerger_add_missing_nodes_from_model(merge_by_path_test_models, merger):
+    """Test that _add_missing_nodes_from_model adds nodes from model2 that are missing in model1."""
+    current, other = merge_by_path_test_models
+
+    # Add an extra top-level node to 'other'
+    extra_node = Node("extra_element", parent=other.content)
+    extra_node.elem_name = "Extra Element"
+    extra_node.elem_tag = "(0101,1012)"
+    extra_node.n_set = "1"
+
+    # Act
+    merged = merger.merge_path(current, other, attribute_name="elem_tag", merge_attrs=["n-set"])
+
+    # Assert: the extra node from other should be present in the merged model
+    found = next(
+        (n for n in merged.content.descendants if getattr(n, "elem_tag", None) == "(0101,1012)"), None
+    )
+    assert found is not None
+    assert getattr(found, "elem_name", None) == "Extra Element"
+    assert getattr(found, "n_set", None) == "1"
+
+def test_specmerger_add_missing_nodes_with_strip_module_level(merge_by_path_test_models_with_module, merger):
+    """Test that _add_missing_nodes_from_model adds nodes from model2 to model1 when ignore_module_level is True."""
+    current, other = merge_by_path_test_models_with_module
+
+    # Add an extra node to 'other' that would only match if module level is ignored
+    from anytree import Node
+    extra_node = Node("extra_element", parent=other.content)
+    extra_node.elem_name = "Extra Element"
+    extra_node.elem_tag = "(0101,1012)"
+    extra_node.dimse_nset = "1"
+    extra_node.vr = "LO"
+
+    # Act: ignore_module_level=True to trigger strip_module_level logic
+    merged = merger.merge_path(
+        current,
+        other,
+        attribute_name="elem_tag",
+        merge_attrs=["dimse_nset", "vr"],
+        ignore_module_level=True,
+    )
+
+    # Assert: the extra node from other should be present in the merged model
+    found = next(
+        n for n in merged.content.descendants if getattr(n, "elem_tag", None) == "(0101,1012)"
+    )
+    assert getattr(found, "elem_name", None) == "Extra Element"
+    assert getattr(found, "dimse_nset", None) == "1"
+    assert getattr(found, "vr", None) == "LO"
+
+    # Assert: the extra node was added as a direct child of 'content' and not nested under a module node
+    path_names = tuple(n.name for n in found.path)
+    assert "my_module" not in path_names
+    assert path_names[:2] == ("content", "extra_element")
+
+def test_specmerger_merge_path_with_default_sets_elem_type(merge_by_path_test_models_with_missing_attr, merger):
+    """Test merge_path_with_default sets default value '3' for missing elem_type after merging."""
+    current, other = merge_by_path_test_models_with_missing_attr
+
+    # Act
+    merged = merger.merge_path_with_default(
+        current,
+        other,
+        match_by="attribute",
+        attribute_name="elem_tag",
+        merge_attrs=["n-set"],
+        default_attr="elem_type",
+        default_value="3"
+    )
+
+    # Assert: top-level "my_element" should have elem_type "3" (from default)
+    merged_first = next(child for child in merged.content.children if child.name == "my_element")
+    assert getattr(merged_first, "elem_type") == "3"
+
+    # Assert: "my_seq_element" should have elem_type "3" (from default)
+    merged_parent = next(child for child in merged.content.children if child.name == "my_seq_element")
+    assert getattr(merged_parent, "elem_type") == "3"
+
+    # Assert: nested "my_element" under "my_seq_element" should have elem_type "3" (from default)
+    merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
+    assert getattr(merged_child, "elem_type") == "3"
+
 def test_specmerger_merge_many_chained(mergemany_by_node_test_models, merger):
     """Test SpecMerger.merge_many merges more than two models in sequence."""
     # Arrange    
@@ -95,6 +177,7 @@ def test_specmerger_merge_many_chained(mergemany_by_node_test_models, merger):
     merged = merger.merge_many(
         [current, second, third],
         method="matching_path",
+        match_by="attribute",
         attribute_names=[ "elem_tag", "elem_tag" ],
         merge_attrs_list=[ ["n-set"], ["n-set"] ]
     )
@@ -122,25 +205,43 @@ def test_specmerger_merge_many_chained(mergemany_by_node_test_models, merger):
 def test_specmerger_merge_many_empty(merger):
     """Test SpecMerger.merge_many raises ValueError if models is empty."""
     with pytest.raises(ValueError):
-        merger.merge_many([])
+        merger.merge_many([], method="matching_path", match_by="attribute", attribute_names=[], merge_attrs_list=[])
 
 def test_specmerger_merge_many_mismatched_attribute_names(merge_by_path_test_models, merger):
     """Test SpecMerger.merge_many raises ValueError if attribute_names length is wrong."""
     current, other = merge_by_path_test_models
     with pytest.raises(ValueError):
-        merger.merge_many([current, other], method="matching_path", attribute_names=["elem_tag", "extra"])
+        merger.merge_many(
+            [current, other],
+            method="matching_path",
+            match_by="attribute",
+            attribute_names=["elem_tag", "extra"],
+            merge_attrs_list=[["n-set"]],
+        )
 
 def test_specmerger_merge_many_mismatched_merge_attrs_list(merge_by_path_test_models, merger):
     """Test SpecMerger.merge_many raises ValueError if merge_attrs_list length is wrong."""
     current, other = merge_by_path_test_models
     with pytest.raises(ValueError):
-        merger.merge_many([current, other], method="matching_path", merge_attrs_list=[["n-set"], ["extra"]])
+        merger.merge_many(
+            [current, other],
+            method="matching_path",
+            match_by="attribute",
+            attribute_names=["elem_tag"],
+            merge_attrs_list=[["n-set"], ["extra"]],
+        )
 
 def test_specmerger_merge_many_unknown_method(merge_by_path_test_models, merger):
     """Test SpecMerger.merge_many raises ValueError for unknown method."""
     current, other = merge_by_path_test_models
     with pytest.raises(ValueError):
-        merger.merge_many([current, other], method="unknown")
+        merger.merge_many(
+            [current, other],
+            method="unknown",
+            match_by="attribute",
+            attribute_names=["elem_tag"],
+            merge_attrs_list=[["n-set"]],
+        )
 
 def test_specmerger_merge_node_and_path_defaults(merge_by_path_test_models, merger):
     """Test SpecMerger.merge_node and merge_path with default attribute_name and merge_attrs."""
@@ -174,6 +275,7 @@ def test_specmerger_merge_many_saves_cache(
     merged = merger.merge_many(
         [current, other],
         method="matching_path",
+        match_by="attribute",
         attribute_names=["elem_tag"],
         merge_attrs_list=[["n-set"]],
         json_file_name=json_file_name,
@@ -204,6 +306,7 @@ def test_specmerger_merge_many_save_failure_logs_warning(
         merger.merge_many(
             [current, other],
             method="matching_path",
+            match_by="attribute",
             attribute_names=["elem_tag"],
             merge_attrs_list=[["n-set"]],
             json_file_name=json_file_name,
@@ -250,6 +353,7 @@ def test_specmerger_merge_many_loads_cache_valid(
     merged = merger.merge_many(
         [current, other],
         method="matching_path",
+        match_by="attribute",
         attribute_names=["elem_tag"],
         merge_attrs_list=[["n-set"]],
         json_file_name=json_file_name,
@@ -274,6 +378,7 @@ def test_specmerger_merge_many_loads_cache_missing_attr(
     merged = merger.merge_many(
         [current, other],
         method="matching_path",
+        match_by="attribute",
         attribute_names=["elem_tag"],
         merge_attrs_list=[["n-set"]],
         json_file_name=json_file_name,
@@ -298,6 +403,7 @@ def test_specmerger_merge_many_loads_cache_extra_attr(
     merged = merger.merge_many(
         [current, other],
         method="matching_path",
+        match_by="attribute",
         attribute_names=["elem_tag"],
         merge_attrs_list=[["n-set"]],
         json_file_name=json_file_name,

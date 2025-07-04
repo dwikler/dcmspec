@@ -48,31 +48,36 @@ class UPSXHTMLDocHandler(XHTMLDocHandler):
         return dom
 
     def _patch_table(self, dom, table_id):
-        """Patch the specified XHTML table to fix an Include nesting level error.
+        """Patch the specified XHTML table to fix Include nesting level errors.
 
-        In the UPS, the 'Include' row under the '>Output Information Sequence' row is missing one '>' nesting symbol.
+        In the UPS, the 'Include' row under some sequence attribute rows are missing one '>' nesting symbol.
 
         Args:
             dom: The BeautifulSoup DOM object representing the XHTML document.
             table_id: The ID of the table to patch.
 
         """
-        sequence_label = ">Output Information Sequence"
-        target_element_id = self._search_element_id(dom, table_id, sequence_label)
-        if not target_element_id:
-            self.logger.warning("Output Information Sequence Include Row element ID not found")
-            return
-
-        element = dom.find(id=target_element_id).find_parent()
-        span_element = element.find("span", class_="italic")
-        if span_element:
-            children_to_modify = [
-                child for child in span_element.children
-                if isinstance(child, str) and ">Include" in child
-            ]
-            for child in children_to_modify:
-                new_text = child.replace(">Include", ">>Include")
-                child.replace_with(new_text)
+        patch_labels = [
+            ">Output Information Sequence",
+            ">Gender Identity Code Sequence",
+            ">Sex Parameters for Clinical Use Category Code Sequence",
+            ">Pronoun Code Sequence",
+        ]
+        for label in patch_labels:
+            target_element_id = self._search_element_id(dom, table_id, label)
+            if not target_element_id:
+                self.logger.warning(f"{label} Include Row element ID not found")
+                continue
+            element = dom.find(id=target_element_id).find_parent()
+            span_element = element.find("span", class_="italic")
+            if span_element:
+                children_to_modify = [
+                    child for child in span_element.children
+                    if isinstance(child, str) and ">Include" in child
+                ]
+                for child in children_to_modify:
+                    new_text = child.replace(">Include", ">>Include")
+                    child.replace_with(new_text)
 
     def _search_element_id(self, dom, table_id, sequence_label):
         table = self.dom_utils.get_table(dom, table_id)

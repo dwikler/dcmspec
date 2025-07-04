@@ -128,7 +128,8 @@ class DOMTableSpecParser(SpecParser):
 
         for row in table.find_all("tr")[1:]:
             row_data = self._extract_row_data(row, skip_columns=skip_columns)
-
+            if row_data[name_attr] is None:
+                continue  # Skip empty rows
             row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
 
             # Add nesting level symbols to included table element names except if row is a title
@@ -255,11 +256,33 @@ class DOMTableSpecParser(SpecParser):
             attr_indices = [i for i in attr_indices if i not in skip_columns]
             # Flag if the skipped_columns were actually skipped
             self._skipped_columns_flag = True
-        for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
-            if attr_index < len(attr_indices):
-                col_idx_map = attr_indices[attr_index]
-                attr = self.column_to_attr[col_idx_map]
-                row_data[attr] = cell
+            for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
+                if attr_index < len(attr_indices):
+                    col_idx_map = attr_indices[attr_index]
+                    attr = self.column_to_attr[col_idx_map]
+                    row_data[attr] = cell
+        else:
+            # No skip_columns: always set all attributes, even if missing in this row
+            # Properly handle colspans: fill skipped columns with None
+            row_data = {}
+            cell_idx = 0
+            attr_indices = sorted(self.column_to_attr.keys())
+            i = 0
+            while i < len(attr_indices):
+                attr = self.column_to_attr[attr_indices[i]]
+                if cell_idx < len(cells):
+                    row_data[attr] = cells[cell_idx]
+                    colsp = colspans[cell_idx] if cell_idx < len(colspans) else 1
+                    # Fill in None for skipped columns due to colspan
+                    for _ in range(1, colsp):
+                        i += 1
+                        if i < len(attr_indices):
+                            skipped_attr = self.column_to_attr[attr_indices[i]]
+                            row_data[skipped_attr] = None
+                    cell_idx += 1
+                else:
+                    row_data[attr] = None
+                i += 1
         return row_data
 
     def _handle_pending_rowspans(self):

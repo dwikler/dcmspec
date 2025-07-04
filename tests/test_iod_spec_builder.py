@@ -42,6 +42,7 @@ class DummyFactory:
         result = Node("metadata")
         result.header = ["Attr1", "Attr2"]
         result.column_to_attr = {0: "attr1", 1: "attr2"}
+        result.table_id = "table_IOD"
         return result
 
     def table_parser(self):
@@ -66,10 +67,16 @@ class DummyModelStore:
     def __init__(self):
         """Initialize dummy ModelStore."""
         self.saved = {}
+        self.cached_model = None
 
     def load(self, path):
-        """Patch."""
-        return "CACHED_MODEL"
+        """Load a dummy cached model."""
+        if self.cached_model is None:
+            metadata = Node("metadata")
+            content = Node("content")
+            self.cached_model = SpecModel(metadata=metadata, content=content)
+            self.cached_model.logger = None
+        return self.cached_model
 
     def save(self, model, path):
         """Record the model and path in the self.saved dict."""
@@ -260,7 +267,9 @@ def test_iod_spec_builder_load_cache_success(monkeypatch, tmp_path):
         force_download=False,
         json_file_name="dummy.json",
     )
-    assert result == "CACHED_MODEL"
+    # The result should be a SpecModel loaded from cache
+    assert isinstance(result, SpecModel)
+    assert result is factory.model_store.load("dummy.json")
 
 def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
     """Test IODSpecBuilder logs a warning if loading the cached model or a module model fails."""

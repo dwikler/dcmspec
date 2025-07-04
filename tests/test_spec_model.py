@@ -21,28 +21,30 @@ def test_init_sets_metadata_and_content_and_logger(simple_spec_model):
     assert isinstance(model.logger, logging.Logger)
 
 def test_exclude_titles_removes_title_and_skips_include_nodes():
-    """Test that exclude_titles removes title nodes but not include nodes."""
+    """Test that exclude_titles removes title nodes but not include nodes (attributes set to None if missing)."""
     metadata = Node("metadata")
-    # Setup column_to_attr so that key 0 is "elem_name" and key 1 is "elem_tag"
     metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     content = Node("content")
     model = SpecModel(metadata=metadata, content=content)
-    # This node should be considered a title (only has "elem_name" attribute)
+    # Title node: only elem_name is set, elem_tag is None
     title_node = Node("module_title", parent=content)
     setattr(title_node, "elem_name", "Module Title")
-    # This node should NOT be considered a title (has both "elem_name" and "elem_tag" attributes)
+    setattr(title_node, "elem_tag", None)
+    # Non-title node: both attributes set
     non_title_node = Node("my_element", parent=content)
     setattr(non_title_node, "elem_name", "MyElement")
     setattr(non_title_node, "elem_tag", "(0101,0010)")
-    # This node should be considered an include (name contains "include_table")
+    # Include node: name contains "include_table"
     include_node = Node("include_table_macro", parent=content)
     setattr(include_node, "elem_name", "Include Table Macro")
+    setattr(include_node, "elem_tag", None)
     # Run exclude_titles
     model.exclude_titles()
     children = list(model.content.children)
     assert non_title_node in children
     assert include_node in children
     assert title_node not in children
+
 
 def test_exclude_titles_and_filter_required_no_nodes_removed():
     """Test that exclude_titles and filter_required do not remove any nodes if all are required and not titles."""
@@ -166,6 +168,87 @@ def test_merge_matching_path_by_attribute(merge_by_path_test_models):
     merged_child = next(child for child in merged_parent.children if getattr(child, "elem_tag", None) == "(0101,1011)")
     assert_node_attrs(merged_child, {"elem_name": "My Element", "elem_tag": "(0101,1011)", "n-set": "3"})
 
+def test_merge_matching_path_ignore_module_level(merge_by_path_test_models_with_module, capsys):
+    """Test merge_matching_path with ignore_module_level=True merges nodes correctly across module level."""
+    # Arrange
+    current, other = merge_by_path_test_models_with_module
+
+    # Act
+    merged = current.merge_matching_path(
+        other,
+        match_by="attribute",
+        attribute_name="elem_tag",
+        merge_attrs=["dimse_nset", "vr"],
+        ignore_module_level=True
+    )
+
+    # Print merged tree and attributes for debugging (captured by capsys)
+    def get_real_path(node):
+        # Use elem_tag if present, otherwise name (for all levels)
+        path = []
+        for n in node.path:
+            if hasattr(n, "elem_tag") and getattr(n, "elem_tag", None) is not None:
+                path.append(getattr(n, "elem_tag"))
+            else:
+                path.append(getattr(n, "name", None))
+        return tuple(path)
+
+    print("Current model real paths:")
+    for node in current.content.descendants:
+        print(get_real_path(node))
+    
+    print("Other model real paths:")
+    for node in other.content.descendants:
+        print(get_real_path(node))
+
+    print("Current model paths:")
+    for node in current.content.descendants:
+        print(SpecModel._get_path_by_attr(node, "elem_tag"))
+
+    print("Other model paths:")
+    for node in other.content.descendants:
+        print(SpecModel._get_path_by_attr(node, "elem_tag"))
+
+    print("Merged content tree:")
+    for node in merged.content.descendants:
+        print(
+            f"Node: {node.name}, "
+            f"elem_tag: {getattr(node, 'elem_tag', None)}, "
+            f"dimse_nset: {getattr(node, 'dimse_nset', 'MISSING')}, "
+            f"vr: {getattr(node, 'vr', 'MISSING')}, "
+            f"attrs: {list(vars(node).keys())}"
+        )
+
+    # Capture output so it appears in VSCode Test Results window on failure
+    out, err = capsys.readouterr()
+    # Always print captured output to help debug in CI or VSCode Test Results
+    print("Captured output from merge_matching_path_ignore_module_level:\n", out)
+
+    # Optionally, assert something about the output to ensure it's not empty
+    assert "Merged content tree:" in out
+
+    # Assert
+    # The merged model should have dimse_nset and vr attributes from 'other' on matching nodes, even though
+    # current has a module level and other does not.
+    # Check top-level element
+    merged_top = next(child for child in merged.content.children[0].children if child.name == "my_element")
+    assert getattr(merged_top, "elem_name") == "My Element"
+    assert getattr(merged_top, "elem_tag") == "(0010,0010)"
+    assert getattr(merged_top, "dimse_nset") == "2"
+    assert getattr(merged_top, "vr") == "PN"
+    # Check sequence element
+    merged_seq = next(child for child in merged.content.children[0].children if child.name == "my_seq_element")
+    assert getattr(merged_seq, "elem_name") == "My Element Sequence"
+    assert getattr(merged_seq, "elem_tag") == "(0010,0020)"
+    assert getattr(merged_seq, "dimse_nset") == "1"
+    assert getattr(merged_seq, "vr") == "SQ"
+    # Check nested element
+    merged_nested = next(child for child in merged_seq.children if child.name == ">my_element")
+    assert getattr(merged_nested, "elem_name") == "My Element"
+    assert getattr(merged_nested, "elem_tag") == "(0010,0010)"
+    assert getattr(merged_nested, "dimse_nset") == "3"
+    assert getattr(merged_nested, "vr") == "PN"
+    
 def test_merge_matching_path_by_attribute_different_path_no_merge(merge_test_models_different_path):
     """Test merge_matching_path does not merge nodes if attribute path differs at any level."""
     # Arrange

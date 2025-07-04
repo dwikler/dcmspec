@@ -8,7 +8,9 @@ from dcmspec.dom_table_spec_parser import DOMTableSpecParser
 from .fixtures_dom_tables import (
     docbook_sample_dom_1,  # noqa: F401
     docbook_sample_dom_2,  # noqa: F401
+    table_empty_rows_and_cells_dom,  # noqa: F401
     table_colspan_dom,  # noqa: F401
+    table_mixed_colspan_dom,  # noqa: F401
     table_rowspan_dom,  # noqa: F401
     table_colspan_rowspan_dom, # noqa: F401
     table_include_dom,  # noqa: F401
@@ -103,10 +105,67 @@ def test_parse_returns_metadata_and_content(docbook_sample_dom_1):  # noqa: F811
     assert children[0].name == "attr_name_-test-"  # sanitized string
     assert children[1].elem_name == "AttrName2"
 
+def test_parse_table_extra_column_to_attr(docbook_sample_dom_1):  # noqa: F811
+    """Test parse_table handles extra items in column_to_attr (more than in the DOM table)."""
+    parser = DOMTableSpecParser()
+    # The DOM has 4 columns, but we add a 5th mapping
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc", 4: "extra_col"}
+    node = parser.parse_table(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name"
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    # The extra_col should be None for all rows
+    assert hasattr(children[0], "extra_col")
+    assert children[0].extra_col is None
+    assert hasattr(children[1], "extra_col")
+    assert children[1].extra_col is None
 
+def test_parse_table_fewer_column_to_attr(docbook_sample_dom_1):  # noqa: F811
+    """Test parse_table handles fewer items in column_to_attr (less than in the DOM table)."""
+    parser = DOMTableSpecParser()
+    # The DOM has 4 columns, but we only map 2
+    column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    node = parser.parse_table(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name"
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    assert hasattr(children[0], "elem_name")
+    assert hasattr(children[0], "elem_tag")
+    assert not hasattr(children[0], "elem_type")
+    assert not hasattr(children[0], "elem_desc")
+    assert hasattr(children[1], "elem_name")
+    assert hasattr(children[1], "elem_tag")
+    assert not hasattr(children[1], "elem_type")
+    assert not hasattr(children[1], "elem_desc")
+
+def test_parse_table_empty_rows_and_cells(table_empty_rows_and_cells_dom):  # noqa: F811
+    """Test parse_table handles empty rows and empty cells gracefully."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2"}
+    node = parser.parse_table(
+        dom=table_empty_rows_and_cells_dom,
+        table_id="table_EMPTY",
+        column_to_attr=column_to_attr,
+        name_attr="col1"
+    )
+    children = list(node.children)
+    # The first row is empty and should be skipped (no name_attr)
+    assert len(children) == 2
+    assert children[0].col1 == ""
+    assert children[0].col2 == "Value2"
+    assert children[1].col1 == "Value3"
+    assert children[1].col2 == ""
 
 def test_parse_table_colspan(table_colspan_dom):  # noqa: F811
-    """Test parse_table handles colspan correctly."""
+    """Test parse_table handles colspan correctly and missing columns are set to None if skip_columns is not set."""
     parser = DOMTableSpecParser()
     column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
     node = parser.parse_table(
@@ -118,7 +177,79 @@ def test_parse_table_colspan(table_colspan_dom):  # noqa: F811
     children = list(node.children)
     assert len(children) == 1
     assert children[0].col1 == "A"
-    # col2 is skipped due to colspan, col3 is B
+    # col2 is missing in this row, so should be present as None
+    assert hasattr(children[0], "col2")
+    assert children[0].col2 is None
+    assert children[0].col3 == "B"
+
+def test_parse_table_mixed_colspan(table_mixed_colspan_dom):  # noqa: F811
+    """Test parse_table with a DOM where some rows have a missing column (colspan) and others do not."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    node = parser.parse_table(
+        dom=table_mixed_colspan_dom,
+        table_id="table_MIXED",
+        column_to_attr=column_to_attr,
+        name_attr="col1"
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    # First row: col1="A", col2=None, col3="B"
+    assert children[0].col1 == "A"
+    assert hasattr(children[0], "col2")
+    assert children[0].col2 is None
+    assert children[0].col3 == "B"
+    # Second row: col1="C", col2="D", col3="E"
+    assert children[1].col1 == "C"
+    assert children[1].col2 == "D"
+    assert children[1].col3 == "E"
+
+def test_parse_table_skip_columns_all_cells(docbook_sample_dom_1):  # noqa: F811
+    """Test parse_table with skip_columns skips a column that is not present in the DOM at all (no colspan)."""
+    parser = DOMTableSpecParser()
+    # Add a non-existent column (index 4) to column_to_attr
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc", 4: "missing_col"}
+    metadata, node = parser.parse(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        skip_columns=[4]
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    assert children[0].elem_name == "Attr Name (Tést)"
+    assert children[0].elem_tag == "(0101,0001)"
+    assert children[0].elem_type == "1"
+    assert children[0].elem_desc == "Desc1"
+    assert not hasattr(children[0], "missing_col")
+    assert children[1].elem_name == "AttrName2"
+    assert children[1].elem_tag == "(0101,0002)"
+    assert children[1].elem_type == "2"
+    assert children[1].elem_desc == "Desc2"
+    assert not hasattr(children[1], "missing_col")
+    # The header should not include the missing column
+    assert metadata.header == ["Attr Name", "Tag", "Type", "Description"]
+    # The column_to_attr should not include the missing column
+    assert metadata.column_to_attr == {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+
+def test_parse_table_skip_columns_all_cells(table_colspan_dom):  # noqa: F811
+    """Test parse_table with skip_columns skips columns for all rows when all cells are missing that column."""
+    parser = DOMTableSpecParser()
+    # Simulate a table where col2 is systematically missing (colspan=2 for all rows)
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    node = parser.parse_table(
+        dom=table_colspan_dom,
+        table_id="table_COLSPAN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        skip_columns=[1]
+    )
+    children = list(node.children)
+    assert len(children) == 1
+    assert children[0].col1 == "A"
+    # col2 should not be present at all
+    assert not hasattr(children[0], "col2")
     assert children[0].col3 == "B"
 
 def test_parse_table_rowspan(table_rowspan_dom):  # noqa: F811
