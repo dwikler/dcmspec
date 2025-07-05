@@ -34,7 +34,6 @@ def main():
     table_indices = [(57, 1), (58, 0)]  # Table 1 from page 57, table 0 from page 58
     table_id = "tdwii_ups_scheduled_info_base"
     column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
-    pad_columns = 4
 
     # Create the module definition model
     factory = SpecFactory(
@@ -49,7 +48,6 @@ def main():
         "page_numbers": page_numbers,
         "table_indices": table_indices,
         "table_id": table_id,
-        "pad_columns": pad_columns,
     }
 
     model = factory.create_model(

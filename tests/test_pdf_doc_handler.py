@@ -19,7 +19,6 @@ def test_load_document_happy_path(monkeypatch, patch_dirs):
     url = "http://example.com/file.pdf"
     page_numbers = [1]
     table_indices = [(1, 0)]
-    pad_columns = 2
     table_id = "T-1"
     dummy_pdf = MagicMock()
     dummy_pdf.pages = [MagicMock()]
@@ -32,7 +31,7 @@ def test_load_document_happy_path(monkeypatch, patch_dirs):
     monkeypatch.setattr("os.path.exists", lambda path: True)
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
     monkeypatch.setattr(handler, "extract_tables", lambda pdf, pn: dummy_tables)
-    monkeypatch.setattr(handler, "concat_tables", lambda tables, ti, table_id=None, pad_columns=None: dummy_concat)
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, ti, table_id=None: dummy_concat)
 
     # Act
     result = handler.load_document(
@@ -41,7 +40,6 @@ def test_load_document_happy_path(monkeypatch, patch_dirs):
         force_download=False,
         page_numbers=page_numbers,
         table_indices=table_indices,
-        pad_columns=pad_columns,
         table_id=table_id,
     )
 
