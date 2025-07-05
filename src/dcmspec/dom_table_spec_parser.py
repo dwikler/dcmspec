@@ -246,45 +246,67 @@ class DOMTableSpecParser(SpecParser):
         if len(self._rowspan_trackers) > col_idx:
             self._rowspan_trackers = self._rowspan_trackers[:col_idx]
 
-        # Build row_data dictionary
-        row_data: Dict[str, Any] = {}
         attr_indices = list(self.column_to_attr.keys())
 
-        # If the row is missing exactly the number of columns specified in skip_columns,
-        # skip those columns to align the remaining cells with the correct attributes.
-        if skip_columns and len(cells) == len(self.column_to_attr) - len(skip_columns):
-            attr_indices = [i for i in attr_indices if i not in skip_columns]
-            # Flag if the skipped_columns were actually skipped
-            self._skipped_columns_flag = True
-            for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
-                if attr_index < len(attr_indices):
-                    col_idx_map = attr_indices[attr_index]
-                    attr = self.column_to_attr[col_idx_map]
-                    row_data[attr] = cell
-        else:
-            # No skip_columns: always set all attributes, even if missing in this row
-            # Properly handle colspans: fill skipped columns with None
-            row_data = {}
-            cell_idx = 0
-            attr_indices = sorted(self.column_to_attr.keys())
-            i = 0
-            while i < len(attr_indices):
-                attr = self.column_to_attr[attr_indices[i]]
-                if cell_idx < len(cells):
-                    row_data[attr] = cells[cell_idx]
-                    colsp = colspans[cell_idx] if cell_idx < len(colspans) else 1
-                    # Fill in None for skipped columns due to colspan
-                    for _ in range(1, colsp):
-                        i += 1
-                        if i < len(attr_indices):
-                            skipped_attr = self.column_to_attr[attr_indices[i]]
-                            row_data[skipped_attr] = None
-                    cell_idx += 1
-                else:
-                    row_data[attr] = None
-                i += 1
+        return (
+            self._align_row_with_skipped_columns(
+                cells, colspans, attr_indices, skip_columns
+            )
+            if skip_columns
+            and len(cells) == len(self.column_to_attr) - len(skip_columns)
+            else self._align_row_default(cells, colspans, attr_indices)
+        )
+    
+    def _align_row_with_skipped_columns(
+        self, cells, colspans, attr_indices, skip_columns
+    ):
+        # sourcery skip: dict-comprehension, inline-immediately-returned-variable, inline-variable
+        """Align cells to attributes when skip_columns is used.
+        
+        This method aligns the row's cells to the attribute indices, skipping the columns
+        specified in skip_columns. It is used when the row is missing exactly the number of
+        columns specified, ensuring the remaining cells are mapped to the correct attributes.
+
+        """
+        attr_indices = [i for i in attr_indices if i not in skip_columns]
+        # Flag if the skipped_columns were actually skipped
+        self._skipped_columns_flag = True
+        row_data = {}
+        for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
+            if attr_index < len(attr_indices):
+                col_idx_map = attr_indices[attr_index]
+                attr = self.column_to_attr[col_idx_map]
+                row_data[attr] = cell
         return row_data
 
+    def _align_row_default(self, cells, colspans, attr_indices):
+        """Align cells to attributes by default, handling colspans and missing cells.
+        
+        Always set all attributes, even if missing in this row, filling spanned columns with None
+        to maintain alignment with the column_to_attr mapping.
+        
+        """
+        row_data = {}
+        cell_idx = 0
+        attr_indices = sorted(attr_indices)
+        i = 0
+        while i < len(attr_indices):
+            attr = self.column_to_attr[attr_indices[i]]
+            if cell_idx < len(cells):
+                row_data[attr] = cells[cell_idx]
+                colsp = colspans[cell_idx] if cell_idx < len(colspans) else 1
+                # Fill in None for skipped columns due to colspan
+                for _ in range(1, colsp):
+                    i += 1
+                    if i < len(attr_indices):
+                        skipped_attr = self.column_to_attr[attr_indices[i]]
+                        row_data[skipped_attr] = None
+                cell_idx += 1
+            else:
+                row_data[attr] = None
+            i += 1
+        return row_data
+    
     def _handle_pending_rowspans(self):
         cells = []
         colspans = []
@@ -408,13 +430,15 @@ class DOMTableSpecParser(SpecParser):
         if max(column_to_attr.keys()) >= num_columns:
             # Map consecutive indices to the same attribute names, skipping as needed
             sorted_attrs = [column_to_attr[k] for k in sorted(column_to_attr.keys())]
-            realigned_col_to_attr = {i: attr for i, attr in enumerate(sorted_attrs)}
+            realigned_col_to_attr = dict(enumerate(sorted_attrs))
             column_to_attr = realigned_col_to_attr
 
         header = []
-        for col_idx in column_to_attr:
-            if col_idx < len(cells):
-                header.append(cells[col_idx].get_text(strip=True))
+        header.extend(
+            cells[col_idx].get_text(strip=True)
+            for col_idx in column_to_attr
+            if col_idx < len(cells)
+        )
         self.logger.info(f"Extracted Header: {header}")
         return header
 

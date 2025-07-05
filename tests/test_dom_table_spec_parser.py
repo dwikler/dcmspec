@@ -125,6 +125,7 @@ def test_parse_table_extra_column_to_attr(docbook_sample_dom_1):  # noqa: F811
     assert children[1].extra_col is None
 
 def test_parse_table_fewer_column_to_attr(docbook_sample_dom_1):  # noqa: F811
+    # sourcery skip: extract-duplicate-method
     """Test parse_table handles fewer items in column_to_attr (less than in the DOM table)."""
     parser = DOMTableSpecParser()
     # The DOM has 4 columns, but we only map 2
@@ -204,7 +205,7 @@ def test_parse_table_mixed_colspan(table_mixed_colspan_dom):  # noqa: F811
     assert children[1].col2 == "D"
     assert children[1].col3 == "E"
 
-def test_parse_table_skip_columns_all_cells(docbook_sample_dom_1):  # noqa: F811
+def test_parse_table_skip_columns_all_cells_not_in_dom(docbook_sample_dom_1):  # noqa: F811
     """Test parse_table with skip_columns skips a column that is not present in the DOM at all (no colspan)."""
     parser = DOMTableSpecParser()
     # Add a non-existent column (index 4) to column_to_attr
@@ -233,7 +234,7 @@ def test_parse_table_skip_columns_all_cells(docbook_sample_dom_1):  # noqa: F811
     # The column_to_attr should not include the missing column
     assert metadata.column_to_attr == {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
 
-def test_parse_table_skip_columns_all_cells(table_colspan_dom):  # noqa: F811
+def test_parse_table_skip_columns_all_cells_colspan(table_colspan_dom):  # noqa: F811
     """Test parse_table with skip_columns skips columns for all rows when all cells are missing that column."""
     parser = DOMTableSpecParser()
     # Simulate a table where col2 is systematically missing (colspan=2 for all rows)
@@ -306,6 +307,7 @@ def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F81
     assert children[3].col1 == "AttrName11"
 
 def test_parse_table_include_with_gt_nests_under_previous(table_include_dom):  # noqa: F811
+    # sourcery skip: extract-duplicate-method
     """Test that parse_table nests included table rows under the previous node if '>' is present before Include."""
     # Modify the fixture to use '>Include' instead of 'Include'
     html = str(table_include_dom)
@@ -349,3 +351,20 @@ def test_parse_table_include_missing_table(table_include_dom):  # noqa: F811
             column_to_attr=column_to_attr,
             name_attr="col1"
         )
+
+def test_parse_metadata_realigns_column_to_attr_when_middle_missing(docbook_sample_dom_1):  # noqa: F811
+    """Test that parse realigns the metadata column_to_attr values when a middle column (e.g., elem_type) is missing."""
+    parser = DOMTableSpecParser()
+    # Simulate a mapping where index 2 (elem_type) is missing, but index 3 (elem_desc) is present
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 3: "elem_desc"}
+    metadata, _ = parser.parse(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name"
+    )
+    # The keys may not be realigned, but the values should be in the correct order
+    assert list(metadata.column_to_attr.values()) == ["elem_name", "elem_tag", "elem_desc"]
+    # The header should have the correct number of columns and order
+    assert metadata.header == ["Attr Name", "Tag", "Description"]
+

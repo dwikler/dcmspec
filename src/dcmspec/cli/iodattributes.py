@@ -38,8 +38,7 @@ def main():
     elif "table_B." in table_id:
         composite_iod = False
     else:
-        print(f"table {table_id} does not correspond to a Composite or Normalized IOD")
-        exit(1)
+        parser.error(f"table {table_id} does not correspond to a Composite or Normalized IOD")
 
     # Create the IOD specification factory
     c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}

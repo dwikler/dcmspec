@@ -21,6 +21,7 @@ def test_init_sets_metadata_and_content_and_logger(simple_spec_model):
     assert isinstance(model.logger, logging.Logger)
 
 def test_exclude_titles_removes_title_and_skips_include_nodes():
+    # sourcery skip: extract-duplicate-method
     """Test that exclude_titles removes title nodes but not include nodes (attributes set to None if missing)."""
     metadata = Node("metadata")
     metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
@@ -47,6 +48,7 @@ def test_exclude_titles_removes_title_and_skips_include_nodes():
 
 
 def test_exclude_titles_and_filter_required_no_nodes_removed():
+    # sourcery skip: extract-duplicate-method
     """Test that exclude_titles and filter_required do not remove any nodes if all are required and not titles."""
     metadata = Node("metadata")
     metadata.column_to_attr = {0: "elem_name", 1: "elem_type"}
@@ -181,51 +183,6 @@ def test_merge_matching_path_ignore_module_level(merge_by_path_test_models_with_
         merge_attrs=["dimse_nset", "vr"],
         ignore_module_level=True
     )
-
-    # Print merged tree and attributes for debugging (captured by capsys)
-    def get_real_path(node):
-        # Use elem_tag if present, otherwise name (for all levels)
-        path = []
-        for n in node.path:
-            if hasattr(n, "elem_tag") and getattr(n, "elem_tag", None) is not None:
-                path.append(getattr(n, "elem_tag"))
-            else:
-                path.append(getattr(n, "name", None))
-        return tuple(path)
-
-    print("Current model real paths:")
-    for node in current.content.descendants:
-        print(get_real_path(node))
-    
-    print("Other model real paths:")
-    for node in other.content.descendants:
-        print(get_real_path(node))
-
-    print("Current model paths:")
-    for node in current.content.descendants:
-        print(SpecModel._get_path_by_attr(node, "elem_tag"))
-
-    print("Other model paths:")
-    for node in other.content.descendants:
-        print(SpecModel._get_path_by_attr(node, "elem_tag"))
-
-    print("Merged content tree:")
-    for node in merged.content.descendants:
-        print(
-            f"Node: {node.name}, "
-            f"elem_tag: {getattr(node, 'elem_tag', None)}, "
-            f"dimse_nset: {getattr(node, 'dimse_nset', 'MISSING')}, "
-            f"vr: {getattr(node, 'vr', 'MISSING')}, "
-            f"attrs: {list(vars(node).keys())}"
-        )
-
-    # Capture output so it appears in VSCode Test Results window on failure
-    out, err = capsys.readouterr()
-    # Always print captured output to help debug in CI or VSCode Test Results
-    print("Captured output from merge_matching_path_ignore_module_level:\n", out)
-
-    # Optionally, assert something about the output to ensure it's not empty
-    assert "Merged content tree:" in out
 
     # Assert
     # The merged model should have dimse_nset and vr attributes from 'other' on matching nodes, even though
