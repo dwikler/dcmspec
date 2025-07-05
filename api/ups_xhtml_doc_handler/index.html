@@ -1253,10 +1253,14 @@
               Bases: <code><a class="autorefs autorefs-internal" title="            dcmspec.xhtml_doc_handler.XHTMLDocHandler" href="../xhtml_doc_handler/#dcmspec.xhtml_doc_handler.XHTMLDocHandler">XHTMLDocHandler</a></code></p>
 
 
-        <p>XHTMLDocHandler subclass for UPS, with table patching.</p>
+        <p>Subclass of XHTMLDocHandler that applies UPS-specific table patching.</p>
 <p>This handler applies UPS-specific patching to DICOM XHTML tables after parsing.
-It corrects a known issue in the Output Information Sequence table for UPS services,
-fixing the nesting level of the 'Include' row.</p>
+It corrects known issues in Table CC.2.5-3 of DICOM PS3.4, where 'Include' rows under certain
+sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequences are:
+    - Output Information Sequence
+    - Gender Identity Code Sequence
+    - Sex Parameters for Clinical Use Category Code Sequence
+    - Pronoun Code Sequence</p>
 
 
 
@@ -1368,12 +1372,20 @@ fixing the nesting level of the 'Include' row.</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UPSXHTMLDocHandler</span><span class="p">(</span><span class="n">XHTMLDocHandler</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;XHTMLDocHandler subclass for UPS, with table patching.</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UPSXHTMLDocHandler</span><span class="p">(</span><span class="n">XHTMLDocHandler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Subclass of XHTMLDocHandler that applies UPS-specific table patching.</span>
 
 <span class="sd">    This handler applies UPS-specific patching to DICOM XHTML tables after parsing.</span>
-<span class="sd">    It corrects a known issue in the Output Information Sequence table for UPS services,</span>
-<span class="sd">    fixing the nesting level of the &#39;Include&#39; row.</span>
+<span class="sd">    It corrects known issues in Table CC.2.5-3 of DICOM PS3.4, where &#39;Include&#39; rows under certain</span>
+<span class="sd">    sequence attribute rows are missing a &#39;&gt;&#39; nesting symbol. The affected sequences are:</span>
+<span class="sd">        - Output Information Sequence</span>
+<span class="sd">        - Gender Identity Code Sequence</span>
+<span class="sd">        - Sex Parameters for Clinical Use Category Code Sequence</span>
+<span class="sd">        - Pronoun Code Sequence</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1556,11 +1568,7 @@ instance for DOM navigation.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/ups_xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
@@ -1568,7 +1576,11 @@ instance for DOM navigation.</p>
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
-<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the UPSXHTMLDocHandler.</span>
 
 <span class="sd">    Sets up the handler with the given configuration and logger, and creates a DOMUtils</span>
@@ -1660,11 +1672,7 @@ instance for DOM navigation.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/ups_xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -1675,7 +1683,11 @@ instance for DOM navigation.</p>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
-<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file and apply UPS-specific table patching.</span>
 
 <span class="sd">    Calls the base class&#39;s parse_dom, then patches the Output Information Sequence Include nesting level.</span>
