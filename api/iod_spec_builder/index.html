@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1446,7 +1446,9 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Orchestrates the construction of a expanded DICOM IOD specification model.</span>
 
 <span class="sd">    The IODSpecBuilder uses a factory to build the IOD Modules model and, for each referenced module,</span>
@@ -1474,6 +1476,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -1512,6 +1515,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="c1"># Load from cache if the expanded IOD model is already present</span>
         <span class="n">cached_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_expanded_model_from_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cached_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cached_model</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
             <span class="k">return</span> <span class="n">cached_model</span>
 
         <span class="c1"># Load the DOM from cache file or download and cache DOM in memory.</span>
@@ -1527,7 +1531,6 @@ model with the IOD nodes and their referenced module nodes as children, and cach
             <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
             <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Find all nodes with a &quot;ref&quot; attribute in the IOD Modules model</span>
@@ -1615,6 +1618,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="c1"># Use the first module&#39;s metadata node for the expanded model</span>
         <span class="n">first_module</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">module_models</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
         <span class="n">iod_metadata</span> <span class="o">=</span> <span class="n">first_module</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="n">iod_metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span>
 
         <span class="c1"># The content node will have as children the IOD model&#39;s nodes,</span>
         <span class="c1"># and for each referenced module, its content&#39;s children will be attached directly under the iod node</span>
@@ -1757,7 +1761,8 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">iod_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">module_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1777,6 +1782,7 @@ factory is used for both, but a different factory can be provided for modules if
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
     <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -1957,8 +1963,7 @@ factory is used for both, but a different factory can be provided for modules if
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
-<span class="normal"> 47</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
 <span class="normal"> 50</span>
@@ -2033,7 +2038,8 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
+<span class="normal">122</span>
+<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2067,6 +2073,7 @@ factory is used for both, but a different factory can be provided for modules if
     <span class="c1"># Load from cache if the expanded IOD model is already present</span>
     <span class="n">cached_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_expanded_model_from_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cached_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cached_model</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="k">return</span> <span class="n">cached_model</span>
 
     <span class="c1"># Load the DOM from cache file or download and cache DOM in memory.</span>
@@ -2082,7 +2089,6 @@ factory is used for both, but a different factory can be provided for modules if
         <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
         <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Find all nodes with a &quot;ref&quot; attribute in the IOD Modules model</span>
@@ -2174,7 +2180,7 @@ factory is used for both, but a different factory can be provided for modules if
       <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

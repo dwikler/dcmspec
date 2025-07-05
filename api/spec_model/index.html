@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1728,7 +1728,53 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 <span class="normal">412</span>
 <span class="normal">413</span>
 <span class="normal">414</span>
-<span class="normal">415</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecModel</span><span class="p">:</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent a hierarchical information model from any table of DICOM documents.</span>
 
 <span class="sd">    This class holds the DICOM specification model, structured into a hierarchical tree</span>
@@ -1759,7 +1805,6 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
 
@@ -1836,6 +1881,7 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
         <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
         <span class="n">attribute_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SpecModel&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge with another SpecModel, producing a new model with attributes merged for nodes with matching paths.</span>
 
@@ -1852,6 +1898,7 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 <span class="sd">            match_by (str): &quot;name&quot; to match by node.name path, &quot;attribute&quot; to match by a specific attribute path.</span>
 <span class="sd">            attribute_name (str, optional): The attribute name to use for matching if match_by=&quot;attribute&quot;.</span>
 <span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">            ignore_module_level (bool, optional): If True, skip the module level in the path for matching.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: A new merged SpecModel.</span>
@@ -1862,7 +1909,8 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
             <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
             <span class="n">attribute_name</span><span class="o">=</span><span class="n">attribute_name</span><span class="p">,</span>
             <span class="n">merge_attrs</span><span class="o">=</span><span class="n">merge_attrs</span><span class="p">,</span>
-            <span class="n">is_path_based</span><span class="o">=</span><span class="kc">True</span>
+            <span class="n">is_path_based</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">ignore_module_level</span><span class="o">=</span><span class="n">ignore_module_level</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_matching_node</span><span class="p">(</span>
@@ -1963,15 +2011,19 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
         <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="c1"># Check that only the key 0 attribute is present</span>
         <span class="n">key_0_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># key 0 must be present and not None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">key_0_attr</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">key_0_attr</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># all other keys must be absent or None</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">attr_name</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">key_0_attr</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_node_path</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
@@ -2088,7 +2140,8 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
         <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">attribute_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">is_path_based</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">is_path_based</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SpecModel&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge this SpecModel with another, enriching nodes by matching keys.</span>
 
@@ -2102,6 +2155,7 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 <span class="sd">            attribute_name (str, optional): The attribute name to use for matching if match_by=&quot;attribute&quot;.</span>
 <span class="sd">            merge_attrs (list[str], optional): List of attribute names to copy from the matching node.</span>
 <span class="sd">            is_path_based (bool): If True, match nodes by their full path; if False, match globally by key.</span>
+<span class="sd">            ignore_module_level (bool): If True, skip the module level in the path for matching.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: A deep copy of this model, with attributes merged from the other model where matches are found.</span>
@@ -2113,24 +2167,62 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> 
 
-        <span class="n">node_map</span><span class="p">,</span> <span class="n">key_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_node_map</span><span class="p">(</span>
-            <span class="n">other</span><span class="p">,</span> <span class="n">match_by</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">is_path_based</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_path_based</span> <span class="ow">and</span> <span class="n">ignore_module_level</span><span class="p">:</span>
+            <span class="c1"># Build node_map with stripped paths</span>
+            <span class="k">if</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
+                <span class="n">node_map</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_strip_module_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_path_by_name</span><span class="p">(</span><span class="n">node</span><span class="p">)):</span> <span class="n">node</span>
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+                <span class="p">}</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">key_func</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_module_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_path_by_name</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span> <span class="ow">and</span> <span class="n">attribute_name</span><span class="p">:</span>
+                <span class="n">node_map</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_strip_module_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_path_by_attr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">)):</span> <span class="n">node</span>
+                    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+                <span class="p">}</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">key_func</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strip_module_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_path_by_attr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid match_by or missing attribute_name&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node_map</span><span class="p">,</span> <span class="n">key_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_node_map</span><span class="p">(</span>
+                <span class="n">other</span><span class="p">,</span> <span class="n">match_by</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">is_path_based</span>
+            <span class="p">)</span>
 
+        <span class="n">enriched_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">total_nodes</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
+            <span class="n">total_nodes</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">key_func</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">node_map</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">other_node</span> <span class="o">=</span> <span class="n">node_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">enriched_this_node</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="n">merge_attrs</span> <span class="ow">or</span> <span class="p">[]):</span>
                     <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other_node</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_node</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enriched node </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
-                                        <span class="sa">f</span><span class="s2">&quot;(key=</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">) with </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">other_node</span><span class="p">,</span><span class="w"> </span><span class="n">attr</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No match for node </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2"> (key=</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                        <span class="n">attr_val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_node</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Enriched node </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;(key=</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">) with </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">attr_val</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">enriched_this_node</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">enriched_this_node</span><span class="p">:</span>
+                    <span class="n">enriched_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total nodes enriched during merge: </span><span class="si">{</span><span class="n">enriched_count</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">total_nodes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">merged</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_strip_module_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_tuple</span><span class="p">):</span>
+        <span class="c1"># Remove all but the last leading None or the module level for path matching</span>
+        <span class="c1"># This ensures (None, None, &#39;(0010,0010)&#39;) and (None, &#39;(0010,0010)&#39;) both become (None, &#39;(0010,0010)&#39;)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path_tuple</span><span class="p">)</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2247,8 +2339,7 @@ If None, a default logger will be created.</p>
 <span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
     <span class="n">content</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
@@ -2266,7 +2357,6 @@ If None, a default logger will be created.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-
     <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
 </code></pre></div></td></tr></table></div>
@@ -2320,7 +2410,8 @@ cleaning up the model for further processing.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_model.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
@@ -2337,8 +2428,7 @@ cleaning up the model for further processing.</p>
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exclude_titles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exclude_titles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove nodes corresponding to title rows from the content tree.</span>
 
 <span class="sd">    Title rows are typically found in some DICOM tables and represent section headers</span>
@@ -2479,7 +2569,8 @@ for example "Type" of an attribute, "Matching", or "Return Key".</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_model.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 67</span>
+<span class="normal"> 68</span>
 <span class="normal"> 69</span>
 <span class="normal"> 70</span>
 <span class="normal"> 71</span>
@@ -2523,8 +2614,7 @@ for example "Type" of an attribute, "Matching", or "Return Key".</p>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_required</span><span class="p">(</span>
+<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_required</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">type_attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">keep</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2753,9 +2843,7 @@ or "attribute" to match by a specific attribute value.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_model.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
@@ -2799,7 +2887,9 @@ or "attribute" to match by a specific attribute value.</p>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_matching_node</span><span class="p">(</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_matching_node</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;SpecModel&quot;</span><span class="p">,</span>
     <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
@@ -2856,7 +2946,7 @@ or "attribute" to match by a specific attribute value.</p>
 
 
 <h3 id="dcmspec.spec_model.SpecModel.merge_matching_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_matching_path</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_matching_path</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_module_level</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2956,6 +3046,26 @@ SOP class specification.</p>
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ignore_module_level</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>If True, skip the module level in the path for matching.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="bool">bool</span></code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>False</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -2990,7 +3100,8 @@ SOP class specification.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_model.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">114</span>
+<span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
@@ -3023,12 +3134,15 @@ SOP class specification.</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_matching_path</span><span class="p">(</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_matching_path</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;SpecModel&quot;</span><span class="p">,</span>
     <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
     <span class="n">attribute_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">merge_attrs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SpecModel&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge with another SpecModel, producing a new model with attributes merged for nodes with matching paths.</span>
 
@@ -3045,6 +3159,7 @@ SOP class specification.</p>
 <span class="sd">        match_by (str): &quot;name&quot; to match by node.name path, &quot;attribute&quot; to match by a specific attribute path.</span>
 <span class="sd">        attribute_name (str, optional): The attribute name to use for matching if match_by=&quot;attribute&quot;.</span>
 <span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">        ignore_module_level (bool, optional): If True, skip the module level in the path for matching.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        SpecModel: A new merged SpecModel.</span>
@@ -3055,7 +3170,8 @@ SOP class specification.</p>
         <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
         <span class="n">attribute_name</span><span class="o">=</span><span class="n">attribute_name</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="o">=</span><span class="n">merge_attrs</span><span class="p">,</span>
-        <span class="n">is_path_based</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">is_path_based</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ignore_module_level</span><span class="o">=</span><span class="n">ignore_module_level</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3121,7 +3237,7 @@ SOP class specification.</p>
       <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1677,7 +1677,101 @@ Inherits logging from SpecParser.</p>
 <span class="normal">368</span>
 <span class="normal">369</span>
 <span class="normal">370</span>
-<span class="normal">371</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -1695,6 +1789,7 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
@@ -1704,6 +1799,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+        <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
 
@@ -1717,13 +1813,30 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">                None means unlimited.</span>
+<span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[Node, Node]: The metadata node and the table content node.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">)</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
+            <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
+        <span class="k">if</span> <span class="n">skip_columns</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span><span class="p">:</span>
+            <span class="n">kept_items</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">]</span>
+            <span class="n">filtered_column_to_attr</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kept_items</span><span class="p">)}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filtered_column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">filtered_column_to_attr</span><span class="p">)</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">filtered_column_to_attr</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
+        <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
@@ -1734,6 +1847,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+        <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -1749,6 +1863,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">            table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">            include_depth: The depth to which included tables should be parsed.</span>
+<span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            root: The root node of the tree representation of the specification table.</span>
@@ -1772,8 +1887,9 @@ Inherits logging from SpecParser.</p>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">)</span>
-
+            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
             <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
 
             <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
@@ -1855,16 +1971,22 @@ Inherits logging from SpecParser.</p>
         <span class="n">document_release</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;documentreleaseinformation&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_release</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">document_release</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_row_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_row_data</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract data from a table row.</span>
 
 <span class="sd">        Processes each cell in the row, handling colspans and extracting text</span>
 <span class="sd">        content from paragraphs within the cells. Constructs a dictionary</span>
 <span class="sd">        containing the extracted data.</span>
 
+<span class="sd">        If the row has one less cell than the mapping and skip_columns is set,</span>
+<span class="sd">        those columns will be skipped for this row, allowing for robust alignment when</span>
+<span class="sd">        a column is sometimes missing.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            row: The table row element (BeautifulSoup Tag).</span>
 <span class="sd">            table_nesting_level: The nesting level of the table.</span>
+<span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary containing the extracted data from the row.</span>
@@ -1884,14 +2006,65 @@ Inherits logging from SpecParser.</p>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">col_idx</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[:</span><span class="n">col_idx</span><span class="p">]</span>
 
-        <span class="c1"># Build row_data dictionary</span>
-        <span class="n">row_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">attr_index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">cell</span><span class="p">,</span> <span class="n">colspan</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">attr_index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">:</span>
-                <span class="n">row_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]]</span> <span class="o">=</span> <span class="n">cell</span>
-            <span class="n">attr_index</span> <span class="o">+=</span> <span class="n">colspan</span>
+        <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_align_row_with_skipped_columns</span><span class="p">(</span>
+                <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">skip_columns</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">skip_columns</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">skip_columns</span><span class="p">)</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_align_row_default</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_align_row_with_skipped_columns</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">skip_columns</span>
+    <span class="p">):</span>
+        <span class="c1"># sourcery skip: dict-comprehension, inline-immediately-returned-variable, inline-variable</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Align cells to attributes when skip_columns is used.</span>
+
+<span class="sd">        This method aligns the row&#39;s cells to the attribute indices, skipping the columns</span>
+<span class="sd">        specified in skip_columns. It is used when the row is missing exactly the number of</span>
+<span class="sd">        columns specified, ensuring the remaining cells are mapped to the correct attributes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">attr_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">attr_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">]</span>
+        <span class="c1"># Flag if the skipped_columns were actually skipped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr_index</span><span class="p">,</span> <span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">colspan</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">attr_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
+                <span class="n">col_idx_map</span> <span class="o">=</span> <span class="n">attr_indices</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">col_idx_map</span><span class="p">]</span>
+                <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell</span>
+        <span class="k">return</span> <span class="n">row_data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_align_row_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Align cells to attributes by default, handling colspans and missing cells.</span>
+
+<span class="sd">        Always set all attributes, even if missing in this row, filling spanned columns with None</span>
+<span class="sd">        to maintain alignment with the column_to_attr mapping.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">cell_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="n">cell_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">):</span>
+                <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">cell_idx</span><span class="p">]</span>
+                <span class="n">colsp</span> <span class="o">=</span> <span class="n">colspans</span><span class="p">[</span><span class="n">cell_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">cell_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">colspans</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="c1"># Fill in None for skipped columns due to colspan</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">colsp</span><span class="p">):</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
+                        <span class="n">skipped_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_indices</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+                        <span class="n">row_data</span><span class="p">[</span><span class="n">skipped_attr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">cell_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">row_data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pending_rowspans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2002,7 +2175,9 @@ Inherits logging from SpecParser.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">_extract_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract headers from the table and saves them in the headers attribute.</span>
 
-<span class="sd">        Only extracts headers of the columns corresponding to the keys in column_to_attr.</span>
+<span class="sd">        Realign the keys in column_to_attr to consecutive indices if the number of columns in the table</span>
+<span class="sd">        is less than the maximum key in column_to_attr, to handle cases where the mapping is out of sync</span>
+<span class="sd">        with the actual table structure.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            table: The table element from which to extract headers.</span>
@@ -2010,7 +2185,20 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cells</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;th&quot;</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="p">[</span><span class="n">header</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">header</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="p">]</span>
+        <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
+        <span class="c1"># If the mapping has non-consecutive keys and the table has fewer columns, realign</span>
+        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">num_columns</span><span class="p">:</span>
+            <span class="c1"># Map consecutive indices to the same attribute names, skipping as needed</span>
+            <span class="n">sorted_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+            <span class="n">realigned_col_to_attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_attrs</span><span class="p">))</span>
+            <span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">realigned_col_to_attr</span>
+
+        <span class="n">header</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">cells</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="n">column_to_attr</span>
+            <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted Header: </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">header</span>
 
@@ -2109,7 +2297,8 @@ Inherits logging from SpecParser.</p>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the DOMTableSpecParser.</span>
 
 <span class="sd">    Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.</span>
@@ -2119,6 +2308,7 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+
     <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2214,22 +2404,22 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">    Args:</span>
@@ -2255,7 +2445,7 @@ Inherits logging from SpecParser.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2360,6 +2550,26 @@ None means unlimited.</p>
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>skip_columns</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>List of column indices to skip if the row is missing a column.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="list">list</span>[<span title="int">int</span>]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -2390,8 +2600,7 @@ None means unlimited.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
-<span class="normal">35</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -2417,13 +2626,33 @@ None means unlimited.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+    <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
 
@@ -2437,13 +2666,30 @@ None means unlimited.</p>
 <span class="sd">        name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">            None means unlimited.</span>
+<span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[Node, Node]: The metadata node and the table content node.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">)</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
+        <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span>
+    <span class="p">)</span>
+
+    <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
+    <span class="k">if</span> <span class="n">skip_columns</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span><span class="p">:</span>
+        <span class="n">kept_items</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">]</span>
+        <span class="n">filtered_column_to_attr</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kept_items</span><span class="p">)}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filtered_column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_metadata</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">filtered_column_to_attr</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">filtered_column_to_attr</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
+    <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2556,29 +2802,7 @@ None means unlimited.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
@@ -2587,7 +2811,29 @@ None means unlimited.</p>
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2629,7 +2875,7 @@ None means unlimited.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse_table" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2755,6 +3001,26 @@ model.</p>
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>skip_columns</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>List of column indices to skip if the row is missing a column.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="list">list</span>[<span title="int">int</span>]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -2789,26 +3055,7 @@ model.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 82</span>
 <span class="normal"> 83</span>
 <span class="normal"> 84</span>
 <span class="normal"> 85</span>
@@ -2854,7 +3101,29 @@ model.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2862,6 +3131,7 @@ model.</p>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+    <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -2877,6 +3147,7 @@ model.</p>
 <span class="sd">        name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">        table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">        include_depth: The depth to which included tables should be parsed.</span>
+<span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        root: The root node of the tree representation of the specification table.</span>
@@ -2900,8 +3171,9 @@ model.</p>
     <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
     <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-        <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">)</span>
-
+        <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
         <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
 
         <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
@@ -2984,7 +3256,7 @@ model.</p>
       <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

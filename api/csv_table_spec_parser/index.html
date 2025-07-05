@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -1336,7 +1336,8 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
-<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CSVTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CSVTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base parser for DICOM Specification IHE tables in CSV-like format.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
@@ -1368,7 +1369,8 @@
         <span class="n">metadata</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
-        <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="n">include_depth</span>
+        <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
         <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">([</span><span class="n">data</span><span class="p">],</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 
@@ -1604,7 +1606,8 @@
 <span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">,</span>
@@ -1633,7 +1636,8 @@
     <span class="n">metadata</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
-    <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="n">include_depth</span>
+    <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
     <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">([</span><span class="n">data</span><span class="p">],</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 </code></pre></div></td></tr></table></div>
@@ -1750,8 +1754,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/csv_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
-<span class="normal">48</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
 <span class="normal">51</span>
@@ -1787,7 +1790,8 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
-<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
@@ -1889,7 +1893,7 @@
       <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
