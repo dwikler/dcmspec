@@ -40,7 +40,8 @@ class CSVTableSpecParser(SpecParser):
         metadata.header = header
         metadata.column_to_attr = column_to_attr
         metadata.table_id = table_id
-        metadata.include_depth = include_depth
+        if include_depth is not None:
+            metadata.include_depth = int(include_depth)
         content = self.parse_table([data], column_to_attr, name_attr)
         return metadata, content
 

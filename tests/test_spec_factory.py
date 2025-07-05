@@ -48,6 +48,7 @@ class DummyTableParser:
         self.called = True
         # Return dummy metadata and content nodes as anytree Nodes
         metadata = Node("metadata")
+        metadata.column_to_attr = column_to_attr or {}
         content = Node("content")
         return metadata, content
 

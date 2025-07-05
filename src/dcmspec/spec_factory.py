@@ -39,6 +39,7 @@ class SpecFactory:
         name_attr: Optional[str] = None,
         config: Optional[Config] = None,
         logger: Optional[logging.Logger] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the SpecFactory.
 
@@ -62,6 +63,8 @@ class SpecFactory:
             config (Optional[Config]): Configuration object. If None, a default Config is created.
             logger (Optional[logging.Logger]): Logger instance to use.
                 If None, a default logger is created.
+            parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser's
+                `parse` method. Use this to supply parser-specific options such as `skip_columns`.
 
         Raises:
             TypeError: If config is not a Config instance or None.
@@ -73,12 +76,14 @@ class SpecFactory:
         self.config = config or Config()
 
         self.logger = logger or logging.getLogger(self.__class__.__name__)
+
         self.model_class = model_class or SpecModel
         self.input_handler = input_handler or XHTMLDocHandler(config=self.config, logger=self.logger)
         self.model_store = model_store or JSONSpecStore(logger=self.logger)
         self.table_parser = table_parser or DOMTableSpecParser(logger=self.logger)
         self.column_to_attr = column_to_attr or {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
         self.name_attr = name_attr or "elem_name"
+        self.parser_kwargs = parser_kwargs or {}
 
     def load_document(self, url: str, cache_file_name: str, force_download: bool = False) -> Any:
         """Download, cache, and parse the specification file from a URL, returning the document object.
@@ -124,6 +129,7 @@ class SpecFactory:
         include_depth: Optional[int] = None,
         force_parse: bool = False,
         model_kwargs: Optional[Dict[str, Any]] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Build and cache a DICOM specification model from a parsed document object.
 
@@ -141,6 +147,8 @@ class SpecFactory:
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's
+                `parse` method. Use this to supply parser-specific options such as `skip_columns`.
 
         If `json_file_name` is not provided, the factory will attempt to use
         `self.input_handler.cache_file_name` to generate a default JSON file name.
@@ -162,8 +170,9 @@ class SpecFactory:
             return model
 
         # Parse provided document otherwise
+        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self._parse_and_build_model(
-            doc_object, table_id, url, include_depth, model_kwargs
+            doc_object, table_id, url, include_depth, model_kwargs, parser_kwargs=merged_parser_kwargs
         )
 
         # Cache the newly built model if requested
@@ -187,6 +196,7 @@ class SpecFactory:
         include_depth: Optional[int] = None,
         handler_kwargs: Optional[Dict[str, Any]] = None,
         model_kwargs: Optional[Dict[str, Any]] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.
 
@@ -204,6 +214,8 @@ class SpecFactory:
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
+            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's
+                `parse` method. Use this to supply parser-specific options such as `skip_columns`.
 
         Returns:
             SpecModel: The constructed model.
@@ -232,6 +244,7 @@ class SpecFactory:
             include_depth=include_depth,
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
+            parser_kwargs=parser_kwargs,
         )
 
     def _load_model_from_cache(
@@ -263,13 +276,15 @@ class SpecFactory:
 
             # Return the cached model, reconstructing it to the required subclass if necessary        
             if isinstance(model, self.model_class):
+                model.logger = self.logger
                 return model
             return self.model_class(
                 metadata=model.metadata,
                 content=model.content,
+                logger=self.logger,
                 **(model_kwargs or {}),
             )
-        
+
         except Exception as e:
             self.logger.warning(f"Failed to load model from cache {json_file_path}: {e}")
             return None
@@ -281,6 +296,7 @@ class SpecFactory:
         url: Optional[str],
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Parse and Build model from provided parsed document object."""
         # Parse content and some metadata from the parsed document object
@@ -290,20 +306,17 @@ class SpecFactory:
             include_depth=include_depth,
             column_to_attr=self.column_to_attr,
             name_attr=self.name_attr,
+            **(parser_kwargs or {}),
         )
 
         # Add args values to model metadata
         metadata.url = url
-        metadata.table_id = table_id
-        if include_depth is not None:
-            metadata.include_depth = int(include_depth)
-        metadata.column_to_attr = self.column_to_attr
-        metadata.name_attr = self.name_attr
 
         # Build the model from parsed content and metadata
         model = self.model_class(
             metadata=metadata,
             content=content,
+            logger=self.logger,
             **(model_kwargs or {}),
         )
 

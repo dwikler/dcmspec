@@ -109,7 +109,11 @@ class SpecPrinter:
             # skip the root node
             if node.name == "content":
                 continue
+            
             row = [getattr(node, attr, "") for attr in self.model.metadata.column_to_attr.values()]
+            # Skip row if all values are empty or whitespace
+            if all(not str(cell).strip() for cell in row):
+                continue
             row_style = None
             if colorize:
                 row_style = (

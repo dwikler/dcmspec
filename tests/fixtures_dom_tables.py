@@ -120,6 +120,42 @@ def docbook_sample_dom_2():
     return BeautifulSoup(xhtml, "lxml-xml")
 
 @pytest.fixture
+def table_empty_rows_and_cells_dom():
+    """Return a DOM with empty rows and empty cells."""
+    xhtml = """
+    <html>
+        <body>
+            <div class="table">
+                <a id="table_EMPTY" shape="rect"></a>
+                <div class="table-contents">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Col1</th>
+                                <th>Col2</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr></tr>
+                            <tr>
+                                <td></td>
+                                <td>Value2</td>
+                            </tr>
+                            <tr>
+                                <td>Value3</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    from bs4 import BeautifulSoup
+    return BeautifulSoup(xhtml, "lxml-xml")
+
+@pytest.fixture
 def table_colspan_dom():
     """Return a DocBook-style XHTML DOM with a table that uses colspan."""
     xhtml = """
@@ -142,6 +178,45 @@ def table_colspan_dom():
                                 <tr valign="top">
                                     <td colspan="2"><p>A</p></td>
                                     <td><p>B</p></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    return BeautifulSoup(xhtml, "lxml-xml")
+
+@pytest.fixture
+def table_mixed_colspan_dom():
+    """Return a DocBook-style XHTML DOM with a table where some rows have a missing column (colspan) and others do not."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div class="section">
+                <div class="table">
+                    <a id="table_MIXED" shape="rect"></a>
+                    <p class="title"><strong>Table MIXED. Mixed Colspan Table</strong></p>
+                    <div class="table-contents">
+                        <table frame="box" rules="all">
+                            <thead>
+                                <tr valign="top">
+                                    <th align="center"><p>Col1</p></th>
+                                    <th align="center"><p>Col2</p></th>
+                                    <th align="center"><p>Col3</p></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr valign="top">
+                                    <td colspan="2"><p>A</p></td>
+                                    <td><p>B</p></td>
+                                </tr>
+                                <tr valign="top">
+                                    <td><p>C</p></td>
+                                    <td><p>D</p></td>
+                                    <td><p>E</p></td>
                                 </tr>
                             </tbody>
                         </table>
