@@ -9,7 +9,7 @@
 ## Features
 
 - **Attributes Requirements Parsing from DICOM Standard**: Extract attributes requirements from tables in DICOM standard.
-- **Attributes Requirements Parsing from IHE-RO TDW-II**: Extract attributes requirements from tables in IHE-RO TDW-II integration profile (coming soon)
+- **Attributes Requirements Parsing from IHE-RO TDW-II**: Extract attributes requirements from tables in IHE Technical Framework or Supplements.
 
 ## For Developers
 
