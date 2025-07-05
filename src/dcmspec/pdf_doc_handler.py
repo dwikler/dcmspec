@@ -1,7 +1,6 @@
-"""PDF document handler for IHE Technical Frameworks or Supplements processing in dcmspec.
+"""PDF document handler for extracting tables from PDF documents in dcmspec.
 
-Provides the PDFDocHandler class for downloading, caching, and parsing PDF documents
-from IHE Technical Frameworks or Supplements, returning CSV data from tables in PDF files.
+Provides the PDFDocHandler class for extracting and returning CSV data from tables in PDF files.
 """
 
 import os
@@ -42,6 +41,7 @@ class PDFDocHandler(DocHandler):
         force_download: bool = False,
         page_numbers: Optional[list] = None,
         table_indices: Optional[list] = None,
+        pad_columns: Optional[int] = None,
         table_id: Optional[str] = None,
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
@@ -52,6 +52,7 @@ class PDFDocHandler(DocHandler):
             force_download (bool): If True, do not use cache and download the file from the URL.
             page_numbers (list, optional): List of page numbers to extract tables from.
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
+            pad_columns (int, optional): If set, pad each row to this number of columns.
             table_id (str, optional): An identifier for the concatenated table.
 
         Returns:
@@ -80,7 +81,7 @@ class PDFDocHandler(DocHandler):
         all_tables = self.extract_tables(pdf, page_numbers)
         self.logger.debug(f"Extracted {len(all_tables)} tables from PDF.")
         self.logger.debug(f"Concatenating tables with indices: {table_indices}")
-        spec_table = self.concat_tables(all_tables, table_indices, table_id=table_id)
+        spec_table = self.concat_tables(all_tables, table_indices, table_id=table_id, pad_columns=pad_columns)
         self.logger.debug(f"Returning spec_table with header: {spec_table.get('header', [])}")
         pdf.close()
         return spec_table

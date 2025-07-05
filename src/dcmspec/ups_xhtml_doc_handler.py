@@ -9,15 +9,11 @@ from dcmspec.dom_utils import DOMUtils
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 
 class UPSXHTMLDocHandler(XHTMLDocHandler):
-    """Subclass of XHTMLDocHandler that applies UPS-specific table patching.
+    """XHTMLDocHandler subclass for UPS, with table patching.
 
     This handler applies UPS-specific patching to DICOM XHTML tables after parsing.
-    It corrects known issues in Table CC.2.5-3 of DICOM PS3.4, where 'Include' rows under certain
-    sequence attribute rows are missing a '>' nesting symbol. The affected sequences are:
-        - Output Information Sequence
-        - Gender Identity Code Sequence
-        - Sex Parameters for Clinical Use Category Code Sequence
-        - Pronoun Code Sequence
+    It corrects a known issue in the Output Information Sequence table for UPS services,
+    fixing the nesting level of the 'Include' row.
     """
 
     def __init__(self, config=None, logger=None):
