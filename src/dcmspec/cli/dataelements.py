@@ -60,7 +60,14 @@ def main():
 
     # Create the factory
     factory = SpecFactory(
-        column_to_attr={0: "elem_tag", 1: "elem_name", 2: "elem_keyword", 3: "elem_vr", 4: "elem_vm", 5: "elem_status"}, 
+        column_to_attr={
+            0: "elem_tag",
+            1: "elem_name",
+            2: "elem_keyword",
+            3: "elem_vr",
+            4: "elem_vm",
+            5: "elem_status"
+        },
         config=config
     )
 
