@@ -42,7 +42,7 @@
   poetry run python -m src.dcmspec.cli.<script_name> --help
   ```
 
-  See the CLI Applications Overview for available scripts and usage examples.
+  See the [CLI Applications](./cli/index.md) for available scripts and usage examples.
 
 ---
 
@@ -75,4 +75,4 @@
   # ... your code here ...
   ```
 
-  See the API Reference for details on available
+See the [API Reference](./api/index.md) for details on available classes.

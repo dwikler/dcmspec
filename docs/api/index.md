@@ -2,7 +2,7 @@
 
 This section documents the main modules and classes provided by **dcmspec**.
 
-The API allows you to extract, parse, and process DICOM specification tables and related data from the DICOM standard and IHE documents. The modules are organized by functional area and typical workflow, making it easier to find related concepts and understand how to use the library effectively.
+The API enables extraction, parsing, and processing of DICOM specification tables and related data from the DICOM standard and IHE documents for use in Python projects. The modules are organized by functional area and typical workflow, facilitating the discovery of related concepts and effective use of the library.
 
 ## Available API Modules
 

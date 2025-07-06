@@ -2,7 +2,7 @@
 
 This section documents the sample command-line interface (CLI) applications provided by **dcmspec**.
 
-These sample CLI applications allow to extract, parse, and process specification tables and related data from the DICOM standard and IHE documents. Each CLI script is located in the `src/dcmspec/cli/` folder and can be run as a standalone application.
+These sample CLI applications enable extraction, parsing, and processing of specification tables and related data from the DICOM standard and IHE documents. Each CLI script is located in the `src/dcmspec/cli/` folder and can be run as a standalone application.
 
 - [modattributes](modattributes.md) (Module Attributes tables from Part 3)
 - [iodattributes](iodattributes.md) (Complete set of attributes for a given IOD from Part 3)
