@@ -1,3 +1,17 @@
+"""CLI for extracting and printing the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement.
+
+Features:
+- Download and parse the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement (PDF).
+- Extract and print the module definition as a table and a tree.
+- Cache the resulting model as a JSON file for future runs and as a structured representation of the table.
+- Supports configuration, caching, and command-line options for flexible workflows.
+
+Usage:
+    poetry run python -m src.dcmspec.cli.tdwiimoddefinition [options]
+
+For more details, use the --help option.
+"""
+
 import argparse
 import logging
 
@@ -7,6 +21,27 @@ from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_printer import SpecPrinter
 
 def main():
+    """CLI for extracting and printing the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement.
+
+    This CLI downloads, parses, and prints the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement (PDF).
+    The tool extracts the relevant table(s) from the PDF, parses the module definition, and outputs the result as a
+    table and a tree.
+
+    The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
+    machine-readable representation of the module definition, which can be used for further processing or integration
+    in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
+
+    Usage:
+        poetry run python -m src.dcmspec.cli.tdwiimoddefinition [options]
+
+    Options:
+        -d, --debug: Enable debug logging.
+        -v, --verbose: Enable verbose output.
+
+    Example:
+        poetry run python -m src.dcmspec.cli.tdwiimoddefinition
+
+    """
     parser = argparse.ArgumentParser(description="Extract and print TDW-II UPS Scheduled Info Base table.")
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug logging")
     parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")

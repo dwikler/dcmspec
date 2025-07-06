@@ -1,3 +1,19 @@
+"""CLI for extracting, caching, and printing the complete set of DICOM attributes for a given IOD from Part 3.
+
+Features:
+- Download and parse DICOM IOD tables from Part 3 of the DICOM standard.
+- Automatically parse all referenced Module Attributes tables for the IOD.
+- Cache the model as a JSON file for future runs and as a structured representation of the standard.
+- Print the resulting attributes as a table or tree.
+- Supports both Composite and Normalized IODs.
+- Supports caching, configuration files, and command-line options for flexible workflows.
+
+Usage:
+    poetry run python -m src.dcmspec.cli.iodattributes <table_id> [options]
+
+For more details, use the --help option.
+"""
+
 import os
 import argparse
 
@@ -8,6 +24,32 @@ from dcmspec.spec_factory import SpecFactory
 
 
 def main():
+    """CLI for parsing, caching, and printing DICOM IOD attribute models.
+
+    This CLI downloads, caches, and prints all attributes for a specified DICOM IOD (Information Object Definition)
+    from Part 3 of the DICOM standard, supporting both Composite and Normalized IODs.
+
+    When an IOD table is specified, the tool parses the IOD table to determine which modules are referenced, then
+    automatically parses each referenced Module Attributes table. The resulting model contains both the list of modules
+    and, for each module, all its attributes. The print output (table or tree) shows only the attributes, not the IOD
+    table or module structure itself.
+
+    The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
+    machine-readable representation of the IOD's attributes, which can be used for further processing or integration in
+    other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
+
+    Usage:
+        poetry run python -m src.dcmspec.cli.iodattributes <table_id> [options]
+
+    Options:
+        table (str): Table ID to extract (e.g., "table_A.1-1" or "table_B.1-1").
+        --config (str): Path to the configuration file.
+        --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
+
+    Example:
+        poetry run python -m src.dcmspec.cli.iodattributes table_A.1-1 --print-mode tree
+
+    """
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
 
     # Parse command-line arguments

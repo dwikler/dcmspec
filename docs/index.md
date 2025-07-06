@@ -1,18 +1,16 @@
 # DCMspec Documentation
 
-Welcome to the documentation for **dcmspec**!
-
-dcmspec is a Python library for parsing, modeling, and working with DICOM standard specifications.
+**dcmspec** is a Python library for downloading, parsing, modeling, and working with DICOM specifications.
 
 ## Features
 
-- An API to parse DICOM standard and IHE documents specifications into structured models.
-- CLI tools for extracting and printing DICOM specifications.
+- Provides an [API](api/index.md) to parse DICOM standard and IHE document specifications into structured models.
+- Includes sample [CLI applications](cli/index.md) demonstrating extraction and handling of DICOM specifications.
 
 ## Getting Started
 
-See [Installation](installation.md) for setup instructions, or browse the [API Reference](api/spec_model.md) for details.
+For setup instructions, refer to the [Installation](installation.md) page. Information about configuration options and caching behavior can be found in the [Configuration & Caching](configuration.md) page.
 
 ---
 
-For more information, visit the [GitHub repository](https://github.com/dwikler/dcmspec).
+Further information is available in the [GitHub repository](https://github.com/dwikler/dcmspec).

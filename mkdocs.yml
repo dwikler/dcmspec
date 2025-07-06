@@ -6,7 +6,20 @@ site_name: DCMspec Documentation
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Configuration & Caching: configuration.md
+  - CLI Applications:
+      - CLI Overview: cli/index.md
+      - modattributes: cli/modattributes.md
+      - iodattributes: cli/iodattributes.md
+      - iodmodules: cli/iodmodules.md
+      - dataelements: cli/dataelements.md
+      - uidvalues: cli/uidvalues.md
+      - upsdimseattributes: cli/upsdimseattributes.md
+      - upsioddimseattributes: cli/upsioddimseattributes.md
+      - tdwiimoddefinition: cli/tdwiimoddefinition.md
+
   - API Reference:
+      - API Overview: api/index.md
       - Constants Modules:
           - Service Attribute Defaults: api/service_attribute_defaults.md
       - Core Classes:
@@ -64,8 +77,11 @@ theme:
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
-  features:
-    - navigation.expand
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - def_list
 
 extra_css:
   - css/mkdocstrings.css
