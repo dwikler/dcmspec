@@ -9,23 +9,25 @@
       
       
       
+        <link rel="prev" href="../cli/tdwiimoddefinition/">
       
-        <link rel="next" href="installation/">
+      
+        <link rel="next" href="service_attribute_defaults/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>DCMspec Documentation</title>
+        <title>API Overview - DCMspec Documentation</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -44,11 +46,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="css/mkdocstrings.css">
+      <link rel="stylesheet" href="../css/mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dcmspec-documentation" class="md-skip">
+        <a href="#api-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="DCMspec Documentation" class="md-header__button md-logo" aria-label="DCMspec Documentation" data-md-component="logo">
+    <a href=".." title="DCMspec Documentation" class="md-header__button md-logo" aria-label="DCMspec Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -110,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              API Overview
             
           </span>
         </div>
@@ -214,7 +216,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="DCMspec Documentation" class="md-nav__button md-logo" aria-label="DCMspec Documentation" data-md-component="logo">
+    <a href=".." title="DCMspec Documentation" class="md-nav__button md-logo" aria-label="DCMspec Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -229,32 +231,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Home
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -265,44 +245,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Features
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
-    <span class="md-ellipsis">
-      Getting Started
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -314,7 +256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="installation/" class="md-nav__link">
+      <a href="../installation/" class="md-nav__link">
         
   
   
@@ -336,7 +278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -396,7 +338,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -419,7 +361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/modattributes/" class="md-nav__link">
+      <a href="../cli/modattributes/" class="md-nav__link">
         
   
   
@@ -442,7 +384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/iodattributes/" class="md-nav__link">
+      <a href="../cli/iodattributes/" class="md-nav__link">
         
   
   
@@ -465,7 +407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/iodmodules/" class="md-nav__link">
+      <a href="../cli/iodmodules/" class="md-nav__link">
         
   
   
@@ -488,7 +430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/dataelements/" class="md-nav__link">
+      <a href="../cli/dataelements/" class="md-nav__link">
         
   
   
@@ -511,7 +453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/uidvalues/" class="md-nav__link">
+      <a href="../cli/uidvalues/" class="md-nav__link">
         
   
   
@@ -534,7 +476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/upsdimseattributes/" class="md-nav__link">
+      <a href="../cli/upsdimseattributes/" class="md-nav__link">
         
   
   
@@ -557,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/upsioddimseattributes/" class="md-nav__link">
+      <a href="../cli/upsioddimseattributes/" class="md-nav__link">
         
   
   
@@ -580,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cli/tdwiimoddefinition/" class="md-nav__link">
+      <a href="../cli/tdwiimoddefinition/" class="md-nav__link">
         
   
   
@@ -607,18 +549,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -634,7 +578,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             API Reference
@@ -645,10 +589,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="api/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    API Overview
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -659,6 +625,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-api-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available API Modules
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      How to Use
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -709,7 +713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/service_attribute_defaults/" class="md-nav__link">
+      <a href="service_attribute_defaults/" class="md-nav__link">
         
   
   
@@ -778,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_model/" class="md-nav__link">
+      <a href="spec_model/" class="md-nav__link">
         
   
   
@@ -801,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_merger/" class="md-nav__link">
+      <a href="spec_merger/" class="md-nav__link">
         
   
   
@@ -824,7 +828,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/service_attribute_model/" class="md-nav__link">
+      <a href="service_attribute_model/" class="md-nav__link">
         
   
   
@@ -847,7 +851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_factory/" class="md-nav__link">
+      <a href="spec_factory/" class="md-nav__link">
         
   
   
@@ -870,7 +874,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/iod_spec_builder/" class="md-nav__link">
+      <a href="iod_spec_builder/" class="md-nav__link">
         
   
   
@@ -939,7 +943,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_parser/" class="md-nav__link">
+      <a href="spec_parser/" class="md-nav__link">
         
   
   
@@ -962,7 +966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/dom_table_spec_parser/" class="md-nav__link">
+      <a href="dom_table_spec_parser/" class="md-nav__link">
         
   
   
@@ -985,7 +989,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/csv_table_spec_parser/" class="md-nav__link">
+      <a href="csv_table_spec_parser/" class="md-nav__link">
         
   
   
@@ -1054,7 +1058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/doc_handler/" class="md-nav__link">
+      <a href="doc_handler/" class="md-nav__link">
         
   
   
@@ -1077,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/xhtml_doc_handler/" class="md-nav__link">
+      <a href="xhtml_doc_handler/" class="md-nav__link">
         
   
   
@@ -1100,7 +1104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/ups_xhtml_doc_handler/" class="md-nav__link">
+      <a href="ups_xhtml_doc_handler/" class="md-nav__link">
         
   
   
@@ -1123,7 +1127,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/pdf_doc_handler/" class="md-nav__link">
+      <a href="pdf_doc_handler/" class="md-nav__link">
         
   
   
@@ -1192,7 +1196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_store/" class="md-nav__link">
+      <a href="spec_store/" class="md-nav__link">
         
   
   
@@ -1215,7 +1219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/json_spec_store/" class="md-nav__link">
+      <a href="json_spec_store/" class="md-nav__link">
         
   
   
@@ -1284,7 +1288,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/spec_printer/" class="md-nav__link">
+      <a href="spec_printer/" class="md-nav__link">
         
   
   
@@ -1307,7 +1311,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/iod_spec_printer/" class="md-nav__link">
+      <a href="iod_spec_printer/" class="md-nav__link">
         
   
   
@@ -1376,7 +1380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/config/" class="md-nav__link">
+      <a href="config/" class="md-nav__link">
         
   
   
@@ -1399,7 +1403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/dom_utils/" class="md-nav__link">
+      <a href="dom_utils/" class="md-nav__link">
         
   
   
@@ -1457,18 +1461,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#available-api-modules" class="md-nav__link">
     <span class="md-ellipsis">
-      Features
+      Available API Modules
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#getting-started" class="md-nav__link">
+  <a href="#how-to-use" class="md-nav__link">
     <span class="md-ellipsis">
-      Getting Started
+      How to Use
     </span>
   </a>
   
@@ -1490,17 +1494,23 @@
 
 
 
-<h1 id="dcmspec-documentation">DCMspec Documentation</h1>
-<p><strong>dcmspec</strong> is a Python library for downloading, parsing, modeling, and working with DICOM specifications.</p>
-<h2 id="features">Features</h2>
+<h1 id="api-overview">API Overview</h1>
+<p>This section documents the main modules and classes provided by <strong>dcmspec</strong>.</p>
+<p>The API enables extraction, parsing, and processing of DICOM specification tables and related data from the DICOM standard and IHE documents for use in Python projects. The modules are organized by functional area and typical workflow, facilitating the discovery of related concepts and effective use of the library.</p>
+<h2 id="available-api-modules">Available API Modules</h2>
 <ul>
-<li>Provides an <a href="api/">API</a> to parse DICOM standard and IHE document specifications into structured models.</li>
-<li>Includes sample <a href="cli/">CLI applications</a> demonstrating extraction and handling of DICOM specifications.</li>
+<li><a href="service_attribute_defaults/">Constants Modules</a>: Default values and constants used throughout the library.</li>
+<li><a href="spec_model/">Core Classes</a>: Main data models and factories for working with DICOM specifications.</li>
+<li><a href="spec_parser/">Parse Classes</a>: Classes for parsing DICOM tables from various formats.</li>
+<li><a href="doc_handler/">Load Classes</a>: Classes for loading and handling DICOM documents.</li>
+<li><a href="spec_store/">Store Classes</a>: Classes for storing and caching parsed specifications.</li>
+<li><a href="spec_printer/">Print Classes</a>: Classes for printing and displaying specification data.</li>
+<li><a href="config/">Utils Classes</a>: Utility classes for configuration and DOM manipulation.</li>
 </ul>
-<h2 id="getting-started">Getting Started</h2>
-<p>For setup instructions, refer to the <a href="installation/">Installation</a> page. Information about configuration options and caching behavior can be found in the <a href="configuration/">Configuration &amp; Caching</a> page.</p>
-<hr />
-<p>Further information is available in the <a href="https://github.com/dwikler/dcmspec">GitHub repository</a>.</p>
+<h2 id="how-to-use">How to Use</h2>
+<p>You can import and use any API module in your own Python code. For example:</p>
+<div class="highlight"><pre><span></span><code>from<span class="w"> </span>dcmspec.spec_model<span class="w"> </span>import<span class="w"> </span>SpecModel<span class="w"> </span>from<span class="w"> </span>dcmspec.spec_factory<span class="w"> </span>import<span class="w"> </span>SpecFactory
+</code></pre></div>
 
 
 
@@ -1549,10 +1559,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>
