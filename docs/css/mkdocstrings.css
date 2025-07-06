@@ -1,3 +1,4 @@
-.doc {
+/* Reduce base font size for all documentation content */
+.md-content__inner.md-typeset {
     font-size: .7rem;
 }

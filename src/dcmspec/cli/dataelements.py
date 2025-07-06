@@ -1,3 +1,17 @@
+"""CLI for extracting, caching, and printing DICOM Data Elements from Part 6.
+
+Features:
+- Download and parse DICOM Data Elements table from Part 6 of the DICOM standard.
+- Cache the model as a JSON file for future runs and as a structured representation of the standard.
+- Print the resulting Data Elements as a table.
+- Supports caching, configuration files, and command-line options for flexible workflows.
+
+Usage:
+    poetry run python -m src.dcmspec.cli.dataelements [options]
+
+For more details, use the --help option.
+"""
+
 import os
 import argparse
 from dcmspec.config import Config
@@ -7,6 +21,27 @@ from dcmspec.spec_printer import SpecPrinter
 
 
 def main():
+    """CLI for parsing, caching, and printing DICOM Data Elements from Part 6.
+
+    This CLI downloads, caches, and prints the list of DICOM Data Elements from Part 6 of the DICOM standard.
+
+    The tool parses the Data Elements table to extract tags, names, keywords, VR (Value Representation),
+    VM (Value Multiplicity), and status for all DICOM data elements. The output can be printed as a table.
+
+    The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
+    machine-readable representation of the DICOM Data Elements, which can be used for further processing or integration
+    in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
+
+    Usage:
+        poetry run python -m src.dcmspec.cli.dataelements [options]
+
+    Options:
+        --config (str): Path to the configuration file.
+
+    Example:
+        poetry run python -m src.dcmspec.cli.dataelements
+
+    """
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to the configuration file")

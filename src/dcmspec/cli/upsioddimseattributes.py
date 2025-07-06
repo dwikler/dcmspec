@@ -1,3 +1,18 @@
+"""CLI for extracting, merging, caching, and printing DICOM UPS IOD attributes from Part 3 and Part 4.
+
+Features:
+- Download and parse DICOM UPS IOD (Unified Procedure Step Information Object Definition) from Part 3.
+- Merge with UPS DIMSE service requirements and role from Part 4.
+- Cache the merged model as a JSON file for future runs and as a structured representation of the standard.
+- Print the resulting merged attributes as a table or tree.
+- Supports caching, configuration files, and command-line options for flexible workflows.
+
+Usage:
+    poetry run python -m src.dcmspec.cli.upsioddimseattributes [options]
+
+For more details, use the --help option.
+"""
+
 import argparse
 import logging
 import os
@@ -134,7 +149,36 @@ def align_type_with_dimse_req(model, dimse_req_attributes, dimse_attributes):
 
 
 def main():
-    
+    """CLI for parsing, merging, caching, and printing DICOM UPS IOD attributes aligned with DIMSE service requirements.
+
+    This CLI downloads, merges, caches, and prints the attributes for a DICOM UPS (Unified Procedure Step) IOD
+    (Information Object Definition) from Part 3, aligned with the requirements of a selected DIMSE service and role
+    from Part 4.
+
+    The tool parses the IOD table and all referenced module attribute tables, then merges in the UPS DIMSE service
+    requirements (e.g., N-CREATE, N-SET, N-GET, C-FIND, FINAL) and role (SCU or SCP) from Part 4. The output can be
+    printed as a table or tree.
+
+    The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
+    machine-readable representation of the merged IOD and DIMSE service attributes, which can be used for further
+    processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up
+    subsequent runs of the CLI scripts.
+
+    Usage:
+        poetry run python -m src.dcmspec.cli.upsioddimseattributes [options]
+
+    Options:
+        --config (str): Path to the configuration file.
+        --dimse (str): DIMSE service to use (e.g., ALL_DIMSE, N-CREATE, N-SET, N-GET, C-FIND, FINAL).
+        --role (str): DIMSE role to use (SCU or SCP).
+        --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
+        -v, --verbose: Enable verbose (info-level) logging to the console.
+        -d, --debug: Enable debug logging to the console (overrides --verbose).
+
+    Example:
+        poetry run python -m src.dcmspec.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree
+
+    """    
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to the configuration file")
     parser.add_argument("--dimse", default="ALL_DIMSE", help="DIMSE service to use (e.g. N-CREATE, N-SET, N-GET, etc.)")

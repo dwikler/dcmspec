@@ -1,3 +1,18 @@
+"""CLI for extracting, caching, and printing DICOM Module Attributes tables from Part 3.
+
+Features:
+- Download and parse DICOM Module Attributes tables from Part 3 of the DICOM standard.
+- Optionally merge additional information (VR, VM, Keyword, Status) from Part 6.
+- Cache the resulting model as a JSON file for future runs and as a structured representation of the standard.
+- Print the resulting model as a table or tree.
+- Supports caching, configuration files, and command-line options for flexible workflows.
+
+Usage:
+    poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
+
+For more details, use the --help option.
+"""
+
 import os
 import argparse
 import logging
@@ -9,6 +24,24 @@ from dcmspec.spec_printer import SpecPrinter
 
 
 def create_module_model(config, table_id, force_parse, force_download, include_depth, logger=None):
+    """Create a DICOM Module Attributes model from Part 3 of the DICOM standard.
+
+    Downloads and parses the specified module attributes table from the DICOM standard (Part 3),
+    or loads it from cache if available. The resulting model contains the attributes, tags, types,
+    and descriptions for the specified module.
+
+    Args:
+        config (Config): The configuration object.
+        table_id (str): The table ID to extract (e.g., "table_C.7-1").
+        force_parse (bool): If True, force reparsing of the DOM and regeneration of the JSON model.
+        force_download (bool): If True, force download of the input file and regeneration of the model.
+        include_depth (int or None): Depth to which included tables should be parsed (None for unlimited).
+        logger (logging.Logger, optional): Logger instance for debug output.
+
+    Returns:
+        SpecModel: The parsed module attributes model.
+
+    """
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
     cache_file_name = "Part3.xhtml"
     model_file_name = f"Part3_{table_id}.json"
@@ -31,6 +64,20 @@ def create_module_model(config, table_id, force_parse, force_download, include_d
     )
 
 def create_part6_model(config, logger=None):
+    """Create a DICOM Data Elements model from Part 6 of the DICOM standard.
+
+    Downloads and parses the Data Elements table from Part 6 of the DICOM standard,
+    or loads it from cache if available. The resulting model contains tags, names,
+    keywords, VR, VM, and status for all DICOM data elements.
+
+    Args:
+        config (Config): The configuration object.
+        logger (logging.Logger, optional): Logger instance for debug output.
+
+    Returns:
+        SpecModel: The parsed Part 6 Data Elements model.
+
+    """
     url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part06/chapter_6.html"
     cache_file_name = "DataElements.xhtml"
     json_file_name = "DataElements.json"
@@ -58,6 +105,40 @@ def create_part6_model(config, logger=None):
     )
 
 def main():
+    """CLI for parsing, caching, and printing DICOM Module Attributes tables.
+
+    This CLI extracts, caches, and prints the attributes of a given DICOM Module
+    from Part 3 of the DICOM standard. Optionally, it can enrich the module with VR, VM, Keyword,
+    or Status information from Part 6 (Data Elements dictionary).
+
+    The tool parses the specified Module Attributes table to extract all attributes, tags, types,
+    and descriptions for the module. Optionally, it can merge in VR, VM, Keyword, or Status information
+    from Part 6. The output can be printed as a table or tree.
+
+    The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide
+    a structured, machine-readable representation of the module's attributes, which can be used for further processing
+    or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs
+    of the CLI scripts.
+
+    Usage:
+        poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
+
+    Options:
+        table (str): Table ID to extract (e.g., "table_C.7-1").
+        --config (str): Path to the configuration file.
+        --include-depth (int): Depth to which included tables should be parsed (default: unlimited).
+        --force-parse: Force reparsing of the DOM and regeneration of the JSON model.
+        --force-download: Force download of the input file and regeneration of the model.
+        --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
+        --add-part6 (list): Specification(s) to merge from Part 6 (e.g., --add-part6 VR VM).
+        --force-update: Force update of the specifications merged from part 6, even if cached.
+        -d, --debug: Enable debug logging to the console.
+        -v, --verbose: Enable verbose (info-level) logging to the console.
+
+    Example:
+        poetry run python -m src.dcmspec.cli.modattributes table_C.7-1 --add-part6 VR VM
+
+    """
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("table", help="Table ID")
