@@ -2,3 +2,8 @@
 .md-content__inner.md-typeset {
     font-size: .7rem;
 }
+/* Increase logo size */
+.md-header__button.md-logo img {
+  height: 56px !important;  /* Default is 48px */
+  width: auto !important;
+}
