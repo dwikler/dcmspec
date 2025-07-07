@@ -62,6 +62,7 @@ plugins:
 
 theme:
   name: material
+  logo: images/dcmspec_logo_100.png
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
