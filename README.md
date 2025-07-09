@@ -6,17 +6,25 @@
 
 **dcmspec** is a versatile **Python toolkit** designed to provide processing of _DICOM specifications_ from the _DICOM standard_ or _IHE profiles_.
 
+Designed as a general-purpose, extensible framework, **dcmspec** enables flexible extraction, parsing, and processing of specification tables.
+
 ## Features
 
-- An **[API](https://dwikler.github.io/dcmspec/api/)** to programmatically access, parse, and process DICOM and IHE specification tables.
-- **[Command-Line Interface (CLI) Sample Scripts](https://dwikler.github.io/dcmspec/cli/)** which extract, parse, and process DICOM and IHE specification tables.
+- An API to programmatically access, parse, and process DICOM and IHE specification tables.
+- Command-Line Interface (CLI) Sample Scripts which extract, parse, and process specific DICOM and IHE specification tables.
 
-## Installation and Configuration
+## Installation
 
-Installation and configuration instructions for CLI script users and developers are detailed in the project documentation.
+See the [Installation Guide](https://dwikler.github.io/dcmspec/installation/) for detailed instructions.
 
-- [Installation Guide](https://dwikler.github.io/dcmspec/installation/)
-- [Configuration & Caching](https://dwikler.github.io/dcmspec/configuration/)
+## Usage
+
+- For API usage, see the [API documentation](https://dwikler.github.io/dcmspec/api/).
+- For CLI usage, see the [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/).
+
+## Configuration
+
+See [Configuration & Caching](https://dwikler.github.io/dcmspec/configuration/) for details on configuring cache and other settings.
 
 ## Contributing
 
@@ -43,7 +51,7 @@ If you want to contribute to the project, follow these steps:
 
 ## Similar Projects
 
-There are a few great related open source projects that I highly recommend.
+There are a few great related open source projects worth checking out:
 
 - [innolitics/dicom-standard](https://github.com/innolitics/dicom-standard): Tools and data for parsing and working with the DICOM standard in a structured format.
 - [pydicom/dicom-validator](https://github.com/pydicom/dicom-validator): A DICOM file validator based on the DICOM standard.
