@@ -109,27 +109,25 @@ class PDFDocHandler(DocHandler):
             pdf = pdfplumber.open(cache_file_path)
             all_tables = self.extract_tables_pdfplumber(pdf, page_numbers)
             self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using pdfplumber.")
-            for idx, table in enumerate(all_tables):
-                print(f"\nTable {idx}:")
-                for row in table["data"]:
-                    print(row)
             pdf.close()
         elif self.extractor == "camelot":
             all_tables = self.extract_tables_camelot(cache_file_path, page_numbers)
             self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using Camelot.")
-            for idx, table in enumerate(all_tables):
-                print(f"\nTable {idx}:")
-                for row in table["data"]:
-                    print(row)
         else:
             raise ValueError(f"Unknown extractor: {self.extractor}")
+
+        if self.logger.isEnabledFor(logging.DEBUG):
+            for idx, table in enumerate(all_tables):
+                self.logger.debug(f"\nTable {idx}:")
+                for row in table["data"]:
+                    self.logger.debug(row)
 
         self.logger.debug(f"Selecting tables with indices: {table_indices}")
         selected_tables = self.select_tables(all_tables, table_indices, table_header_rowspan)
         self.logger.debug(f"Concatenating selected tables with table_id: {table_id}")
         spec_table = self.concat_tables(selected_tables, table_id=table_id)
         self.logger.debug(f"Returning spec_table with header: {spec_table.get('header', [])}")
-        self.logger.debug(f"spec_table['data'] content: {spec_table.get('data', [])}")
+        self.logger.debug(f"Returning spec_table with data: {spec_table.get('data', [])}")
 
         return spec_table
 
@@ -181,7 +179,7 @@ class PDFDocHandler(DocHandler):
                     "snap_tolerance": 8,
                 }
             )
-            self.logger.debug(f"Extracted tables from page {page_num}: {tables}")
+
             if not tables:
                 continue
             all_tables.extend(

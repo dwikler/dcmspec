@@ -135,7 +135,7 @@ def _parse_args():
         ],
         help=(
             "Select which content definition to extract: "
-            "'ups_create', 'ups_performed', 'ups_progress', 'ups_patient', 'rt_bdi'"
+            "'ups_create', 'ups_query', 'ups_progress', 'ups_performed', 'rt_bdi'"
         )
     )
     parser.add_argument("-d", "--debug", action="store_true", help="Enable debug logging")
