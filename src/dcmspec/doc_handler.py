@@ -28,17 +28,16 @@ class DocHandler:
             config (Optional[Config]): Config instance to use. If None, a default Config is created.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
 
+        Logging:
+            A logger may be passed for custom logging control. If no logger is provided,
+            a default logger for this class is used. In both cases, no logging handlers
+            are added by default. To see log output, logging should be configured in the
+            application (e.g., with logging.basicConfig()).
+
         """
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
         self.logger = logger or logging.getLogger(self.__class__.__name__)
-
-        # Add a StreamHandler and set level if there are no handlers
-        if not self.logger.handlers:
-            self.logger.setLevel(logging.INFO)
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
-            self.logger.addHandler(console_handler)
 
         if config is not None and not isinstance(config, Config):
             raise TypeError("config must be an instance of Config or None")

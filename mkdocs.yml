@@ -16,7 +16,7 @@ nav:
       - uidvalues: cli/uidvalues.md
       - upsdimseattributes: cli/upsdimseattributes.md
       - upsioddimseattributes: cli/upsioddimseattributes.md
-      - tdwiimoddefinition: cli/tdwiimoddefinition.md
+      - tdwiicontent: cli/tdwiicontent.md
 
   - API Reference:
       - API Overview: api/index.md

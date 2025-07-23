@@ -9,6 +9,7 @@ import logging
 from typing import Optional, List
 
 import pdfplumber
+import camelot
 
 from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
@@ -19,7 +20,12 @@ class PDFDocHandler(DocHandler):
     Provides methods to download, cache, and extract tables as CSV data from PDF files.
     """
 
-    def __init__(self, config: Optional[Config] = None, logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        config: Optional[Config] = None,
+        logger: Optional[logging.Logger] = None,
+        extractor: str = "pdfplumber"
+    ):
         """Initialize the PDF document handler.
 
         Sets up the handler with an optional configuration and logger.
@@ -27,12 +33,18 @@ class PDFDocHandler(DocHandler):
         Args:
             config (Optional[Config]): Configuration object for cache and other settings.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+            extractor (str): Table extraction library to use. 
+                `pdfplumber` (default) uses pdfplumber for extraction.
+                `camelot` uses Camelot (lattice flavor) for extraction.
+                `pdfplumber` detects tables by analyzing lines and whitespace in the PDF's vector content,
+                while `camelot` detects tables by processing the rendered page image to find drawn lines.
 
         """
         super().__init__(config=config, logger=logger)
-        self.logger.debug(f"PDFDocHandler initialized with logger {self.logger.name} "
+        self.extractor = extractor
+        self.logger.debug(f"PDFDocHandler initialized with extractor {self.extractor} and logger {self.logger.name} "
                           f"at level {logging.getLevelName(self.logger.level)}")
-
+        
         self.cache_file_name = None
 
     def load_document(
@@ -42,6 +54,7 @@ class PDFDocHandler(DocHandler):
         force_download: bool = False,
         page_numbers: Optional[list] = None,
         table_indices: Optional[list] = None,
+        table_header_rowspan: Optional[dict] = None,
         table_id: Optional[str] = None,
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
@@ -52,11 +65,28 @@ class PDFDocHandler(DocHandler):
             force_download (bool): If True, do not use cache and download the file from the URL.
             page_numbers (list, optional): List of page numbers to extract tables from.
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
+            table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
             table_id (str, optional): An identifier for the concatenated table.
 
         Returns:
             dict: The specification table dict with keys 'header', 'data', and optionally 'table_id'.
 
+        Example:
+            ```python
+            handler = PDFDocHandler()
+            spec_table = handler.load_document(
+                cache_file_name="myfile.pdf",
+                url="https://example.com/myfile.pdf",
+                page_numbers=[10, 11],
+                table_indices=[(10, 0), (11, 1)],
+                table_header_rowspan={
+                    (10, 0): 2,  # Table starts on page 10, index 0 and has 2 header rows
+                    (11, 1): 2,  # Table ends on page 11, index 1 and has 2 header rows
+                },
+                table_id="my_spec_table"
+            )
+            ```
+            
         """
         self.cache_file_name = cache_file_name
         cache_file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
@@ -69,22 +99,37 @@ class PDFDocHandler(DocHandler):
             cache_file_path = self.download(url, cache_file_name)
         else:
             self.logger.info(f"Loading PDF from cache file {cache_file_path}")
-        import pdfplumber
-        pdf = pdfplumber.open(cache_file_path)
 
         if page_numbers is None or table_indices is None:
             self.logger.error("page_numbers and table_indices must be provided to extract the logical table.")
             raise ValueError("page_numbers and table_indices must be provided to extract the logical table.")
 
         self.logger.debug(f"Extracting tables from pages: {page_numbers}")
-        all_tables = self.extract_tables(pdf, page_numbers)
-        self.logger.debug(f"Extracted {len(all_tables)} tables from PDF.")
-        self.logger.debug(f"Concatenating tables with indices: {table_indices}")
-        spec_table = self.concat_tables(all_tables, table_indices, table_id=table_id)
-        self.logger.debug(f"Returning spec_table with header: {spec_table.get('header', [])}")
-        pdf.close()
-        return spec_table
+        if self.extractor == "pdfplumber":
+            pdf = pdfplumber.open(cache_file_path)
+            all_tables = self.extract_tables_pdfplumber(pdf, page_numbers)
+            self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using pdfplumber.")
+            pdf.close()
+        elif self.extractor == "camelot":
+            all_tables = self.extract_tables_camelot(cache_file_path, page_numbers)
+            self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using Camelot.")
+        else:
+            raise ValueError(f"Unknown extractor: {self.extractor}")
 
+        if self.logger.isEnabledFor(logging.DEBUG):
+            for idx, table in enumerate(all_tables):
+                self.logger.debug(f"\nTable {idx}:")
+                for row in table["data"]:
+                    self.logger.debug(row)
+
+        self.logger.debug(f"Selecting tables with indices: {table_indices}")
+        selected_tables = self.select_tables(all_tables, table_indices, table_header_rowspan)
+        self.logger.debug(f"Concatenating selected tables with table_id: {table_id}")
+        spec_table = self.concat_tables(selected_tables, table_id=table_id)
+        self.logger.debug(f"Returning spec_table with header: {spec_table.get('header', [])}")
+        self.logger.debug(f"Returning spec_table with data: {spec_table.get('data', [])}")
+
+        return spec_table
 
     def download(self, url: str, cache_file_name: str) -> str:
         """Download and cache a PDF file from a URL using the base class download method.
@@ -103,20 +148,17 @@ class PDFDocHandler(DocHandler):
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         return super().download(url, file_path, binary=True)
 
-    def extract_tables(
-        self,
-        pdf: pdfplumber.PDF,
-        page_numbers: List[int],
-    ) -> List[dict]:
-        """Extract and return all tables from the specified PDF pages.
+    def extract_tables_pdfplumber(self, pdf: pdfplumber.PDF, page_numbers: List[int]) -> List[dict]:
+        """Extract and return all tables from the specified PDF pages using pdfplumber.
+
+        Uses pdfplumber to extract tables from the PDF by analyzing lines and whitespace in the PDF's vector content.
 
         Args:
             pdf (pdfplumber.PDF): The PDF object.
             page_numbers (List[int]): List of page numbers (1-indexed) to extract tables from.
 
         Returns:
-            List[dict]: List of dicts, each with keys 'page', 'index', 'data' (table as list of rows),
-            and 'header' (list of header cells).
+            List[dict]: List of dicts, each with keys 'page', 'index', and 'data' (table as list of rows).
 
         Raises:
             IndexError: If a page number is out of range for the PDF.
@@ -130,73 +172,179 @@ class PDFDocHandler(DocHandler):
                     f"Page number {page_num} is out of range for this PDF (valid range: 1 to {num_pages})"
                 )
             page = pdf.pages[page_num - 1]
-            tables = page.extract_tables()
-            if tables:
-                for idx, table in enumerate(tables):
-                    # Remove empty columns and clean up each row
-                    cleaned_table = [
-                        [cell for cell in row if cell not in ("", None)]
-                        for row in table
-                    ]
-                    header = cleaned_table[0] if cleaned_table else []
-                    data = cleaned_table[1:] if len(cleaned_table) > 1 else []
-                    all_tables.append({
-                        "page": page_num,
-                        "index": idx,
-                        "header": header,
-                        "data": data,
-                    })
+            tables = page.extract_tables(
+                table_settings={
+                    "vertical_strategy": "lines", 
+                    "horizontal_strategy": "lines",
+                    "snap_tolerance": 8,
+                }
+            )
+
+            if not tables:
+                continue
+            all_tables.extend(
+                {
+                    "page": page_num,
+                    "index": idx,
+                    "data": table,
+                }
+                for idx, table in enumerate(tables)
+            )
         return all_tables
+
+    def extract_tables_camelot(self, file_path: str, page_numbers: List[int]) -> List[dict]:
+        """Extract and return all tables from the specified PDF pages using Camelot.
+
+        Uses Camelot in "lattice" mode, which detects tables by analyzing the rendered page image for drawn lines.
+
+        Args:
+            file_path (str): Path to the PDF file.
+            page_numbers (List[int]): List of page numbers (1-indexed) to extract tables from.
+
+        Returns:
+            List[dict]: List of dicts, each with keys 'page', 'index', and 'data' (table as list of rows).
+            
+        """
+        all_tables = []
+        for page_num in page_numbers:
+            tables = camelot.read_pdf(
+                file_path,
+                pages=str(page_num),
+                flavor="lattice",
+                line_scale=40
+            )
+            all_tables.extend(
+                {
+                    "page": page_num,
+                    "index": idx,
+                    "data": table.df.values.tolist(),
+                }
+                for idx, table in enumerate(tables)
+            )
+        return all_tables
+
+    def select_tables(
+        self,
+        tables: List[dict],
+        table_indices: List[tuple],
+        table_header_rowspan: Optional[dict] = None,
+    ) -> List[dict]:
+        """Select tables referenced by table_indices and split each table into header and data.
+
+        This method processes a list of extracted tables, selects those specified by table_indices,
+        and splits each selected table into a header and data rows. If a table has multiple header rows
+        (as specified by table_header_rowspan), these rows are merged column-wise to form a single header row.
+
+
+        Args:
+            tables (List[dict]): List of table dicts, each with 'page', 'index', and 'data' (raw table rows).
+            table_indices (List[tuple]): List of (page, index) tuples specifying which tables to select and process.
+            table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices,
+                keyed by (page, index). If not specified, defaults to 1 header row per table.
+
+        Returns:
+            List[dict]: List of dicts, each with keys:
+                - 'page': page number of the table
+                - 'index': index of the table on the page
+                - 'header': merged header row (list of column names)
+                - 'data': list of data rows (list of cell values)
+
+        Example:
+            ```python
+            selected_tables = handler.select_tables(
+                tables,
+                table_indices=[(10, 0), (11, 1)],
+                table_header_rowspan={(10, 0): 2, (11, 1): 2}
+            )
+            for table in selected_tables:
+                print(table["header"], table["data"])
+            ```
+
+        """
+        def merge_multirow_header(header_rows):
+            n_cols = max(len(row) for row in header_rows)
+            merged = []
+            for col in range(n_cols):
+                merged_cell = " ".join(
+                    str(row[col]).strip() for row in header_rows
+                    if col < len(row) and row[col] not in (None, "")
+                ).strip()
+                merged.append(merged_cell)
+            return merged
+
+        selected_tables = []
+        for page, idx in table_indices:
+            for table in tables:
+                if table["page"] == page and table["index"] == idx:
+                    table_rows = table["data"]
+                    n_header_rows = 1
+                    if table_header_rowspan and (page, idx) in table_header_rowspan:
+                        n_header_rows = table_header_rowspan[(page, idx)]
+                    header_rows = table_rows[:n_header_rows]
+                    data_rows = table_rows[n_header_rows:]
+                    # Merge header rows if needed
+                    if len(header_rows) == 1:
+                        header_ = header_rows[0]
+                    else:
+                        header_ = merge_multirow_header(header_rows)
+                    selected_tables.append({
+                        "page": page,
+                        "index": idx,
+                        "header": header_,
+                        "data": data_rows,
+                    })
+        return selected_tables
 
     def concat_tables(
         self,
         tables: List[dict],
-        table_indices: List[tuple],
         table_id: str = None,
     ) -> dict:
         """Concatenate selected tables (across pages or by specification) into a single logical table.
 
         Args:
             tables (List[dict]): List of table dicts, each with 'page', 'index', 'header', and 'data'.
-            table_indices (List[tuple]): List of (page, index) tuples specifying which tables to concatenate,
-                in the order they should be concatenated.
             table_id (str, optional): An identifier for the concatenated table.
 
         Returns:
             dict: A dict with keys 'table_id' (if provided), 'header' (from the first table), 
             and 'data' (the concatenated table as a list of rows).
 
-        Example:
-            ```python
-            table_indices = [(57, 1), (58, 0), (60, 0)]
-            concatenated = handler.concat_tables(
-                all_tables,
-                table_indices,
-                table_id="tdwii_ups_scheduled_info_base"
-            )
-            ```
-
         """
         grouped_table = []
         header = []
         first = True
-        for page, idx in table_indices:
-            for table in tables:
-                if table["page"] == page and table["index"] == idx:
-                    if first:
-                        header = table.get("header", [])
-                        first = False
-                    elif header and table.get("header", []) != header:
-                        self.logger.warning(
-                            f"Header mismatch in concatenated tables: {header} != {table.get('header', [])} "
-                            f"(page {page}, index {idx})"
-                        )
-                    n_columns = len(header)
-                    for row in table["data"]:
-                        # Always pad/truncate to header length
-                        row = (row + [""] * (n_columns - len(row)))[:n_columns]
-                        grouped_table.append(row)
-        result = {"header": header, "data": grouped_table}
+        for table in tables:
+            header_ = table.get("header", [])
+            if first:
+                header = header_
+                first = False
+            elif header and header_ != header:
+                self.logger.warning(
+                    f"Header mismatch in concatenated tables: {header} != {header_} "
+                    f"(page {table['page']}, index {table['index']})"
+                )
+            n_columns = len(header)
+            for row in table["data"]:
+                # Always pad/truncate to header length
+                row = (row + [""] * (n_columns - len(row)))[:n_columns]
+                grouped_table.append(row)
+                
+        # Realign columns: shift non-empty header cells and data cells left to fill gaps ---
+        def shift_row_left(row):
+            new_row = [cell for cell in row if cell not in (None, "")]
+            new_row += [""] * (len(row) - len(new_row))
+            return new_row
+
+        header = shift_row_left(header)
+        data = [shift_row_left(row) for row in grouped_table]
+
+        # Remove columns where the header is empty
+        columns_to_keep = [i for i, cell in enumerate(header) if cell not in (None, "")]
+        header = [header[i] for i in columns_to_keep]
+        data = [[row[i] for i in columns_to_keep] for row in data]
+
+        result = {"header": header, "data": data}
         if table_id is not None:
             result["table_id"] = table_id
         return result
