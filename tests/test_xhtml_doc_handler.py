@@ -38,8 +38,9 @@ def test_download_cleans_xhtml(monkeypatch, caplog):
     # Patch request get method
     monkeypatch.setattr("requests.get", lambda url, timeout: DummyResponseSuccess())
 
-    # Call the download method
-    result_path = handler.download("http://example.com", file_name)
+    with caplog.at_level("INFO"):
+        # Call the download method
+        result_path = handler.download("http://example.com", file_name)
 
     # Assert the file was created and contains the expected content
     assert result_path == file_path

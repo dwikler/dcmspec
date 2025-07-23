@@ -11,7 +11,7 @@ These sample CLI applications enable extraction, parsing, and processing of spec
 - [uidvalues](uidvalues.md) (Unique Identifiers (UIDs) from Part 6)
 - [upsdimseattributes](upsdimseattributes.md) (UPS DIMSE Service Attribute tables from Part 4)
 - [upsioddimseattributes](upsioddimseattributes.md) (UPS IOD attributes from Part 3 and Part 4)
-- [tdwiimoddefinition](tdwiimoddefinition.md) (TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement)
+- [tdwiicontent](tdwiicontent.md) (TDW-II Content Specification from the IHE-RO Supplement)
 
 ## How to Run
 

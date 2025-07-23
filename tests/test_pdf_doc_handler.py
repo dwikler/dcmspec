@@ -30,8 +30,8 @@ def test_load_document_happy_path(monkeypatch, patch_dirs):
 
     monkeypatch.setattr("os.path.exists", lambda path: True)
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
-    monkeypatch.setattr(handler, "extract_tables", lambda pdf, pn: dummy_tables)
-    monkeypatch.setattr(handler, "concat_tables", lambda tables, ti, table_id=None: dummy_concat)
+    monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn: dummy_tables)
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None: dummy_concat)
 
     # Act
     result = handler.load_document(
@@ -44,6 +44,35 @@ def test_load_document_happy_path(monkeypatch, patch_dirs):
     )
 
     # Assert
+    assert result == dummy_concat
+
+def test_load_document_happy_path_camelot(monkeypatch, patch_dirs):
+    """Test load_document returns expected result with Camelot extractor."""
+    handler = make_handler()
+    handler.extractor = "camelot"
+    cache_file_name = "test.pdf"
+    url = "http://example.com/file.pdf"
+    page_numbers = [1]
+    table_indices = [(1, 0)]
+    table_id = "T-1"
+    dummy_tables = [
+        {"page": 1, "index": 0, "header": ["A", "B"], "data": [["C", "D"]]}
+    ]
+    dummy_concat = {"header": ["A", "B"], "data": [["C", "D"]], "table_id": table_id}
+
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(handler, "extract_tables_camelot", lambda path, pn: dummy_tables)
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None: dummy_concat)
+
+    result = handler.load_document(
+        cache_file_name=cache_file_name,
+        url=url,
+        force_download=False,
+        page_numbers=page_numbers,
+        table_indices=table_indices,
+        table_id=table_id,
+    )
+
     assert result == dummy_concat
 
 def test_load_document_download(monkeypatch, patch_dirs):
@@ -60,8 +89,8 @@ def test_load_document_download(monkeypatch, patch_dirs):
     monkeypatch.setattr("os.path.exists", lambda path: False)
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
     monkeypatch.setattr(handler, "download", lambda url, cache_file_name: "test.pdf")
-    monkeypatch.setattr(handler, "extract_tables", lambda pdf, pn: [])
-    monkeypatch.setattr(handler, "concat_tables", lambda tables, ti, table_id=None, pad_columns=None: {})
+    monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn: [])
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None, pad_columns=None: {})
 
     # Act
     handler.load_document(
@@ -102,8 +131,8 @@ def test_load_document_missing_args(monkeypatch, patch_dirs):
     dummy_pdf.close = MagicMock()
     monkeypatch.setattr("os.path.exists", lambda path: True)
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
-    monkeypatch.setattr(handler, "extract_tables", lambda pdf, pn: [])
-    monkeypatch.setattr(handler, "concat_tables", lambda tables, ti, table_id=None, pad_columns=None: {})
+    monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn: [])
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None, pad_columns=None: {})
 
     # Act & Assert
     with pytest.raises(ValueError, match="page_numbers and table_indices must be provided"):
@@ -113,6 +142,28 @@ def test_load_document_missing_args(monkeypatch, patch_dirs):
             force_download=False,
             page_numbers=None,
             table_indices=None,
+        )
+
+def test_load_document_unknown_extractor(monkeypatch, patch_dirs):
+    """Test load_document raises ValueError if an unknown extractor is set."""
+    # Arrange
+    handler = make_handler()
+    handler.extractor = "unknown_extractor"
+    cache_file_name = "test.pdf"
+    url = "http://example.com/file.pdf"
+    page_numbers = [1]
+    table_indices = [(1, 0)]
+    # os.path.exists must return True to avoid triggering download
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="Unknown extractor: unknown_extractor"):
+        handler.load_document(
+            cache_file_name=cache_file_name,
+            url=url,
+            force_download=False,
+            page_numbers=page_numbers,
+            table_indices=table_indices,
         )
 
 def test_download_calls_super(monkeypatch, patch_dirs):
@@ -136,7 +187,7 @@ def test_download_calls_super(monkeypatch, patch_dirs):
     assert called["args"] == (url, expected_path, True)
 
 def test_extract_tables_happy(monkeypatch, patch_dirs):
-    """Test extract_tables returns expected structure for multiple pages with tables."""
+    """Test extract_tables_pdfplumber returns expected structure for multiple pages with tables."""
     # Arrange
     handler = make_handler()
     dummy_pdf = MagicMock()
@@ -147,18 +198,16 @@ def test_extract_tables_happy(monkeypatch, patch_dirs):
         [[["E", "F"], ["G", "H"]]]
     ]
     # Act
-    result = handler.extract_tables(dummy_pdf, [1, 2])
+    result = handler.extract_tables_pdfplumber(dummy_pdf, [1, 2])
     # Assert
     assert isinstance(result, list)
-    assert result[0]["header"] == ["A", "B"]
-    assert result[0]["data"] == [["C", "D"]]
-    assert result[1]["header"] == ["E", "F"]
-    assert result[1]["data"] == [["G", "H"]]
+    assert result[0]["data"] == [["A", "B"], ["C", "D"]]
+    assert result[1]["data"] == [["E", "F"], ["G", "H"]]
     assert result[0]["page"] == 1
     assert result[1]["page"] == 2
 
 def test_extract_tables_empty(monkeypatch, patch_dirs):
-    """Test extract_tables returns empty list if no tables are found."""
+    """Test extract_tables_pdfplumber returns empty list if no tables are found."""
     # Arrange
     handler = make_handler()
     dummy_pdf = MagicMock()
@@ -166,12 +215,23 @@ def test_extract_tables_empty(monkeypatch, patch_dirs):
     dummy_pdf.pages = [dummy_page]
     dummy_page.extract_tables.return_value = []
     # Act
-    result = handler.extract_tables(dummy_pdf, [1])
+    result = handler.extract_tables_pdfplumber(dummy_pdf, [1])
     # Assert
     assert result == []
 
+def test_extract_tables_camelot_empty(monkeypatch):
+    """Test extract_tables_camelot returns empty list if no tables are found."""
+    # Arrange
+    handler = make_handler()
+    # Patch camelot.read_pdf to return an empty list
+    monkeypatch.setattr("camelot.read_pdf", lambda file_path, pages, flavor, line_scale=40: [])
+    # Act
+    result = handler.extract_tables_camelot("dummy.pdf", [1])
+    
+    assert result == []
+
 def test_extract_tables_page_num_out_of_range(monkeypatch, patch_dirs):
-    """Test extract_tables raises IndexError if page number is out of range."""
+    """Test extract_tables_pdfplumber raises IndexError if page number is out of range."""
     # Arrange
     handler = make_handler()
     dummy_pdf = MagicMock()
@@ -179,7 +239,72 @@ def test_extract_tables_page_num_out_of_range(monkeypatch, patch_dirs):
     dummy_pdf.pages = [dummy_page]  # Only 1 page
     # Act & Assert
     with pytest.raises(IndexError, match="Page number 2 is out of range for this PDF"):
-        handler.extract_tables(dummy_pdf, [2])
+        handler.extract_tables_pdfplumber(dummy_pdf, [2])
+
+def test_select_tables_single_row_header():
+    """Test select_tables with a single header row (rowspan=1)."""
+    # Arrange
+    handler = make_handler()
+    # Simulate a table with a single header row and 2 data rows
+    header_row = ["A", "B", "C", "D", "E"]
+    data_rows = [
+        ["1", "2", "3", "4", "5"],
+        ["6", "7", "8", "9", "10"]
+    ]
+    tables = [
+        {"page": 1, "index": 0, "data": [header_row] + data_rows}
+    ]
+    table_indices = [(1, 0)]
+    table_header_rowspan = {(1, 0): 1}
+
+    # Act
+    selected = handler.select_tables(
+        tables,
+        table_indices=table_indices,
+        table_header_rowspan=table_header_rowspan
+    )
+
+    # Assert
+    merged_header = selected[0]["header"]
+    # The merged header should be the same as the single header row
+    assert merged_header == ["A", "B", "C", "D", "E"]
+    # Data rows should be preserved
+    assert selected[0]["data"][0] == ["1", "2", "3", "4", "5"]
+    assert selected[0]["data"][1] == ["6", "7", "8", "9", "10"]
+
+def test_select_tables_multirow_header_simple():
+    """Test select_tables merges a simple multi-row header."""
+    # Arrange
+    handler = make_handler()
+    # Simulate a table with a 2-row header and 2 data rows
+    header_rows = [
+        ["A", "", "B", "", "C"],
+        ["", "D", "", "E", ""]
+    ]
+    data_rows = [
+        ["1", "2", "3", "4", "5"],
+        ["6", "7", "8", "9", "10"]
+    ]
+    tables = [
+        {"page": 1, "index": 0, "data": header_rows + data_rows}
+    ]
+    table_indices = [(1, 0)]
+    table_header_rowspan = {(1, 0): 2}
+
+    # Act
+    selected = handler.select_tables(
+        tables,
+        table_indices=table_indices,
+        table_header_rowspan=table_header_rowspan
+    )
+
+    # Assert
+    merged_header = selected[0]["header"]
+    # The merged header should be ["A", "D", "B", "E", "C"]
+    assert merged_header == ["A", "D", "B", "E", "C"]
+    # Data rows should be preserved
+    assert selected[0]["data"][0] == ["1", "2", "3", "4", "5"]
+    assert selected[0]["data"][1] == ["6", "7", "8", "9", "10"]
 
 def test_concat_tables_basic(monkeypatch, patch_dirs):
     """Test concat_tables concatenates tables with matching headers."""
