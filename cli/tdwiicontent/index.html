@@ -20,7 +20,7 @@
     
     
       
-        <title>tdwiimoddefinition - DCMspec Documentation</title>
+        <title>tdwiicontent - DCMspec Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tdwiimoddefinition" class="md-skip">
+        <a href="#tdwiicontent" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              tdwiimoddefinition
+              tdwiicontent
             
           </span>
         </div>
@@ -536,7 +536,7 @@
   
   
   <span class="md-ellipsis">
-    tdwiimoddefinition
+    tdwiicontent
     
   </span>
   
@@ -549,7 +549,7 @@
   
   
   <span class="md-ellipsis">
-    tdwiimoddefinition
+    tdwiicontent
     
   </span>
   
@@ -1528,16 +1528,33 @@
 
 
 
-<h1 id="tdwiimoddefinition">tdwiimoddefinition</h1>
+<h1 id="tdwiicontent">tdwiicontent</h1>
 <h2 id="description">Description</h2>
-<p>CLI for extracting and printing the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement.</p>
-<p>This CLI downloads, parses, and prints the TDW-II UPS Scheduled Info Base table from the IHE-RO Supplement (PDF). The tool extracts the relevant table(s) from the PDF, parses the module definition, and outputs the result as a table and a tree.</p>
-<p>The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured, machine-readable representation of the module definition, which can be used for further processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.</p>
-<p>For more information on configuration and caching location see the <a href="../../configuration/">Configuration and Caching</a> page.</p>
+<p>CLI for extracting and printing the TDW-II profile content definitions from the IHE-RO TDW-II Supplement.</p>
+<p>This CLI downloads, parses, and prints the TDW-II content definition tables from the TDW-II IHE-RO Supplement
+in PDF format.
+The tool extracts the relevant table(s) for the selected content definition, parses the module definition, and
+outputs the result as a table and a tree.</p>
+<p>The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
+machine-readable representation of the content definition, which can be used for further processing or integration
+in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.</p>
+<p>For more information on configuration and caching location see the <a href="../../configuration/">Configuration and Caching</a>
+page.</p>
 <hr />
 <h2 id="usage">Usage</h2>
-<div class="highlight"><pre><span></span><code>poetry run python -m src.dcmspec.cli.tdwiimoddefinition [options]
+<div class="highlight"><pre><span></span><code>poetry run python -m src.dcmspec.cli.tdwiicontent &lt;content_definition&gt; [options]
 </code></pre></div>
+<dl>
+<dt><code>&lt;content_definition&gt;</code></dt>
+<dd>Required positional argument. One of:</dd>
+</dl>
+<ul>
+<li><code>ups_create</code>: content of scheduled UPS creation (combined UPS Scheduled and Relationship definitions)</li>
+<li><code>ups_query</code>: content of C-FIND identifier for UPS Query transaction</li>
+<li><code>ups_progress</code>: content of N-SET dataset for UPS Progress Update transaction</li>
+<li><code>ups_performed</code>: content of N-SET dataset for UPS Final Status Update transaction</li>
+<li><code>rt_bdi</code>: content of RT Beam Delivery Instruction Module</li>
+</ul>
 <dl>
 <dt><code>[options]</code></dt>
 <dd>Additional command-line options (see below).</dd>
@@ -1553,8 +1570,11 @@
 </dl>
 <hr />
 <h2 id="examples">Examples</h2>
-<p>To extract and print the TDW-II UPS Scheduled Info Base table:</p>
-<div class="highlight"><pre><span></span><code>poetry run python -m src.dcmspec.cli.tdwiimoddefinition
+<p>To extract and print the TDW-II Progress Update transaction UPS content specification:</p>
+<div class="highlight"><pre><span></span><code>poetry run python -m src.dcmspec.cli.tdwiicontent ups_progress --debug
+</code></pre></div>
+<p>To extract and print the RT Beam Delivery Instruction Module definition:</p>
+<div class="highlight"><pre><span></span><code>poetry run python -m src.dcmspec.cli.tdwiicontent rt_bdi
 </code></pre></div>
 
 
