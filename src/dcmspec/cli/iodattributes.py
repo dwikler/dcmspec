@@ -42,12 +42,12 @@ def main():
         poetry run python -m src.dcmspec.cli.iodattributes <table_id> [options]
 
     Options:
-        table (str): Table ID to extract (e.g., "table_A.1-1" or "table_B.1-1").
+        table (str): Table ID to extract (e.g., "table_A.3-1" or "table_B.26.2-1").
         --config (str): Path to the configuration file.
         --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
 
     Example:
-        poetry run python -m src.dcmspec.cli.iodattributes table_A.1-1 --print-mode tree
+        poetry run python -m src.dcmspec.cli.iodattributes table_A.3-1 --print-mode tree
 
     """
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"

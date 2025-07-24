@@ -88,6 +88,7 @@ class DOMTableSpecParser(SpecParser):
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
         skip_columns: Optional[list[int]] = None,
+        visited_tables: Optional[set] = None,
     ) -> Node:
         """Parse specification content from tables within the DOM of a DICOM document.
 
@@ -104,12 +105,21 @@ class DOMTableSpecParser(SpecParser):
             table_nesting_level: The nesting level of the table (used for recursion call only).
             include_depth: The depth to which included tables should be parsed.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
+            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.
 
         Returns:
             root: The root node of the tree representation of the specification table.
 
         """
         self.logger.info(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
+        
+        # Initialize visited_tables set if not provided (first call)
+        if visited_tables is None:
+            visited_tables = set()
+        
+        # Add current table to visited set
+        visited_tables.add(table_id)
+        
         # Maps column indices in the DICOM standard table to corresponding node attribute names
         # for constructing a tree-like representation of the table's data.
         # self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}
@@ -139,14 +149,37 @@ class DOMTableSpecParser(SpecParser):
             # Process Include statement unless include_depth is defined and not reached
             if "Include" in row_data[name_attr] and (include_depth is None or include_depth > 0):
                 next_depth = None if include_depth is None else include_depth - 1
-                self._parse_included_table(
-                    dom, row, column_to_attr, name_attr, row_nesting_level, next_depth, level_nodes, root
-                )
+                
+                # Check for circular reference before attempting to parse included table
+                include_anchor = row.find("a", {"class": "xref"})
+                should_include = True
+                if include_anchor:
+                    include_table_id = include_anchor["href"].split("#", 1)[-1]
+                    if include_table_id in visited_tables:
+                        self.logger.warning(
+                            f"Nesting Level: {table_nesting_level}, Circular reference detected for "
+                            f"table {include_table_id}, creating node instead of recursing"
+                        )
+                        should_include = False
+                
+                if should_include:
+                    self._parse_included_table(
+                        dom, row, column_to_attr, name_attr, row_nesting_level, next_depth, 
+                        level_nodes, root, visited_tables
+                    )
+                else:
+                    # Create a node to represent the circular reference instead of recursing
+                    node_name = self._sanitize_string(row_data[name_attr])
+                    self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
             else:
                 node_name = self._sanitize_string(row_data[name_attr])
                 self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
 
         self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
+        
+        # Remove current table from visited set when exiting this level
+        visited_tables.discard(table_id)
+        
         return root
 
     def parse_metadata(
@@ -340,6 +373,9 @@ class DOMTableSpecParser(SpecParser):
             else:
                 # Handle cases where no <p> tags present
                 cell_text = cell.get_text(strip=True)
+            
+            # Clean the extracted text to remove encoding artifacts
+            cell_text = self._clean_extracted_text(cell_text)
             colspan = int(cell.get("colspan", 1))
             rowspan = int(cell.get("rowspan", 1))
             cells.append(cell_text)
@@ -371,6 +407,7 @@ class DOMTableSpecParser(SpecParser):
         include_depth: int,
         level_nodes: Dict[int, Node],
         root: Node,
+        visited_tables: set,
     ) -> None:
         """Recursively parse Included Table."""
         include_anchor = row.find("a", {"class": "xref"})
@@ -388,6 +425,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr=name_attr,
             table_nesting_level=table_nesting_level,
             include_depth=include_depth,
+            visited_tables=visited_tables,
         )
         if not included_table_tree:
             return
@@ -441,6 +479,35 @@ class DOMTableSpecParser(SpecParser):
         )
         self.logger.info(f"Extracted Header: {header}")
         return header
+
+    def _clean_extracted_text(self, text: str) -> str:
+        """Clean extracted text by removing common encoding artifacts and Unicode issues.
+
+        Args:
+            text (str): The text to be cleaned.
+
+        Returns:
+            str: The cleaned text.
+
+        """
+        # Remove common encoding artifacts
+        cleaned = text.replace('\u00c2', '')  # Remove Â character
+        cleaned = cleaned.replace('\u00a0', ' ')  # Replace non-breaking space with regular space
+        cleaned = cleaned.replace('\u200b', '')  # Remove zero-width space
+        
+        # Clean up Unicode quote characters that cause issues
+        cleaned = cleaned.replace('\u00e2\u0080\u009c', '"')  # Replace left double quotation mark
+        cleaned = cleaned.replace('\u00e2\u0080\u009d', '"')  # Replace right double quotation mark
+        cleaned = cleaned.replace('\u2018', "'")  # Replace left single quotation mark
+        cleaned = cleaned.replace('\u2019', "'")  # Replace right single quotation mark
+        cleaned = cleaned.replace('\u201c', '"')  # Replace left double quotation mark
+        cleaned = cleaned.replace('\u201d', '"')  # Replace right double quotation mark
+        
+        # Handle em dash and en dash
+        cleaned = cleaned.replace('\u2014', '-')  # Replace em dash
+        cleaned = cleaned.replace('\u2013', '-')  # Replace en dash
+        
+        return cleaned.strip()
 
     def _sanitize_string(self, input_string: str) -> str:
         """Sanitize string to use it as a node attribute name.
