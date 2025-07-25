@@ -16,6 +16,7 @@ from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
+from dcmspec.dom_table_spec_parser import DOMTableSpecParser
 
 
 class DCMSpecExplorer:
@@ -45,6 +46,9 @@ class DCMSpecExplorer:
         self.config = Config(app_name="dcmspec")
         self.doc_handler = XHTMLDocHandler(config=self.config, logger=self.logger)
         
+        # Initialize DOM parser for version extraction
+        self.dom_parser = DOMTableSpecParser(logger=self.logger)
+        
         # Set window size and center it on screen
         window_width = 1000
         window_height = 700
@@ -71,6 +75,9 @@ class DCMSpecExplorer:
         # Store IOD models to keep AnyTree nodes in memory
         self.iod_models = {}  # table_id -> model mapping
         
+        # Store DICOM version
+        self.dicom_version = "Unknown"
+        
         self.setup_ui()
         self.load_iod_modules()
     
@@ -91,6 +98,10 @@ class DCMSpecExplorer:
         # Add refresh button with context menu option
         refresh_btn = ttk.Button(top_frame, text="Reload", command=self.load_iod_modules)
         refresh_btn.pack(side=tk.RIGHT)
+        
+        # Add version label to the left of the button with right justification and spacing
+        self.version_label = ttk.Label(top_frame, text="", font=("Arial", 10), anchor="e")
+        self.version_label.pack(side=tk.RIGHT, padx=(0, 10))
         
         # Add context menu for refresh button
         self._create_refresh_context_menu(refresh_btn)
@@ -236,6 +247,10 @@ class DCMSpecExplorer:
                 url=self.part3_toc_url,
                 force_download=force_download
             )
+            
+            # Extract and display DICOM version using the library method
+            self.dicom_version = self.dom_parser.get_version(soup, "")
+            self.version_label.config(text=f"Version {self.dicom_version}")
             
             # Find the list of tables div
             list_of_tables = soup.find('div', class_='list-of-tables')
