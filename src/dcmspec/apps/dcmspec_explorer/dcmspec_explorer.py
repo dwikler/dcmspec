@@ -19,6 +19,91 @@ from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 from dcmspec.dom_table_spec_parser import DOMTableSpecParser
 
 
+def load_app_config() -> Config:
+    """Load app-specific configuration with priority search order.
+    
+    Search order:
+    1. App-specific config files (dcmspec_explorer_config.json) - Tier 1
+       - Current directory
+       - ~/.config/dcmspec/
+       - App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
+       - Same directory as script (legacy support)
+    2. Base library config file (config.json) - Tier 2 fallback
+       - Platform-specific user config directory via Config class
+    3. Default values if no config files found
+    
+    Note: The base Config class always looks for a config file. When we pass
+    config_file=None, it uses user_config_dir(app_name)/config.json as default.
+    
+    Returns:
+        Config: Configuration object with app-specific settings.
+        
+    """
+    import os
+    
+    # Look for app-specific config file in several locations (highest priority)
+    app_config_locations = [
+        "dcmspec_explorer_config.json",  # Current directory
+        os.path.expanduser("~/.config/dcmspec/dcmspec_explorer_config.json"),  # User config
+        os.path.join(os.path.dirname(__file__), "config", "dcmspec_explorer_config.json"),  # App config dir
+        os.path.join(os.path.dirname(__file__), "dcmspec_explorer_config.json"),  # Same dir as script (legacy)
+    ]
+    
+    config_file = None
+    
+    # First, check for app-specific config files
+    for location in app_config_locations:
+        if os.path.exists(location):
+            config_file = location
+            break
+    
+    # If no app-specific config found, let Config class use its default location
+    # This will be: user_config_dir("dcmspec_explorer")/config.json
+    config = Config(app_name="dcmspec_explorer", config_file=config_file)
+    
+    # Set default log level if not specified
+    if config.get_param("log_level") is None:
+        config.set_param("log_level", "INFO")
+    
+    return config
+
+
+def setup_logger(config: Config) -> logging.Logger:
+    """Set up logger with configurable level from config.
+    
+    Args:
+        config (Config): Configuration object containing log_level setting.
+        
+    Returns:
+        logging.Logger: Configured logger instance.
+        
+    """
+    logger = logging.getLogger("dcmspec_explorer")
+    
+    # Remove any existing handlers to avoid duplicates
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    
+    # Get log level from config
+    log_level_str = config.get_param("log_level") or "INFO"
+    log_level = getattr(logging, log_level_str.upper(), logging.INFO)
+    
+    logger.setLevel(log_level)
+    console_handler.setLevel(log_level)
+    
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(formatter)
+    
+    # Add handler to logger
+    logger.addHandler(console_handler)
+    
+    return logger
+
+
 class DCMSpecExplorer:
     """Main window for the DCMSPEC Explorer application."""
     
@@ -27,23 +112,27 @@ class DCMSpecExplorer:
         self.root = root
         self.root.title("DCMSPEC Explorer")
         
-        # Initialize logger as instance attribute
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        # Load app-specific configuration
+        self.config = load_app_config()
         
-        # Create console handler with DEBUG level
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
+        # Initialize logger using configuration
+        self.logger = setup_logger(self.config)
         
-        # Create formatter
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        console_handler.setFormatter(formatter)
+        # Log startup information
+        self.logger.info("Starting DCMSPEC Explorer")
         
-        # Add handler to logger
-        self.logger.addHandler(console_handler)
+        # Log configuration information at INFO level
+        log_level_configured = self.config.get_param('log_level') or 'INFO'
+        config_source = ("app-specific" if self.config.config_file and 
+                        "dcmspec_explorer_config.json" in self.config.config_file else "default")
+        self.logger.info(f"Logging configured: level={log_level_configured.upper()}, source={config_source}")
         
-        # Initialize configuration and document handler
-        self.config = Config(app_name="dcmspec")
+        # Log operational configuration at INFO level (important for users to know)
+        config_file_display = self.config.config_file or "none (using defaults)"
+        self.logger.info(f"Config file: {config_file_display}")
+        self.logger.info(f"Cache directory: {self.config.cache_dir}")
+        
+        # Initialize document handler
         self.doc_handler = XHTMLDocHandler(config=self.config, logger=self.logger)
         
         # Initialize DOM parser for version extraction
@@ -433,6 +522,22 @@ class DCMSpecExplorer:
                 self._update_details_text(table_id, title, iod_type)
                 self.status_var.set(f"Loaded structure for {table_id}")
                 
+            except RuntimeError as e:
+                error_msg = str(e)
+                if "No module models were found" in error_msg:
+                    detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
+                                  f"The IOD references modules that could not be found or parsed. "
+                                  f"This may happen if:\n"
+                                  f"• Module reference tables are missing from the DICOM specification\n"
+                                  f"• Module tables have different naming conventions\n"
+                                  f"• The IOD table format is not supported\n\n"
+                                  f"Technical details: {error_msg}")
+                    messagebox.showwarning("IOD Structure Not Available", detailed_msg)
+                    self.logger.warning(f"Failed to build IOD model for {table_id}: {error_msg}")
+                else:
+                    messagebox.showerror("Error", f"Failed to load IOD structure:\n{error_msg}")
+                self.status_var.set(f"Could not load structure for {table_id}")
+                self._update_details_text(table_id, title, iod_type)
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
                 self.status_var.set(f"Error loading {table_id}")
@@ -668,7 +773,14 @@ class DCMSpecExplorer:
     def _update_details_text(self, table_id: str, title: str, iod_type: str):
         """Update the details text area."""
         details = f"{title} {iod_type} IOD\n\n"
-        details += f"Table ID: {table_id}"
+        details += f"Table ID: {table_id}\n\n"
+        
+        # Check if we have a model for this IOD
+        if table_id in self.iod_models and self.iod_models[table_id] and hasattr(self.iod_models[table_id], 'content'):
+            details += "Click to expand and view the IOD structure with modules and attributes."
+        else:
+            details += ("IOD structure not available. This may occur if the IOD references modules "
+                       "that cannot be found or parsed from the DICOM specification.")
         
         self.details_text.delete(1.0, tk.END)
         self.details_text.insert(1.0, details)
@@ -677,7 +789,33 @@ class DCMSpecExplorer:
 
 
 def main() -> None:
-    """Entry point for the DCMSPEC Explorer GUI application."""
+    """Entry point for the DCMSPEC Explorer GUI application.
+    
+    Loads configuration and starts the GUI. Configuration can be customized
+    by placing a dcmspec_explorer_config.json file in:
+    1. Current directory
+    2. ~/.config/dcmspec/
+    3. App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
+    4. Same directory as script (legacy support)
+    
+    Example config file:
+    {
+        "cache_dir": "./cache",
+        "log_level": "INFO"
+    }
+    
+    Supported log levels:
+    - DEBUG: Detailed information for debugging
+    - INFO: General information about application flow (default)
+    - WARNING: Warnings about potential issues
+    - ERROR: Error messages for serious problems
+    - CRITICAL: Critical errors that may stop the application
+    
+    The application will display configuration information at startup, including:
+    - Log level and configuration source
+    - Config file location
+    - Cache directory path
+    """
     root = tk.Tk()
     DCMSpecExplorer(root)
     root.mainloop()
