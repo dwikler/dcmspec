@@ -6,8 +6,7 @@ allowing users to browse IODs, modules, and attributes through an interactive in
 
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
-import requests
-from bs4 import BeautifulSoup
+import tkinter.font as tkfont
 from typing import List, Tuple
 import re
 import logging
@@ -16,6 +15,7 @@ from anytree import PreOrderIter
 from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.spec_factory import SpecFactory
+from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 
 
 class DCMSpecExplorer:
@@ -41,6 +41,10 @@ class DCMSpecExplorer:
         # Add handler to logger
         self.logger.addHandler(console_handler)
         
+        # Initialize configuration and document handler
+        self.config = Config(app_name="dcmspec")
+        self.doc_handler = XHTMLDocHandler(config=self.config, logger=self.logger)
+        
         # Set window size and center it on screen
         window_width = 1000
         window_height = 700
@@ -56,8 +60,8 @@ class DCMSpecExplorer:
         # Set geometry with centered position
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
         
-        # URL for DICOM Part 3 TOC
-        self.dicom_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
+        # URL for DICOM Part 3 Table of Contents
+        self.part3_toc_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
         
         # Store original data for sorting
         self.iod_modules_data = []
@@ -84,9 +88,12 @@ class DCMSpecExplorer:
         title_label = ttk.Label(top_frame, text="DICOM IOD List", font=("Arial", 16, "bold"))
         title_label.pack(side=tk.LEFT)
         
-        # Add refresh button
-        refresh_btn = ttk.Button(top_frame, text="Refresh", command=self.load_iod_modules)
+        # Add refresh button with context menu option
+        refresh_btn = ttk.Button(top_frame, text="Reload", command=self.load_iod_modules)
         refresh_btn.pack(side=tk.RIGHT)
+        
+        # Add context menu for refresh button
+        self._create_refresh_context_menu(refresh_btn)
         
         # Create paned window for treeview and details
         paned_window = ttk.PanedWindow(main_frame, orient=tk.HORIZONTAL)
@@ -111,7 +118,6 @@ class DCMSpecExplorer:
         style = ttk.Style()
         
         # Configure monospaced font - simple preference stack
-        import tkinter.font as tkfont
         available_fonts = tkfont.families()
         
         # Preferred monospaced fonts in order of preference
@@ -169,8 +175,52 @@ class DCMSpecExplorer:
         status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
         status_bar.pack(fill=tk.X, side=tk.BOTTOM, pady=(5, 0))
     
-    def load_iod_modules(self):
-        """Load IOD modules from the DICOM specification."""
+    def _create_refresh_context_menu(self, refresh_btn):
+        """Create a context menu for the refresh button."""
+        context_menu = tk.Menu(self.root, tearoff=0)
+        context_menu.add_command(label="Reload (from cache)", command=self.load_iod_modules)
+        context_menu.add_command(label="Download latest (from web)", 
+                               command=lambda: self.load_iod_modules(force_download=True))
+        
+        def show_context_menu(event):
+            try:
+                context_menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                context_menu.grab_release()
+        
+        # Add tooltip to explain the context menu
+        def create_tooltip():
+            tooltip = tk.Toplevel(self.root)
+            tooltip.wm_overrideredirect(True)
+            tooltip.wm_geometry("+%d+%d" % (refresh_btn.winfo_rootx(), 
+                                          refresh_btn.winfo_rooty() + refresh_btn.winfo_height() + 5))
+            label = ttk.Label(tooltip, text="Right-click for more options", 
+                            background="lightyellow", relief=tk.SOLID, borderwidth=1)
+            label.pack()
+            tooltip.after(2000, tooltip.destroy)  # Auto-hide after 2 seconds
+        
+        # Bind events
+        refresh_btn.bind("<Button-2>", show_context_menu)  # Middle click
+        refresh_btn.bind("<Button-3>", show_context_menu)  # Right click
+        refresh_btn.bind("<Control-Button-1>", show_context_menu)  # Ctrl+Left click (alternative)
+        
+        # Show tooltip on hover (to help users discover the context menu)
+        def on_enter(event):
+            refresh_btn.after(1000, create_tooltip)  # Show tooltip after 1 second hover
+        
+        def on_leave(event):
+            refresh_btn.after_cancel(refresh_btn.after_idle(lambda: None))  # Cancel tooltip
+        
+        refresh_btn.bind("<Enter>", on_enter)
+        refresh_btn.bind("<Leave>", on_leave)
+    
+    def load_iod_modules(self, force_download: bool = False):
+        """Load IOD modules from the DICOM specification.
+        
+        Args:
+            force_download (bool): If True, force download from URL instead of using cache.
+            
+        """
         self.status_var.set("Loading IOD modules...")
         self.root.update()
         
@@ -179,11 +229,13 @@ class DCMSpecExplorer:
             for item in self.tree.get_children():
                 self.tree.delete(item)
             
-            # Download and parse the HTML
-            response = requests.get(self.dicom_url, timeout=30)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
+            # Use XHTMLDocHandler to download and parse the HTML with caching
+            cache_file_name = "ps3.3.html"
+            soup = self.doc_handler.load_document(
+                cache_file_name=cache_file_name,
+                url=self.part3_toc_url,
+                force_download=force_download
+            )
             
             # Find the list of tables div
             list_of_tables = soup.find('div', class_='list-of-tables')
@@ -207,10 +259,11 @@ class DCMSpecExplorer:
             # Update column headings to show initial sort state
             self.update_column_headings()
             
-            self.status_var.set(f"Loaded {len(iod_modules)} IOD modules")
+            cache_status = " (downloaded)" if force_download else " (from cache)"
+            self.status_var.set(f"Loaded {len(iod_modules)} IOD modules{cache_status}")
             
-        except requests.RequestException as e:
-            messagebox.showerror("Network Error", f"Failed to download DICOM specification:\n{str(e)}")
+        except RuntimeError as e:
+            messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
             self.status_var.set("Error loading modules")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred:\n{str(e)}")
