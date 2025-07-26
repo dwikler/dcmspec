@@ -10,6 +10,8 @@ import tkinter.font as tkfont
 from typing import List, Tuple
 import re
 import logging
+import threading
+import queue
 from anytree import PreOrderIter
 
 from dcmspec.config import Config
@@ -17,6 +19,197 @@ from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 from dcmspec.dom_table_spec_parser import DOMTableSpecParser
+
+
+class ProgressLogHandler(logging.Handler):
+    """Custom logging handler that captures log messages for progress display."""
+    
+    def __init__(self, progress_queue: queue.Queue):
+        """Initialize the handler with a queue for thread-safe communication.
+        
+        Args:
+            progress_queue (queue.Queue): Queue to send log messages to the main thread.
+        """
+        super().__init__()
+        self.progress_queue = progress_queue
+        
+    def emit(self, record):
+        """Emit a log record by putting it in the progress queue."""
+        try:
+            message = self.format(record)
+            self.progress_queue.put(("LOG", message))
+        except Exception:
+            # Ignore errors in the handler to avoid breaking the logging system
+            pass
+
+
+class ProgressDialog:
+    """Modal progress dialog that shows log messages during IOD building."""
+    
+    def __init__(self, parent, title="Loading IOD Structure"):
+        """Initialize the progress dialog.
+        
+        Args:
+            parent: Parent window
+            title (str): Dialog title
+        """
+        self.parent = parent
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        
+        # Make dialog modal and center it
+        self.dialog.resizable(False, False)
+        self._center_dialog()
+        
+        # Progress queue for thread communication
+        self.progress_queue = queue.Queue()
+        
+        # Result variables
+        self.result = None
+        self.error = None
+        self.cancelled = False
+        
+        self._setup_ui()
+        self._start_queue_check()
+        
+    def _center_dialog(self):
+        """Center the dialog on the parent window."""
+        self.dialog.update_idletasks()
+        
+        # Get parent window position and size
+        parent_x = self.parent.winfo_rootx()
+        parent_y = self.parent.winfo_rooty()
+        parent_width = self.parent.winfo_width()
+        parent_height = self.parent.winfo_height()
+        
+        # Calculate dialog position to center it
+        dialog_width = 700
+        dialog_height = 400
+        x = parent_x + (parent_width - dialog_width) // 2
+        y = parent_y + (parent_height - dialog_height) // 2
+        
+        self.dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
+        
+    def _setup_ui(self):
+        """Setup the dialog UI."""
+        main_frame = ttk.Frame(self.dialog, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Title label
+        title_label = ttk.Label(main_frame, text="Building IOD Structure...", 
+                               font=("Arial", 12, "bold"))
+        title_label.pack(pady=(0, 10))
+        
+        # Progress bar (indeterminate) with default styling
+        self.progress_bar = ttk.Progressbar(main_frame, mode='indeterminate')
+        self.progress_bar.pack(fill=tk.X, pady=(0, 10))
+        self.progress_bar.start(25)  # Start animation (slower: higher value = slower speed)
+        
+        # Status label
+        self.status_label = ttk.Label(main_frame, text="Initializing...")
+        self.status_label.pack(pady=(0, 10))
+        
+        # Log text area
+        log_label = ttk.Label(main_frame, text="Progress Log:")
+        log_label.pack(anchor=tk.W)
+        
+        log_frame = ttk.Frame(main_frame)
+        log_frame.pack(fill=tk.BOTH, expand=True, pady=(5, 10))
+        
+        self.log_text = tk.Text(log_frame, wrap=tk.WORD, height=10, width=60, 
+                               font=("Courier", 9), state=tk.DISABLED)
+        
+        log_scroll = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
+        self.log_text.configure(yscrollcommand=log_scroll.set)
+        
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        log_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Cancel button
+        button_frame = ttk.Frame(main_frame)
+        button_frame.pack(fill=tk.X)
+        
+        self.cancel_button = ttk.Button(button_frame, text="Cancel", command=self._cancel)
+        self.cancel_button.pack(side=tk.RIGHT)
+        
+    def _start_queue_check(self):
+        """Start checking the progress queue for updates."""
+        self._check_queue()
+        
+    def _check_queue(self):
+        """Check the progress queue for new messages and update the UI."""
+        try:
+            while True:
+                try:
+                    message_type, data = self.progress_queue.get_nowait()
+                    
+                    if message_type == "LOG":
+                        self._add_log_message(data)
+                    elif message_type == "STATUS":
+                        self._update_status(data)
+                    elif message_type == "DONE":
+                        self.result = data
+                        self._finish_dialog()
+                        return
+                    elif message_type == "ERROR":
+                        self.error = data
+                        self._finish_dialog()
+                        return
+                        
+                except queue.Empty:
+                    break
+                    
+        except Exception:
+            pass  # Ignore errors in queue processing
+            
+        # Schedule next check if dialog is still open
+        if self.dialog.winfo_exists():
+            self.dialog.after(100, self._check_queue)
+            
+    def _add_log_message(self, message):
+        """Add a log message to the text area."""
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.insert(tk.END, f"{message}\n")
+        self.log_text.see(tk.END)  # Auto-scroll to bottom
+        self.log_text.config(state=tk.DISABLED)
+        
+        # Update status based on log message content
+        if "Downloading document from" in message:
+            self._update_status("Downloading DICOM specification...")
+        elif "Reading XHTML DOM" in message:
+            self._update_status("Parsing document...")
+        elif "Loaded model from cache" in message:
+            self._update_status("Loading from cache...")
+        elif "Failed to load" in message:
+            self._update_status("Cache miss, building from source...")
+        else:
+            # Generic progress indication
+            current_status = self.status_label.cget("text")
+            if not current_status.endswith("..."):
+                self._update_status("Processing...")
+                
+    def _update_status(self, status):
+        """Update the status label."""
+        self.status_label.config(text=status)
+        
+    def _cancel(self):
+        """Handle cancel button click."""
+        self.cancelled = True
+        self.progress_queue.put(("CANCEL", None))
+        self._finish_dialog()
+        
+    def _finish_dialog(self):
+        """Clean up and close the dialog."""
+        self.progress_bar.stop()
+        self.dialog.grab_release()
+        self.dialog.destroy()
+        
+    def show(self):
+        """Show the dialog and wait for completion."""
+        self.dialog.wait_window()
+        return self.result, self.error, self.cancelled
 
 
 def load_app_config() -> Config:
@@ -503,24 +696,8 @@ class DCMSpecExplorer:
             
             # Build the IOD model and populate the tree structure
             try:
-                self.status_var.set(f"Loading IOD structure for {table_id}...")
-                self.root.update()
-                
-                # Build the IOD model using the same logic as iodattributes.py
-                model = self._build_iod_model(table_id)
-                
-                # Store the model to keep AnyTree nodes in memory
-                self.iod_models[table_id] = model
-                
-                if model and hasattr(model, 'content') and model.content:
-                    # Populate the tree item with the IOD structure
-                    self._populate_iod_structure(item, model.content)
-                    
-                    # Expand the item to show the structure
-                    self.tree.item(item, open=True)
-                
-                self._update_details_text(table_id, title, iod_type)
-                self.status_var.set(f"Loaded structure for {table_id}")
+                # Use progress dialog with threading for IOD building
+                self._build_iod_model_with_progress(item, table_id, title, iod_type)
                 
             except RuntimeError as e:
                 error_msg = str(e)
@@ -654,8 +831,78 @@ class DCMSpecExplorer:
             
             self.status_var.set(f"Selected: {node_type} - {title}")
     
-    def _build_iod_model(self, table_id: str):
-        """Build the IOD model for the given table_id."""
+    def _build_iod_model_with_progress(self, item, table_id: str, title: str, iod_type: str):
+        """Build IOD model with progress dialog in a separate thread."""
+        
+        # Create and show progress dialog
+        progress_dialog = ProgressDialog(self.root, f"Loading {title} Structure")
+        
+        # Thread function that builds the model
+        def build_model_thread():
+            try:
+                # Create a separate logger for this thread to capture progress
+                thread_logger = logging.getLogger(f"dcmspec_build_{table_id}")
+                thread_logger.setLevel(self.logger.level)
+                
+                # Remove any existing handlers
+                for handler in thread_logger.handlers[:]:
+                    thread_logger.removeHandler(handler)
+                
+                # Add our progress handler
+                progress_handler = ProgressLogHandler(progress_dialog.progress_queue)
+                progress_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+                thread_logger.addHandler(progress_handler)
+                
+                # Also add console handler for debugging (optional)
+                if self.config.get_param("log_level") == "DEBUG":
+                    console_handler = logging.StreamHandler()
+                    console_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
+                    thread_logger.addHandler(console_handler)
+                
+                # Build the IOD model with progress logging
+                progress_dialog.progress_queue.put(("STATUS", "Building IOD model..."))
+                model = self._build_iod_model_threaded(table_id, thread_logger)
+                
+                # Send completion signal
+                progress_dialog.progress_queue.put(("DONE", model))
+                
+            except Exception as e:
+                # Send error signal
+                progress_dialog.progress_queue.put(("ERROR", e))
+        
+        # Start the background thread
+        thread = threading.Thread(target=build_model_thread, daemon=True)
+        thread.start()
+        
+        # Show dialog and wait for completion
+        result, error, cancelled = progress_dialog.show()
+        
+        if cancelled:
+            self.status_var.set("Operation cancelled")
+            return
+            
+        if error:
+            raise error
+            
+        if result:
+            # Store the model to keep AnyTree nodes in memory
+            self.iod_models[table_id] = result
+            
+            if result and hasattr(result, 'content') and result.content:
+                # Populate the tree item with the IOD structure
+                self._populate_iod_structure(item, result.content)
+                
+                # Expand the item to show the structure
+                self.tree.item(item, open=True)
+            
+            self._update_details_text(table_id, title, iod_type)
+            self.status_var.set(f"Loaded structure for {table_id}")
+    
+    def _build_iod_model_threaded(self, table_id: str, logger: logging.Logger):
+        """Build the IOD model for the given table_id with progress logging.
+        
+        This is the threaded version that uses a custom logger for progress tracking.
+        """
         url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
         cache_file_name = "Part3.xhtml"
         model_file_name = f"Part3_{table_id}_expanded.json"
@@ -671,7 +918,7 @@ class DCMSpecExplorer:
             column_to_attr=iod_columns_mapping, 
             name_attr="module",
             config=self.config,
-            logger=self.logger,
+            logger=logger,  # Use the custom logger for progress tracking
         )
         
         # Create the modules specification factory
@@ -681,14 +928,14 @@ class DCMSpecExplorer:
             name_attr="elem_name",
             parser_kwargs=parser_kwargs,
             config=self.config,
-            logger=self.logger,
+            logger=logger,  # Use the custom logger for progress tracking
         )
         
         # Create the builder
         builder = IODSpecBuilder(
             iod_factory=iod_factory, 
             module_factory=module_factory,
-            logger=self.logger,
+            logger=logger,  # Use the custom logger for progress tracking
         )
         
         # Build and return the model
@@ -699,6 +946,10 @@ class DCMSpecExplorer:
             table_id=table_id,
             force_download=False,
         )
+    
+    def _build_iod_model(self, table_id: str):
+        """Build the IOD model for the given table_id (legacy method for compatibility)."""
+        return self._build_iod_model_threaded(table_id, self.logger)
     
     def _populate_iod_structure(self, parent_item, content):
         """Populate the tree with IOD structure from the model content using AnyTree traversal."""
