@@ -663,9 +663,6 @@ class DCMSpecExplorer:
         # Determine if this is a composite or normalized IOD
         composite_iod = "_A." in table_id
         
-        # Initialize configuration (using default settings)
-        config = Config(app_name="dcmspec")
-        
         # Create the IOD specification factory
         c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
         n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
@@ -673,7 +670,7 @@ class DCMSpecExplorer:
         iod_factory = SpecFactory(
             column_to_attr=iod_columns_mapping, 
             name_attr="module",
-            config=config,
+            config=self.config,
             logger=self.logger,
         )
         
@@ -683,7 +680,7 @@ class DCMSpecExplorer:
             column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
             name_attr="elem_name",
             parser_kwargs=parser_kwargs,
-            config=config,
+            config=self.config,
             logger=self.logger,
         )
         

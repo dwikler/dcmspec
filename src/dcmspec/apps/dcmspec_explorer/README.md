@@ -4,13 +4,34 @@ A GUI application for exploring DICOM specifications interactively.
 
 ## Running the Application
 
+### Option 1: Using poetry run (recommended)
 ```bash
-# From the project root
-python -m src.dcmspec.apps.dcmspec_explorer
-
-# Or with poetry
-poetry run python -m src.dcmspec.apps.dcmspec_explorer
+poetry run dcmspec-explorer
 ```
+
+### Option 2: Activate environment then run directly
+```bash
+# On Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+dcmspec-explorer
+
+# On Unix/macOS
+source .venv/bin/activate
+dcmspec-explorer
+```
+
+### Option 3: Using the module path
+```bash
+poetry run python -m src.dcmspec.apps.dcmspec_explorer.dcmspec_explorer
+```
+
+### Note on Poetry 2.0+ Environment Activation
+
+If you're using Poetry 2.0+, the `poetry env activate` command only prints the activation command but doesn't actually activate the environment in your current shell. For direct command execution, use one of these approaches:
+
+- **Manual activation (Windows):** `.\.venv\Scripts\Activate.ps1`
+- **Install shell plugin:** `poetry self add poetry-plugin-shell` then use `poetry shell`
+- **Always use `poetry run`:** No activation needed
 
 ## Configuration
 
