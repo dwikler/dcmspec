@@ -18,6 +18,10 @@ nav:
       - upsioddimseattributes: cli/upsioddimseattributes.md
       - tdwiicontent: cli/tdwiicontent.md
 
+  - Applications:
+      - Apps Overview: apps/index.md
+      - DCMSPEC Explorer: apps/dcmspec-explorer.md
+
   - API Reference:
       - API Overview: api/index.md
       - Constants Modules:
