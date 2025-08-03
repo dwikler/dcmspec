@@ -1,10 +1,10 @@
 # Applications
 
-DCMspec includes interactive applications for exploring DICOM specifications.
+This section documents the sample interactive applications provided by **dcmspec**.
 
 ## Available Applications
 
-- [DCMSPEC Explorer](dcmspec-explorer.md) - Interactive application for browsing DICOM IODs and modules
+- [DCMspec Explorer](dcmspec-explorer.md) - GUI application using Tkinter for browsing DICOM IODs and modules
 
 ## Getting Started
 

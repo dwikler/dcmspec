@@ -1,4 +1,4 @@
-"""DCMSPEC Explorer - GUI application for dcmspec.
+"""DCMspec Explorer - GUI application for dcmspec.
 
 This module provides a graphical user interface for exploring DICOM specifications,
 allowing users to browse IODs, modules, and attributes through an interactive interface.
@@ -41,16 +41,16 @@ class StatusManager:
                             favorites_count: int = 0, cache_suffix: str = ""):
         """Show count-based status when no selection."""
         if is_favorites_mode:
-            if is_filtered:
-                message = f"Showing {filtered_count} of {favorites_count} favorites (filtered)"
-            else:
-                message = f"Showing {filtered_count} favorites"
+            message = (
+                f"Showing {filtered_count} of {favorites_count} favorites (filtered)"
+                if is_filtered
+                else f"Showing {filtered_count} favorites"
+            )
+        elif is_filtered:
+            message = f"Showing {filtered_count} of {total_count} IODs (filtered)"
         else:
-            if is_filtered:
-                message = f"Showing {filtered_count} of {total_count} IODs (filtered)"
-            else:
-                message = f"Showing {filtered_count} IODs"
-        
+            message = f"Showing {filtered_count} IODs"
+
         self.status_var.set(f"{message}{cache_suffix}")
     
     def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
@@ -351,7 +351,7 @@ def load_app_config() -> Config:
         
     """
     import os
-    
+
     # Look for app-specific config file in several locations (highest priority)
     app_config_locations = [
         "dcmspec_explorer_config.json",  # Current directory
@@ -359,23 +359,23 @@ def load_app_config() -> Config:
         os.path.join(os.path.dirname(__file__), "config", "dcmspec_explorer_config.json"),  # App config dir
         os.path.join(os.path.dirname(__file__), "dcmspec_explorer_config.json"),  # Same dir as script (legacy)
     ]
-    
-    config_file = None
-    
-    # First, check for app-specific config files
-    for location in app_config_locations:
-        if os.path.exists(location):
-            config_file = location
-            break
-    
+
+    config_file = next(
+        (
+            location
+            for location in app_config_locations
+            if os.path.exists(location)
+        ),
+        None,
+    )
     # If no app-specific config found, let Config class use its default location
     # This will be: user_config_dir("dcmspec_explorer")/config.json
     config = Config(app_name="dcmspec_explorer", config_file=config_file)
-    
+
     # Set default log level if not specified
     if config.get_param("log_level") is None:
         config.set_param("log_level", "INFO")
-    
+
     return config
 
 
@@ -416,7 +416,7 @@ def setup_logger(config: Config) -> logging.Logger:
 
 
 class DCMSpecExplorer:
-    """Main window for the DCMSPEC Explorer application."""
+    """Main window for the DCMspec Explorer application."""
 
     def __init__(self, root: tk.Tk):
         """Initialize the DCMspec Explorer application.
@@ -431,7 +431,7 @@ class DCMSpecExplorer:
         self.logger = setup_logger(self.config)
 
         # Log startup information
-        self.logger.info("Starting DCMSPEC Explorer")
+        self.logger.info("Starting DCMspec Explorer")
         # Log configuration information at INFO level
         log_level_configured = self.config.get_param('log_level') or 'INFO'
         config_source = ("app-specific" if self.config.config_file and 
@@ -471,7 +471,7 @@ class DCMSpecExplorer:
 
         # --- View ---
         self.root = root
-        self.root.title("DCMSPEC Explorer")
+        self.root.title("DCMspec Explorer")
         self._init_window_geometry()
         self.setup_ui()
 
@@ -780,44 +780,46 @@ class DCMSpecExplorer:
             tags = self.tree.item(selected_item, "tags")
             if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
                 current_selection_table_id = tags[0]
-        
+
         # Start with original data
         data = self.iod_modules_data
-        
+
         # Apply favorites filter first if in favorites mode
         if self.show_favorites_only:
             favorites_data = []
-            for title, table_id, href, iod_type in data:
-                if self.favorites_manager.is_favorite(table_id):
-                    favorites_data.append((title, table_id, href, iod_type))
+            favorites_data.extend(
+                (title, table_id, href, iod_type)
+                for title, table_id, href, iod_type in data
+                if self.favorites_manager.is_favorite(table_id)
+            )
             data = favorites_data
-        
+
         # Apply search filter if there's search text
         if self.search_text:
             filtered_data = []
-            for title, table_id, href, iod_type in data:
-                # Search in title and IOD type (case sensitive)
-                if (self.search_text in title or 
-                    self.search_text in iod_type):
-                    filtered_data.append((title, table_id, href, iod_type))
+            filtered_data.extend(
+                (title, table_id, href, iod_type)
+                for title, table_id, href, iod_type in data
+                if (self.search_text in title or self.search_text in iod_type)
+            )
             data = filtered_data
-        
+
         self.filtered_data = data
-        
+
         # Apply current sort if any
         if self.sort_column:
             if self.sort_column == "#0":  # IOD Name column
                 data = sorted(data, key=lambda x: x[0].lower(), reverse=self.sort_reverse)
             elif self.sort_column == "iod_type":  # IOD Type column
                 data = sorted(data, key=lambda x: x[3].lower(), reverse=self.sort_reverse)
-        
+
         # Clear the treeview
         for item in self.tree.get_children():
             self.tree.delete(item)
-        
+
         # Repopulate with filtered and sorted data
         self.populate_treeview(data)
-        
+
         # Restore IOD structures for any IODs that were previously loaded
         for item in self.tree.get_children():
             tags = self.tree.item(item, "tags")
@@ -830,7 +832,7 @@ class DCMSpecExplorer:
                         # Repopulate the IOD structure
                         self._populate_iod_structure(item, model.content)
                         # Don't auto-expand - let user decide when to expand
-        
+
         # Restore selection if the previously selected item is still visible
         if current_selection_table_id:
             for item in self.tree.get_children():
@@ -849,12 +851,12 @@ class DCMSpecExplorer:
             self.details_text.delete(1.0, tk.END)
             self.details_text.insert(1.0, "Select an IOD to view details.")
             self.details_text.config(state=tk.DISABLED)
-        
+
         # Update status
         total_count = len(self.iod_modules_data)
         favorites_count = self.favorites_manager.get_favorites_count()
         filtered_count = len(data)
-        
+
         # Use StatusManager for consistent status messages
         self.status_manager.show_count_status(
             filtered_count=filtered_count,
@@ -1017,13 +1019,11 @@ class DCMSpecExplorer:
             
         # Check if double-click was on the favorites column (#3) or anywhere on an IOD row
         tags = self.tree.item(item, "tags")
-        if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
-            # This is a top-level IOD item
-            if column == "#3":  # Favorites column (now rightmost)
-                table_id = tags[0]
-                self.toggle_favorite(table_id)
-                self._update_favorite_display()
-                return "break"  # Prevent default double-click behavior
+        if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_") and column == "#3":
+            table_id = tags[0]
+            self.toggle_favorite(table_id)
+            self._update_favorite_display()
+            return "break"  # Prevent default double-click behavior
     
     def _update_favorite_display(self):
         """Update the heart display in the favorites column for all items."""
@@ -1065,12 +1065,12 @@ class DCMSpecExplorer:
         selection = self.tree.selection()
         if not selection:
             return
-        
+
         item = selection[0]
         item_values = self.tree.item(item, "values")
         title = self.tree.item(item, "text")
         tags = self.tree.item(item, "tags")
-        
+
         # Check if this is a top-level IOD item (has table_id in tags)
         # Top-level IOD items have table_id starting with "table_", 
         # while modules/attributes have AnyTree node objects
@@ -1078,47 +1078,47 @@ class DCMSpecExplorer:
             # This is a top-level IOD item
             table_id = tags[0]
             iod_type = item_values[1] if len(item_values) > 1 else "Unknown"
-                        
+
             # Update status
             self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-            
+
             # Check if we already have the structure loaded in memory
             if table_id in self.iod_models and self.iod_models[table_id]:
                 # Already in memory - just update details
                 self._update_details_text(table_id, title, iod_type)
                 return
-            
+
             # Check if this item already has children (structure already populated)
             if self.tree.get_children(item):
                 # Structure already populated - just update details
                 self._update_details_text(table_id, title, iod_type)
                 return
-            
+
             # Check if model is cached on disk
             if self._is_model_cached(table_id):
                 # Cached - load immediately without progress dialog
                 try:
                     self.status_manager.show_loading_status(f"Loading {title} from cache...")
                     self.root.update()  # Update UI to show status
-                    
+
                     # Use the API directly since it's cached - should be fast
                     model = self._build_iod_model(table_id, self.logger)
-                    
+
                     if model:
                         # Store the model to keep AnyTree nodes in memory
                         self.iod_models[table_id] = model
-                        
-                        if model and hasattr(model, 'content') and model.content:
+
+                        if model.content:
                             # Populate the tree item with the IOD structure
                             self._populate_iod_structure(item, model.content)
-                            
+
                             # Expand the item to show the structure
                             # self.tree.item(item, open=True)
 
                         self._update_details_text(table_id, title, iod_type)
                         # Update status for successful IOD selection
                         self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-                    
+
                 except Exception as e:
                     # Handle errors for cached loading
                     if "No module models were found" in str(e):
@@ -1133,7 +1133,7 @@ class DCMSpecExplorer:
                         self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
                     else:
                         messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
-                    
+
                     self._update_details_text_basic(table_id, title, iod_type)
                     # Update status for IOD selection even when there's an error
                     self.status_manager.show_selection_status(title, iod_type, is_iod=True)
@@ -1155,16 +1155,16 @@ class DCMSpecExplorer:
                         self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
                     else:
                         messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
-                    
+
                     self._update_details_text_basic(table_id, title, iod_type)
                     # Update status for IOD selection even when there's an error
                     self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-            
+
         else:
             # This is a module or attribute item
             node_type = item_values[0] if len(item_values) > 0 else "Unknown"  # Changed from index 1 to 0
             usage = item_values[1] if len(item_values) > 1 else ""  # Changed from index 2 to 1
-            
+
             # Get the corresponding AnyTree node using the node path stored in tags
             node = None
             if tags and len(tags) > 0:
@@ -1172,7 +1172,7 @@ class DCMSpecExplorer:
                 # Find the node by traversing the path in the appropriate IOD model
                 current_item = item
                 table_id = None
-                
+
                 # Walk up the tree to find the root IOD item
                 while current_item:
                     parent_item = self.tree.parent(current_item)
@@ -1182,7 +1182,7 @@ class DCMSpecExplorer:
                             table_id = item_tags[0]
                         break
                     current_item = parent_item
-                
+
                 # Get the node from the IOD model using the path
                 if table_id and table_id in self.iod_models:
                     model = self.iod_models[table_id]
@@ -1192,7 +1192,7 @@ class DCMSpecExplorer:
                             # Split the path and traverse to find the node
                             path_parts = node_path.split("/")
                             current_node = model.content
-                            
+
                             # Navigate through the path (skip the first part which is the root)
                             for part in path_parts[1:]:  
                                 found = False
@@ -1210,7 +1210,7 @@ class DCMSpecExplorer:
                                 readable_path = self._build_readable_path(node)
                         except Exception as e:
                             self.logger.debug(f"Error finding node at path {node_path}: {e}")
-                        
+
             # Update details text for module/attribute
             if node_type == "Module" and node:
                 # Get all available module attributes
@@ -1239,9 +1239,9 @@ class DCMSpecExplorer:
                             usage_display = "Conditional (C)"
                     else:
                         usage_display = usage
-                    
+
                     details += f"Usage: {usage_display}\n"
-                
+
                 if module_ref:
                     details += f"Reference: {module_ref}\n"
 
@@ -1251,7 +1251,7 @@ class DCMSpecExplorer:
                 elem_tag = getattr(node, 'elem_tag', '')
                 elem_type = getattr(node, 'elem_type', '')
                 elem_description = getattr(node, 'elem_description', '')
-                
+
                 # Display all available attribute information
                 details = f"{elem_name} {node_type}\n\n"
 
@@ -1267,13 +1267,13 @@ class DCMSpecExplorer:
                 if usage:
                     details += f"Usage/Type: {usage}\n"
                 readable_path = title
-                
+
             # Temporarily enable the text widget to update content
             self.details_text.config(state=tk.NORMAL)
             self.details_text.delete(1.0, tk.END)
             self.details_text.insert(1.0, details)
             self.details_text.config(state=tk.DISABLED)
-            
+
             self.status_var.set(f"Selected: {node_type} - {readable_path}")
 
     def _build_iod_model_with_progress(self, item, table_id: str, title: str, iod_type: str):
@@ -1602,7 +1602,7 @@ class DCMSpecExplorer:
         self.apply_filter_and_sort()
 
 def main() -> None:
-    """Entry point for the DCMSPEC Explorer GUI application.
+    """Entry point for the DCMspec Explorer GUI application.
     
     Loads configuration and starts the GUI. Configuration can be customized
     by placing a dcmspec_explorer_config.json file in:
