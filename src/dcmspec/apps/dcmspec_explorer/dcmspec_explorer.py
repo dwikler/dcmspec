@@ -5,13 +5,16 @@ allowing users to browse IODs, modules, and attributes through an interactive in
 """
 
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
+from tkinter import ttk, messagebox
 import tkinter.font as tkfont
 from typing import List, Tuple
 import re
 import logging
 import threading
 import queue
+import os
+import json
+import datetime
 from anytree import PreOrderIter
 
 from dcmspec.config import Config
@@ -19,6 +22,119 @@ from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 from dcmspec.dom_table_spec_parser import DOMTableSpecParser
+
+
+class StatusManager:
+    """Handles status bar messaging with consistent logic."""
+    
+    def __init__(self, status_var):
+        """Initialize the StatusManager.
+
+        Args:
+            status_var: A tkinter StringVar or similar object used to update the status bar text.
+
+        """
+        self.status_var = status_var
+    
+    def show_count_status(self, filtered_count: int, total_count: int, 
+                            is_favorites_mode: bool = False, is_filtered: bool = False,
+                            favorites_count: int = 0, cache_suffix: str = ""):
+        """Show count-based status when no selection."""
+        if is_favorites_mode:
+            if is_filtered:
+                message = f"Showing {filtered_count} of {favorites_count} favorites (filtered)"
+            else:
+                message = f"Showing {filtered_count} favorites"
+        else:
+            if is_filtered:
+                message = f"Showing {filtered_count} of {total_count} IODs (filtered)"
+            else:
+                message = f"Showing {filtered_count} IODs"
+        
+        self.status_var.set(f"{message}{cache_suffix}")
+    
+    def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
+        """Show selection-based status when item selected."""
+        if is_iod:
+            self.status_var.set(f"{title} {iod_type} • Click ▶ to expand or Double-click ♥ to toggle favorite")
+        else:
+            self.status_var.set(f"{iod_type}: {title}")
+
+    def show_loading_status(self, message: str):
+        """Show loading status."""
+        self.status_var.set(message)
+
+
+class FavoritesManager:
+    """Handles all favorites-related functionality."""
+    
+    def __init__(self, config, logger):
+        """Initialize the FavoritesManager.
+
+        Args:
+            config: Configuration object providing the cache directory path.
+            logger: Logger instance for logging favorite operations.
+
+        """
+        self.favorites = set()
+        self.favorites_file = os.path.join(config.cache_dir, "favorites.json")
+        self.logger = logger
+        self.load_favorites()
+    
+    def toggle_favorite(self, table_id: str) -> bool:
+        """Toggle favorite status. Returns True if now favorited."""
+        if table_id in self.favorites:
+            self.favorites.remove(table_id)
+            self.logger.debug(f"Removed {table_id} from favorites")
+            is_favorited = False
+        else:
+            self.favorites.add(table_id)
+            self.logger.debug(f"Added {table_id} to favorites")
+            is_favorited = True
+        
+        self.save_favorites()
+        return is_favorited
+    
+    def is_favorite(self, table_id: str) -> bool:
+        """Check if table_id is favorited."""
+        return table_id in self.favorites
+    
+    def get_favorites_list(self) -> list:
+        """Get list of all favorites."""
+        return list(self.favorites)
+    
+    def get_favorites_count(self) -> int:
+        """Get count of favorites."""
+        return len(self.favorites)
+    
+    def load_favorites(self):
+        """Load favorites from file."""
+        try:
+            if os.path.exists(self.favorites_file):
+                with open(self.favorites_file, 'r') as f:
+                    favorites_data = json.load(f)
+                    self.favorites = set(favorites_data.get('favorites', []))
+                    self.logger.debug(f"Loaded {len(self.favorites)} favorites")
+            else:
+                self.favorites = set()
+                self.logger.debug("No favorites file found, starting with empty favorites")
+        except Exception as e:
+            self.logger.warning(f"Error loading favorites: {e}")
+            self.favorites = set()
+    
+    def save_favorites(self):
+        """Save favorites to file."""
+        try:
+            os.makedirs(os.path.dirname(self.favorites_file), exist_ok=True)
+            favorites_data = {
+                'favorites': list(self.favorites),
+                'last_updated': str(datetime.datetime.now())
+            }
+            with open(self.favorites_file, 'w') as f:
+                json.dump(favorites_data, f, indent=2)
+            self.logger.debug(f"Saved {len(self.favorites)} favorites")
+        except Exception as e:
+            self.logger.error(f"Error saving favorites: {e}")
 
 
 class ProgressLogHandler(logging.Handler):
@@ -29,6 +145,7 @@ class ProgressLogHandler(logging.Handler):
         
         Args:
             progress_queue (queue.Queue): Queue to send log messages to the main thread.
+
         """
         super().__init__()
         self.progress_queue = progress_queue
@@ -52,6 +169,7 @@ class ProgressDialog:
         Args:
             parent: Parent window
             title (str): Dialog title
+
         """
         self.parent = parent
         self.dialog = tk.Toplevel(parent)
@@ -93,13 +211,13 @@ class ProgressDialog:
         self.dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
         
     def _setup_ui(self):
-        """Setup the dialog UI."""
+        """Set up the progress dialog UI."""
         main_frame = ttk.Frame(self.dialog, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Title label
         title_label = ttk.Label(main_frame, text="Building IOD Structure...", 
-                               font=("Arial", 12, "bold"))
+                                font=("Arial", 12, "bold"))
         title_label.pack(pady=(0, 10))
         
         # Progress bar (indeterminate) with default styling
@@ -119,7 +237,7 @@ class ProgressDialog:
         log_frame.pack(fill=tk.BOTH, expand=True, pady=(5, 10))
         
         self.log_text = tk.Text(log_frame, wrap=tk.WORD, height=10, width=60, 
-                               font=("Courier", 9), state=tk.DISABLED)
+                                font=("Courier", 9), state=tk.DISABLED)
         
         log_scroll = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
         self.log_text.configure(yscrollcommand=log_scroll.set)
@@ -217,12 +335,12 @@ def load_app_config() -> Config:
     
     Search order:
     1. App-specific config files (dcmspec_explorer_config.json) - Tier 1
-       - Current directory
-       - ~/.config/dcmspec/
-       - App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
-       - Same directory as script (legacy support)
+        - Current directory
+        - ~/.config/dcmspec/
+        - App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
+        - Same directory as script (legacy support)
     2. Base library config file (config.json) - Tier 2 fallback
-       - Platform-specific user config directory via Config class
+        - Platform-specific user config directory via Config class
     3. Default values if no config files found
     
     Note: The base Config class always looks for a config file. When we pass
@@ -299,69 +417,76 @@ def setup_logger(config: Config) -> logging.Logger:
 
 class DCMSpecExplorer:
     """Main window for the DCMSPEC Explorer application."""
-    
+
     def __init__(self, root: tk.Tk):
-        """Initialize the main window."""
-        self.root = root
-        self.root.title("DCMSPEC Explorer")
-        
+        """Initialize the DCMspec Explorer application.
+
+        This method initializes the backend services and domain model, as well as the frontend controllers and views.
+        """
+        # --- Backend Services ---
+
         # Load app-specific configuration
         self.config = load_app_config()
-        
         # Initialize logger using configuration
         self.logger = setup_logger(self.config)
-        
+
         # Log startup information
         self.logger.info("Starting DCMSPEC Explorer")
-        
         # Log configuration information at INFO level
         log_level_configured = self.config.get_param('log_level') or 'INFO'
         config_source = ("app-specific" if self.config.config_file and 
                         "dcmspec_explorer_config.json" in self.config.config_file else "default")
         self.logger.info(f"Logging configured: level={log_level_configured.upper()}, source={config_source}")
-        
         # Log operational configuration at INFO level (important for users to know)
         config_file_display = self.config.config_file or "none (using defaults)"
         self.logger.info(f"Config file: {config_file_display}")
         self.logger.info(f"Cache directory: {self.config.cache_dir}")
-        
-        # Initialize document handler
+
+        # --- Domain Model ---
+
+        # Initialize document handler for DICOM standard XHTML documents
         self.doc_handler = XHTMLDocHandler(config=self.config, logger=self.logger)
-        
-        # Initialize DOM parser for version extraction
+        # Initialize DOM parser for DICOM standard version extraction
         self.dom_parser = DOMTableSpecParser(logger=self.logger)
-        
-        # Set window size and center it on screen
-        window_width = 1000
-        window_height = 700
-        
-        # Get screen dimensions
-        screen_width = root.winfo_screenwidth()
-        screen_height = root.winfo_screenheight()
-        
-        # Calculate position to center the window
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
-        
-        # Set geometry with centered position
-        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
-        
         # URL for DICOM Part 3 Table of Contents
         self.part3_toc_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
-        
-        # Store original data for sorting
+        # Initialize list of all IODs (original, unsorted/filtered)
         self.iod_modules_data = []
         self.sort_column = None
         self.sort_reverse = False
-        
+        # Initialize list of filtered IODs for display (populated after filtering)
+        self.filtered_data = []
+        self.search_text = ""
+        # Initialize user favorites managers
+        self.favorites_manager = FavoritesManager(self.config, self.logger)
         # Store IOD models to keep AnyTree nodes in memory
         self.iod_models = {}  # table_id -> model mapping
-        
         # Store DICOM version
         self.dicom_version = "Unknown"
-        
+
+        # --- Frontend State / Controller ---
+
+        # Initialize view state to show all IODs
+        self.show_favorites_only = False  # Current view mode
+
+        # --- View ---
+        self.root = root
+        self.root.title("DCMSPEC Explorer")
+        self._init_window_geometry()
         self.setup_ui()
+
+        # Load and display IOD modules in the UI (not initialization, but triggers initial data load and view update)
         self.load_iod_modules()
+
+    def _init_window_geometry(self):
+        """Set window size and center it on screen."""
+        window_width = 1200
+        window_height = 700
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
     
     def setup_ui(self):
         """Set up the user interface."""
@@ -373,37 +498,83 @@ class DCMSpecExplorer:
         top_frame = ttk.Frame(main_frame)
         top_frame.pack(fill=tk.X, pady=(0, 10))
         
-        # Add title label
-        title_label = ttk.Label(top_frame, text="DICOM IOD List", font=("Arial", 16, "bold"))
-        title_label.pack(side=tk.LEFT)
+        # Configure grid columns: column 0 (search) gets all extra space, column 1 (controls) stays minimal
+        top_frame.columnconfigure(0, weight=1)  # Search area expands
+        top_frame.columnconfigure(1, weight=0)  # Controls area stays fixed
         
-        # Add refresh button with context menu option
-        refresh_btn = ttk.Button(top_frame, text="Reload", command=self.load_iod_modules)
-        refresh_btn.pack(side=tk.RIGHT)
+        # Create search controls frame (left side, column 0)
+        search_controls_frame = ttk.Frame(top_frame)
+        search_controls_frame.grid(row=0, column=0, sticky="ew", padx=(0, 20))
+        
+        # Add search label and entry
+        search_label = ttk.Label(search_controls_frame, text="Search:")
+        search_label.pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.search_var = tk.StringVar()
+        self.search_var.trace_add('write', self.on_search_changed)
+        search_entry = ttk.Entry(search_controls_frame, textvariable=self.search_var, width=30)
+        search_entry.pack(side=tk.LEFT, padx=(0, 20))
+        
+        # Add favorites toggle button
+        self.view_toggle_btn = ttk.Button(search_controls_frame, text="Show: All", 
+                                            command=self._toggle_view_mode)
+        self.view_toggle_btn.pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Create right controls frame (column 1)
+        controls_frame = ttk.Frame(top_frame)
+        controls_frame.grid(row=0, column=1, sticky="e")
         
         # Add version label to the left of the button with right justification and spacing
-        self.version_label = ttk.Label(top_frame, text="", font=("Arial", 10), anchor="e")
-        self.version_label.pack(side=tk.RIGHT, padx=(0, 10))
+        self.version_label = ttk.Label(controls_frame, text="", font=("Arial", 10), anchor="e")
+        self.version_label.pack(side=tk.LEFT, padx=(0, 10))
+        
+        # Add refresh button with context menu option
+        refresh_btn = ttk.Button(controls_frame, text="Reload", command=self.load_iod_modules)
+        refresh_btn.pack(side=tk.LEFT)
         
         # Add context menu for refresh button
         self._create_refresh_context_menu(refresh_btn)
         
-        # Create paned window for treeview and details
+        # Create resizable paned window for IOD list and details
         paned_window = ttk.PanedWindow(main_frame, orient=tk.HORIZONTAL)
         paned_window.pack(fill=tk.BOTH, expand=True)
         
-        # Left frame for treeview
-        left_frame = ttk.Frame(paned_window)
-        paned_window.add(left_frame, weight=1)
+        # Left panel container
+        left_panel = ttk.Frame(paned_window)
+        paned_window.add(left_panel, weight=1)
         
-        # Create treeview
-        tree_frame = ttk.Frame(left_frame)
-        tree_frame.pack(fill=tk.BOTH, expand=True)
+        # Right panel container  
+        right_panel = ttk.Frame(paned_window)
+        paned_window.add(right_panel, weight=1)
+        
+        # Left panel header
+        header_frame = ttk.Frame(left_panel)
+        header_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        iod_list_label = ttk.Label(header_frame, text="DICOM IOD List", font=("Arial", 12, "bold"))
+        iod_list_label.pack(side=tk.LEFT)
+        
+        # Right panel header
+        details_header_frame = ttk.Frame(right_panel)
+        details_header_frame.pack(fill=tk.X, pady=(0, 5))
+        
+        details_label_header = ttk.Label(details_header_frame, text="Details", font=("Arial", 12, "bold"))
+        details_label_header.pack(side=tk.LEFT)
+        
+        # Left frame for treeview
+        left_frame = ttk.Frame(left_panel)
+        left_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Configure grid for treeview area
+        left_frame.columnconfigure(0, weight=1)  # Treeview column expands
+        left_frame.columnconfigure(1, weight=0)  # Scrollbar column fixed
+        left_frame.rowconfigure(0, weight=1)     # Treeview row expands
+        left_frame.rowconfigure(1, weight=0)     # Scrollbar row fixed
         
         # Treeview with scrollbar - configure with monospaced font for better tag display
         self.tree = ttk.Treeview(
-            tree_frame, 
-            columns=("iod_type", "usage"), 
+            left_frame, 
+            columns=("iod_type", "usage", "favorite"), 
             show="tree headings"
         )
         
@@ -429,51 +600,92 @@ class DCMSpecExplorer:
         style.configure("Treeview", font=(selected_font, 10))
         style.configure("Treeview.Heading", font=("Arial", 10, "bold"))
         
+        # Add left padding to treeview items for better alignment
+        style.configure("Treeview", padding=(5, 0))
+
         # Verify the configuration
         actual_font = style.lookup("Treeview", "font")
         self.logger.debug(f"Final font configuration: {actual_font}")
         self.tree.heading("#0", text="IOD Name", command=lambda: self.sort_treeview("#0"))
         self.tree.heading("iod_type", text="IOD Type", command=lambda: self.sort_treeview("iod_type"))
-        self.tree.heading("usage", text="Usage")  # No sorting command
+        self.tree.heading("usage", text="")  # No sorting command
+        self.tree.heading("favorite", text="♥")  # Heart icon as column header
         self.tree.column("#0", width=400)
-        self.tree.column("iod_type", width=100)
-        self.tree.column("usage", width=80)
+        self.tree.column("iod_type", width=100, stretch=tk.NO)
+        self.tree.column("usage", width=30, stretch=tk.NO)  # Small column for usage icon
+        self.tree.column("favorite", width=20, anchor="center", stretch=tk.NO)  # Small centered column
+
+        # Grid layout for treeview and scrollbars
+        self.tree.grid(row=0, column=0, sticky="nsew")
         
         # Scrollbars for treeview
-        tree_scroll_y = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
-        tree_scroll_x = ttk.Scrollbar(tree_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
+        tree_scroll_y = ttk.Scrollbar(left_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        tree_scroll_x = ttk.Scrollbar(left_frame, orient=tk.HORIZONTAL, command=self.tree.xview)
         self.tree.configure(yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
         
-        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        tree_scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
-        tree_scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
+        tree_scroll_y.grid(row=0, column=1, sticky="ns")
+        tree_scroll_x.grid(row=1, column=0, sticky="ew")
         
         # Right frame for details
-        right_frame = ttk.Frame(paned_window)
-        paned_window.add(right_frame, weight=1)
+        right_frame = ttk.Frame(right_panel)
+        right_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Details text area
-        details_label = ttk.Label(right_frame, text="Details", font=("Arial", 12, "bold"))
-        details_label.pack(anchor=tk.W, pady=(0, 5))
+        # Configure grid for details area
+        right_frame.columnconfigure(0, weight=1)  # Text column expands
+        right_frame.columnconfigure(1, weight=0)  # Scrollbar column fixed
+        right_frame.rowconfigure(0, weight=1)     # Text row expands
+        right_frame.rowconfigure(1, weight=0)     # Scrollbar row fixed
         
-        self.details_text = scrolledtext.ScrolledText(right_frame, wrap=tk.WORD, width=50, height=30)
-        self.details_text.pack(fill=tk.BOTH, expand=True)
+        # Details text area with grid layout
+        self.details_text = tk.Text(right_frame, wrap=tk.WORD, width=50, height=30, 
+                                    font=(selected_font, 10), padx=15, pady=5,
+                                    state=tk.DISABLED, cursor="arrow", takefocus=False)
+        self.details_text.grid(row=0, column=0, sticky="nsew")
+
+        # Prevent focus by redirecting it back to the treeview
+        def redirect_focus(event):
+            self.tree.focus_set()
+            return "break"
+        
+        self.details_text.bind("<FocusIn>", redirect_focus)
+        self.details_text.bind("<Button-1>", redirect_focus)
+
+        # Add scrollbars that match the treeview style
+        details_scroll_y = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.details_text.yview)
+        details_scroll_x = ttk.Scrollbar(right_frame, orient=tk.HORIZONTAL, command=self.details_text.xview)
+        self.details_text.configure(yscrollcommand=details_scroll_y.set, xscrollcommand=details_scroll_x.set)
+        
+        details_scroll_y.grid(row=0, column=1, sticky="ns")
+        details_scroll_x.grid(row=1, column=0, sticky="ew")
         
         # Bind treeview selection event
         self.tree.bind("<<TreeviewSelect>>", self.on_tree_select)
+    
+        # Bind double-click for favorites toggle
+        self.tree.bind("<Double-1>", self._on_double_click)
         
+        # Add context menu for favorites
+        self._create_treeview_context_menu()
+
         # Status bar
+        status_frame = ttk.Frame(main_frame)
+        status_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=(5, 0))
+        
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")
-        status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.pack(fill=tk.X, side=tk.BOTTOM, pady=(5, 0))
+        
+        # Initialize status manager
+        self.status_manager = StatusManager(self.status_var)
+        
+        status_bar = ttk.Label(status_frame, textvariable=self.status_var, relief=tk.FLAT)
+        status_bar.pack(side=tk.LEFT, fill=tk.X, expand=True)
     
     def _create_refresh_context_menu(self, refresh_btn):
         """Create a context menu for the refresh button."""
         context_menu = tk.Menu(self.root, tearoff=0)
         context_menu.add_command(label="Reload (from cache)", command=self.load_iod_modules)
         context_menu.add_command(label="Download latest (from web)", 
-                               command=lambda: self.load_iod_modules(force_download=True))
+                                command=lambda: self.load_iod_modules(force_download=True))
         
         def show_context_menu(event):
             try:
@@ -486,7 +698,7 @@ class DCMSpecExplorer:
             tooltip = tk.Toplevel(self.root)
             tooltip.wm_overrideredirect(True)
             tooltip.wm_geometry("+%d+%d" % (refresh_btn.winfo_rootx(), 
-                                          refresh_btn.winfo_rooty() + refresh_btn.winfo_height() + 5))
+                                            refresh_btn.winfo_rooty() + refresh_btn.winfo_height() + 5))
             label = ttk.Label(tooltip, text="Right-click for more options", 
                             background="lightyellow", relief=tk.SOLID, borderwidth=1)
             label.pack()
@@ -506,7 +718,153 @@ class DCMSpecExplorer:
         
         refresh_btn.bind("<Enter>", on_enter)
         refresh_btn.bind("<Leave>", on_leave)
+
+    def _create_treeview_context_menu(self):
+        """Create a context menu for the treeview to manage favorites."""
+        self.tree_context_menu = tk.Menu(self.root, tearoff=0)
+        
+        def show_tree_context_menu(event):
+            # Identify the item under the cursor
+            item = self.tree.identify_row(event.y)
+            if not item:
+                return
+            
+            # Select the item
+            self.tree.selection_set(item)
+            
+            # Check if this is a top-level IOD item
+            tags = self.tree.item(item, "tags")
+            if not (tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_")):
+                return  # Not a top-level IOD item
+            
+            table_id = tags[0]
+            title = self.tree.item(item, "text")
+            
+            # Clear the menu
+            self.tree_context_menu.delete(0, tk.END)
+            
+            # Add appropriate menu item
+            if self.favorites_manager.is_favorite(table_id):
+                self.tree_context_menu.add_command(
+                    label=f"Remove '{title}' from favorites",
+                    command=lambda: self.toggle_favorite(table_id)
+                )
+            else:
+                self.tree_context_menu.add_command(
+                    label=f"Add '{title}' to favorites",
+                    command=lambda: self.toggle_favorite(table_id)
+                )
+            
+            # Show the menu
+            try:
+                self.tree_context_menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                self.tree_context_menu.grab_release()
+        
+        # Bind right-click to show context menu
+        self.tree.bind("<Button-3>", show_tree_context_menu)  # Right click
+        self.tree.bind("<Button-2>", show_tree_context_menu)  # Middle click (alternative)
+
+    def on_search_changed(self, *args):
+        """Handle search text change."""
+        self.search_text = self.search_var.get()  # Remove .lower() to make case sensitive
+        self.apply_filter_and_sort()
     
+    def apply_filter_and_sort(self):
+        """Apply current search filter and sort to the data."""
+        # Remember current selection before clearing
+        current_selection_table_id = None
+        selection = self.tree.selection()
+        if selection:
+            selected_item = selection[0]
+            tags = self.tree.item(selected_item, "tags")
+            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
+                current_selection_table_id = tags[0]
+        
+        # Start with original data
+        data = self.iod_modules_data
+        
+        # Apply favorites filter first if in favorites mode
+        if self.show_favorites_only:
+            favorites_data = []
+            for title, table_id, href, iod_type in data:
+                if self.favorites_manager.is_favorite(table_id):
+                    favorites_data.append((title, table_id, href, iod_type))
+            data = favorites_data
+        
+        # Apply search filter if there's search text
+        if self.search_text:
+            filtered_data = []
+            for title, table_id, href, iod_type in data:
+                # Search in title and IOD type (case sensitive)
+                if (self.search_text in title or 
+                    self.search_text in iod_type):
+                    filtered_data.append((title, table_id, href, iod_type))
+            data = filtered_data
+        
+        self.filtered_data = data
+        
+        # Apply current sort if any
+        if self.sort_column:
+            if self.sort_column == "#0":  # IOD Name column
+                data = sorted(data, key=lambda x: x[0].lower(), reverse=self.sort_reverse)
+            elif self.sort_column == "iod_type":  # IOD Type column
+                data = sorted(data, key=lambda x: x[3].lower(), reverse=self.sort_reverse)
+        
+        # Clear the treeview
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        # Repopulate with filtered and sorted data
+        self.populate_treeview(data)
+        
+        # Restore IOD structures for any IODs that were previously loaded
+        for item in self.tree.get_children():
+            tags = self.tree.item(item, "tags")
+            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
+                table_id = tags[0]
+                # If we have a model for this IOD, restore its structure
+                if table_id in self.iod_models and self.iod_models[table_id]:
+                    model = self.iod_models[table_id]
+                    if model and hasattr(model, 'content') and model.content:
+                        # Repopulate the IOD structure
+                        self._populate_iod_structure(item, model.content)
+                        # Don't auto-expand - let user decide when to expand
+        
+        # Restore selection if the previously selected item is still visible
+        if current_selection_table_id:
+            for item in self.tree.get_children():
+                tags = self.tree.item(item, "tags")
+                if tags and len(tags) > 0 and tags[0] == current_selection_table_id:
+                    self.tree.selection_set(item)
+                    self.tree.focus(item)
+                    # Scroll to make the selected item visible
+                    self.tree.see(item)
+                    # Trigger the selection event to update details
+                    self.on_tree_select(None)
+                    break
+        else:
+            # No selection to restore - clear details text
+            self.details_text.config(state=tk.NORMAL)
+            self.details_text.delete(1.0, tk.END)
+            self.details_text.insert(1.0, "Select an IOD to view details.")
+            self.details_text.config(state=tk.DISABLED)
+        
+        # Update status
+        total_count = len(self.iod_modules_data)
+        favorites_count = self.favorites_manager.get_favorites_count()
+        filtered_count = len(data)
+        
+        # Use StatusManager for consistent status messages
+        self.status_manager.show_count_status(
+            filtered_count=filtered_count,
+            total_count=total_count,
+            is_favorites_mode=self.show_favorites_only,
+            is_filtered=bool(self.search_text),
+            favorites_count=favorites_count,
+            cache_suffix=""
+        )
+
     def load_iod_modules(self, force_download: bool = False):
         """Load IOD modules from the DICOM specification.
         
@@ -543,21 +901,31 @@ class DCMSpecExplorer:
             # Extract IOD modules
             iod_modules = self.extract_iod_modules(list_of_tables)
             
-            # Store the data for sorting
+            # Store the data for sorting and filtering
             self.iod_modules_data = iod_modules
             
             # Set initial sort state to show that data is sorted by IOD Name
             self.sort_column = "#0"
             self.sort_reverse = False
             
-            # Populate treeview
-            self.populate_treeview(iod_modules)
+            # Apply filter and sort (this will populate the treeview)
+            self.apply_filter_and_sort()
+            
+            # Set initial view mode based on whether we have favorites
+            if self.favorites_manager.get_favorites_count() > 0 and not self.show_favorites_only:
+                # If we have favorites and haven't explicitly chosen a view, show favorites
+                self.set_view_mode(True)
+            else:
+                # Otherwise show all (which is the current state)
+                self.set_view_mode(False)
             
             # Update column headings to show initial sort state
             self.update_column_headings()
             
+            # Add cache status to the current status (after apply_filter_and_sort sets it)
             cache_status = " (downloaded)" if force_download else " (from cache)"
-            self.status_var.set(f"Loaded {len(iod_modules)} IOD modules{cache_status}")
+            current_status = self.status_var.get()
+            self.status_var.set(f"{current_status}{cache_status}")
             
         except RuntimeError as e:
             messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
@@ -617,9 +985,10 @@ class DCMSpecExplorer:
     def populate_treeview(self, iod_modules: List[Tuple[str, str, str, str]]):
         """Populate the treeview with IOD modules."""
         for title, table_id, href, iod_type in iod_modules:
-            # Store table_id in tags for later retrieval, display iod_type in column
-            self.tree.insert("", tk.END, text=title, values=(iod_type, ""), 
-                           tags=(table_id,))
+            # Show heart in favorite column if favorited
+            heart_icon = "♥" if self.favorites_manager.is_favorite(table_id) else ""
+            self.tree.insert("", tk.END, text=title, values=(iod_type, "", heart_icon), 
+                            tags=(table_id,))
     
     def sort_treeview(self, column: str):
         """Sort the treeview by the specified column."""
@@ -631,35 +1000,50 @@ class DCMSpecExplorer:
         
         self.sort_column = column
         
-        # Sort the data
-        if column == "#0":  # IOD Name column
-            sorted_data = sorted(self.iod_modules_data, 
-                                key=lambda x: x[0].lower(), 
-                                reverse=self.sort_reverse)
-        elif column == "iod_type":  # IOD Type column
-            sorted_data = sorted(self.iod_modules_data, 
-                                key=lambda x: x[3].lower(), 
-                                reverse=self.sort_reverse)
-        else:
-            # Unknown column, keep original order
-            sorted_data = self.iod_modules_data
-        
-        # Clear the treeview
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        
-        # Repopulate with sorted data
-        self.populate_treeview(sorted_data)
+        # Apply filter and sort (this will update the treeview)
+        self.apply_filter_and_sort()
         
         # Update column headings to show sort direction
         self.update_column_headings()
+
+    def _on_double_click(self, event):
+        """Handle double-click events on the treeview."""
+        # Identify what was clicked
+        item = self.tree.identify_row(event.y)
+        column = self.tree.identify_column(event.x)
+        
+        if not item:
+            return
+            
+        # Check if double-click was on the favorites column (#3) or anywhere on an IOD row
+        tags = self.tree.item(item, "tags")
+        if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
+            # This is a top-level IOD item
+            if column == "#3":  # Favorites column (now rightmost)
+                table_id = tags[0]
+                self.toggle_favorite(table_id)
+                self._update_favorite_display()
+                return "break"  # Prevent default double-click behavior
     
+    def _update_favorite_display(self):
+        """Update the heart display in the favorites column for all items."""
+        for item in self.tree.get_children():
+            tags = self.tree.item(item, "tags")
+            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
+                table_id = tags[0]
+                current_values = list(self.tree.item(item, "values"))
+                if len(current_values) >= 3:
+                    # Update the heart in the favorites column (now at index 2)
+                    current_values[2] = "♥" if self.favorites_manager.is_favorite(table_id) else ""
+                    self.tree.item(item, values=current_values)
+
     def update_column_headings(self):
         """Update column headings to show sort direction."""
         # Reset all headings
         self.tree.heading("#0", text="IOD Name")
+        self.tree.heading("favorite", text="♥")
         self.tree.heading("iod_type", text="IOD Type")
-        self.tree.heading("usage", text="Usage")
+        self.tree.heading("usage", text="")
         
         # Add sort indicator to the current sort column
         if self.sort_column:
@@ -668,7 +1052,14 @@ class DCMSpecExplorer:
                 self.tree.heading("#0", text=f"IOD Name{indicator}")
             elif self.sort_column == "iod_type":
                 self.tree.heading("iod_type", text=f"IOD Type{indicator}")
-    
+
+    def _is_model_cached(self, table_id: str) -> bool:
+        """Check if the IOD model is already cached on disk."""
+        model_file_name = f"Part3_{table_id}_expanded.json"
+        cache_file_path = os.path.join(self.config.cache_dir, "model", model_file_name)
+        exists = os.path.exists(cache_file_path)
+        return exists
+
     def on_tree_select(self, event):
         """Handle treeview selection event."""
         selection = self.tree.selection()
@@ -686,51 +1077,99 @@ class DCMSpecExplorer:
         if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
             # This is a top-level IOD item
             table_id = tags[0]
-            iod_type = item_values[0] if item_values else "Unknown"
+            iod_type = item_values[1] if len(item_values) > 1 else "Unknown"
+                        
+            # Update status
+            self.status_manager.show_selection_status(title, iod_type, is_iod=True)
             
-            # Check if this item already has children (IOD structure loaded)
-            if self.tree.get_children(item):
-                # Already loaded, just update details
+            # Check if we already have the structure loaded in memory
+            if table_id in self.iod_models and self.iod_models[table_id]:
+                # Already in memory - just update details
                 self._update_details_text(table_id, title, iod_type)
                 return
             
-            # Build the IOD model and populate the tree structure
-            try:
-                # Use progress dialog with threading for IOD building
-                self._build_iod_model_with_progress(item, table_id, title, iod_type)
-                
-            except RuntimeError as e:
-                error_msg = str(e)
-                if "No module models were found" in error_msg:
-                    detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
-                                  f"The IOD references modules that could not be found or parsed. "
-                                  f"This may happen if:\n"
-                                  f"• Module reference tables are missing from the DICOM specification\n"
-                                  f"• Module tables have different naming conventions\n"
-                                  f"• The IOD table format is not supported\n\n"
-                                  f"Technical details: {error_msg}")
-                    messagebox.showwarning("IOD Structure Not Available", detailed_msg)
-                    self.logger.warning(f"Failed to build IOD model for {table_id}: {error_msg}")
-                else:
-                    messagebox.showerror("Error", f"Failed to load IOD structure:\n{error_msg}")
-                self.status_var.set(f"Could not load structure for {table_id}")
+            # Check if this item already has children (structure already populated)
+            if self.tree.get_children(item):
+                # Structure already populated - just update details
                 self._update_details_text(table_id, title, iod_type)
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
-                self.status_var.set(f"Error loading {table_id}")
-                self._update_details_text(table_id, title, iod_type)
-        
+                return
+            
+            # Check if model is cached on disk
+            if self._is_model_cached(table_id):
+                # Cached - load immediately without progress dialog
+                try:
+                    self.status_manager.show_loading_status(f"Loading {title} from cache...")
+                    self.root.update()  # Update UI to show status
+                    
+                    # Use the API directly since it's cached - should be fast
+                    model = self._build_iod_model(table_id, self.logger)
+                    
+                    if model:
+                        # Store the model to keep AnyTree nodes in memory
+                        self.iod_models[table_id] = model
+                        
+                        if model and hasattr(model, 'content') and model.content:
+                            # Populate the tree item with the IOD structure
+                            self._populate_iod_structure(item, model.content)
+                            
+                            # Expand the item to show the structure
+                            # self.tree.item(item, open=True)
+
+                        self._update_details_text(table_id, title, iod_type)
+                        # Update status for successful IOD selection
+                        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
+                    
+                except Exception as e:
+                    # Handle errors for cached loading
+                    if "No module models were found" in str(e):
+                        detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
+                                        f"The IOD references modules that could not be found or parsed. "
+                                        f"This may happen if:\n"
+                                        f"• Module reference tables are missing from the DICOM specification\n"
+                                        f"• Module tables have different naming conventions\n"
+                                        f"• The IOD table format is not supported\n\n"
+                                        f"Technical details: {str(e)}")
+                        messagebox.showwarning("IOD Structure Not Available", detailed_msg)
+                        self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
+                    else:
+                        messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
+                    
+                    self._update_details_text_basic(table_id, title, iod_type)
+                    # Update status for IOD selection even when there's an error
+                    self.status_manager.show_selection_status(title, iod_type, is_iod=True)
+            else:
+                # Not cached - show progress dialog for building from web
+                try:
+                    self._build_iod_model_with_progress(item, table_id, title, iod_type)
+                except Exception as e:
+                    # Handle building errors
+                    if "No module models were found" in str(e):
+                        detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
+                                        f"The IOD references modules that could not be found or parsed. "
+                                        f"This may happen if:\n"
+                                        f"• Module reference tables are missing from the DICOM specification\n"
+                                        f"• Module tables have different naming conventions\n"
+                                        f"• The IOD table format is not supported\n\n"
+                                        f"Technical details: {str(e)}")
+                        messagebox.showwarning("IOD Structure Not Available", detailed_msg)
+                        self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
+                    else:
+                        messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
+                    
+                    self._update_details_text_basic(table_id, title, iod_type)
+                    # Update status for IOD selection even when there's an error
+                    self.status_manager.show_selection_status(title, iod_type, is_iod=True)
+            
         else:
             # This is a module or attribute item
-            node_type = item_values[0] if item_values else "Unknown"
-            usage = item_values[1] if len(item_values) > 1 else ""
+            node_type = item_values[0] if len(item_values) > 0 else "Unknown"  # Changed from index 1 to 0
+            usage = item_values[1] if len(item_values) > 1 else ""  # Changed from index 2 to 1
             
-            # Get AnyTree node using the node path stored in tags
+            # Get the corresponding AnyTree node using the node path stored in tags
             node = None
             if tags and len(tags) > 0:
                 node_path = tags[0]
                 # Find the node by traversing the path in the appropriate IOD model
-                # First, determine which IOD model this node belongs to by checking parent items
                 current_item = item
                 table_id = None
                 
@@ -767,11 +1206,12 @@ class DCMSpecExplorer:
                             else:
                                 # Successfully found the node
                                 node = current_node
+                                # Build readable path for status bar
+                                readable_path = self._build_readable_path(node)
                         except Exception as e:
                             self.logger.debug(f"Error finding node at path {node_path}: {e}")
-            
+                        
             # Update details text for module/attribute
-
             if node_type == "Module" and node:
                 # Get all available module attributes
                 name = getattr(node, 'module', 'Unknown Module')
@@ -823,18 +1263,54 @@ class DCMSpecExplorer:
                     details += f"Description: {elem_description}\n"
             else:
                 # Fallback for cases without node reference
+                details = f"{title} {node_type}\n\n"
                 if usage:
                     details += f"Usage/Type: {usage}\n"
+                readable_path = title
                 
+            # Temporarily enable the text widget to update content
+            self.details_text.config(state=tk.NORMAL)
             self.details_text.delete(1.0, tk.END)
             self.details_text.insert(1.0, details)
+            self.details_text.config(state=tk.DISABLED)
             
-            self.status_var.set(f"Selected: {node_type} - {title}")
-    
+            self.status_var.set(f"Selected: {node_type} - {readable_path}")
+
     def _build_iod_model_with_progress(self, item, table_id: str, title: str, iod_type: str):
-        """Build IOD model with progress dialog in a separate thread."""
+        """Build IOD model with progress dialog in a separate thread.
         
-        # Create and show progress dialog
+        This method is used when the IOD model is not cached and needs to be built from
+        the web. It shows a modal progress dialog with real-time log updates while the
+        model is being downloaded, parsed, and built in a background thread.
+        
+        The progress dialog displays:
+        - Progress bar with animation
+        - Current status updates (downloading, parsing, building)
+        - Real-time log messages from the IODSpecBuilder
+        - Cancel button (though cancellation may not stop all operations)
+        
+        Args:
+            item: The treeview item to populate with the IOD structure when complete
+            table_id (str): The table identifier (e.g., "table_A.49-1")
+            title (str): Human-readable IOD name for display in progress dialog
+            iod_type (str): IOD type ("Composite", "Normalized", or "Other")
+            
+        Raises:
+            Exception: Re-raises any exceptions from the model building process
+            
+        Side Effects:
+            - Shows modal progress dialog that blocks UI interaction
+            - Updates self.iod_models[table_id] with the built model
+            - Populates the treeview item with IOD structure on success
+            - Expands the treeview item to show the structure
+            - Updates details text area
+            - Updates status bar
+            
+        Note:
+            This method is only called for non-cached IODs. Cached IODs use
+            _build_iod_model() directly without the progress dialog.
+
+        """        # Create and show progress dialog
         progress_dialog = ProgressDialog(self.root, f"Loading {title} Structure")
         
         # Thread function that builds the model
@@ -861,7 +1337,7 @@ class DCMSpecExplorer:
                 
                 # Build the IOD model with progress logging
                 progress_dialog.progress_queue.put(("STATUS", "Building IOD model..."))
-                model = self._build_iod_model_threaded(table_id, thread_logger)
+                model = self._build_iod_model(table_id, thread_logger)
                 
                 # Send completion signal
                 progress_dialog.progress_queue.put(("DONE", model))
@@ -890,18 +1366,32 @@ class DCMSpecExplorer:
             
             if result and hasattr(result, 'content') and result.content:
                 # Populate the tree item with the IOD structure
-                self._populate_iod_structure(item, result.content)
-                
-                # Expand the item to show the structure
-                self.tree.item(item, open=True)
+                self._populate_iod_structure(item, result.content)        
             
             self._update_details_text(table_id, title, iod_type)
-            self.status_var.set(f"Loaded structure for {table_id}")
+            # Update status for successful IOD selection
+            self.status_manager.show_selection_status(title, iod_type, is_iod=True)
     
-    def _build_iod_model_threaded(self, table_id: str, logger: logging.Logger):
-        """Build the IOD model for the given table_id with progress logging.
+    def _build_iod_model(self, table_id: str, logger: logging.Logger):
+        """Build the IOD model for the given table_id using the IODSpecBuilder API.
         
-        This is the threaded version that uses a custom logger for progress tracking.
+        This method uses the IODSpecBuilder.build_from_url() method which handles:
+        - Cache detection and loading (fast for cached models)
+        - Web download and parsing (slower for non-cached models)
+        - Model building and JSON serialization
+        
+        The method is called both:
+        1. Directly for cached models (fast, no progress dialog needed)
+        2. From background threads with progress dialogs for non-cached models
+        
+        Args:
+            table_id (str): The table identifier (e.g., "table_A.49-1")
+            logger (logging.Logger): Logger instance for progress tracking and debugging
+            
+        Returns:
+            IOD model object with content attribute containing the AnyTree structure,
+            or None if building failed.
+
         """
         url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
         cache_file_name = "Part3.xhtml"
@@ -946,10 +1436,6 @@ class DCMSpecExplorer:
             table_id=table_id,
             force_download=False,
         )
-    
-    def _build_iod_model(self, table_id: str):
-        """Build the IOD model for the given table_id (legacy method for compatibility)."""
-        return self._build_iod_model_threaded(table_id, self.logger)
     
     def _populate_iod_structure(self, parent_item, content):
         """Populate the tree with IOD structure from the model content using AnyTree traversal."""
@@ -1014,27 +1500,106 @@ class DCMSpecExplorer:
             
             tree_item = self.tree.insert(
                 parent_tree_item, tk.END, text=display_text, 
-                values=(node_type, usage), tags=(node_path,)
+                values=(node_type, usage, ""), tags=(node_path,)  # Empty string for favorite column
             )
             tree_items[node] = tree_item
     
     def _update_details_text(self, table_id: str, title: str, iod_type: str):
-        """Update the details text area."""
+        """Update the details text area with IOD specification information only."""
         details = f"{title} {iod_type} IOD\n\n"
-        details += f"Table ID: {table_id}\n\n"
         
         # Check if we have a model for this IOD
         if table_id in self.iod_models and self.iod_models[table_id] and hasattr(self.iod_models[table_id], 'content'):
-            details += "Click to expand and view the IOD structure with modules and attributes."
+            model = self.iod_models[table_id]
+            content = model.content
+            
+            # Count modules and attributes
+            module_count = 0
+            attribute_count = 0
+            
+            if content:
+                from anytree import PreOrderIter
+                for node in PreOrderIter(content):
+                    if node == content:  # Skip root
+                        continue
+                    if hasattr(node, 'module'):
+                        module_count += 1
+                    elif hasattr(node, 'elem_name'):
+                        attribute_count += 1
+                
+            # Add reference information
+            details += f"DICOM PS3.3 Table {table_id.replace('table_', '')}\n"
+            
         else:
-            details += ("IOD structure not available. This may occur if the IOD references modules "
-                       "that cannot be found or parsed from the DICOM specification.")
+            details += "IOD structure not available.\n"
+            details += (
+                "This may occur if the IOD references modules that cannot be found or "
+                "parsed from the DICOM specification."
+            )
         
+        # Temporarily enable the text widget to update content
+        self.details_text.config(state=tk.NORMAL)
         self.details_text.delete(1.0, tk.END)
         self.details_text.insert(1.0, details)
-        
-        self.status_var.set(f"Selected: {title} {iod_type} IOD)")
+        self.details_text.config(state=tk.DISABLED)
 
+    def _build_readable_path(self, node):
+        """Build a human-readable path from the AnyTree node using display names."""
+        path_parts = []
+        
+        # Walk up the tree from the current node to the root
+        current = node
+        while current and current.parent:  # Stop before the root content node
+            if hasattr(current, 'module'):
+                # This is a module node - use module name
+                display_name = getattr(current, 'module', 'Unknown Module')
+            elif hasattr(current, 'elem_name'):
+                # This is an attribute node - use elem_name
+                elem_name = getattr(current, 'elem_name', 'Unknown Attribute')
+                display_name = re.sub(r'^(?:&gt;|>)+', '', elem_name)  # Remove leading > characters
+            else:
+                # Fallback to node name
+                display_name = str(getattr(current, 'name', 'Unknown'))
+            
+            path_parts.insert(0, display_name)  # Insert at beginning to build path from root
+            current = current.parent
+        
+        # Join with " > " separator for a readable hierarchical path
+        return "/".join(path_parts)
+
+    def toggle_favorite(self, table_id: str):
+        """Toggle favorite status for a table_id."""
+        self.favorites_manager.toggle_favorite(table_id)
+        
+        # Update the heart display
+        self._update_favorite_display()
+        
+        # Update the display if we're showing favorites
+        if self.show_favorites_only:
+            self.apply_filter_and_sort()
+    
+    def _toggle_view_mode(self):
+        """Toggle between favorites and all view modes."""
+        self.set_view_mode(not self.show_favorites_only)
+
+    def set_view_mode(self, show_favorites: bool):
+        """Set the view mode (favorites or all IODs)."""
+        previous_mode = self.show_favorites_only
+        self.show_favorites_only = show_favorites
+        
+        # Clear search when switching modes to avoid confusion
+        if previous_mode != show_favorites:
+            self.search_var.set("")
+            self.search_text = ""
+        
+        # Update button text - show what will happen when clicked (opposite of current state)
+        if show_favorites:
+            self.view_toggle_btn.config(text="Show All IODs")
+        else:
+            self.view_toggle_btn.config(text="Show Favorites ♥")
+        
+        # Apply the filter
+        self.apply_filter_and_sort()
 
 def main() -> None:
     """Entry point for the DCMSPEC Explorer GUI application.
