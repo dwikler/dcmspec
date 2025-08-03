@@ -3,7 +3,9 @@
 Provides the DOMSpecParser class for parsing DICOM specification tables from XHTML documents,
 converting them into structured in-memory representations using anytree.
 """
+from contextlib import contextmanager
 import re
+import unicodedata
 from unidecode import unidecode
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
@@ -79,6 +81,24 @@ class DOMTableSpecParser(SpecParser):
             metadata.include_depth = int(include_depth)
         return metadata, content
 
+    @contextmanager
+    def _visit_table(self, table_id, visited_tables):
+        """Context manager to temporarily add a table_id to the visited_tables set during recursion.
+
+        Ensures that table_id is added to visited_tables when entering the context,
+        and always removed when exiting, even if an exception occurs.
+
+        Args:
+            table_id: The ID of the table being visited.
+            visited_tables: The set of table IDs currently being visited in the recursion stack.
+
+        """
+        visited_tables.add(table_id)
+        try:
+            yield
+        finally:
+            visited_tables.remove(table_id)
+
     def parse_table(
         self,
         dom: BeautifulSoup,
@@ -88,6 +108,7 @@ class DOMTableSpecParser(SpecParser):
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
         skip_columns: Optional[list[int]] = None,
+        visited_tables: Optional[set] = None,
     ) -> Node:
         """Parse specification content from tables within the DOM of a DICOM document.
 
@@ -104,50 +125,79 @@ class DOMTableSpecParser(SpecParser):
             table_nesting_level: The nesting level of the table (used for recursion call only).
             include_depth: The depth to which included tables should be parsed.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
+            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.
 
         Returns:
             root: The root node of the tree representation of the specification table.
 
         """
         self.logger.info(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
-        # Maps column indices in the DICOM standard table to corresponding node attribute names
-        # for constructing a tree-like representation of the table's data.
-        # self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}
+        
+        # Initialize visited_tables set if not provided (first call)
+        if visited_tables is None:
+            visited_tables = set()
+        
+        # Use a context manager to ensure table_id is always added to and removed from
+        # visited_tables, even if an exception occurs.
+        with self._visit_table(table_id, visited_tables):
+            # Maps column indices in the DICOM standard table to corresponding node attribute names
+            # for constructing a tree-like representation of the table's data.
+            # self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}
 
-        table = self.dom_utils.get_table(dom, table_id)
-        if not table:
-            raise ValueError(f"Table with id '{table_id}' not found.")
+            table = self.dom_utils.get_table(dom, table_id)
+            if not table:
+                raise ValueError(f"Table with id '{table_id}' not found.")
 
-        if not column_to_attr:
-            raise ValueError("Columns to node attributes missing.")
-        else:
-            self.column_to_attr = column_to_attr
-
-        root = Node("content")
-        level_nodes: Dict[int, Node] = {0: root}
-
-        for row in table.find_all("tr")[1:]:
-            row_data = self._extract_row_data(row, skip_columns=skip_columns)
-            if row_data[name_attr] is None:
-                continue  # Skip empty rows
-            row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
-
-            # Add nesting level symbols to included table element names except if row is a title
-            if table_nesting_level > 0 and not row_data[name_attr].isupper():
-                row_data[name_attr] = ">" * table_nesting_level + row_data[name_attr]
-
-            # Process Include statement unless include_depth is defined and not reached
-            if "Include" in row_data[name_attr] and (include_depth is None or include_depth > 0):
-                next_depth = None if include_depth is None else include_depth - 1
-                self._parse_included_table(
-                    dom, row, column_to_attr, name_attr, row_nesting_level, next_depth, level_nodes, root
-                )
+            if not column_to_attr:
+                raise ValueError("Columns to node attributes missing.")
             else:
-                node_name = self._sanitize_string(row_data[name_attr])
-                self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+                self.column_to_attr = column_to_attr
 
-        self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
-        return root
+            root = Node("content")
+            level_nodes: Dict[int, Node] = {0: root}
+
+            for row in table.find_all("tr")[1:]:
+                row_data = self._extract_row_data(row, skip_columns=skip_columns)
+                if row_data[name_attr] is None:
+                    continue  # Skip empty rows
+                row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
+
+                # Add nesting level symbols to included table element names except if row is a title
+                if table_nesting_level > 0 and not row_data[name_attr].isupper():
+                    row_data[name_attr] = ">" * table_nesting_level + row_data[name_attr]
+
+                # Process Include statement unless include_depth is defined and not reached
+                if "Include" in row_data[name_attr] and (include_depth is None or include_depth > 0):
+                    next_depth = None if include_depth is None else include_depth - 1
+
+                    # Check for circular reference before attempting to parse included table
+                    include_anchor = row.find("a", {"class": "xref"})
+                    should_include = True
+                    if include_anchor:
+                        include_table_id = include_anchor["href"].split("#", 1)[-1]
+                        if include_table_id in visited_tables:
+                            self.logger.warning(
+                                f"Nesting Level: {table_nesting_level}, Circular reference detected for "
+                                f"table {include_table_id}, creating node instead of recursing"
+                            )
+                            should_include = False
+
+                    if should_include:
+                        self._parse_included_table(
+                            dom, row, column_to_attr, name_attr, row_nesting_level, next_depth, 
+                            level_nodes, root, visited_tables
+                        )
+                    else:
+                        # Create a node to represent the circular reference instead of recursing
+                        node_name = self._sanitize_string(row_data[name_attr])
+                        self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+                else:
+                    node_name = self._sanitize_string(row_data[name_attr])
+                    self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+
+            self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
+
+            return root
 
     def parse_metadata(
         self,
@@ -340,6 +390,9 @@ class DOMTableSpecParser(SpecParser):
             else:
                 # Handle cases where no <p> tags present
                 cell_text = cell.get_text(strip=True)
+            
+            # Clean the extracted text to remove encoding artifacts
+            cell_text = self._clean_extracted_text(cell_text)
             colspan = int(cell.get("colspan", 1))
             rowspan = int(cell.get("rowspan", 1))
             cells.append(cell_text)
@@ -371,6 +424,7 @@ class DOMTableSpecParser(SpecParser):
         include_depth: int,
         level_nodes: Dict[int, Node],
         root: Node,
+        visited_tables: set,
     ) -> None:
         """Recursively parse Included Table."""
         include_anchor = row.find("a", {"class": "xref"})
@@ -388,6 +442,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr=name_attr,
             table_nesting_level=table_nesting_level,
             include_depth=include_depth,
+            visited_tables=visited_tables,
         )
         if not included_table_tree:
             return
@@ -441,6 +496,33 @@ class DOMTableSpecParser(SpecParser):
         )
         self.logger.info(f"Extracted Header: {header}")
         return header
+
+    def _clean_extracted_text(self, text: str) -> str:
+        """Clean extracted text using Unicode normalization and regex.
+
+        Args:
+            text (str): The text to be cleaned.
+
+        Returns:
+            str: The cleaned text.
+
+        """
+        # Normalize unicode characters to compatibility form
+        cleaned = unicodedata.normalize('NFKC', text)
+
+        # Replace non-breaking spaces and zero-width spaces with regular space
+        cleaned = re.sub(r'[\u00a0\u200b]', ' ', cleaned)
+
+        # Replace typographic single quotes with ASCII single quote
+        cleaned = re.sub(r'[\u2018\u2019]', "'", cleaned)
+        # Replace typographic double quotes with ASCII double quote
+        cleaned = re.sub(r'[\u201c\u201d\u00e2\u0080\u009c\u00e2\u0080\u009d]', '"', cleaned)
+        # Replace em dash and en dash with hyphen
+        cleaned = re.sub(r'[\u2013\u2014]', '-', cleaned)
+        # Remove stray Â character
+        cleaned = cleaned.replace('\u00c2', '')
+
+        return cleaned.strip()
 
     def _sanitize_string(self, input_string: str) -> str:
         """Sanitize string to use it as a node attribute name.
