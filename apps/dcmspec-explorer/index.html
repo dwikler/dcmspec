@@ -663,6 +663,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-the-application" class="md-nav__link">
     <span class="md-ellipsis">
       Running the Application
@@ -1610,6 +1628,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#running-the-application" class="md-nav__link">
     <span class="md-ellipsis">
       Running the Application
@@ -1705,6 +1741,45 @@
 
 <h1 id="dcmspec-explorer">DCMSPEC Explorer</h1>
 <p>A GUI application for exploring DICOM specifications interactively.</p>
+<h2 id="dependencies">Dependencies</h2>
+<ul>
+<li><strong>tkhtmlview</strong> (required for the GUI, but now installed only if you request the GUI extra)</li>
+<li><strong>tkinter</strong> (required for the GUI, but not installed via pip or Poetry)</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong><br />
+<code>tkinter</code> is part of the Python standard library, but on some Linux distributions and on macOS with Homebrew Python, it must be installed separately.</p>
+<ul>
+<li>On <strong>Ubuntu/Debian</strong>: <code>sudo apt install python3-tk</code></li>
+<li>On <strong>Fedora</strong>: <code>sudo dnf install python3-tkinter</code></li>
+<li>On <strong>macOS (Homebrew Python)</strong>: <code>brew install tcl-tk</code></li>
+<li>You may also need to set environment variables so Python can find the Tk libraries. See <a href="https://docs.brew.sh/Homebrew-and-Python#tkinter">Homebrew Python and Tkinter</a> for details.</li>
+<li>On <strong>Windows/macOS (python.org installer)</strong>: Usually included with the official Python installer.</li>
+</ul>
+<p>If you get an error about <code>tkinter</code> not being found, please install it as shown above.</p>
+</blockquote>
+<h2 id="installation">Installation</h2>
+<p>Clone the repository and install dependencies with Poetry:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yourusername/dcmspec.git
+<span class="nb">cd</span><span class="w"> </span>dcmspec
+poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>gui
+</code></pre></div>
+<p>Or, with pip (from the repo root):</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>gui<span class="o">]</span>
+</code></pre></div>
+<p>This installs the package and its dependencies from your local source directory, including the GUI dependencies.<br />
+If you want to make changes to the code and have them reflected immediately, use:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>gui<span class="o">]</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Tip:</strong><br />
+It is recommended to use a virtual environment (venv) before running <code>pip install .[gui]</code> to avoid installing packages globally.<br />
+Poetry manages a venv automatically, but if you use pip directly, create one with:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># On Unix/macOS</span>
+.<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1<span class="w">  </span><span class="c1"># On Windows PowerShell</span>
+</code></pre></div>
+</blockquote>
 <h2 id="running-the-application">Running the Application</h2>
 <h3 id="option-1-using-poetry-run-recommended">Option 1: Using poetry run (recommended)</h3>
 <div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>dcmspec-explorer

@@ -2225,7 +2225,109 @@ Inherits logging from SpecParser.</p>
 <span class="normal">544</span>
 <span class="normal">545</span>
 <span class="normal">546</span>
-<span class="normal">547</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -2254,6 +2356,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
 
@@ -2268,6 +2371,11 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">                None means unlimited.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
+<span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
+<span class="sd">            unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
+<span class="sd">                Whether to extract unformatted (plain text) cell content (default True).</span>
+<span class="sd">                Can be a bool (applies to all columns) or a dict mapping column indices to bools.</span>
+<span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[Node, Node]: The metadata node and the table content node.</span>
@@ -2275,8 +2383,22 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="c1"># Build a list of booleans indicating, for each column, whether to extract its cells as unformatted text.</span>
+        <span class="c1"># Default is True (extract as unformatted text) for all columns.</span>
+        <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">unformatted</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_columns</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
         <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
-            <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span>
+            <span class="n">dom</span><span class="p">,</span> 
+            <span class="n">table_id</span><span class="p">,</span> 
+            <span class="n">column_to_attr</span><span class="p">,</span> 
+            <span class="n">name_attr</span><span class="p">,</span> 
+            <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+            <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
+            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
         <span class="p">)</span>
 
         <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
@@ -2321,6 +2443,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -2338,12 +2461,20 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            include_depth: The depth to which included tables should be parsed.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
+<span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
+<span class="sd">                unformatted text.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            root: The root node of the tree representation of the specification table.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_unformatted_for_name_attr</span><span class="p">(</span><span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
 
         <span class="c1"># Initialize visited_tables set if not provided (first call)</span>
         <span class="k">if</span> <span class="n">visited_tables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2368,44 +2499,20 @@ Inherits logging from SpecParser.</p>
             <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
             <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
-            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
-                <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
 
-                <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
-                <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
-                    <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="o">*</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
-
-                <span class="c1"># Process Include statement unless include_depth is defined and not reached</span>
-                <span class="k">if</span> <span class="s2">&quot;Include&quot;</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">include_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="n">next_depth</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_depth</span> <span class="o">-</span> <span class="mi">1</span>
-
-                    <span class="c1"># Check for circular reference before attempting to parse included table</span>
-                    <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
-                    <span class="n">should_include</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">if</span> <span class="n">include_anchor</span><span class="p">:</span>
-                        <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="n">include_table_id</span> <span class="ow">in</span> <span class="n">visited_tables</span><span class="p">:</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Circular reference detected for &quot;</span>
-                                <span class="sa">f</span><span class="s2">&quot;table </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">, creating node instead of recursing&quot;</span>
-                            <span class="p">)</span>
-                            <span class="n">should_include</span> <span class="o">=</span> <span class="kc">False</span>
-
-                    <span class="k">if</span> <span class="n">should_include</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_included_table</span><span class="p">(</span>
-                            <span class="n">dom</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">next_depth</span><span class="p">,</span> 
-                            <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">visited_tables</span>
-                        <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># Create a node to represent the circular reference instead of recursing</span>
-                        <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_table_rows</span><span class="p">(</span>
+                <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+                <span class="n">dom</span><span class="o">=</span><span class="n">dom</span><span class="p">,</span>
+                <span class="n">column_to_attr</span><span class="o">=</span><span class="n">column_to_attr</span><span class="p">,</span>
+                <span class="n">name_attr</span><span class="o">=</span><span class="n">name_attr</span><span class="p">,</span>
+                <span class="n">table_nesting_level</span><span class="o">=</span><span class="n">table_nesting_level</span><span class="p">,</span>
+                <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+                <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
+                <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
+                <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+                <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
+                <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
 
@@ -2473,8 +2580,55 @@ Inherits logging from SpecParser.</p>
         <span class="n">document_release</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;documentreleaseinformation&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_release</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">document_release</span> <span class="k">else</span> <span class="kc">None</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_table_rows</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">table</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span>
+        <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
+        <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+        <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
+        <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
+        <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process all rows in the table, handling recursion, nesting, and node creation.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
+            <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
+            <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="o">*</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
+
+            <span class="c1"># Process Include statement unless include_depth is defined and not reached</span>
+            <span class="k">if</span> <span class="s2">&quot;Include&quot;</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">include_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">next_depth</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_depth</span> <span class="o">-</span> <span class="mi">1</span>
+
+                <span class="n">should_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_circular_reference</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">should_include</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_parse_included_table</span><span class="p">(</span>
+                        <span class="n">dom</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">next_depth</span><span class="p">,</span>
+                        <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">unformatted_list</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create a node to represent the circular reference instead of recursing</span>
+                    <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_extract_row_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span> <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">row</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span>
+        <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract data from a table row.</span>
 
 <span class="sd">        Processes each cell in the row, handling colspans and extracting text</span>
@@ -2489,6 +2643,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            row: The table row element (BeautifulSoup Tag).</span>
 <span class="sd">            table_nesting_level: The nesting level of the table.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
+<span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
+<span class="sd">                unformatted text.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary containing the extracted data from the row.</span>
@@ -2501,14 +2657,24 @@ Inherits logging from SpecParser.</p>
         <span class="c1"># Add cells from pending rowspans</span>
         <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">col_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_pending_rowspans</span><span class="p">()</span>
 
-        <span class="c1"># Process the actual cells in this row</span>
-        <span class="n">col_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_actual_cells</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">)</span>
+        <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Store the current unformatted_list for use in alignment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_unformatted_list</span> <span class="o">=</span> <span class="n">unformatted_list</span>
+
+        <span class="c1"># Process the actual cells in this row, using skip_columns to align indices</span>
+        <span class="n">col_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_actual_cells</span><span class="p">(</span>
+            <span class="n">row</span><span class="p">,</span> 
+            <span class="n">cells</span><span class="p">,</span> 
+            <span class="n">colspans</span><span class="p">,</span> 
+            <span class="n">rowspans</span><span class="p">,</span> 
+            <span class="n">col_idx</span><span class="p">,</span> 
+            <span class="n">unformatted_list</span><span class="p">,</span> 
+            <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">)</span>
 
         <span class="c1"># Clean up rowspan trackers for cells that are no longer needed</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">col_idx</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[:</span><span class="n">col_idx</span><span class="p">]</span>
-
-        <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_align_row_with_skipped_columns</span><span class="p">(</span>
@@ -2522,7 +2688,6 @@ Inherits logging from SpecParser.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">_align_row_with_skipped_columns</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">skip_columns</span>
     <span class="p">):</span>
-        <span class="c1"># sourcery skip: dict-comprehension, inline-immediately-returned-variable, inline-variable</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Align cells to attributes when skip_columns is used.</span>
 
 <span class="sd">        This method aligns the row&#39;s cells to the attribute indices, skipping the columns</span>
@@ -2531,15 +2696,16 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">attr_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">attr_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">]</span>
+
         <span class="c1"># Flag if the skipped_columns were actually skipped</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">attr_index</span><span class="p">,</span> <span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">colspan</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">attr_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
-                <span class="n">col_idx_map</span> <span class="o">=</span> <span class="n">attr_indices</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]</span>
-                <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">col_idx_map</span><span class="p">]</span>
-                <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">cell</span>
-        <span class="k">return</span> <span class="n">row_data</span>
+
+        <span class="c1"># Map the remaining cells to the correct attributes</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_indices</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]]:</span> <span class="n">cell</span>
+            <span class="k">for</span> <span class="n">attr_index</span><span class="p">,</span> <span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">colspan</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">attr_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">)</span>
+        <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_align_row_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Align cells to attributes by default, handling colspans and missing cells.</span>
@@ -2583,28 +2749,46 @@ Inherits logging from SpecParser.</p>
                 <span class="n">col_idx</span> <span class="o">+=</span> <span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;colspan&quot;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">col_idx</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_process_actual_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_enforce_unformatted_for_name_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">):</span>
+        <span class="n">name_attr_col</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">col_idx</span> <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="n">name_attr</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name_attr_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">unformatted_list</span><span class="p">[</span><span class="n">name_attr_col</span><span class="p">]:</span>
+            <span class="n">unformatted_list</span><span class="p">[</span><span class="n">name_attr_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;unformatted=False for name_attr column &#39;</span><span class="si">{</span><span class="n">name_attr</span><span class="si">}</span><span class="s2">&#39; (index </span><span class="si">{</span><span class="n">name_attr_col</span><span class="si">}</span><span class="s2">) is not allowed. &quot;</span>
+                    <span class="s2">&quot;Forcing unformatted=True for this column to ensure correct parsing.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_actual_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process the actual cells in a row, extracting text or HTML as needed.</span>
+
+<span class="sd">        Uses skip_columns to align the cell index with the original column index.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cell_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">))</span>
+        <span class="n">orig_col_idx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># Skip columns as needed</span>
+            <span class="k">while</span> <span class="n">skip_columns</span> <span class="ow">and</span> <span class="n">orig_col_idx</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">:</span>
+                <span class="n">orig_col_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
             <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">col_idx</span><span class="p">][</span><span class="s2">&quot;rows_left&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Already filled by rowspan above</span>
                 <span class="n">col_idx</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">col_idx</span><span class="p">][</span><span class="s2">&quot;colspan&quot;</span><span class="p">]</span>
+                <span class="n">orig_col_idx</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">cell</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">cell_iter</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
                 <span class="k">break</span>
-            <span class="n">paragraphs</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">paragraphs</span><span class="p">:</span>
-                <span class="n">cell_text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paragraphs</span><span class="p">)</span>
+            <span class="c1"># Extract cell content as text or HTML depending on unformatted_list[orig_col_idx]</span>
+            <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">and</span> <span class="n">orig_col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">unformatted_list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">unformatted_list</span><span class="p">[</span><span class="n">orig_col_idx</span><span class="p">]:</span>
+                <span class="n">cell_text</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">separator</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">cell_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">cell_text</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Handle cases where no &lt;p&gt; tags present</span>
-                <span class="n">cell_text</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">cell_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">decode_contents</span><span class="p">())</span>
 
-            <span class="c1"># Clean the extracted text to remove encoding artifacts</span>
-            <span class="n">cell_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">cell_text</span><span class="p">)</span>
             <span class="n">colspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;colspan&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
             <span class="n">rowspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rowspan&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
             <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell_text</span><span class="p">)</span>
@@ -2614,7 +2798,6 @@ Inherits logging from SpecParser.</p>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">colspan</span><span class="p">):</span>
                 <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-                <span class="c1"># If rowspan &gt; 1, track for future rows</span>
                 <span class="k">if</span> <span class="n">rowspan</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">cell_text</span><span class="p">,</span>
@@ -2624,7 +2807,26 @@ Inherits logging from SpecParser.</p>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">col_idx</span> <span class="o">+=</span> <span class="n">colspan</span>
+            <span class="n">orig_col_idx</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">col_idx</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_circular_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for circular reference before attempting to parse an included table.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the table should be included (no circular reference), False otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">include_anchor</span><span class="p">:</span>
+            <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">include_table_id</span> <span class="ow">in</span> <span class="n">visited_tables</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Circular reference detected for &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;table </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">, creating node instead of recursing&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_included_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2637,6 +2839,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively parse Included Table.&quot;&quot;&quot;</span>
         <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
@@ -2655,6 +2858,7 @@ Inherits logging from SpecParser.</p>
             <span class="n">table_nesting_level</span><span class="o">=</span><span class="n">table_nesting_level</span><span class="p">,</span>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
             <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
+            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">included_table_tree</span><span class="p">:</span>
             <span class="k">return</span>
@@ -2938,12 +3142,7 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">240</span>
 <span class="normal">241</span>
 <span class="normal">242</span>
 <span class="normal">243</span>
@@ -2953,7 +3152,12 @@ Inherits logging from SpecParser.</p>
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">    Args:</span>
@@ -2979,7 +3183,7 @@ Inherits logging from SpecParser.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3090,7 +3294,8 @@ None means unlimited.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>List of column indices to skip if the row is missing a column.</p>
+                <p>List of column indices to skip if the row is missing a column.
+This argument is typically set via <code>parser_kwargs</code> when using SpecFactory.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -3100,6 +3305,28 @@ None means unlimited.</p>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
                       <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>unformatted</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Whether to extract unformatted (plain text) cell content (default True).
+Can be a bool (applies to all columns) or a dict mapping column indices to bools.
+This argument is typically set via <code>parser_kwargs</code> when using SpecFactory.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="bool">bool</span>, <span title="typing.Dict">Dict</span>[<span title="int">int</span>, <span title="bool">bool</span>]]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>True</code>
                   </span>
               </p>
             </td>
@@ -3134,52 +3361,72 @@ None means unlimited.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3187,6 +3434,7 @@ None means unlimited.</p>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
 
@@ -3201,6 +3449,11 @@ None means unlimited.</p>
 <span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">            None means unlimited.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
+<span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
+<span class="sd">        unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
+<span class="sd">            Whether to extract unformatted (plain text) cell content (default True).</span>
+<span class="sd">            Can be a bool (applies to all columns) or a dict mapping column indices to bools.</span>
+<span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[Node, Node]: The metadata node and the table content node.</span>
@@ -3208,8 +3461,22 @@ None means unlimited.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
 
+    <span class="c1"># Build a list of booleans indicating, for each column, whether to extract its cells as unformatted text.</span>
+    <span class="c1"># Default is True (extract as unformatted text) for all columns.</span>
+    <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">unformatted</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_columns</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
     <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
-        <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span>
+        <span class="n">dom</span><span class="p">,</span> 
+        <span class="n">table_id</span><span class="p">,</span> 
+        <span class="n">column_to_attr</span><span class="p">,</span> 
+        <span class="n">name_attr</span><span class="p">,</span> 
+        <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+        <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
+        <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
     <span class="p">)</span>
 
     <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
@@ -3336,12 +3603,7 @@ None means unlimited.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
 <span class="normal">210</span>
@@ -3367,7 +3629,12 @@ None means unlimited.</p>
 <span class="normal">230</span>
 <span class="normal">231</span>
 <span class="normal">232</span>
-<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3409,7 +3676,7 @@ None means unlimited.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse_table" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3575,6 +3842,27 @@ model.</p>
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>unformatted_list</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>List of booleans indicating whether to extract each column as 
+unformatted text.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="list">list</span>[<span title="bool">bool</span>]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3609,27 +3897,7 @@ model.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
@@ -3707,7 +3975,12 @@ model.</p>
 <span class="normal">197</span>
 <span class="normal">198</span>
 <span class="normal">199</span>
-<span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3717,6 +3990,7 @@ model.</p>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -3734,12 +4008,20 @@ model.</p>
 <span class="sd">        include_depth: The depth to which included tables should be parsed.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">        visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
+<span class="sd">        unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
+<span class="sd">            unformatted text.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        root: The root node of the tree representation of the specification table.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_unformatted_for_name_attr</span><span class="p">(</span><span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
 
     <span class="c1"># Initialize visited_tables set if not provided (first call)</span>
     <span class="k">if</span> <span class="n">visited_tables</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3764,44 +4046,20 @@ model.</p>
         <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
-            <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
 
-            <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
-            <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
-                <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="o">*</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
-
-            <span class="c1"># Process Include statement unless include_depth is defined and not reached</span>
-            <span class="k">if</span> <span class="s2">&quot;Include&quot;</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">include_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">next_depth</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_depth</span> <span class="o">-</span> <span class="mi">1</span>
-
-                <span class="c1"># Check for circular reference before attempting to parse included table</span>
-                <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
-                <span class="n">should_include</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">if</span> <span class="n">include_anchor</span><span class="p">:</span>
-                    <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">include_table_id</span> <span class="ow">in</span> <span class="n">visited_tables</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Circular reference detected for &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;table </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">, creating node instead of recursing&quot;</span>
-                        <span class="p">)</span>
-                        <span class="n">should_include</span> <span class="o">=</span> <span class="kc">False</span>
-
-                <span class="k">if</span> <span class="n">should_include</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_parse_included_table</span><span class="p">(</span>
-                        <span class="n">dom</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">next_depth</span><span class="p">,</span> 
-                        <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">visited_tables</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Create a node to represent the circular reference instead of recursing</span>
-                    <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_table_rows</span><span class="p">(</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+            <span class="n">dom</span><span class="o">=</span><span class="n">dom</span><span class="p">,</span>
+            <span class="n">column_to_attr</span><span class="o">=</span><span class="n">column_to_attr</span><span class="p">,</span>
+            <span class="n">name_attr</span><span class="o">=</span><span class="n">name_attr</span><span class="p">,</span>
+            <span class="n">table_nesting_level</span><span class="o">=</span><span class="n">table_nesting_level</span><span class="p">,</span>
+            <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+            <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
+            <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
+            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+            <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
+            <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
 

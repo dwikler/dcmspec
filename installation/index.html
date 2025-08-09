@@ -322,6 +322,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#for-users-of-the-gui-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Users of the GUI Application
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#for-developers-using-the-api" class="md-nav__link">
     <span class="md-ellipsis">
       For Developers Using the API
@@ -1575,6 +1584,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#for-users-of-the-gui-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Users of the GUI Application
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#for-developers-using-the-api" class="md-nav__link">
     <span class="md-ellipsis">
       For Developers Using the API
@@ -1632,6 +1650,41 @@ python<span class="w"> </span>-m<span class="w"> </span>dcmspec.cli.tdwiimoddefi
 <div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.cli.&lt;script_name&gt;<span class="w"> </span>--help
 </code></pre></div>
 <p>See the <a href="../cli/">CLI Applications</a> for available scripts and usage examples.</p>
+<hr />
+<h2 id="for-users-of-the-gui-application">For Users of the GUI Application</h2>
+<ul>
+<li>Install the package with the GUI extra (installs <code>tkhtmlview</code>):</li>
+</ul>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@v0.1.0#egg=dcmspec[gui]&quot;</span>
+</code></pre></div>
+<p>Or, with Poetry:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dwikler/dcmspec.git
+<span class="nb">cd</span><span class="w"> </span>dcmspec
+poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>gui
+</code></pre></div>
+<ul>
+<li><strong>tkinter</strong> is also required for the GUI, but is not installed via pip or Poetry.</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong><br />
+<code>tkinter</code> is part of the Python standard library, but on some Linux distributions and on macOS with Homebrew Python, it must be installed separately.</p>
+<ul>
+<li>On <strong>Ubuntu/Debian</strong>: <code>sudo apt install python3-tk</code></li>
+<li>On <strong>Fedora</strong>: <code>sudo dnf install python3-tkinter</code></li>
+<li>On <strong>macOS (Homebrew Python)</strong>: <code>brew install tcl-tk</code></li>
+<li>You may also need to set environment variables so Python can find the Tk libraries. See <a href="https://docs.brew.sh/Homebrew-and-Python#tkinter">Homebrew Python and Tkinter</a> for details.</li>
+<li>On <strong>Windows/macOS (python.org installer)</strong>: Usually included with the official Python installer.</li>
+</ul>
+<p>If you get an error about <code>tkinter</code> not being found, please install it as shown above.</p>
+</blockquote>
+<ul>
+<li>Run the GUI application:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>dcmspec-explorer
+</code></pre></div>
+<p>Or, after activating your environment:</p>
+<div class="highlight"><pre><span></span><code>dcmspec-explorer
+</code></pre></div>
 <hr />
 <h2 id="for-developers-using-the-api">For Developers Using the API</h2>
 <ul>
