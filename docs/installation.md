@@ -46,6 +46,49 @@
 
 ---
 
+## For Users of the GUI Application
+
+- Install the package with the GUI extra (installs `tkhtmlview`):
+
+  ```bash
+  pip install "git+https://github.com/dwikler/dcmspec.git@v0.1.0#egg=dcmspec[gui]"
+  ```
+
+  Or, with Poetry:
+
+  ```bash
+  git clone https://github.com/dwikler/dcmspec.git
+  cd dcmspec
+  poetry install --with gui
+  ```
+
+- **tkinter** is also required for the GUI, but is not installed via pip or Poetry.
+
+  > **Note:**  
+  > `tkinter` is part of the Python standard library, but on some Linux distributions and on macOS with Homebrew Python, it must be installed separately.
+  >
+  > - On **Ubuntu/Debian**: `sudo apt install python3-tk`
+  > - On **Fedora**: `sudo dnf install python3-tkinter`
+  > - On **macOS (Homebrew Python)**: `brew install tcl-tk`
+  >   - You may also need to set environment variables so Python can find the Tk libraries. See [Homebrew Python and Tkinter](https://docs.brew.sh/Homebrew-and-Python#tkinter) for details.
+  > - On **Windows/macOS (python.org installer)**: Usually included with the official Python installer.
+  >
+  > If you get an error about `tkinter` not being found, please install it as shown above.
+
+- Run the GUI application:
+
+  ```bash
+  poetry run dcmspec-explorer
+  ```
+
+  Or, after activating your environment:
+
+  ```bash
+  dcmspec-explorer
+  ```
+
+---
+
 ## For Developers Using the API
 
 - Add the following to your `pyproject.toml` (for Poetry-based projects):

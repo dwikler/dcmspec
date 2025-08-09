@@ -64,7 +64,7 @@ class SpecFactory:
             logger (Optional[logging.Logger]): Logger instance to use.
                 If None, a default logger is created.
             parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser's
-                `parse` method. Use this to supply parser-specific options such as `skip_columns`.
+                `parse` method. Use this to supply parser-specific options such as `skip_columns` or `unformatted`.
 
         Raises:
             TypeError: If config is not a Config instance or None.
