@@ -39,6 +39,53 @@ def test_parse_table_returns_node(docbook_sample_dom_1):  # noqa: F811
     assert children[1].elem_type == "2"
     assert children[1].elem_desc == "Desc2"
 
+def test_parse_table_unformatted_false_returns_html(docbook_sample_dom_1):  # noqa: F811
+    """Test that setting unformatted_list with False for a column returns the HTML for that column."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    # Set unformatted_list so that column 3 (elem_desc) returns HTML, others return text
+    unformatted_list = [True, True, True, False]
+    node = parser.parse_table(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        unformatted_list=unformatted_list
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    # elem_name should be plain text
+    assert children[0].elem_name == "Attr Name (Tést)"
+    # elem_desc should be the exact HTML for the cell
+    expected_html = '<p>Desc1</p>'
+    assert children[0].elem_desc.strip() == expected_html
+    expected_html2 = '<p>Desc2</p>'
+    assert children[1].elem_desc.strip() == expected_html2
+
+def test_parse_table_warns_and_forces_unformatted_true_for_name_attr(docbook_sample_dom_1, caplog):  # noqa: F811
+    """Test that parse_table forces unformatted=True for the name_attr column and logs a warning if set to False."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    # Set unformatted_list so that column 0 (elem_name, the name_attr) is False, others are True
+    unformatted_list = [False, True, True, True]
+    with caplog.at_level("WARNING"):
+        node = parser.parse_table(
+            dom=docbook_sample_dom_1,
+            table_id="table_SAMPLE",
+            column_to_attr=column_to_attr,
+            name_attr="elem_name",
+            unformatted_list=unformatted_list
+        )
+    children = list(node.children)
+    # elem_name should still be plain text, not HTML
+    assert children[0].elem_name == "Attr Name (Tést)"
+    assert children[1].elem_name == "AttrName2"
+    # There should be a warning in the logs
+    assert any(
+        "unformatted=False for name_attr column 'elem_name'" in record.message
+        for record in caplog.records
+    )
+
 @pytest.mark.parametrize(
     "fixture_name, expected_version",
     [
@@ -287,7 +334,6 @@ def test_parse_table_colspan_rowspan(table_colspan_rowspan_dom):  # noqa: F811
     assert children[1].col1 == "A"  # from rowspan+colspan
     assert children[1].col3 == "C"
 
-
 def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F811
     """Test that parse_table handles an 'Include' row and recursively parses the included table."""
     parser = DOMTableSpecParser()
@@ -331,6 +377,39 @@ def test_parse_table_include_with_gt_nests_under_previous(table_include_dom):  #
     assert len(included_children) == 2
     assert included_children[0].col1 == ">AttrName10"
     assert included_children[1].col1 == ">AttrName11"
+
+def test_parse_table_include_with_gt_nests_under_previous_html_elem_desc(table_include_dom):  # noqa: F811
+    """Test parsing nested structures with unformatted_list is set to False for column 3."""
+    # Modify the fixture to use '>Include' instead of 'Include'
+    html = str(table_include_dom)
+    html = html.replace("Include <a", "&gt;Include <a")
+    dom = BeautifulSoup(html, "lxml-xml")
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3", 3: "elem_desc"}
+    # Set unformatted_list so that column 3 (elem_desc) returns HTML, others return text
+    unformatted_list = [True, True, True, False]
+    node = parser.parse_table(
+        dom=dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        unformatted_list=unformatted_list
+    )
+    children = list(node.children)
+    # The root should have 2 children: AttrName1 and AttrName2 and both should have elem_desc as HTML
+    assert len(children) == 2
+    assert children[0].col1 == "AttrName1"
+    assert children[1].col1 == "AttrName2"
+    # The included table rows should be children of AttrName2
+    included_children = list(children[1].children)
+    assert len(included_children) == 2
+    assert included_children[0].col1 == ">AttrName10"
+    assert included_children[1].col1 == ">AttrName11"
+    # Both levels should have the exact HTML for elem_desc
+    assert children[0].elem_desc.strip() == "<p>Desc1</p>"
+    assert children[1].elem_desc.strip() == "<p>Desc2</p>"
+    assert included_children[0].elem_desc.strip() == "<p>Bla</p>"
+    assert included_children[1].elem_desc.strip() == "<p>Bla</p>"
 
 def test_parse_table_include_missing_table(table_include_dom):  # noqa: F811
     """Test that parse_table raises ValueError when an 'Include' row references a non-existent table."""

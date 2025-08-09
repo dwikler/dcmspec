@@ -9,7 +9,7 @@ import unicodedata
 from unidecode import unidecode
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from dcmspec.spec_parser import SpecParser
 from dcmspec.dom_utils import DOMUtils
 
@@ -42,6 +42,7 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
         skip_columns: Optional[list[int]] = None,
+        unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
     ) -> tuple[Node, Node]:
         """Parse specification metadata and content from tables in the DOM.
 
@@ -56,6 +57,11 @@ class DOMTableSpecParser(SpecParser):
             include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
                 None means unlimited.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
+                This argument is typically set via `parser_kwargs` when using SpecFactory.
+            unformatted (Optional[Union[bool, Dict[int, bool]]]): 
+                Whether to extract unformatted (plain text) cell content (default True).
+                Can be a bool (applies to all columns) or a dict mapping column indices to bools.
+                This argument is typically set via `parser_kwargs` when using SpecFactory.
 
         Returns:
             Tuple[Node, Node]: The metadata node and the table content node.
@@ -63,8 +69,22 @@ class DOMTableSpecParser(SpecParser):
         """
         self._skipped_columns_flag = False
 
+        # Build a list of booleans indicating, for each column, whether to extract its cells as unformatted text.
+        # Default is True (extract as unformatted text) for all columns.
+        num_columns = max(column_to_attr.keys()) + 1
+        if isinstance(unformatted, dict):
+            unformatted_list = [unformatted.get(i, True) for i in range(num_columns)]
+        else:
+            unformatted_list = [unformatted] * num_columns
+
         content = self.parse_table(
-            dom, table_id, column_to_attr, name_attr, include_depth=include_depth, skip_columns=skip_columns
+            dom, 
+            table_id, 
+            column_to_attr, 
+            name_attr, 
+            include_depth=include_depth, 
+            skip_columns=skip_columns, 
+            unformatted_list=unformatted_list
         )
 
         # If we ever skipped columns, remove them from metadata.column_to_attr and realign keys
@@ -109,6 +129,7 @@ class DOMTableSpecParser(SpecParser):
         include_depth: Optional[int] = None,  # None means unlimited
         skip_columns: Optional[list[int]] = None,
         visited_tables: Optional[set] = None,
+        unformatted_list: Optional[list[bool]] = None,
     ) -> Node:
         """Parse specification content from tables within the DOM of a DICOM document.
 
@@ -126,17 +147,25 @@ class DOMTableSpecParser(SpecParser):
             include_depth: The depth to which included tables should be parsed.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
             visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.
+            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as 
+                unformatted text.
 
         Returns:
             root: The root node of the tree representation of the specification table.
 
         """
         self.logger.info(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
-        
+
+        if unformatted_list is None:
+            num_columns = max(column_to_attr.keys()) + 1
+            unformatted_list = [True] * num_columns
+
+        self._enforce_unformatted_for_name_attr(column_to_attr, name_attr, unformatted_list)
+
         # Initialize visited_tables set if not provided (first call)
         if visited_tables is None:
             visited_tables = set()
-        
+
         # Use a context manager to ensure table_id is always added to and removed from
         # visited_tables, even if an exception occurs.
         with self._visit_table(table_id, visited_tables):
@@ -156,44 +185,20 @@ class DOMTableSpecParser(SpecParser):
             root = Node("content")
             level_nodes: Dict[int, Node] = {0: root}
 
-            for row in table.find_all("tr")[1:]:
-                row_data = self._extract_row_data(row, skip_columns=skip_columns)
-                if row_data[name_attr] is None:
-                    continue  # Skip empty rows
-                row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
 
-                # Add nesting level symbols to included table element names except if row is a title
-                if table_nesting_level > 0 and not row_data[name_attr].isupper():
-                    row_data[name_attr] = ">" * table_nesting_level + row_data[name_attr]
-
-                # Process Include statement unless include_depth is defined and not reached
-                if "Include" in row_data[name_attr] and (include_depth is None or include_depth > 0):
-                    next_depth = None if include_depth is None else include_depth - 1
-
-                    # Check for circular reference before attempting to parse included table
-                    include_anchor = row.find("a", {"class": "xref"})
-                    should_include = True
-                    if include_anchor:
-                        include_table_id = include_anchor["href"].split("#", 1)[-1]
-                        if include_table_id in visited_tables:
-                            self.logger.warning(
-                                f"Nesting Level: {table_nesting_level}, Circular reference detected for "
-                                f"table {include_table_id}, creating node instead of recursing"
-                            )
-                            should_include = False
-
-                    if should_include:
-                        self._parse_included_table(
-                            dom, row, column_to_attr, name_attr, row_nesting_level, next_depth, 
-                            level_nodes, root, visited_tables
-                        )
-                    else:
-                        # Create a node to represent the circular reference instead of recursing
-                        node_name = self._sanitize_string(row_data[name_attr])
-                        self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
-                else:
-                    node_name = self._sanitize_string(row_data[name_attr])
-                    self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+            self._process_table_rows(
+                table=table,
+                dom=dom,
+                column_to_attr=column_to_attr,
+                name_attr=name_attr,
+                table_nesting_level=table_nesting_level,
+                include_depth=include_depth,
+                skip_columns=skip_columns,
+                visited_tables=visited_tables,
+                unformatted_list=unformatted_list,
+                level_nodes=level_nodes,
+                root=root,
+            )
 
             self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
 
@@ -261,8 +266,55 @@ class DOMTableSpecParser(SpecParser):
         document_release = dom.find("span", class_="documentreleaseinformation")
         return document_release.text.split()[2] if document_release else None
 
+    def _process_table_rows(
+        self,
+        table: Tag,
+        dom: BeautifulSoup,
+        column_to_attr: Dict[int, str],
+        name_attr: str,
+        table_nesting_level: int,
+        include_depth: Optional[int],
+        skip_columns: Optional[list[int]],
+        visited_tables: set,
+        unformatted_list: list[bool],
+        level_nodes: Dict[int, Node],
+        root: Node,
+    ):
+        """Process all rows in the table, handling recursion, nesting, and node creation."""
+        for row in table.find_all("tr")[1:]:
+            row_data = self._extract_row_data(row, skip_columns=skip_columns, unformatted_list=unformatted_list)
+            if row_data[name_attr] is None:
+                continue  # Skip empty rows
+            row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
+
+            # Add nesting level symbols to included table element names except if row is a title
+            if table_nesting_level > 0 and not row_data[name_attr].isupper():
+                row_data[name_attr] = ">" * table_nesting_level + row_data[name_attr]
+
+            # Process Include statement unless include_depth is defined and not reached
+            if "Include" in row_data[name_attr] and (include_depth is None or include_depth > 0):
+                next_depth = None if include_depth is None else include_depth - 1
+
+                should_include = self._check_circular_reference(row, visited_tables, table_nesting_level)
+                if should_include:
+                    self._parse_included_table(
+                        dom, row, column_to_attr, name_attr, row_nesting_level, next_depth,
+                        level_nodes, root, visited_tables, unformatted_list
+                    )
+                else:
+                    # Create a node to represent the circular reference instead of recursing
+                    node_name = self._sanitize_string(row_data[name_attr])
+                    self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+            else:
+                node_name = self._sanitize_string(row_data[name_attr])
+                self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+
     def _extract_row_data(
-            self, row: Tag, skip_columns: Optional[list[int]] = None) -> Dict[str, Any]:
+        self,
+        row: Tag,
+        skip_columns: Optional[list[int]] = None,
+        unformatted_list: Optional[list[bool]] = None
+    ) -> Dict[str, Any]:
         """Extract data from a table row.
 
         Processes each cell in the row, handling colspans and extracting text
@@ -277,6 +329,8 @@ class DOMTableSpecParser(SpecParser):
             row: The table row element (BeautifulSoup Tag).
             table_nesting_level: The nesting level of the table.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
+            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as 
+                unformatted text.
 
         Returns:
             A dictionary containing the extracted data from the row.
@@ -289,14 +343,24 @@ class DOMTableSpecParser(SpecParser):
         # Add cells from pending rowspans
         cells, colspans, rowspans, col_idx = self._handle_pending_rowspans()
 
-        # Process the actual cells in this row
-        col_idx = self._process_actual_cells(row, cells, colspans, rowspans, col_idx)
+        attr_indices = list(self.column_to_attr.keys())
+
+        # Store the current unformatted_list for use in alignment
+        self._current_unformatted_list = unformatted_list
+
+        # Process the actual cells in this row, using skip_columns to align indices
+        col_idx = self._process_actual_cells(
+            row, 
+            cells, 
+            colspans, 
+            rowspans, 
+            col_idx, 
+            unformatted_list, 
+            skip_columns=skip_columns)
 
         # Clean up rowspan trackers for cells that are no longer needed
         if len(self._rowspan_trackers) > col_idx:
             self._rowspan_trackers = self._rowspan_trackers[:col_idx]
-
-        attr_indices = list(self.column_to_attr.keys())
 
         return (
             self._align_row_with_skipped_columns(
@@ -310,24 +374,24 @@ class DOMTableSpecParser(SpecParser):
     def _align_row_with_skipped_columns(
         self, cells, colspans, attr_indices, skip_columns
     ):
-        # sourcery skip: dict-comprehension, inline-immediately-returned-variable, inline-variable
         """Align cells to attributes when skip_columns is used.
-        
+
         This method aligns the row's cells to the attribute indices, skipping the columns
         specified in skip_columns. It is used when the row is missing exactly the number of
         columns specified, ensuring the remaining cells are mapped to the correct attributes.
 
         """
         attr_indices = [i for i in attr_indices if i not in skip_columns]
+
         # Flag if the skipped_columns were actually skipped
         self._skipped_columns_flag = True
-        row_data = {}
-        for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
-            if attr_index < len(attr_indices):
-                col_idx_map = attr_indices[attr_index]
-                attr = self.column_to_attr[col_idx_map]
-                row_data[attr] = cell
-        return row_data
+
+        # Map the remaining cells to the correct attributes
+        return {
+            self.column_to_attr[attr_indices[attr_index]]: cell
+            for attr_index, (cell, colspan) in enumerate(zip(cells, colspans))
+            if attr_index < len(attr_indices)
+        }
 
     def _align_row_default(self, cells, colspans, attr_indices):
         """Align cells to attributes by default, handling colspans and missing cells.
@@ -371,28 +435,46 @@ class DOMTableSpecParser(SpecParser):
                 col_idx += tracker["colspan"]
         return cells, colspans, rowspans, col_idx
 
-    def _process_actual_cells(self, row, cells, colspans, rowspans, col_idx):
+    def _enforce_unformatted_for_name_attr(self, column_to_attr, name_attr, unformatted_list):
+        name_attr_col = next((col_idx for col_idx, attr in column_to_attr.items() if attr == name_attr), None)
+        if name_attr_col is not None and not unformatted_list[name_attr_col]:
+            unformatted_list[name_attr_col] = True
+            if self.logger:
+                self.logger.warning(
+                    f"unformatted=False for name_attr column '{name_attr}' (index {name_attr_col}) is not allowed. "
+                    "Forcing unformatted=True for this column to ensure correct parsing."
+                )
+
+    def _process_actual_cells(self, row, cells, colspans, rowspans, col_idx, unformatted_list, skip_columns=None):
+        """Process the actual cells in a row, extracting text or HTML as needed.
+
+        Uses skip_columns to align the cell index with the original column index.
+        """
         cell_iter = iter(row.find_all("td"))
+        orig_col_idx = 0
         while True:
+            # Skip columns as needed
+            while skip_columns and orig_col_idx in skip_columns:
+                orig_col_idx += 1
+
             if col_idx >= len(self._rowspan_trackers):
                 self._rowspan_trackers.append(None)
             if self._rowspan_trackers[col_idx] and self._rowspan_trackers[col_idx]["rows_left"] > 0:
                 # Already filled by rowspan above
                 col_idx += self._rowspan_trackers[col_idx]["colspan"]
+                orig_col_idx += 1
                 continue
             try:
                 cell = next(cell_iter)
             except StopIteration:
                 break
-            paragraphs = cell.find_all("p")
-            if paragraphs:
-                cell_text = "\n".join(p.text.strip() for p in paragraphs)
+            # Extract cell content as text or HTML depending on unformatted_list[orig_col_idx]
+            if unformatted_list and orig_col_idx < len(unformatted_list) and unformatted_list[orig_col_idx]:
+                cell_text = cell.get_text(separator="\n", strip=True)
+                cell_text = self._clean_extracted_text(cell_text)
             else:
-                # Handle cases where no <p> tags present
-                cell_text = cell.get_text(strip=True)
-            
-            # Clean the extracted text to remove encoding artifacts
-            cell_text = self._clean_extracted_text(cell_text)
+                cell_text = self._clean_extracted_text(cell.decode_contents())
+
             colspan = int(cell.get("colspan", 1))
             rowspan = int(cell.get("rowspan", 1))
             cells.append(cell_text)
@@ -402,7 +484,6 @@ class DOMTableSpecParser(SpecParser):
             for i in range(colspan):
                 while len(self._rowspan_trackers) <= col_idx + i:
                     self._rowspan_trackers.append(None)
-                # If rowspan > 1, track for future rows
                 if rowspan > 1:
                     self._rowspan_trackers[col_idx + i] = {
                         "value": cell_text,
@@ -412,7 +493,26 @@ class DOMTableSpecParser(SpecParser):
                 else:
                     self._rowspan_trackers[col_idx + i] = None
             col_idx += colspan
+            orig_col_idx += 1
         return col_idx
+
+    def _check_circular_reference(self, row, visited_tables, table_nesting_level):
+        """Check for circular reference before attempting to parse an included table.
+
+        Returns:
+            bool: True if the table should be included (no circular reference), False otherwise.
+
+        """
+        include_anchor = row.find("a", {"class": "xref"})
+        if include_anchor:
+            include_table_id = include_anchor["href"].split("#", 1)[-1]
+            if include_table_id in visited_tables:
+                self.logger.warning(
+                    f"Nesting Level: {table_nesting_level}, Circular reference detected for "
+                    f"table {include_table_id}, creating node instead of recursing"
+                )
+                return False
+        return True
 
     def _parse_included_table(
         self,
@@ -425,6 +525,7 @@ class DOMTableSpecParser(SpecParser):
         level_nodes: Dict[int, Node],
         root: Node,
         visited_tables: set,
+        unformatted_list: Optional[list[bool]] = None
     ) -> None:
         """Recursively parse Included Table."""
         include_anchor = row.find("a", {"class": "xref"})
@@ -443,6 +544,7 @@ class DOMTableSpecParser(SpecParser):
             table_nesting_level=table_nesting_level,
             include_depth=include_depth,
             visited_tables=visited_tables,
+            unformatted_list=unformatted_list
         )
         if not included_table_tree:
             return

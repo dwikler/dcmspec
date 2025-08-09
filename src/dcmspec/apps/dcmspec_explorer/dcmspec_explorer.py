@@ -7,6 +7,8 @@ allowing users to browse IODs, modules, and attributes through an interactive in
 import tkinter as tk
 from tkinter import ttk, messagebox
 import tkinter.font as tkfont
+from tkhtmlview import HTMLLabel
+
 from typing import List, Tuple
 import re
 import logging
@@ -470,6 +472,7 @@ class DCMSpecExplorer:
         self.show_favorites_only = False  # Current view mode
 
         # --- View ---
+
         self.root = root
         self.root.title("DCMspec Explorer")
         self._init_window_geometry()
@@ -606,8 +609,8 @@ class DCMSpecExplorer:
         # Verify the configuration
         actual_font = style.lookup("Treeview", "font")
         self.logger.debug(f"Final font configuration: {actual_font}")
-        self.tree.heading("#0", text="IOD Name", command=lambda: self.sort_treeview("#0"))
-        self.tree.heading("iod_type", text="IOD Type", command=lambda: self.sort_treeview("iod_type"))
+        self.tree.heading("#0", text="Name", command=lambda: self.sort_treeview("#0"))
+        self.tree.heading("iod_type", text="Kind", command=lambda: self.sort_treeview("iod_type"))
         self.tree.heading("usage", text="")  # No sorting command
         self.tree.heading("favorite", text="♥")  # Heart icon as column header
         self.tree.column("#0", width=400)
@@ -635,20 +638,21 @@ class DCMSpecExplorer:
         right_frame.columnconfigure(1, weight=0)  # Scrollbar column fixed
         right_frame.rowconfigure(0, weight=1)     # Text row expands
         right_frame.rowconfigure(1, weight=0)     # Scrollbar row fixed
-        
-        # Details text area with grid layout
-        self.details_text = tk.Text(right_frame, wrap=tk.WORD, width=50, height=30, 
-                                    font=(selected_font, 10), padx=15, pady=5,
-                                    state=tk.DISABLED, cursor="arrow", takefocus=False)
-        self.details_text.grid(row=0, column=0, sticky="nsew")
 
-        # Prevent focus by redirecting it back to the treeview
-        def redirect_focus(event):
-            self.tree.focus_set()
-            return "break"
-        
-        self.details_text.bind("<FocusIn>", redirect_focus)
-        self.details_text.bind("<Button-1>", redirect_focus)
+        # Details text in HTML area with grid layout, using the selected font and size
+        self.details_text = HTMLLabel(
+            right_frame,
+            html=(
+                f'<div style="font-family: {selected_font}; font-size: 10px;">'
+                f'<span>Select an IOD to view details.</span><br>'
+                f'</div>'
+            ),
+            width=50,
+            height=30
+        )
+        self.details_text.grid(row=0, column=0, sticky="nsew")
+        self.details_font_family = selected_font  # Store for later use
+        self.details_font_size = 10
 
         # Add scrollbars that match the treeview style
         details_scroll_y = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.details_text.yview)
@@ -846,11 +850,11 @@ class DCMSpecExplorer:
                     self.on_tree_select(None)
                     break
         else:
-            # No selection to restore - clear details text
-            self.details_text.config(state=tk.NORMAL)
-            self.details_text.delete(1.0, tk.END)
-            self.details_text.insert(1.0, "Select an IOD to view details.")
-            self.details_text.config(state=tk.DISABLED)
+            self.details_text.set_html(
+                f'<div style="font-family: {self.details_font_family}; font-size: {self.details_font_size}px;">'
+                f'<span>Select an IOD to view details.</span><br>'
+                f'</div>'
+)
 
         # Update status
         total_count = len(self.iod_modules_data)
@@ -990,8 +994,8 @@ class DCMSpecExplorer:
             # Show heart in favorite column if favorited
             heart_icon = "♥" if self.favorites_manager.is_favorite(table_id) else ""
             self.tree.insert("", tk.END, text=title, values=(iod_type, "", heart_icon), 
-                            tags=(table_id,))
-    
+                            tags=(table_id, iod_type))
+
     def sort_treeview(self, column: str):
         """Sort the treeview by the specified column."""
         # Determine if we need to reverse the sort
@@ -1040,18 +1044,18 @@ class DCMSpecExplorer:
     def update_column_headings(self):
         """Update column headings to show sort direction."""
         # Reset all headings
-        self.tree.heading("#0", text="IOD Name")
+        self.tree.heading("#0", text="Name")
         self.tree.heading("favorite", text="♥")
-        self.tree.heading("iod_type", text="IOD Type")
+        self.tree.heading("iod_type", text="Kind")
         self.tree.heading("usage", text="")
         
         # Add sort indicator to the current sort column
         if self.sort_column:
             indicator = " ↓" if self.sort_reverse else " ↑"
             if self.sort_column == "#0":
-                self.tree.heading("#0", text=f"IOD Name{indicator}")
+                self.tree.heading("#0", text=f"Name{indicator}")
             elif self.sort_column == "iod_type":
-                self.tree.heading("iod_type", text=f"IOD Type{indicator}")
+                self.tree.heading("iod_type", text=f"Kind{indicator}")
 
     def _is_model_cached(self, table_id: str) -> bool:
         """Check if the IOD model is already cached on disk."""
@@ -1077,7 +1081,7 @@ class DCMSpecExplorer:
         if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
             # This is a top-level IOD item
             table_id = tags[0]
-            iod_type = item_values[1] if len(item_values) > 1 else "Unknown"
+            iod_type = tags[1] if len(tags) > 1 else "Unknown"
 
             # Update status
             self.status_manager.show_selection_status(title, iod_type, is_iod=True)
@@ -1085,12 +1089,6 @@ class DCMSpecExplorer:
             # Check if we already have the structure loaded in memory
             if table_id in self.iod_models and self.iod_models[table_id]:
                 # Already in memory - just update details
-                self._update_details_text(table_id, title, iod_type)
-                return
-
-            # Check if this item already has children (structure already populated)
-            if self.tree.get_children(item):
-                # Structure already populated - just update details
                 self._update_details_text(table_id, title, iod_type)
                 return
 
@@ -1134,7 +1132,7 @@ class DCMSpecExplorer:
                     else:
                         messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
 
-                    self._update_details_text_basic(table_id, title, iod_type)
+                    self._update_details_text(table_id, title, iod_type)
                     # Update status for IOD selection even when there's an error
                     self.status_manager.show_selection_status(title, iod_type, is_iod=True)
             else:
@@ -1156,7 +1154,7 @@ class DCMSpecExplorer:
                     else:
                         messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
 
-                    self._update_details_text_basic(table_id, title, iod_type)
+                    self._update_details_text(table_id, title, iod_type)
                     # Update status for IOD selection even when there's an error
                     self.status_manager.show_selection_status(title, iod_type, is_iod=True)
 
@@ -1219,10 +1217,10 @@ class DCMSpecExplorer:
                 module_ref = getattr(node, 'ref', '')
                 ie = getattr(node, 'ie', '')
 
-                details = f"{name} {node_type}\n\n"
+                details = f"<h2>{name} {node_type}</h2>"
 
                 if ie:
-                    details += f"Information Entity: {ie}\n"
+                    details += f"<span><b>Information Entity:</b> {ie}</span><br>"
 
                 if usage:
                     # Format usage as a single line with description and code
@@ -1240,10 +1238,10 @@ class DCMSpecExplorer:
                     else:
                         usage_display = usage
 
-                    details += f"Usage: {usage_display}\n"
+                    details += f"<span><b>Usage:</b> {usage_display}</span><br>"
 
                 if module_ref:
-                    details += f"Reference: {module_ref}\n"
+                    details += f"<span><b>Reference:</b> {module_ref}</span><br>"
 
             elif node_type == "Attribute" and node:
                 # Get all available attribute details from the node
@@ -1253,26 +1251,38 @@ class DCMSpecExplorer:
                 elem_description = getattr(node, 'elem_description', '')
 
                 # Display all available attribute information
-                details = f"{elem_name} {node_type}\n\n"
+                details = f"<h2>{elem_name} {node_type}</h2>"
 
                 if elem_tag:
-                    details += f"Tag: {elem_tag}\n"
+                    details += f"<span><b>Tag:</b> {elem_tag}</span><br>"
                 if elem_type:
-                    details += f"Type: {elem_type}\n"
+                    # Map DICOM attribute types to meaningful descriptions
+                    type_map = {
+                        "1": "Mandatory (1)",
+                        "1C": "Conditional (1C)",
+                        "2": "Mandatory, may be empty (2)",
+                        "2C": "Conditional, may be empty (2C)",
+                        "3": "Optional (3)",
+                        "": "Unspecified"
+                    }
+                    type_display = type_map.get(elem_type, f"Other ({elem_type})") if elem_type else "Unspecified"
+                    details += f"<span><b>Type:</b> {type_display}</span><br>"
                 if elem_description:
-                    details += f"Description: {elem_description}\n"
+                    details += f"{elem_description}"
             else:
                 # Fallback for cases without node reference
                 details = f"{title} {node_type}\n\n"
+                details = f"<h2>{title} {node_type}</h2>"
                 if usage:
-                    details += f"Usage/Type: {usage}\n"
+                    details += f"<span><b>Usage/Type:</b> {usage}</span><br>"
                 readable_path = title
 
-            # Temporarily enable the text widget to update content
-            self.details_text.config(state=tk.NORMAL)
-            self.details_text.delete(1.0, tk.END)
-            self.details_text.insert(1.0, details)
-            self.details_text.config(state=tk.DISABLED)
+            self.details_text.set_html(
+                (
+                    f'<div style="font-family: {self.details_font_family}; '
+                    f'font-size: {self.details_font_size}px;">{details}</div>'
+                )
+            )
 
             self.status_var.set(f"Selected: {node_type} - {readable_path}")
 
@@ -1412,7 +1422,11 @@ class DCMSpecExplorer:
         )
         
         # Create the modules specification factory
-        parser_kwargs = None if composite_iod else {"skip_columns": [2]}
+        
+        # Set unformatted to False for elem_description (column 3), others remain True
+        parser_kwargs = {"unformatted": {0: True, 1: True, 2: True, 3: False}}
+        if not composite_iod:
+            parser_kwargs["skip_columns"] = [2]
         module_factory = SpecFactory(
             column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
             name_attr="elem_name",
@@ -1441,16 +1455,16 @@ class DCMSpecExplorer:
         """Populate the tree with IOD structure from the model content using AnyTree traversal."""
         if not content:
             return
-        
+
         # Use AnyTree's PreOrderIter to traverse the entire tree structure
         # Skip the root content node itself, start with its children
         tree_items = {}  # Map from node to tree item for building hierarchy
-        
+
         for node in PreOrderIter(content):
             if node == content:
                 # Skip the root content node
                 continue
-            
+
             # Determine the parent tree item
             if node.parent == content:
                 # Direct child of content - parent is the IOD item
@@ -1458,46 +1472,44 @@ class DCMSpecExplorer:
             else:
                 # Child of another node - find parent in our mapping
                 parent_tree_item = tree_items.get(node.parent, parent_item)
-            
+
             # Determine node type and display text
             if hasattr(node, 'module'):
-                # This is a module node
+                # This is a module node of an IOD
                 module_name = getattr(node, 'module', 'Unknown Module')
-                
+
                 display_text = module_name
                 node_type = "Module"
-                
-                # For normalized IODs, modules don't have usage information
+
                 # Check if this is a normalized IOD from the parent item's IOD type
                 parent_values = self.tree.item(parent_item, "values") if parent_item else None
                 is_normalized = parent_values and len(parent_values) > 0 and parent_values[0] == "Normalized"
-                
-                if is_normalized:
-                    usage = ""  # No usage for normalized IOD modules
-                else:
-                    usage = getattr(node, 'usage', '')[:1]  # Keep only the first character for composite IODs
-                
+
+                # For normalized IODs, modules don't have usage information
+                # For composite IODs, keep only the first character of usage
+                usage = "" if is_normalized else getattr(node, 'usage', '')[:1]
+
             elif hasattr(node, 'elem_name'):
                 # This is an attribute node
                 attr_name = getattr(node, 'elem_name', 'Unknown Attribute')
                 attr_tag = getattr(node, 'elem_tag', '')
                 elem_type = getattr(node, 'elem_type', '')
-                
+
                 display_text = f"{attr_tag} {attr_name}" if attr_tag else attr_name
-                
+
                 node_type = "Attribute"
                 usage = elem_type  # Use elem_type for attributes in usage column
-                
+
             else:
                 # Unknown node type
                 display_text = str(getattr(node, 'name', 'Unknown Node'))
                 node_type = "Unknown"
                 usage = ""
-            
+
             # Insert the node into the tree, store node path in tags
             # Node path provides a unique identifier that can be used to find the node later
             node_path = "/".join([str(n.name) for n in node.path])
-            
+
             tree_item = self.tree.insert(
                 parent_tree_item, tk.END, text=display_text, 
                 values=(node_type, usage, ""), tags=(node_path,)  # Empty string for favorite column
@@ -1506,43 +1518,37 @@ class DCMSpecExplorer:
     
     def _update_details_text(self, table_id: str, title: str, iod_type: str):
         """Update the details text area with IOD specification information only."""
-        details = f"{title} {iod_type} IOD\n\n"
-        
+        # Build details as HTML using <span> and <br> for spacing (tkhtmlview ignores margin styles)
+        details = (
+            f'<h1>{title} IOD</h1>'
+        )
+
         # Check if we have a model for this IOD
         if table_id in self.iod_models and self.iod_models[table_id] and hasattr(self.iod_models[table_id], 'content'):
-            model = self.iod_models[table_id]
-            content = model.content
-            
-            # Count modules and attributes
-            module_count = 0
-            attribute_count = 0
-            
-            if content:
-                from anytree import PreOrderIter
-                for node in PreOrderIter(content):
-                    if node == content:  # Skip root
-                        continue
-                    if hasattr(node, 'module'):
-                        module_count += 1
-                    elif hasattr(node, 'elem_name'):
-                        attribute_count += 1
-                
-            # Add reference information
-            details += f"DICOM PS3.3 Table {table_id.replace('table_', '')}\n"
-            
+            # Add reference information using <span> and <br>
+            if iod_type == "Composite":
+                details += '<div style="margin-bottom: 1em;"><b>Kind: </b>Composite</div>'
+            elif iod_type == "Normalized":
+                details += '<div style="margin-bottom: 1em;"><b>Kind: </b>Normalized</div>'
+            else:
+                details += '<div style="margin-bottom: 1em;"><b>Kind: </b>Other IOD type</div>'
+            details += f'<span>loaded from DICOM PS3.3 Table {table_id.replace("table_", "")}</span><br>'
+
         else:
-            details += "IOD structure not available.\n"
+            details += '<span>IOD structure not available.</span><br>'
             details += (
+                '<span>'
                 "This may occur if the IOD references modules that cannot be found or "
                 "parsed from the DICOM specification."
+                '</span><br>'
             )
-        
-        # Temporarily enable the text widget to update content
-        self.details_text.config(state=tk.NORMAL)
-        self.details_text.delete(1.0, tk.END)
-        self.details_text.insert(1.0, details)
-        self.details_text.config(state=tk.DISABLED)
 
+        html = (
+            f'<div style="font-family: {self.details_font_family}; '
+            f'font-size: {self.details_font_size}px;">{details}</div>'
+        )
+        self.details_text.set_html(html)
+        
     def _build_readable_path(self, node):
         """Build a human-readable path from the AnyTree node using display names."""
         path_parts = []
