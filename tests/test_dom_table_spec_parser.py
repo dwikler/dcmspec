@@ -334,7 +334,6 @@ def test_parse_table_colspan_rowspan(table_colspan_rowspan_dom):  # noqa: F811
     assert children[1].col1 == "A"  # from rowspan+colspan
     assert children[1].col3 == "C"
 
-
 def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F811
     """Test that parse_table handles an 'Include' row and recursively parses the included table."""
     parser = DOMTableSpecParser()

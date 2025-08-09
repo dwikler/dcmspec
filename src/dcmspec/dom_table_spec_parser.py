@@ -345,14 +345,18 @@ class DOMTableSpecParser(SpecParser):
 
         attr_indices = list(self.column_to_attr.keys())
 
-        # Align unformatted_list with skip_columns for this row
-        if skip_columns:
-            aligned_unformatted = [unformatted_list[i] for i in attr_indices if i not in skip_columns]
-        else:
-            aligned_unformatted = [unformatted_list[i] for i in attr_indices]
+        # Store the current unformatted_list for use in alignment
+        self._current_unformatted_list = unformatted_list
 
-        # Process the actual cells in this row, using aligned_unformatted
-        col_idx = self._process_actual_cells(row, cells, colspans, rowspans, col_idx, aligned_unformatted)
+        # Process the actual cells in this row, using skip_columns to align indices
+        col_idx = self._process_actual_cells(
+            row, 
+            cells, 
+            colspans, 
+            rowspans, 
+            col_idx, 
+            unformatted_list, 
+            skip_columns=skip_columns)
 
         # Clean up rowspan trackers for cells that are no longer needed
         if len(self._rowspan_trackers) > col_idx:
@@ -370,24 +374,24 @@ class DOMTableSpecParser(SpecParser):
     def _align_row_with_skipped_columns(
         self, cells, colspans, attr_indices, skip_columns
     ):
-        # sourcery skip: dict-comprehension, inline-immediately-returned-variable, inline-variable
         """Align cells to attributes when skip_columns is used.
-        
+
         This method aligns the row's cells to the attribute indices, skipping the columns
         specified in skip_columns. It is used when the row is missing exactly the number of
         columns specified, ensuring the remaining cells are mapped to the correct attributes.
 
         """
         attr_indices = [i for i in attr_indices if i not in skip_columns]
+
         # Flag if the skipped_columns were actually skipped
         self._skipped_columns_flag = True
-        row_data = {}
-        for attr_index, (cell, colspan) in enumerate(zip(cells, colspans)):
-            if attr_index < len(attr_indices):
-                col_idx_map = attr_indices[attr_index]
-                attr = self.column_to_attr[col_idx_map]
-                row_data[attr] = cell
-        return row_data
+
+        # Map the remaining cells to the correct attributes
+        return {
+            self.column_to_attr[attr_indices[attr_index]]: cell
+            for attr_index, (cell, colspan) in enumerate(zip(cells, colspans))
+            if attr_index < len(attr_indices)
+        }
 
     def _align_row_default(self, cells, colspans, attr_indices):
         """Align cells to attributes by default, handling colspans and missing cells.
@@ -441,28 +445,34 @@ class DOMTableSpecParser(SpecParser):
                     "Forcing unformatted=True for this column to ensure correct parsing."
                 )
 
-    def _process_actual_cells(self, row, cells, colspans, rowspans, col_idx, unformatted_list):
+    def _process_actual_cells(self, row, cells, colspans, rowspans, col_idx, unformatted_list, skip_columns=None):
+        """Process the actual cells in a row, extracting text or HTML as needed.
+
+        Uses skip_columns to align the cell index with the original column index.
+        """
         cell_iter = iter(row.find_all("td"))
+        orig_col_idx = 0
         while True:
+            # Skip columns as needed
+            while skip_columns and orig_col_idx in skip_columns:
+                orig_col_idx += 1
+
             if col_idx >= len(self._rowspan_trackers):
                 self._rowspan_trackers.append(None)
             if self._rowspan_trackers[col_idx] and self._rowspan_trackers[col_idx]["rows_left"] > 0:
                 # Already filled by rowspan above
                 col_idx += self._rowspan_trackers[col_idx]["colspan"]
+                orig_col_idx += 1
                 continue
             try:
                 cell = next(cell_iter)
             except StopIteration:
                 break
-            # Extract cell content as text or HTML depending on unformatted_list[col_idx]
-            if unformatted_list and col_idx < len(unformatted_list) and unformatted_list[col_idx]:
-                # Extract all visible text from the cell, joining text from <p>, <dt>, <span>, 
-                # and other tags with newlines
+            # Extract cell content as text or HTML depending on unformatted_list[orig_col_idx]
+            if unformatted_list and orig_col_idx < len(unformatted_list) and unformatted_list[orig_col_idx]:
                 cell_text = cell.get_text(separator="\n", strip=True)
-                # Clean the extracted text to remove encoding artifacts
                 cell_text = self._clean_extracted_text(cell_text)
             else:
-                # Extract the inner HTML of the cell (excluding the <td> tag) and clean it
                 cell_text = self._clean_extracted_text(cell.decode_contents())
 
             colspan = int(cell.get("colspan", 1))
@@ -474,7 +484,6 @@ class DOMTableSpecParser(SpecParser):
             for i in range(colspan):
                 while len(self._rowspan_trackers) <= col_idx + i:
                     self._rowspan_trackers.append(None)
-                # If rowspan > 1, track for future rows
                 if rowspan > 1:
                     self._rowspan_trackers[col_idx + i] = {
                         "value": cell_text,
@@ -484,6 +493,7 @@ class DOMTableSpecParser(SpecParser):
                 else:
                     self._rowspan_trackers[col_idx + i] = None
             col_idx += colspan
+            orig_col_idx += 1
         return col_idx
 
     def _check_circular_reference(self, row, visited_tables, table_nesting_level):
