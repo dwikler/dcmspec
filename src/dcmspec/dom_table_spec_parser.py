@@ -9,7 +9,7 @@ import unicodedata
 from unidecode import unidecode
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 from dcmspec.spec_parser import SpecParser
 from dcmspec.dom_utils import DOMUtils
 
@@ -42,7 +42,7 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
         skip_columns: Optional[list[int]] = None,
-        unformatted: Optional[Any] = True,  # bool or dict
+        unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
     ) -> tuple[Node, Node]:
         """Parse specification metadata and content from tables in the DOM.
 
