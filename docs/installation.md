@@ -118,4 +118,64 @@
   # ... your code here ...
   ```
 
+---
+
+## Dependencies and Optional Features
+
+### Core Dependencies
+
+The core `dcmspec` library is designed to be lightweight and only requires a minimal set of dependencies for parsing and working with DICOM specification tables in HTML/XHTML format.
+
+Core dependencies include:
+
+- anytree
+- platformdirs
+- unidecode
+- bs4 (BeautifulSoup)
+- requests
+- lxml
+- rich
+
+These are sufficient for most use cases, including all parsing and tree-building from DICOM standard HTML/XHTML documents.
+
+### Optional PDF/Table Extraction Dependencies
+
+Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are **not installed by default** and are grouped under the `pdf` optional dependency.
+
+To install with PDF/table extraction support:
+
+```
+poetry add "dcmspec[pdf]"@git+https://github.com/dwikler/dcmspec.git
+```
+
+Optional dependencies for PDF/table extraction:
+
+- pdfplumber
+- camelot-py
+- pandas
+- openpyxl
+- opencv-python-headless
+
+These are only needed if you want to extract tables from PDF documents.
+
+### GUI Dependencies
+
+If you want to use the sample GUI explorer app, you can install the `gui` extra:
+
+```
+poetry add "dcmspec[gui]"@git+https://github.com/dwikler/dcmspec.git
+```
+
+This will install:
+
+- tkhtmlview
+
+### Summary
+
+- Default install: Lightweight, core parsing features only.
+- With `[pdf]` extra: Adds PDF/table extraction support.
+- With `[gui]` extra: Adds GUI dependencies for the sample explorer app.
+
+See the pyproject.toml for the full list of dependencies and extras.
+
 See the [API Reference](./api/index.md) for details on available classes.
