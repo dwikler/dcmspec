@@ -339,6 +339,57 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#dependencies-and-optional-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies and Optional Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies and Optional Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-pdftable-extraction-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional PDF/Table Extraction Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gui-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      GUI Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1601,6 +1652,57 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#dependencies-and-optional-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies and Optional Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dependencies and Optional Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-pdftable-extraction-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional PDF/Table Extraction Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gui-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      GUI Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1710,6 +1812,50 @@ poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="
 
 <span class="c1"># ... your code here ...</span>
 </code></pre></div>
+<hr />
+<h2 id="dependencies-and-optional-features">Dependencies and Optional Features</h2>
+<h3 id="core-dependencies">Core Dependencies</h3>
+<p>The core <code>dcmspec</code> library is designed to be lightweight and only requires a minimal set of dependencies for parsing and working with DICOM specification tables in HTML/XHTML format.</p>
+<p>Core dependencies include:</p>
+<ul>
+<li>anytree</li>
+<li>platformdirs</li>
+<li>unidecode</li>
+<li>bs4 (BeautifulSoup)</li>
+<li>requests</li>
+<li>lxml</li>
+<li>rich</li>
+</ul>
+<p>These are sufficient for most use cases, including all parsing and tree-building from DICOM standard HTML/XHTML documents.</p>
+<h3 id="optional-pdftable-extraction-dependencies">Optional PDF/Table Extraction Dependencies</h3>
+<p>Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are <strong>not installed by default</strong> and are grouped under the <code>pdf</code> optional dependency.</p>
+<p>To install with PDF/table extraction support:</p>
+<div class="highlight"><pre><span></span><code>poetry add &quot;dcmspec[pdf]&quot;@git+https://github.com/dwikler/dcmspec.git
+</code></pre></div>
+<p>Optional dependencies for PDF/table extraction:</p>
+<ul>
+<li>pdfplumber</li>
+<li>camelot-py</li>
+<li>pandas</li>
+<li>openpyxl</li>
+<li>opencv-python-headless</li>
+</ul>
+<p>These are only needed if you want to extract tables from PDF documents.</p>
+<h3 id="gui-dependencies">GUI Dependencies</h3>
+<p>If you want to use the sample GUI explorer app, you can install the <code>gui</code> extra:</p>
+<div class="highlight"><pre><span></span><code>poetry add &quot;dcmspec[gui]&quot;@git+https://github.com/dwikler/dcmspec.git
+</code></pre></div>
+<p>This will install:</p>
+<ul>
+<li>tkhtmlview</li>
+</ul>
+<h3 id="summary">Summary</h3>
+<ul>
+<li>Default install: Lightweight, core parsing features only.</li>
+<li>With <code>[pdf]</code> extra: Adds PDF/table extraction support.</li>
+<li>With <code>[gui]</code> extra: Adds GUI dependencies for the sample explorer app.</li>
+</ul>
+<p>See the pyproject.toml for the full list of dependencies and extras.</p>
 <p>See the <a href="../api/">API Reference</a> for details on available classes.</p>
 
 
