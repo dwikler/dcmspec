@@ -2007,7 +2007,19 @@ model = factory.create_model(...)</p>
 <span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
-<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for DICOM specification models.</span>
 
 <span class="sd">    Coordinates the downloading, parsing, and caching of DICOM specification tables.</span>
@@ -2075,20 +2087,32 @@ model = factory.create_model(...)</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="n">name_attr</span> <span class="ow">or</span> <span class="s2">&quot;elem_name&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                    <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                    <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                    <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                    <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url (str): The URL to download the input file from.</span>
 <span class="sd">            cache_file_name (str): Filename of the cached input file.</span>
 <span class="sd">            force_download (bool): If True, always download the input file even if cached.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
+<span class="sd">                The callback receives an integer percent (0-100). If the total file size is unknown,</span>
+<span class="sd">                the callback will be called with -1 to indicate indeterminate progress.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Any: The document object.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># This will download if needed and always parse/return the DOM</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
+                                                <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                                                <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
+                                                <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span>
+                                                <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2917,19 +2941,7 @@ If neither is set, a ValueError is raised.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -2980,7 +2992,19 @@ If neither is set, a ValueError is raised.</p>
 <span class="normal">183</span>
 <span class="normal">184</span>
 <span class="normal">185</span>
-<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">doc_object</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3303,19 +3327,7 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
 <span class="normal">203</span>
@@ -3363,7 +3375,19 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
-<span class="normal">248</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3434,7 +3458,7 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.load_document" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3504,6 +3528,28 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress_callback</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional callback to report download progress.
+The callback receives an integer percent (0-100). If the total file size is unknown,
+the callback will be called with -1 to indicate indeterminate progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3551,20 +3597,44 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
-<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+                <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+                <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        url (str): The URL to download the input file from.</span>
 <span class="sd">        cache_file_name (str): Filename of the cached input file.</span>
 <span class="sd">        force_download (bool): If True, always download the input file even if cached.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
+<span class="sd">            The callback receives an integer percent (0-100). If the total file size is unknown,</span>
+<span class="sd">            the callback will be called with -1 to indicate indeterminate progress.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Any: The document object.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># This will download if needed and always parse/return the DOM</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
+                                            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+                                            <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
+                                            <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span>
+                                            <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3587,25 +3657,25 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
-<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>

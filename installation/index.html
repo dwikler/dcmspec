@@ -1827,6 +1827,12 @@ poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="
 <li>rich</li>
 </ul>
 <p>These are sufficient for most use cases, including all parsing and tree-building from DICOM standard HTML/XHTML documents.</p>
+<blockquote>
+<p><strong>Note on lxml:</strong><br />
+<code>lxml</code> is a core dependency for fast and robust XML/HTML parsing. It is not a pure Python package, but pre-built wheels are available for most platforms.<br />
+On some Linux systems, you may need to install system packages (e.g., <code>libxml2-dev</code>, <code>libxslt-dev</code>, and <code>python3-dev</code>) before installing <code>lxml</code>.<br />
+See the <a href="https://lxml.de/installation.html">lxml installation docs</a> for details.</p>
+</blockquote>
 <h3 id="optional-pdftable-extraction-dependencies">Optional PDF/Table Extraction Dependencies</h3>
 <p>Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are <strong>not installed by default</strong> and are grouped under the <code>pdf</code> optional dependency.</p>
 <p>To install with PDF/table extraction support:</p>
