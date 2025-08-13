@@ -873,50 +873,66 @@ class DCMSpecExplorer:
 
     def load_iod_modules(self, force_download: bool = False):
         """Load IOD modules from the DICOM specification.
-        
+
         Args:
             force_download (bool): If True, force download from URL instead of using cache.
-            
+
         """
         self.status_var.set("Loading IOD modules...")
         self.root.update()
-        
+
+        self._last_progress_percent = -1  # Add this line before defining the callback
+
+        def progress_callback(percent):
+            # Update the status bar with the current download progress
+            if percent == -1:
+                # Indeterminate progress
+                self.status_var.set("Downloading IOD modules... (progress unknown)")
+                self.root.update()
+                self._last_progress_percent = percent
+            elif (percent % 10 == 0 or percent == 100) and percent != self._last_progress_percent:
+                # Update every 10% and only if the percent changedÒ
+                self.status_var.set(f"Downloading IOD modules... {percent}%")
+                self.root.update()
+                self._last_progress_percent = percent
+
         try:
             # Clear existing items
             for item in self.tree.get_children():
                 self.tree.delete(item)
-            
+
             # Use XHTMLDocHandler to download and parse the HTML with caching
             cache_file_name = "ps3.3.html"
             soup = self.doc_handler.load_document(
                 cache_file_name=cache_file_name,
                 url=self.part3_toc_url,
-                force_download=force_download
+                force_download=force_download,
+                progress_callback=progress_callback
             )
-            
+
             # Extract and display DICOM version using the library method
             self.dicom_version = self.dom_parser.get_version(soup, "")
             self.version_label.config(text=f"Version {self.dicom_version}")
-            
+
             # Find the list of tables div
             list_of_tables = soup.find('div', class_='list-of-tables')
             if not list_of_tables:
                 messagebox.showerror("Error", "Could not find list-of-tables section")
                 return
-            
+
             # Extract IOD modules
             iod_modules = self.extract_iod_modules(list_of_tables)
-            
+
             # Store the data for sorting and filtering
             self.iod_modules_data = iod_modules
-            
+
             # Set initial sort state to show that data is sorted by IOD Name
             self.sort_column = "#0"
             self.sort_reverse = False
-            
+
             # Apply filter and sort (this will populate the treeview)
             self.apply_filter_and_sort()
-            
+
             # Set initial view mode based on whether we have favorites
             if self.favorites_manager.get_favorites_count() > 0 and not self.show_favorites_only:
                 # If we have favorites and haven't explicitly chosen a view, show favorites
@@ -924,15 +940,15 @@ class DCMSpecExplorer:
             else:
                 # Otherwise show all (which is the current state)
                 self.set_view_mode(False)
-            
+
             # Update column headings to show initial sort state
             self.update_column_headings()
-            
+
             # Add cache status to the current status (after apply_filter_and_sort sets it)
             cache_status = " (downloaded)" if force_download else " (from cache)"
             current_status = self.status_var.get()
             self.status_var.set(f"{current_status}{cache_status}")
-            
+
         except RuntimeError as e:
             messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
             self.status_var.set("Error loading modules")

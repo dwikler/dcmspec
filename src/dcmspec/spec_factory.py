@@ -5,7 +5,7 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
-from typing import Any, Optional, Dict, Type
+from typing import Any, Callable, Optional, Dict, Type
 
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
@@ -85,20 +85,32 @@ class SpecFactory:
         self.name_attr = name_attr or "elem_name"
         self.parser_kwargs = parser_kwargs or {}
 
-    def load_document(self, url: str, cache_file_name: str, force_download: bool = False) -> Any:
+    def load_document(self, 
+                    url: str, 
+                    cache_file_name: str, 
+                    force_download: bool = False, 
+                    progress_callback: Optional[Callable[[int], None]] = None
+                    ) -> Any:
         """Download, cache, and parse the specification file from a URL, returning the document object.
 
         Args:
             url (str): The URL to download the input file from.
             cache_file_name (str): Filename of the cached input file.
             force_download (bool): If True, always download the input file even if cached.
-
+            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
+                The callback receives an integer percent (0-100). If the total file size is unknown,
+                the callback will be called with -1 to indicate indeterminate progress.
+                
         Returns:
             Any: The document object.
 
         """
         # This will download if needed and always parse/return the DOM
-        return self.input_handler.load_document(cache_file_name=cache_file_name, url=url, force_download=force_download)
+        return self.input_handler.load_document(cache_file_name=cache_file_name,
+                                                url=url,
+                                                force_download=force_download,
+                                                progress_callback=progress_callback
+                                                )
 
     def try_load_cache(
         self,
