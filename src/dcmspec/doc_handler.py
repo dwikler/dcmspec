@@ -116,12 +116,16 @@ class DocHandler:
             last_percent[0] = percent
 
     def _download_binary(self, response, file_path, total, chunk_size, progress_callback):
-        """Download and save a binary file with progress reporting."""
+        """Download and save a binary file with progress reporting.
+
+        Streams each chunk directly to the file to avoid high memory usage.
+        """
         downloaded = 0
         last_percent = [None]
         with open(file_path, "wb") as f:
             for chunk in response.iter_content(chunk_size=chunk_size):
                 if chunk:
+                    # For binary, no cleaning is needed
                     f.write(chunk)
                     downloaded += len(chunk)
                     self._report_progress(downloaded, total, progress_callback, last_percent)
@@ -130,20 +134,19 @@ class DocHandler:
         """Download and save a text file with progress reporting.
 
         Uses response.encoding if available for accurate byte counting and file writing.
+        Streams cleaned chunks directly to the file to avoid high memory usage.
         """
-        content = []
         downloaded = 0
         last_percent = [None]
         encoding = response.encoding or "utf-8"
-        for chunk in response.iter_content(chunk_size=chunk_size, decode_unicode=True):
-            if chunk:
-                content.append(chunk)
-                chunk_bytes = chunk.encode(encoding)
-                downloaded += len(chunk_bytes)
-                self._report_progress(downloaded, total, progress_callback, last_percent)
-        content_str = self.clean_text("".join(content))
         with open(file_path, "w", encoding="utf-8") as f:
-            f.write(content_str)
+            for chunk in response.iter_content(chunk_size=chunk_size, decode_unicode=True):
+                if chunk:
+                    cleaned_chunk = self.clean_text(chunk)
+                    f.write(cleaned_chunk)
+                    chunk_bytes = cleaned_chunk.encode(encoding)
+                    downloaded += len(chunk_bytes)
+                    self._report_progress(downloaded, total, progress_callback, last_percent)
 
     def clean_text(self, text: str) -> str:
         """Clean text content before saving.
