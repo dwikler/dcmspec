@@ -11,7 +11,7 @@ class DummyFactory:
         """Initialize."""
         self.called = []
 
-    def load_document(self, url, cache_file_name, force_download=False):
+    def load_document(self, url, cache_file_name, force_download=False, progress_callback=None):
         """Patch loading the DOM."""
         self.called.append(("load_document", url, cache_file_name, force_download))
         return "FAKE_DOM"

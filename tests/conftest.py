@@ -223,3 +223,42 @@ def mergemany_by_node_test_models():
         metadata_attrs=metadata_other
     )
     return current, second, third
+
+class DummyResponse:
+    """A dummy response object to simulate requests.get behavior in tests."""
+
+    def __init__(self, text="abc", content=None, status_code=200, headers=None, raise_exc=None, chunks=None):
+        """Initialize a dummy response."""
+        self.text = text
+        self.content = content if content is not None else text.encode("utf-8")
+        self.status_code = status_code
+        self.headers = headers if headers is not None else {"content-length": str(len(self.content))}
+        self._raise_exc = raise_exc
+        self._chunks = chunks
+
+    def raise_for_status(self):
+        """Simulate raising an error for HTTP errors."""
+        if self._raise_exc:
+            raise self._raise_exc
+
+    def __enter__(self):
+        """Simulate entering a context."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Simulate exiting a context."""
+        pass
+
+    def iter_content(self, chunk_size=8192, decode_unicode=False):
+        """Simulate iterating over content in chunks."""
+        if self._chunks:
+            yield from self._chunks
+        elif decode_unicode:
+            yield self.text
+        else:
+            yield self.content
+
+@pytest.fixture
+def dummy_response():
+    """Return a dummy response object for testing."""
+    return DummyResponse

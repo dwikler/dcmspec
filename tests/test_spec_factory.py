@@ -23,7 +23,7 @@ class DummyInputHandler:
         self.logger = logging.getLogger("DummyInputHandler")
         self.cache_file_name = "file.xhtml"
 
-    def load_document(self, cache_file_name, url=None, force_download=False):
+    def load_document(self, cache_file_name, url=None, force_download=False, progress_callback=None):
         """Simulate getting a DOM from a file or URL."""
         self.called = True
         return "DOM"
@@ -127,7 +127,7 @@ def test_load_dom(monkeypatch):
     """Test load_dom returns the DOM and calls input_handler.load_document."""
     ih = DummyInputHandler()
     factory = SpecFactory(input_handler=ih)
-    dom = factory.load_document(url="http://example.com", cache_file_name="file.xhtml", force_download=True)
+    dom = factory.load_document(url="http://example.com", cache_file_name="file.xhtml", force_download=True, progress_callback=None)
     assert dom == "DOM"
     assert ih.called
 

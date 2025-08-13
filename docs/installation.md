@@ -138,6 +138,11 @@ Core dependencies include:
 
 These are sufficient for most use cases, including all parsing and tree-building from DICOM standard HTML/XHTML documents.
 
+> **Note on lxml:**  
+> `lxml` is a core dependency for fast and robust XML/HTML parsing. It is not a pure Python package, but pre-built wheels are available for most platforms.  
+> On some Linux systems, you may need to install system packages (e.g., `libxml2-dev`, `libxslt-dev`, and `python3-dev`) before installing `lxml`.  
+> See the [lxml installation docs](https://lxml.de/installation.html) for details.
+
 ### Optional PDF/Table Extraction Dependencies
 
 Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are **not installed by default** and are grouped under the `pdf` optional dependency.

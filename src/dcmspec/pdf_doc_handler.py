@@ -6,7 +6,7 @@ from IHE Technical Frameworks or Supplements, returning CSV data from tables in 
 
 import os
 import logging
-from typing import Optional, List
+from typing import Callable, Optional, List
 
 import pdfplumber
 import camelot
@@ -52,6 +52,7 @@ class PDFDocHandler(DocHandler):
         cache_file_name: str,
         url: Optional[str] = None,
         force_download: bool = False,
+        progress_callback: Optional[Callable[[int], None]] = None,
         page_numbers: Optional[list] = None,
         table_indices: Optional[list] = None,
         table_header_rowspan: Optional[dict] = None,
@@ -63,6 +64,7 @@ class PDFDocHandler(DocHandler):
             cache_file_name (str): Path to the local cached PDF file.
             url (str, optional): URL to download the file from if not cached or if force_download is True.
             force_download (bool): If True, do not use cache and download the file from the URL.
+            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
             page_numbers (list, optional): List of page numbers to extract tables from.
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
