@@ -88,7 +88,7 @@ def test_load_document_download(monkeypatch, patch_dirs):
     dummy_pdf.close = MagicMock()
     monkeypatch.setattr("os.path.exists", lambda path: False)
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name: "test.pdf")
+    monkeypatch.setattr(handler, "download", lambda url, cache_file_name, progress_callback=None: "test.pdf")
     monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn: [])
     monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None, pad_columns=None: {})
 

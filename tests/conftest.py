@@ -227,14 +227,15 @@ def mergemany_by_node_test_models():
 class DummyResponse:
     """A dummy response object to simulate requests.get behavior in tests."""
 
-    def __init__(self, text="abc", content=None, status_code=200, headers=None, raise_exc=None, chunks=None):
+    def __init__(self, text="abc", content=None, status_code=200, headers=None, raise_exc=None, chunks=None, encoding="utf-8"):
         """Initialize a dummy response."""
         self.text = text
-        self.content = content if content is not None else text.encode("utf-8")
+        self.content = content if content is not None else text.encode(encoding)
         self.status_code = status_code
         self.headers = headers if headers is not None else {"content-length": str(len(self.content))}
         self._raise_exc = raise_exc
         self._chunks = chunks
+        self.encoding = encoding
 
     def raise_for_status(self):
         """Simulate raising an error for HTTP errors."""

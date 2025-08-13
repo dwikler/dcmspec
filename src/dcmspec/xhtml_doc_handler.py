@@ -4,6 +4,7 @@ Provides the XHTMLDocHandler class for downloading, caching, and parsing XHTML d
 from the DICOM standard, returning a BeautifulSoup DOM object.
 """
 
+from collections.abc import Callable
 import logging
 import os
 import re
@@ -30,7 +31,7 @@ class XHTMLDocHandler(DocHandler):
             self, cache_file_name: str,
             url: Optional[str] = None,
             force_download: bool = False,
-            progress_callback=None
+            progress_callback: 'Optional[Callable[[int], None]]' = None
     ) -> BeautifulSoup:
         """Open and parse an XHTML file, downloading it if needed.
 
@@ -39,6 +40,8 @@ class XHTMLDocHandler(DocHandler):
             url (str, optional): URL to download the file from if not cached or if force_download is True.
             force_download (bool): If True, do not use cache and download the file from the URL.
             progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
+                The callback receives an integer percent (0-100). If the total file size is unknown,
+                the callback will be called with -1 to indicate indeterminate progress.
 
         Returns:
             BeautifulSoup: Parsed DOM.
@@ -55,7 +58,12 @@ class XHTMLDocHandler(DocHandler):
             cache_file_path = self.download(url, cache_file_name, progress_callback=progress_callback)
         return self.parse_dom(cache_file_path)
 
-    def download(self, url: str, cache_file_name: str, progress_callback=None) -> str:
+    def download(
+        self,
+        url: str,
+        cache_file_name: str,
+        progress_callback: 'Optional[Callable[[int], None]]' = None
+    ) -> str:
         """Download and cache an XHTML file from a URL.
 
         Uses the base class download method, saving as UTF-8 text and cleaning ZWSP/NBSP.

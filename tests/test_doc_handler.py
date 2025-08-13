@@ -162,6 +162,31 @@ def test_download_progress_callback_text(monkeypatch, tmp_path, dummy_response):
     handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
     assert progress_values == [33, 66, 100]
 
+def test_download_progress_callback_single_large_chunk(monkeypatch, tmp_path, dummy_response):
+    """Test that download calls progress_callback with 100% for a single large chunk (non-chunked download)."""
+    handler = DummyDocHandler()
+    file_name = "test.txt"
+    file_path = tmp_path / file_name
+
+    # Simulate a single chunk equal to the total content-length
+    content = "a" * 1000
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            text=content,
+            chunks=[content],
+            headers={"content-length": "1000"}
+        )
+    )
+
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+
+    handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
+    # Should get exactly one progress update at 100%
+    assert progress_values == [100]
+
 def test_download_progress_callback_binary(monkeypatch, tmp_path, dummy_response):
     """Test that download calls progress_callback with correct percent values for binary downloads."""
     handler = DummyDocHandler()
@@ -187,3 +212,57 @@ def test_download_progress_callback_binary(monkeypatch, tmp_path, dummy_response
     assert progress_values[-1] == 100
     assert all(0 < p <= 100 for p in progress_values)
     assert len(progress_values) == 3
+
+def test_download_progress_callback_unknown_length_no_header(monkeypatch, tmp_path, dummy_response):
+    """Test progress_callback is called with -1 when content-length header is missing."""
+    handler = DummyDocHandler()
+    file_name = "test.txt"
+    file_path = tmp_path / file_name
+    chunks = ["a", "b", "c"]
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            text="abc", chunks=chunks, headers={}
+        )
+    )
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+    handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
+    assert progress_values == [-1]
+
+def test_download_progress_callback_unknown_length_zero(monkeypatch, tmp_path, dummy_response):
+    """Test progress_callback is called with -1 when content-length header is zero."""
+    handler = DummyDocHandler()
+    file_name = "test.txt"
+    file_path = tmp_path / file_name
+    chunks = ["a", "b", "c"]
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            text="abc", chunks=chunks, headers={"content-length": "0"}
+        )
+    )
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+    handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
+    assert progress_values == [-1]
+
+def test_download_progress_callback_unknown_length_binary(monkeypatch, tmp_path, dummy_response):
+    """Test progress_callback is called with -1 for binary download with unknown length."""
+    handler = DummyDocHandler()
+    file_name = "test.pdf"
+    file_path = tmp_path / file_name
+    binary_chunks = [b"a", b"b", b"c"]
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            content=b"abc", chunks=binary_chunks, headers={}
+        )
+    )
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+    handler.download("http://example.com", str(file_path), binary=True, progress_callback=progress_callback)
+    assert progress_values == [-1]

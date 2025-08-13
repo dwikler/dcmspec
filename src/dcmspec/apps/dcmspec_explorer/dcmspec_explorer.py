@@ -884,8 +884,14 @@ class DCMSpecExplorer:
         self._last_progress_percent = -1  # Add this line before defining the callback
 
         def progress_callback(percent):
-            # Only update every 10% and only if the percent changed
-            if (percent % 10 == 0 or percent == 100) and percent != self._last_progress_percent:
+            # Update the status bar with the current download progress
+            if percent == -1:
+                # Indeterminate progress
+                self.status_var.set("Downloading IOD modules... (progress unknown)")
+                self.root.update()
+                self._last_progress_percent = percent
+            elif (percent % 10 == 0 or percent == 100) and percent != self._last_progress_percent:
+                # Update every 10% and only if the percent changedÒ
                 self.status_var.set(f"Downloading IOD modules... {percent}%")
                 self.root.update()
                 self._last_progress_percent = percent

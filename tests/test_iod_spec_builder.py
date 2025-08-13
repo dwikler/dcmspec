@@ -14,6 +14,8 @@ class DummyFactory:
     def load_document(self, url, cache_file_name, force_download=False, progress_callback=None):
         """Patch loading the DOM."""
         self.called.append(("load_document", url, cache_file_name, force_download))
+        if progress_callback:
+            progress_callback(42)
         return "FAKE_DOM"
 
     def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
@@ -304,3 +306,26 @@ def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
     assert "Failed to load expanded IOD model from cache" in caplog.text
     assert "Failed to load module model from cache" in caplog.text
     assert "Simulated load failure" in caplog.text
+
+def test_iod_spec_builder_progress_callback(monkeypatch):
+    """Test that IODSpecBuilder.build_from_url passes and calls progress_callback."""
+    from dcmspec.iod_spec_builder import IODSpecBuilder
+
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")
+    factory.model_store = DummyModelStore()
+
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+
+    progress_values = []
+    builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        progress_callback=progress_values.append
+    )
+    assert progress_values  # Should be called at least once

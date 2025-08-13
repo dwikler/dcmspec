@@ -5,6 +5,7 @@ DICOM IOD model, combining the IOD Modules and Module Attributes models.
 """
 import logging
 import os
+from typing import Callable, Optional
 
 from anytree import Node
 from dcmspec.dom_utils import DOMUtils
@@ -50,7 +51,7 @@ class IODSpecBuilder:
         cache_file_name: str,
         table_id: str,
         force_download: bool = False,
-        progress_callback=None,
+        progress_callback: 'Optional[Callable[[int], None]]' =None,
         json_file_name: str = None,
         **kwargs: object,
     ) -> SpecModel:
@@ -70,6 +71,8 @@ class IODSpecBuilder:
             table_id (str): The ID of the IOD table to parse.
             force_download (bool): If True, always download the input file and generate the model even if cached.
             progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
+                The callback receives an integer percent (0-100). If the total file size is unknown,
+                the callback will be called with -1 to indicate indeterminate progress.
             json_file_name (str, optional): Filename to save the cached expanded JSON model.
             **kwargs: Additional arguments for model construction.
 

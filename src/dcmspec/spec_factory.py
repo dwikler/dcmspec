@@ -98,7 +98,9 @@ class SpecFactory:
             cache_file_name (str): Filename of the cached input file.
             force_download (bool): If True, always download the input file even if cached.
             progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-
+                The callback receives an integer percent (0-100). If the total file size is unknown,
+                the callback will be called with -1 to indicate indeterminate progress.
+                
         Returns:
             Any: The document object.
 

@@ -65,6 +65,8 @@ class PDFDocHandler(DocHandler):
             url (str, optional): URL to download the file from if not cached or if force_download is True.
             force_download (bool): If True, do not use cache and download the file from the URL.
             progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
+                The callback receives an integer percent (0-100). If the total file size is unknown,
+                the callback will be called with -1 to indicate indeterminate progress.
             page_numbers (list, optional): List of page numbers to extract tables from.
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
@@ -98,7 +100,7 @@ class PDFDocHandler(DocHandler):
                 self.logger.error("URL must be provided to download the file.")
                 raise ValueError("URL must be provided to download the file.")
             self.logger.info(f"Downloading PDF from {url} to {cache_file_path}")
-            cache_file_path = self.download(url, cache_file_name)
+            cache_file_path = self.download(url, cache_file_name, progress_callback=progress_callback)
         else:
             self.logger.info(f"Loading PDF from cache file {cache_file_path}")
 
