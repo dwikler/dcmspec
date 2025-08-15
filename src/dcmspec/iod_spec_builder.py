@@ -5,12 +5,17 @@ DICOM IOD model, combining the IOD Modules and Module Attributes models.
 """
 import logging
 import os
-from typing import Callable, Optional
+from typing import Optional
 
 from anytree import Node
 from dcmspec.dom_utils import DOMUtils
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_model import SpecModel
+
+# BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+from typing import Callable
+from dcmspec.progress import adapt_progress_observer, ProgressObserver
+# END LEGACY SUPPORT
 
 class IODSpecBuilder:
     """Orchestrates the construction of a expanded DICOM IOD specification model.
@@ -51,7 +56,10 @@ class IODSpecBuilder:
         cache_file_name: str,
         table_id: str,
         force_download: bool = False,
-        progress_callback: 'Optional[Callable[[int], None]]' =None,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_callback: 'Optional[Callable[[int], None]]' = None,
+        # END LEGACY SUPPORT
         json_file_name: str = None,
         **kwargs: object,
     ) -> SpecModel:
@@ -70,9 +78,10 @@ class IODSpecBuilder:
             cache_file_name (str): Filename of the cached input file.
             table_id (str): The ID of the IOD table to parse.
             force_download (bool): If True, always download the input file and generate the model even if cached.
-            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-                The callback receives an integer percent (0-100). If the total file size is unknown,
-                the callback will be called with -1 to indicate indeterminate progress.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.            
             json_file_name (str, optional): Filename to save the cached expanded JSON model.
             **kwargs: Additional arguments for model construction.
 
@@ -80,6 +89,10 @@ class IODSpecBuilder:
             SpecModel: The expanded model with IOD and module content.
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        if progress_observer is None and progress_callback is not None:
+            progress_observer = adapt_progress_observer(progress_callback)
+        # END LEGACY SUPPORT
         # Load from cache if the expanded IOD model is already present
         cached_model = self._load_expanded_model_from_cache(json_file_name, force_download)
         if cached_model is not None:
@@ -91,7 +104,10 @@ class IODSpecBuilder:
             url=url,
             cache_file_name=cache_file_name,
             force_download=force_download,
-            progress_callback=progress_callback,
+            progress_observer=progress_observer,
+            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+            progress_callback=progress_observer,
+            # END LEGACY SUPPORT
         )
 
         # Build the IOD Modules model from the DOM

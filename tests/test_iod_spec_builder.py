@@ -2,6 +2,7 @@
 import pytest
 from anytree import Node
 from dcmspec.iod_spec_builder import IODSpecBuilder
+from dcmspec.progress import Progress
 from dcmspec.spec_model import SpecModel
 
 class DummyFactory:
@@ -11,9 +12,11 @@ class DummyFactory:
         """Initialize."""
         self.called = []
 
-    def load_document(self, url, cache_file_name, force_download=False, progress_callback=None):
+    def load_document(self, url, cache_file_name, force_download=False, progress_observer=None, progress_callback=None):
         """Patch loading the DOM."""
         self.called.append(("load_document", url, cache_file_name, force_download))
+        if progress_observer:
+            progress_observer(Progress(42))
         if progress_callback:
             progress_callback(42)
         return "FAKE_DOM"

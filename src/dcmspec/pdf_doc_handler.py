@@ -6,13 +6,18 @@ from IHE Technical Frameworks or Supplements, returning CSV data from tables in 
 
 import os
 import logging
-from typing import Callable, Optional, List
+from typing import Optional, List
+# BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+from dcmspec.progress import adapt_progress_observer
+from typing import Callable
+# END LEGACY SUPPORT
 
 import pdfplumber
 import camelot
 
 from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
+from dcmspec.progress import ProgressObserver
 
 class PDFDocHandler(DocHandler):
     """Handler class for extracting tables from PDF documents.
@@ -52,7 +57,10 @@ class PDFDocHandler(DocHandler):
         cache_file_name: str,
         url: Optional[str] = None,
         force_download: bool = False,
-        progress_callback: Optional[Callable[[int], None]] = None,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_callback: 'Optional[Callable[[int], None]]' = None,
+        # END LEGACY SUPPORT
         page_numbers: Optional[list] = None,
         table_indices: Optional[list] = None,
         table_header_rowspan: Optional[dict] = None,
@@ -64,9 +72,10 @@ class PDFDocHandler(DocHandler):
             cache_file_name (str): Path to the local cached PDF file.
             url (str, optional): URL to download the file from if not cached or if force_download is True.
             force_download (bool): If True, do not use cache and download the file from the URL.
-            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-                The callback receives an integer percent (0-100). If the total file size is unknown,
-                the callback will be called with -1 to indicate indeterminate progress.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
             page_numbers (list, optional): List of page numbers to extract tables from.
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
@@ -92,6 +101,10 @@ class PDFDocHandler(DocHandler):
             ```
             
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        if progress_observer is None and progress_callback is not None:
+            progress_observer = adapt_progress_observer(progress_observer)
+        # END LEGACY SUPPORT
         self.cache_file_name = cache_file_name
         cache_file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         need_download = force_download or (not os.path.exists(cache_file_path))
@@ -100,7 +113,7 @@ class PDFDocHandler(DocHandler):
                 self.logger.error("URL must be provided to download the file.")
                 raise ValueError("URL must be provided to download the file.")
             self.logger.info(f"Downloading PDF from {url} to {cache_file_path}")
-            cache_file_path = self.download(url, cache_file_name, progress_callback=progress_callback)
+            cache_file_path = self.download(url, cache_file_name, progress_observer=progress_observer)
         else:
             self.logger.info(f"Loading PDF from cache file {cache_file_path}")
 
@@ -135,12 +148,23 @@ class PDFDocHandler(DocHandler):
 
         return spec_table
 
-    def download(self, url: str, cache_file_name: str) -> str:
+    def download(self,
+                url: str,
+                cache_file_name: str,
+                progress_observer: 'Optional[ProgressObserver]' = None,
+                # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+                progress_callback: 'Optional[Callable[[int], None]]' = None
+                # END LEGACY SUPPORT
+                ) -> str:
         """Download and cache a PDF file from a URL using the base class download method.
 
         Args:
             url: The URL of the PDF document to download.
             cache_file_name: The filename of the cached document.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
 
         Returns:
             The file path where the document was saved.
@@ -149,8 +173,12 @@ class PDFDocHandler(DocHandler):
             RuntimeError: If the download or save fails.
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        if progress_observer is None and progress_callback is not None:
+            progress_observer = adapt_progress_observer(progress_callback)
+        # END LEGACY SUPPORT
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
-        return super().download(url, file_path, binary=True)
+        return super().download(url, file_path, binary=True, progress_observer=progress_observer)
 
     def extract_tables_pdfplumber(self, pdf: pdfplumber.PDF, page_numbers: List[int]) -> List[dict]:
         """Extract and return all tables from the specified PDF pages using pdfplumber.

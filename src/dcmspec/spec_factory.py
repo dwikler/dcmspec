@@ -5,9 +5,13 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
-from typing import Any, Callable, Optional, Dict, Type
-
+from typing import Any, Optional, Dict, Type
+# BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+from dcmspec.progress import adapt_progress_observer
+from typing import Callable
+# END LEGACY SUPPORT
 from dcmspec.config import Config
+from dcmspec.progress import ProgressObserver
 from dcmspec.spec_model import SpecModel
 from dcmspec.doc_handler import DocHandler
 from dcmspec.json_spec_store import JSONSpecStore
@@ -89,7 +93,10 @@ class SpecFactory:
                     url: str, 
                     cache_file_name: str, 
                     force_download: bool = False, 
-                    progress_callback: Optional[Callable[[int], None]] = None
+                    progress_observer: 'Optional[ProgressObserver]' = None,
+                    # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+                    progress_callback: 'Optional[Callable[[int], None]]' = None,
+                    # END LEGACY SUPPORT
                     ) -> Any:
         """Download, cache, and parse the specification file from a URL, returning the document object.
 
@@ -97,19 +104,23 @@ class SpecFactory:
             url (str): The URL to download the input file from.
             cache_file_name (str): Filename of the cached input file.
             force_download (bool): If True, always download the input file even if cached.
-            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-                The callback receives an integer percent (0-100). If the total file size is unknown,
-                the callback will be called with -1 to indicate indeterminate progress.
-                
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY] Optional callback to report progress
+                Deprecated: use progress_observer instead. Will be removed in a future release.
+
         Returns:
             Any: The document object.
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        if progress_observer is None and progress_callback is not None:
+            progress_observer = adapt_progress_observer(progress_observer)
+        # END LEGACY SUPPORT
         # This will download if needed and always parse/return the DOM
         return self.input_handler.load_document(cache_file_name=cache_file_name,
                                                 url=url,
                                                 force_download=force_download,
-                                                progress_callback=progress_callback
+                                                progress_observer=progress_observer
                                                 )
 
     def try_load_cache(
@@ -155,6 +166,10 @@ class SpecFactory:
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
@@ -206,6 +221,10 @@ class SpecFactory:
         force_download: bool = False,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
+        progress_observer: Optional[ProgressObserver] = None,
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_callback: Optional[Callable[[int], None]] = None,
+        # END LEGACY SUPPORT
         handler_kwargs: Optional[Dict[str, Any]] = None,
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
@@ -221,6 +240,10 @@ class SpecFactory:
                 Note: force_download also implies force_parse.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
             handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler's methods.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
@@ -233,6 +256,10 @@ class SpecFactory:
             SpecModel: The constructed model.
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        if progress_observer is None and progress_callback is not None:
+            progress_observer = adapt_progress_observer(progress_callback)
+        # END LEGACY SUPPORT
         # Set cache_file_name on the handler before checking cache
         self.input_handler.cache_file_name = cache_file_name
 
@@ -246,6 +273,10 @@ class SpecFactory:
             cache_file_name=cache_file_name,
             url=url,
             force_download=force_download,
+            progress_observer=progress_observer,
+            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+            progress_callback=progress_callback,
+            # END LEGACY SUPPORT
             **(handler_kwargs or {})
         )
         return self.build_model(
@@ -254,6 +285,10 @@ class SpecFactory:
             url=url,
             json_file_name=json_file_name,
             include_depth=include_depth,
+            progress_observer=progress_observer,
+            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+            progress_callback=progress_callback,
+            # END LEGACY SUPPORT
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
             parser_kwargs=parser_kwargs,
