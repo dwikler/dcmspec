@@ -13,7 +13,7 @@ import requests
 from dcmspec.config import Config
 from dcmspec.progress import Progress, ProgressObserver
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-from dcmspec.progress import adapt_progress_observer
+from dcmspec.progress import ProgressStatus, handle_legacy_callback
 from typing import Callable
 # END LEGACY SUPPORT
 
@@ -24,6 +24,12 @@ class DocHandler:
     Subclasses must implement the `load_document` method to handle
     reading/parsing input files. The base class provides a generic
     download method for both text and binary files.
+
+    Progress Reporting:
+    The observer pattern is used for progress reporting. Subclasses may extend
+    the Progress class and use the progress_observer to report additional information
+    (e.g., status, errors, or other context) beyond percent complete, enabling future
+    extensibility for richer progress tracking.
     """
 
     def __init__(self, config: Optional[Config] = None, logger: Optional[logging.Logger] = None):
@@ -77,8 +83,7 @@ class DocHandler:
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         self.logger.info(f"Downloading document from {url} to {file_path}")
         try:
@@ -109,18 +114,13 @@ class DocHandler:
 
         If the total file size is unknown or invalid, calls the observer with -1 to indicate
         indeterminate progress. Otherwise, calls the observer with the integer percent (0-100).
+        Adds status=ProgressStatus.DOWNLOADING to all progress events.
         """
         if not progress_observer:
             return
-        if not total or total <= 0:
-            # Unknown total size: show indeterminate progress (use -1 as a sentinel)
-            if last_percent[0] != -1:
-                progress_observer(Progress(-1))
-                last_percent[0] = -1
-            return
-        percent = min(int(downloaded * 100 / total), 100)
+        percent = -1 if not total or total <= 0 else min(int(downloaded * 100 / total), 100)
         if percent != last_percent[0]:
-            progress_observer(Progress(percent))
+            progress_observer(Progress(percent, status=ProgressStatus.DOWNLOADING))
             last_percent[0] = percent
 
     def _download_binary(self, response, file_path, total, chunk_size, progress_observer):
@@ -208,7 +208,6 @@ class DocHandler:
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)  
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         raise NotImplementedError("Subclasses must implement load_document()")

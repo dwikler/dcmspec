@@ -10,7 +10,7 @@ import re
 from bs4 import BeautifulSoup
 from typing import Optional
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-from dcmspec.progress import adapt_progress_observer
+from dcmspec.progress import handle_legacy_callback
 from typing import Callable
 # END LEGACY SUPPORT
 
@@ -24,6 +24,11 @@ class XHTMLDocHandler(DocHandler):
 
     Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.
     Inherits configuration and logging from DocHandler.
+
+    Note:
+    Progress reporting via progress_observer covers both downloading and caching (writing to disk).
+    Parsing and cache loading are typically fast and do not emit progress updates.
+
     """
 
     def __init__(self, config: Optional[Config] = None, logger: Optional[logging.Logger] = None):
@@ -56,9 +61,9 @@ class XHTMLDocHandler(DocHandler):
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
+
         # Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)
         self.cache_file_name = cache_file_name
 
@@ -68,6 +73,10 @@ class XHTMLDocHandler(DocHandler):
             if not url:
                 raise ValueError("URL must be provided to download the file.")
             cache_file_path = self.download(url, cache_file_name, progress_observer=progress_observer)
+
+        # No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,
+        # the parsing is fast and not a bottleneck. If future files or operations make parsing slow,
+        # consider extending progress reporting here.
         return self.parse_dom(cache_file_path)
 
     def download(
@@ -99,8 +108,7 @@ class XHTMLDocHandler(DocHandler):
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         return super().download(url, file_path, binary=False, progress_observer=progress_observer)

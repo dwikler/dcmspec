@@ -1,7 +1,7 @@
 """Tests for the SpecFactory class in dcmspec.spec_factory."""
 import logging
 import pytest
-from anytree import Node
+from dcmspec.progress import ProgressStatus
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
@@ -23,7 +23,15 @@ class DummyInputHandler:
         self.logger = logging.getLogger("DummyInputHandler")
         self.cache_file_name = "file.xhtml"
 
-    def load_document(self, cache_file_name, url=None, force_download=False, progress_observer=None):
+    def load_document(
+        self,
+        cache_file_name,
+        url=None,
+        force_download=False,
+        progress_observer=None,
+        progress_callback=None,
+        **kwargs
+    ):
         """Simulate getting a DOM from a file or URL."""
         self.called = True
         return "DOM"
@@ -43,10 +51,19 @@ class DummyTableParser:
         """Initialize the dummy table parser."""
         self.called = False
 
-    def parse(self, doc_object, table_id, include_depth, column_to_attr, name_attr, **kwargs):
-        """Simulate parsing a DOM and returning dummy metadata and content nodes."""
+    def parse(self, doc_object, table_id, include_depth, column_to_attr, name_attr, progress_observer=None, **kwargs):
+        """Simulate parsing a DOM and returning dummy metadata and content nodes.
+
+        If a progress_observer is provided, simulate reporting progress for 3 rows.
+        """
         self.called = True
+        if progress_observer:
+            from dcmspec.progress import Progress, ProgressStatus
+            progress_observer(Progress(33, ProgressStatus.PARSING_TABLE))
+            progress_observer(Progress(66, ProgressStatus.PARSING_TABLE))
+            progress_observer(Progress(100, ProgressStatus.PARSING_TABLE))
         # Return dummy metadata and content nodes as anytree Nodes
+        from anytree import Node
         metadata = Node("metadata")
         metadata.column_to_attr = column_to_attr or {}
         content = Node("content")
@@ -127,7 +144,12 @@ def test_load_dom(monkeypatch):
     """Test load_dom returns the DOM and calls input_handler.load_document."""
     ih = DummyInputHandler()
     factory = SpecFactory(input_handler=ih)
-    dom = factory.load_document(url="http://example.com", cache_file_name="file.xhtml", force_download=True, progress_observer=None)
+    dom = factory.load_document(
+        url="http://example.com", 
+        cache_file_name="file.xhtml", 
+        force_download=True, 
+        progress_observer=None
+    )
     assert dom == "DOM"
     assert ih.called
 
@@ -400,3 +422,80 @@ def test_create_model_raises_if_no_json_or_cache(monkeypatch):
             table_id="table1",
             # json_file_name is omitted
         )
+
+def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
+    """Test build_model reports both parsing and saving progress updates via the observer."""
+    # Arrange
+
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    dom = "DOM"
+    json_file_name = "model.json"
+    events = []
+    def observer(progress):
+        events.append((progress.percent, progress.status))
+
+    # Act
+
+    factory.build_model(
+        doc_object=dom,
+        table_id="table1",
+        url="http://example.com",
+        json_file_name=json_file_name,
+        progress_observer=observer,
+    )
+
+    # Assert
+
+    # Filter only SAVING events
+    saving_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.SAVING_MODEL]
+    assert saving_events[0] == (0, ProgressStatus.SAVING_MODEL)
+    assert saving_events[-1] == (100, ProgressStatus.SAVING_MODEL)
+    assert ms.saved[1].endswith(json_file_name)
+
+    # Filter only PARSING events
+    parsing_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.PARSING_TABLE]
+    assert (33, ProgressStatus.PARSING_TABLE) in parsing_events
+    assert (66, ProgressStatus.PARSING_TABLE) in parsing_events
+    assert (100, ProgressStatus.PARSING_TABLE) in parsing_events
+
+
+def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
+    """Test create_model reports both parsing and saving progress updates via the observer."""
+    # Arrange
+
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    events = []
+    def observer(progress):
+        events.append((progress.percent, progress.status))
+
+    # Act
+
+    factory.create_model(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table1",
+        json_file_name="model.json",
+        progress_observer=observer,
+    )
+
+    # Assert
+
+    # Filter only SAVING events
+    saving_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.SAVING_MODEL]
+    assert saving_events[0] == (0, ProgressStatus.SAVING_MODEL)
+    assert saving_events[-1] == (100, ProgressStatus.SAVING_MODEL)
+    assert ms.saved[1].endswith("model.json")
+
+    # Filter only PARSING events
+    parsing_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.PARSING_TABLE]
+    assert (33, ProgressStatus.PARSING_TABLE) in parsing_events
+    assert (66, ProgressStatus.PARSING_TABLE) in parsing_events
+    assert (100, ProgressStatus.PARSING_TABLE) in parsing_events

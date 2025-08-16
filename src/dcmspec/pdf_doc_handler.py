@@ -8,7 +8,7 @@ import os
 import logging
 from typing import Optional, List
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-from dcmspec.progress import adapt_progress_observer
+from dcmspec.progress import handle_legacy_callback
 from typing import Callable
 # END LEGACY SUPPORT
 
@@ -102,8 +102,7 @@ class PDFDocHandler(DocHandler):
             
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_observer)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         self.cache_file_name = cache_file_name
         cache_file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
@@ -174,8 +173,7 @@ class PDFDocHandler(DocHandler):
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         return super().download(url, file_path, binary=True, progress_observer=progress_observer)

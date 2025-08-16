@@ -7,7 +7,7 @@ import logging
 import os
 from typing import Any, Optional, Dict, Type
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-from dcmspec.progress import adapt_progress_observer
+from dcmspec.progress import Progress, ProgressStatus, handle_legacy_callback
 from typing import Callable
 # END LEGACY SUPPORT
 from dcmspec.config import Config
@@ -24,9 +24,10 @@ from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 class SpecFactory:
     """Factory for DICOM specification models.
 
-    Coordinates the downloading, parsing, and caching of DICOM specification tables.
-    Uses input handlers, table parsers, and model stores to produce SpecModel objects
-    from URLs or cached files. Supports flexible configuration and caching strategies.
+    Orchestrates the end-to-end process of producing structured SpecModel objects from DICOM specification sources.
+    This includes coordinating input handlers for downloading and caching files, table parsers for extracting
+    structured data into SpecModel objects, and model stores for caching and loading models.
+    Supports flexible configuration and caching strategies.
 
     Typical usage:
         factory = SpecFactory(...)
@@ -111,10 +112,14 @@ class SpecFactory:
         Returns:
             Any: The document object.
 
+        Note:
+            Progress reporting via progress_observer is delegated to the input handler (e.g., XHTMLDocHandler,
+            PDFDocHandler) and typically covers only downloading and caching (writing to disk).
+            Parsing and model building do not emit progress updates.
+
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_observer)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         # This will download if needed and always parse/return the DOM
         return self.input_handler.load_document(cache_file_name=cache_file_name,
@@ -150,6 +155,7 @@ class SpecFactory:
         url: Optional[str] = None,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
+        progress_observer: Optional[ProgressObserver] = None,
         force_parse: bool = False,
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
@@ -199,14 +205,26 @@ class SpecFactory:
         # Parse provided document otherwise
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self._parse_and_build_model(
-            doc_object, table_id, url, include_depth, model_kwargs, parser_kwargs=merged_parser_kwargs
+            doc_object=doc_object,
+            table_id=table_id,
+            url=url,
+            include_depth=include_depth,
+            model_kwargs=model_kwargs,
+            parser_kwargs=merged_parser_kwargs,
+            progress_observer=progress_observer,
         )
 
         # Cache the newly built model if requested
         if json_file_name:
             json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
             try:
+                if progress_observer:
+                    # Report start of saving
+                    progress_observer(Progress(0, status=ProgressStatus.SAVING_MODEL))
                 self.model_store.save(model, json_file_path)
+                if progress_observer:
+                    # Report completion of saving
+                    progress_observer(Progress(100, status=ProgressStatus.SAVING_MODEL))
             except Exception as e:
                 self.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
 
@@ -257,8 +275,7 @@ class SpecFactory:
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-        if progress_observer is None and progress_callback is not None:
-            progress_observer = adapt_progress_observer(progress_callback)
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
         # Set cache_file_name on the handler before checking cache
         self.input_handler.cache_file_name = cache_file_name
@@ -286,9 +303,6 @@ class SpecFactory:
             json_file_name=json_file_name,
             include_depth=include_depth,
             progress_observer=progress_observer,
-            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-            progress_callback=progress_callback,
-            # END LEGACY SUPPORT
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
             parser_kwargs=parser_kwargs,
@@ -344,6 +358,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        progress_observer: Optional[ProgressObserver] = None,
     ) -> SpecModel:
         """Parse and Build model from provided parsed document object."""
         # Parse content and some metadata from the parsed document object
@@ -352,6 +367,7 @@ class SpecFactory:
             table_id=table_id,
             include_depth=include_depth,
             column_to_attr=self.column_to_attr,
+            progress_observer=progress_observer,
             name_attr=self.name_attr,
             **(parser_kwargs or {}),
         )
