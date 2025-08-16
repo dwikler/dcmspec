@@ -162,6 +162,34 @@ def test_download_progress_callback_text(monkeypatch, tmp_path, dummy_response):
     handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
     assert progress_values == [33, 66, 100]
 
+def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):
+    """Test that download calls progress_observer with Progress objects and correct status."""
+    from dcmspec.progress import Progress, ProgressStatus
+    handler = DummyDocHandler()
+    file_name = "test.txt"
+    file_path = tmp_path / file_name
+
+    # Simulate multiple chunks
+    chunks = ["a", "b", "c"]
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            text="abc",
+            chunks=chunks,
+            headers={"content-length": "3"}
+        )
+    )
+
+    progress_events = []
+    def progress_observer(progress):
+        progress_events.append(progress)
+
+    handler.download("http://example.com", str(file_path), progress_observer=progress_observer)
+    # Should get Progress objects with percent 33, 66, 100 and status DOWNLOADING
+    assert [p.percent for p in progress_events] == [33, 66, 100]
+    assert all(isinstance(p, Progress) for p in progress_events)
+    assert all(p.status == ProgressStatus.DOWNLOADING for p in progress_events)
+
 def test_download_progress_callback_single_large_chunk(monkeypatch, tmp_path, dummy_response):
     """Test that download calls progress_callback with 100% for a single large chunk (non-chunked download)."""
     handler = DummyDocHandler()

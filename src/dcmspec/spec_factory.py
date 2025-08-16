@@ -5,9 +5,13 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
-from typing import Any, Callable, Optional, Dict, Type
-
+from typing import Any, Optional, Dict, Type
+# BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+from dcmspec.progress import Progress, ProgressStatus, handle_legacy_callback
+from typing import Callable
+# END LEGACY SUPPORT
 from dcmspec.config import Config
+from dcmspec.progress import ProgressObserver
 from dcmspec.spec_model import SpecModel
 from dcmspec.doc_handler import DocHandler
 from dcmspec.json_spec_store import JSONSpecStore
@@ -20,9 +24,10 @@ from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 class SpecFactory:
     """Factory for DICOM specification models.
 
-    Coordinates the downloading, parsing, and caching of DICOM specification tables.
-    Uses input handlers, table parsers, and model stores to produce SpecModel objects
-    from URLs or cached files. Supports flexible configuration and caching strategies.
+    Orchestrates the end-to-end process of producing structured SpecModel objects from DICOM specification sources.
+    This includes coordinating input handlers for downloading and caching files, table parsers for extracting
+    structured data into SpecModel objects, and model stores for caching and loading models.
+    Supports flexible configuration and caching strategies.
 
     Typical usage:
         factory = SpecFactory(...)
@@ -89,7 +94,10 @@ class SpecFactory:
                     url: str, 
                     cache_file_name: str, 
                     force_download: bool = False, 
-                    progress_callback: Optional[Callable[[int], None]] = None
+                    progress_observer: 'Optional[ProgressObserver]' = None,
+                    # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+                    progress_callback: 'Optional[Callable[[int], None]]' = None,
+                    # END LEGACY SUPPORT
                     ) -> Any:
         """Download, cache, and parse the specification file from a URL, returning the document object.
 
@@ -97,19 +105,27 @@ class SpecFactory:
             url (str): The URL to download the input file from.
             cache_file_name (str): Filename of the cached input file.
             force_download (bool): If True, always download the input file even if cached.
-            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-                The callback receives an integer percent (0-100). If the total file size is unknown,
-                the callback will be called with -1 to indicate indeterminate progress.
-                
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY] Optional callback to report progress
+                Deprecated: use progress_observer instead. Will be removed in a future release.
+
         Returns:
             Any: The document object.
 
+        Note:
+            Progress reporting via progress_observer is delegated to the input handler (e.g., XHTMLDocHandler,
+            PDFDocHandler) and typically covers only downloading and caching (writing to disk).
+            Parsing and model building do not emit progress updates.
+
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
+        # END LEGACY SUPPORT
         # This will download if needed and always parse/return the DOM
         return self.input_handler.load_document(cache_file_name=cache_file_name,
                                                 url=url,
                                                 force_download=force_download,
-                                                progress_callback=progress_callback
+                                                progress_observer=progress_observer
                                                 )
 
     def try_load_cache(
@@ -139,6 +155,7 @@ class SpecFactory:
         url: Optional[str] = None,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
+        progress_observer: Optional[ProgressObserver] = None,
         force_parse: bool = False,
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
@@ -155,6 +172,10 @@ class SpecFactory:
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
@@ -184,14 +205,26 @@ class SpecFactory:
         # Parse provided document otherwise
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self._parse_and_build_model(
-            doc_object, table_id, url, include_depth, model_kwargs, parser_kwargs=merged_parser_kwargs
+            doc_object=doc_object,
+            table_id=table_id,
+            url=url,
+            include_depth=include_depth,
+            model_kwargs=model_kwargs,
+            parser_kwargs=merged_parser_kwargs,
+            progress_observer=progress_observer,
         )
 
         # Cache the newly built model if requested
         if json_file_name:
             json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
             try:
+                if progress_observer:
+                    # Report start of saving
+                    progress_observer(Progress(0, status=ProgressStatus.SAVING_MODEL))
                 self.model_store.save(model, json_file_path)
+                if progress_observer:
+                    # Report completion of saving
+                    progress_observer(Progress(100, status=ProgressStatus.SAVING_MODEL))
             except Exception as e:
                 self.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
 
@@ -206,6 +239,10 @@ class SpecFactory:
         force_download: bool = False,
         json_file_name: Optional[str] = None,
         include_depth: Optional[int] = None,
+        progress_observer: Optional[ProgressObserver] = None,
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_callback: Optional[Callable[[int], None]] = None,
+        # END LEGACY SUPPORT
         handler_kwargs: Optional[Dict[str, Any]] = None,
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
@@ -221,6 +258,10 @@ class SpecFactory:
                 Note: force_download also implies force_parse.
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.
             handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler's methods.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
@@ -233,6 +274,9 @@ class SpecFactory:
             SpecModel: The constructed model.
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
+        # END LEGACY SUPPORT
         # Set cache_file_name on the handler before checking cache
         self.input_handler.cache_file_name = cache_file_name
 
@@ -246,6 +290,10 @@ class SpecFactory:
             cache_file_name=cache_file_name,
             url=url,
             force_download=force_download,
+            progress_observer=progress_observer,
+            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+            progress_callback=progress_callback,
+            # END LEGACY SUPPORT
             **(handler_kwargs or {})
         )
         return self.build_model(
@@ -254,6 +302,7 @@ class SpecFactory:
             url=url,
             json_file_name=json_file_name,
             include_depth=include_depth,
+            progress_observer=progress_observer,
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
             parser_kwargs=parser_kwargs,
@@ -309,6 +358,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        progress_observer: Optional[ProgressObserver] = None,
     ) -> SpecModel:
         """Parse and Build model from provided parsed document object."""
         # Parse content and some metadata from the parsed document object
@@ -317,6 +367,7 @@ class SpecFactory:
             table_id=table_id,
             include_depth=include_depth,
             column_to_attr=self.column_to_attr,
+            progress_observer=progress_observer,
             name_attr=self.name_attr,
             **(parser_kwargs or {}),
         )
