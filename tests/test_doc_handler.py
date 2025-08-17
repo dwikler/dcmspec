@@ -160,7 +160,7 @@ def test_download_progress_callback_text(monkeypatch, tmp_path, dummy_response):
         progress_values.append(percent)
 
     handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
-    assert progress_values == [33, 66, 100]
+    assert progress_values == [33, 67, 100]
 
 def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):
     """Test that download calls progress_observer with Progress objects and correct status."""
@@ -186,7 +186,7 @@ def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):
 
     handler.download("http://example.com", str(file_path), progress_observer=progress_observer)
     # Should get Progress objects with percent 33, 66, 100 and status DOWNLOADING
-    assert [p.percent for p in progress_events] == [33, 66, 100]
+    assert [p.percent for p in progress_events] == [33, 67, 100]
     assert all(isinstance(p, Progress) for p in progress_events)
     assert all(p.status == ProgressStatus.DOWNLOADING for p in progress_events)
 

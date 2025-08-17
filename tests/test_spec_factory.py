@@ -520,3 +520,25 @@ def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
     assert all(p.status == ProgressStatus.SAVING_MODEL for p in step3_events)
     assert any(p.percent == 0 for p in step3_events)
     assert any(p.percent == 100 for p in step3_events)
+
+def test_create_model_legacy_progress_callback(monkeypatch):
+    """Test create_model supports legacy int-based progress_callback and issues correct percent values."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    progress_values = []
+    def legacy_callback(percent):
+        progress_values.append(percent)
+
+    factory.create_model(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table1",
+        json_file_name="model.json",
+        progress_callback=legacy_callback,
+    )
+
+    # Should get percent values for download, parsing, and saving: [33, 66, 100, 33, 66, 100, 0, 100]
+    assert progress_values == [33, 66, 100, 33, 66, 100, 0, 100]

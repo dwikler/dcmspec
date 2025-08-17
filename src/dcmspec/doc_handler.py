@@ -118,7 +118,8 @@ class DocHandler:
         """
         if not progress_observer:
             return
-        percent = -1 if not total or total <= 0 else min(int(downloaded * 100 / total), 100)
+
+        percent = -1 if not total or total <= 0 else min(round(downloaded * 100 / total), 100)
         if percent != last_percent[0]:
             progress_observer(Progress(percent, status=ProgressStatus.DOWNLOADING))
             last_percent[0] = percent
