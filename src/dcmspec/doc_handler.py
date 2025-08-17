@@ -11,7 +11,7 @@ import logging
 import requests
 
 from dcmspec.config import Config
-from dcmspec.progress import Progress, ProgressObserver
+from dcmspec.progress import Progress, ProgressObserver, calculate_percent
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from dcmspec.progress import ProgressStatus, handle_legacy_callback
 from typing import Callable
@@ -119,7 +119,7 @@ class DocHandler:
         if not progress_observer:
             return
 
-        percent = -1 if not total or total <= 0 else min(round(downloaded * 100 / total), 100)
+        percent = calculate_percent(downloaded, total)
         if percent != last_percent[0]:
             progress_observer(Progress(percent, status=ProgressStatus.DOWNLOADING))
             last_percent[0] = percent

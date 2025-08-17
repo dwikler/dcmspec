@@ -160,6 +160,7 @@ def test_download_progress_callback_text(monkeypatch, tmp_path, dummy_response):
         progress_values.append(percent)
 
     handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
+    # Note: Percent values use round(), so 2/3 of 100 is 67, not 66.
     assert progress_values == [33, 67, 100]
 
 def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):

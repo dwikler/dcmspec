@@ -1,7 +1,7 @@
 """Tests for the SpecFactory class in dcmspec.spec_factory."""
 import logging
 import pytest
-from dcmspec.progress import ProgressStatus
+from dcmspec.progress import Progress, ProgressStatus, calculate_percent
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.config import Config
 from dcmspec.spec_model import SpecModel
@@ -35,11 +35,10 @@ class DummyInputHandler:
         """Simulate getting a DOM from a file or URL."""
         self.called = True
         if progress_observer:
-            # Simulate download progress for step 1
-            from dcmspec.progress import Progress
-            progress_observer(Progress(33))
-            progress_observer(Progress(66))
-            progress_observer(Progress(100))
+            # Simulate download progress for step 1 using calculate_percent
+            for i in range(1, 4):
+                percent = calculate_percent(i, 3)
+                progress_observer(Progress(percent))
         return "DOM"
 
 class NoCacheFileNameInputHandler(DummyInputHandler):
@@ -64,10 +63,9 @@ class DummyTableParser:
         """
         self.called = True
         if progress_observer:
-            from dcmspec.progress import Progress, ProgressStatus
-            progress_observer(Progress(33, ProgressStatus.PARSING_TABLE))
-            progress_observer(Progress(66, ProgressStatus.PARSING_TABLE))
-            progress_observer(Progress(100, ProgressStatus.PARSING_TABLE))
+            for i in range(1, 4):
+                percent = calculate_percent(i, 3)
+                progress_observer(Progress(percent, ProgressStatus.PARSING_TABLE))
         # Return dummy metadata and content nodes as anytree Nodes
         from anytree import Node
         metadata = Node("metadata")
@@ -465,7 +463,7 @@ def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
     # Filter only PARSING events
     parsing_events = [p for p in events if p.status == ProgressStatus.PARSING_TABLE]
     assert any(p.percent == 33 for p in parsing_events)
-    assert any(p.percent == 66 for p in parsing_events)
+    assert any(p.percent == 67 for p in parsing_events)
     assert any(p.percent == 100 for p in parsing_events)
     # Check that all parsing events have step=1 and total_steps=2
     assert all(p.step == 1 for p in parsing_events)
@@ -509,7 +507,7 @@ def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
     assert all(p.total_steps == 3 for p in step2_events)
     assert all(p.status == ProgressStatus.PARSING_TABLE for p in step2_events)
     assert any(p.percent == 33 for p in step2_events)
-    assert any(p.percent == 66 for p in step2_events)
+    assert any(p.percent == 67 for p in step2_events)
     assert any(p.percent == 100 for p in step2_events)
 
     # Step 3: SAVING_MODEL
@@ -541,4 +539,4 @@ def test_create_model_legacy_progress_callback(monkeypatch):
     )
 
     # Should get percent values for download, parsing, and saving: [33, 66, 100, 33, 66, 100, 0, 100]
-    assert progress_values == [33, 66, 100, 33, 66, 100, 0, 100]
+    assert progress_values == [33, 67, 100, 33, 67, 100, 0, 100]

@@ -14,7 +14,7 @@ from dcmspec.spec_model import SpecModel
 
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from typing import Callable
-from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, add_progress_step, handle_legacy_callback
+from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, add_progress_step, calculate_percent, handle_legacy_callback
 # END LEGACY SUPPORT
 
 class IODSpecBuilder:
@@ -251,7 +251,7 @@ class IODSpecBuilder:
                 )
             module_models[ref_value] = module_model
             if progress_observer and total_modules > 0:
-                percent = int((idx + 1) * 100 / total_modules)
+                percent = calculate_percent(idx + 1, total_modules)
                 progress_observer(Progress(
                     percent,
                     status=ProgressStatus.PARSING_IOD_MODULES,

@@ -74,6 +74,12 @@ def offset_progress_steps(step_offset, total_steps):
         return wrapper
     return decorator
 
+def calculate_percent(downloaded, total):
+    """Calculate percent complete, rounded, or -1 if total is unknown/invalid."""
+    if not total or total <= 0:
+        return -1
+    return min(round(downloaded * 100 / total), 100)
+
 def handle_legacy_callback(
     progress_observer: Optional[Callable] = None,
     progress_callback: Optional[Callable] = None,

@@ -13,7 +13,7 @@ from typing import Any, Dict, Optional, Union
 from dcmspec.spec_parser import SpecParser
 
 from dcmspec.dom_utils import DOMUtils
-from dcmspec.progress import Progress, ProgressStatus
+from dcmspec.progress import Progress, ProgressStatus, calculate_percent
 
 class DOMTableSpecParser(SpecParser):
     """Parser for DICOM specification tables in XHTML DOM format.
@@ -321,7 +321,7 @@ class DOMTableSpecParser(SpecParser):
                 self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
             # Only report progress for the root table
             if progress_observer is not None:
-                percent = int((idx + 1) * 100 / total_rows)
+                percent = calculate_percent(idx + 1, total_rows)
                 progress_observer(Progress(
                     percent,
                     status=ProgressStatus.PARSING_TABLE,
