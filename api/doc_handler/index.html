@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
     
     
       
@@ -1539,6 +1539,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progress/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Progress
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1666,6 +1689,11 @@
 Subclasses must implement the <code>load_document</code> method to handle
 reading/parsing input files. The base class provides a generic
 download method for both text and binary files.</p>
+<p>Progress Reporting:
+The observer pattern is used for progress reporting. Subclasses may extend
+the Progress class and use the progress_observer to report additional information
+(e.g., status, errors, or other context) beyond percent complete, enabling future
+extensibility for richer progress tracking.</p>
 
 
 
@@ -1675,11 +1703,7 @@ download method for both text and binary files.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 16</span>
-<span class="normal"> 17</span>
-<span class="normal"> 18</span>
-<span class="normal"> 19</span>
-<span class="normal"> 20</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
 <span class="normal"> 21</span>
 <span class="normal"> 22</span>
 <span class="normal"> 23</span>
@@ -1855,13 +1879,36 @@ download method for both text and binary files.</p>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DocHandler</span><span class="p">:</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DocHandler</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for DICOM document handlers.</span>
 
 <span class="sd">    Handles DICOM documents in various formats (e.g., XHTML, PDF).</span>
 <span class="sd">    Subclasses must implement the `load_document` method to handle</span>
 <span class="sd">    reading/parsing input files. The base class provides a generic</span>
 <span class="sd">    download method for both text and binary files.</span>
+
+<span class="sd">    Progress Reporting:</span>
+<span class="sd">    The observer pattern is used for progress reporting. Subclasses may extend</span>
+<span class="sd">    the Progress class and use the progress_observer to report additional information</span>
+<span class="sd">    (e.g., status, errors, or other context) beyond percent complete, enabling future</span>
+<span class="sd">    extensibility for richer progress tracking.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1891,21 +1938,21 @@ download method for both text and binary files.</p>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">binary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>        
+        <span class="c1"># END LEGACY SUPPORT</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download a file from a URL and save it to the specified path.</span>
-
-<span class="sd">        Downloads a file from the given URL and saves it to the specified file path.</span>
-<span class="sd">        By default, saves as text (UTF-8); if binary is True, saves as binary (for PDFs, images, etc).</span>
-<span class="sd">        Subclasses may override this method or the `clean_text` hook for format-specific processing.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url (str): The URL to download the file from.</span>
 <span class="sd">            file_path (str): The path to save the downloaded file.</span>
 <span class="sd">            binary (bool): If True, save as binary. If False, save as UTF-8 text.</span>
-<span class="sd">            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">                The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">                the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">                instead. Will be removed in a future release.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The file path where the document was saved.</span>
@@ -1914,6 +1961,9 @@ download method for both text and binary files.</p>
 <span class="sd">            RuntimeError: If the download or save fails.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading document from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1926,9 +1976,9 @@ download method for both text and binary files.</p>
                 <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;content-length&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
                 <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">8192</span>
                 <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_download_binary</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_download_binary</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_download_text</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_download_text</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Document downloaded to </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">file_path</span>
         <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1938,29 +1988,25 @@ download method for both text and binary files.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to save file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to save file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_report_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_report_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Report progress if percent changed.</span>
 
-<span class="sd">        If the total file size is unknown or invalid, calls the callback with -1 to indicate</span>
-<span class="sd">        indeterminate progress. Otherwise, calls the callback with the integer percent (0-100).</span>
+<span class="sd">        If the total file size is unknown or invalid, calls the observer with -1 to indicate</span>
+<span class="sd">        indeterminate progress. Otherwise, calls the observer with the integer percent (0-100).</span>
+<span class="sd">        Adds status=ProgressStatus.DOWNLOADING to all progress events.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">progress_callback</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">progress_observer</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># Unknown total size: show indeterminate progress (use -1 as a sentinel)</span>
-            <span class="k">if</span> <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="n">progress_callback</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="k">return</span>
-        <span class="n">percent</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">downloaded</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">total</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">downloaded</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">total</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">percent</span> <span class="o">!=</span> <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-            <span class="n">progress_callback</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+            <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="n">percent</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">DOWNLOADING</span><span class="p">))</span>
             <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">percent</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_download_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_download_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and save a binary file with progress reporting.</span>
 
 <span class="sd">        Streams each chunk directly to the file to avoid high memory usage.</span>
+<span class="sd">        Reports progress using the provided observer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">downloaded</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">last_percent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
@@ -1970,13 +2016,14 @@ download method for both text and binary files.</p>
                     <span class="c1"># For binary, no cleaning is needed</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
                     <span class="n">downloaded</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_report_progress</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_report_progress</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_download_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_download_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and save a text file with progress reporting.</span>
 
-<span class="sd">        Uses response.encoding if available for accurate byte counting and file writing.</span>
 <span class="sd">        Streams cleaned chunks directly to the file to avoid high memory usage.</span>
+<span class="sd">        Reports progress using the provided observer using response.encoding if available</span>
+<span class="sd">        for accurate byte counting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">downloaded</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">last_percent</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
@@ -1988,7 +2035,7 @@ download method for both text and binary files.</p>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cleaned_chunk</span><span class="p">)</span>
                     <span class="n">chunk_bytes</span> <span class="o">=</span> <span class="n">cleaned_chunk</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
                     <span class="n">downloaded</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk_bytes</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_report_progress</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_report_progress</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">,</span> <span class="n">last_percent</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
@@ -2010,7 +2057,10 @@ download method for both text and binary files.</p>
         <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -2025,9 +2075,10 @@ download method for both text and binary files.</p>
 <span class="sd">            cache_file_name (str): Path or name of the local cached file.</span>
 <span class="sd">            url (str, optional): URL to download the file from if not cached or if force_download is True.</span>
 <span class="sd">            force_download (bool, optional): If True, download the file even if it exists locally.</span>
-<span class="sd">            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">                The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">                the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">                instead. Will be removed in a future release.</span>
 <span class="sd">            *args: Additional positional arguments for format-specific loading.</span>
 <span class="sd">            **kwargs: Additional keyword arguments for format-specific loading.</span>
 
@@ -2035,6 +2086,9 @@ download method for both text and binary files.</p>
 <span class="sd">            Any: The parsed document object (type depends on subclass).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must implement load_document()&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -2127,17 +2181,7 @@ application (e.g., with logging.basicConfig()).</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -2147,7 +2191,17 @@ application (e.g., with logging.basicConfig()).</p>
 <span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
-<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the document handler with an optional logger.</span>
 
 <span class="sd">    Args:</span>
@@ -2248,20 +2302,20 @@ By default, returns the text unchanged.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
-<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
 
 <span class="sd">    Subclasses can override this to perform format-specific cleaning (e.g., remove ZWSP/NBSP for XHTML).</span>
@@ -2285,7 +2339,7 @@ By default, returns the text unchanged.</p>
 
 
 <h3 id="dcmspec.doc_handler.DocHandler.download" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2293,9 +2347,6 @@ By default, returns the text unchanged.</p>
     <div class="doc doc-contents ">
 
         <p>Download a file from a URL and save it to the specified path.</p>
-<p>Downloads a file from the given URL and saves it to the specified file path.
-By default, saves as text (UTF-8); if binary is True, saves as binary (for PDFs, images, etc).
-Subclasses may override this method or the <code>clean_text</code> hook for format-specific processing.</p>
 
 
 <table>
@@ -2360,13 +2411,33 @@ Subclasses may override this method or the <code>clean_text</code> hook for form
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>progress_callback</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional callback to report download progress.
-The callback receives an integer percent (0-100). If the total file size is unknown,
-the callback will be called with -1 to indicate indeterminate progress.</p>
+                <p>[LEGACY, Deprecated] Optional callback to
+report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+instead. Will be removed in a future release.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2438,76 +2509,79 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">binary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>        
+    <span class="c1"># END LEGACY SUPPORT</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download a file from a URL and save it to the specified path.</span>
-
-<span class="sd">    Downloads a file from the given URL and saves it to the specified file path.</span>
-<span class="sd">    By default, saves as text (UTF-8); if binary is True, saves as binary (for PDFs, images, etc).</span>
-<span class="sd">    Subclasses may override this method or the `clean_text` hook for format-specific processing.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        url (str): The URL to download the file from.</span>
 <span class="sd">        file_path (str): The path to save the downloaded file.</span>
 <span class="sd">        binary (bool): If True, save as binary. If False, save as UTF-8 text.</span>
-<span class="sd">        progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">            The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">            the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">            instead. Will be removed in a future release.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The file path where the document was saved.</span>
@@ -2516,6 +2590,9 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="sd">        RuntimeError: If the download or save fails.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading document from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2528,9 +2605,9 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
             <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;content-length&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
             <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">8192</span>
             <span class="k">if</span> <span class="n">binary</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_download_binary</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_download_binary</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_download_text</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_download_text</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">progress_observer</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Document downloaded to </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">file_path</span>
     <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -2549,7 +2626,7 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
 
 <h3 id="dcmspec.doc_handler.DocHandler.load_document" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2629,13 +2706,33 @@ The exact type of the returned object depends on the subclass
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>progress_callback</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional callback to report download progress.
-The callback receives an integer percent (0-100). If the total file size is unknown,
-the callback will be called with -1 to indicate indeterminate progress.</p>
+                <p>[LEGACY, Deprecated] Optional callback to
+report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+instead. Will be removed in a future release.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -2723,17 +2820,7 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
@@ -2753,12 +2840,32 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
-<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -2773,9 +2880,10 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="sd">        cache_file_name (str): Path or name of the local cached file.</span>
 <span class="sd">        url (str, optional): URL to download the file from if not cached or if force_download is True.</span>
 <span class="sd">        force_download (bool, optional): If True, download the file even if it exists locally.</span>
-<span class="sd">        progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">            The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">            the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">            instead. Will be removed in a future release.</span>
 <span class="sd">        *args: Additional positional arguments for format-specific loading.</span>
 <span class="sd">        **kwargs: Additional keyword arguments for format-specific loading.</span>
 
@@ -2783,6 +2891,9 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="sd">        Any: The parsed document object (type depends on subclass).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Subclasses must implement load_document()&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2845,10 +2956,10 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>

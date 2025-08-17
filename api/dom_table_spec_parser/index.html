@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
     
     
       
@@ -1548,6 +1548,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progress/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Progress
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1694,9 +1717,7 @@ Inherits logging from SpecParser.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 16</span>
-<span class="normal"> 17</span>
-<span class="normal"> 18</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
 <span class="normal"> 19</span>
 <span class="normal"> 20</span>
 <span class="normal"> 21</span>
@@ -2327,7 +2348,25 @@ Inherits logging from SpecParser.</p>
 <span class="normal">646</span>
 <span class="normal">647</span>
 <span class="normal">648</span>
-<span class="normal">649</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -2355,6 +2394,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>        
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
@@ -2370,6 +2410,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">                None means unlimited.</span>
+<span class="sd">            progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 <span class="sd">            unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
@@ -2397,6 +2438,7 @@ Inherits logging from SpecParser.</p>
             <span class="n">column_to_attr</span><span class="p">,</span> 
             <span class="n">name_attr</span><span class="p">,</span> 
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
             <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
             <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
         <span class="p">)</span>
@@ -2441,6 +2483,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2459,6 +2502,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">            table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">            include_depth: The depth to which included tables should be parsed.</span>
+<span class="sd">            progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
 <span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
@@ -2512,6 +2556,7 @@ Inherits logging from SpecParser.</p>
                 <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
                 <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
                 <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+                <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
@@ -2593,9 +2638,12 @@ Inherits logging from SpecParser.</p>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process all rows in the table, handling recursion, nesting, and node creation.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">total_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
             <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
@@ -2622,6 +2670,13 @@ Inherits logging from SpecParser.</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sanitize_string</span><span class="p">(</span><span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_create_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">row_data</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+            <span class="c1"># Only report progress for the root table</span>
+            <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">percent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">total_rows</span><span class="p">)</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span>
+                    <span class="n">percent</span><span class="p">,</span>
+                    <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_TABLE</span><span class="p">,</span>
+                <span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_extract_row_data</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3025,9 +3080,7 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
@@ -3036,7 +3089,9 @@ Inherits logging from SpecParser.</p>
 <span class="normal">32</span>
 <span class="normal">33</span>
 <span class="normal">34</span>
-<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the DOMTableSpecParser.</span>
 
 <span class="sd">    Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.</span>
@@ -3142,22 +3197,22 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">248</span>
 <span class="normal">249</span>
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
 <span class="normal">254</span>
-<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">    Args:</span>
@@ -3183,7 +3238,7 @@ Inherits logging from SpecParser.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3290,6 +3345,26 @@ None means unlimited.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="object">object</span>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>skip_columns</code>
             </td>
             <td class="doc-param-details">
@@ -3361,9 +3436,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 39</span>
 <span class="normal"> 40</span>
 <span class="normal"> 41</span>
 <span class="normal"> 42</span>
@@ -3426,13 +3499,19 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>        
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
@@ -3448,6 +3527,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="sd">        name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">            None means unlimited.</span>
+<span class="sd">        progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 <span class="sd">        unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
@@ -3475,6 +3555,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
         <span class="n">column_to_attr</span><span class="p">,</span> 
         <span class="n">name_attr</span><span class="p">,</span> 
         <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+        <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
         <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
     <span class="p">)</span>
@@ -3603,15 +3684,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
 <span class="normal">216</span>
 <span class="normal">217</span>
 <span class="normal">218</span>
@@ -3634,7 +3707,15 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
-<span class="normal">238</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3676,7 +3757,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse_table" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3804,6 +3885,26 @@ model.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="object">object</span>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>skip_columns</code>
             </td>
             <td class="doc-param-details">
@@ -3897,12 +3998,7 @@ unformatted text.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
@@ -3980,7 +4076,15 @@ unformatted text.</p>
 <span class="normal">202</span>
 <span class="normal">203</span>
 <span class="normal">204</span>
-<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3988,6 +4092,7 @@ unformatted text.</p>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4006,6 +4111,7 @@ unformatted text.</p>
 <span class="sd">        name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">        table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">        include_depth: The depth to which included tables should be parsed.</span>
+<span class="sd">        progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">        visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
 <span class="sd">        unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
@@ -4059,6 +4165,7 @@ unformatted text.</p>
             <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
             <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
             <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
@@ -4125,10 +4232,10 @@ unformatted text.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>

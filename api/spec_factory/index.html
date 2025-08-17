@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
     
     
       
@@ -1548,6 +1548,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progress/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Progress
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1683,9 +1706,10 @@
 
 
         <p>Factory for DICOM specification models.</p>
-<p>Coordinates the downloading, parsing, and caching of DICOM specification tables.
-Uses input handlers, table parsers, and model stores to produce SpecModel objects
-from URLs or cached files. Supports flexible configuration and caching strategies.</p>
+<p>Orchestrates the end-to-end process of producing structured SpecModel objects from DICOM specification sources.
+This includes coordinating input handlers for downloading and caching files, table parsers for extracting
+structured data into SpecModel objects, and model stores for caching and loading models.
+Supports flexible configuration and caching strategies.</p>
 
 
 <details class="typical-usage" open>
@@ -1701,11 +1725,7 @@ model = factory.create_model(...)</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
-<span class="normal"> 21</span>
-<span class="normal"> 22</span>
-<span class="normal"> 23</span>
-<span class="normal"> 24</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 24</span>
 <span class="normal"> 25</span>
 <span class="normal"> 26</span>
 <span class="normal"> 27</span>
@@ -2019,12 +2039,119 @@ model = factory.create_model(...)</p>
 <span class="normal">335</span>
 <span class="normal">336</span>
 <span class="normal">337</span>
-<span class="normal">338</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for DICOM specification models.</span>
 
-<span class="sd">    Coordinates the downloading, parsing, and caching of DICOM specification tables.</span>
-<span class="sd">    Uses input handlers, table parsers, and model stores to produce SpecModel objects</span>
-<span class="sd">    from URLs or cached files. Supports flexible configuration and caching strategies.</span>
+<span class="sd">    Orchestrates the end-to-end process of producing structured SpecModel objects from DICOM specification sources.</span>
+<span class="sd">    This includes coordinating input handlers for downloading and caching files, table parsers for extracting</span>
+<span class="sd">    structured data into SpecModel objects, and model stores for caching and loading models.</span>
+<span class="sd">    Supports flexible configuration and caching strategies.</span>
 
 <span class="sd">    Typical usage:</span>
 <span class="sd">        factory = SpecFactory(...)</span>
@@ -2091,7 +2218,10 @@ model = factory.create_model(...)</p>
                     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                     <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+                    <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="c1"># END LEGACY SUPPORT</span>
                     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
@@ -2099,19 +2229,27 @@ model = factory.create_model(...)</p>
 <span class="sd">            url (str): The URL to download the input file from.</span>
 <span class="sd">            cache_file_name (str): Filename of the cached input file.</span>
 <span class="sd">            force_download (bool): If True, always download the input file even if cached.</span>
-<span class="sd">            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">                The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">                the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY] Optional callback to report progress</span>
+<span class="sd">                Deprecated: use progress_observer instead. Will be removed in a future release.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Any: The document object.</span>
 
+<span class="sd">        Note:</span>
+<span class="sd">            Progress reporting via progress_observer is delegated to the input handler (e.g., XHTMLDocHandler,</span>
+<span class="sd">            PDFDocHandler) and typically covers only downloading and caching (writing to disk).</span>
+<span class="sd">            Parsing and model building do not emit progress updates.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="c1"># This will download if needed and always parse/return the DOM</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
                                                 <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
                                                 <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
-                                                <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span>
+                                                <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span>
                                                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
@@ -2141,6 +2279,7 @@ model = factory.create_model(...)</p>
         <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2157,6 +2296,8 @@ model = factory.create_model(...)</p>
 <span class="sd">            json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">            include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">            force_parse (bool): If True, always parse and (over)write the JSON cache file.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">                See the Note below for details on the progress events and their properties.</span>
 <span class="sd">            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
@@ -2177,23 +2318,55 @@ model = factory.create_model(...)</p>
 <span class="sd">            - For PDF: a grouped table dict as returned by PDFDocHandler.</span>
 <span class="sd">            - For other formats: as defined by the handler/parser.</span>
 
+<span class="sd">        Note:</span>
+<span class="sd">            If a progress observer accepting a Progress object is provided, progress events are as follows:</span>
+
+<span class="sd">            - **Step 1 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=1`, `total_steps=2`,</span>
+<span class="sd">                and a meaningful `percent` value.</span>
+<span class="sd">            - **Step 2 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=2`, `total_steps=2`,</span>
+<span class="sd">                and `percent` values of `0` (start) and `100` (completion).</span>
+
+<span class="sd">            For example usage in a client application,</span>
+<span class="sd">            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Try to load from cache first</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">model</span>
 
+        <span class="c1"># Enrich the progress observer for parsing step</span>
+        <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+            <span class="nd">@add_progress_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_TABLE</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">parsing_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parsing_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="c1"># Parse provided document otherwise</span>
         <span class="n">merged_parser_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">parser_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{})}</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_and_build_model</span><span class="p">(</span>
-            <span class="n">doc_object</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">merged_parser_kwargs</span>
+            <span class="n">doc_object</span><span class="o">=</span><span class="n">doc_object</span><span class="p">,</span>
+            <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+            <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+            <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
+            <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">merged_parser_kwargs</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">parsing_progress_observer</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Cache the newly built model if requested</span>
         <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
             <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+                    <span class="c1"># Report start of saving</span>
+                    <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">json_file_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+                    <span class="c1"># Report completion of saving</span>
+                    <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -2208,6 +2381,10 @@ model = factory.create_model(...)</p>
         <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="n">handler_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2223,6 +2400,11 @@ model = factory.create_model(...)</p>
 <span class="sd">                Note: force_download also implies force_parse.</span>
 <span class="sd">            json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">            include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">                See the Note below for details on the progress events and their properties.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">                instead. Will be removed in a future release.</span>
 <span class="sd">            handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler&#39;s methods.</span>
 <span class="sd">            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
@@ -2234,7 +2416,24 @@ model = factory.create_model(...)</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: The constructed model.</span>
 
+
+<span class="sd">        Note:</span>
+<span class="sd">            If a progress observer accepting a Progress object is provided, progress events are as follows:</span>
+
+<span class="sd">            - **Step 1 (DOWNLOADING):** Events include `status=DOWNLOADING`, `step=1`, `total_steps=3`,</span>
+<span class="sd">                and a meaningful `percent` value.</span>
+<span class="sd">            - **Step 2 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=2`, `total_steps=3`,</span>
+<span class="sd">                and a meaningful `percent` value.</span>
+<span class="sd">            - **Step 3 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=3`, `total_steps=3`,</span>
+<span class="sd">                and `percent` values of `0` (start) and `100` (completion).</span>
+
+<span class="sd">            For example usage in a client application,</span>
+<span class="sd">            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="c1"># Set cache_file_name on the handler before checking cache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
@@ -2243,23 +2442,50 @@ model = factory.create_model(...)</p>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">model</span>
 
+        <span class="c1"># --- Step 1 (DOWNLOADING)</span>
+
+        <span class="c1"># Wrap progress observer for step 1</span>
+        <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+            <span class="nd">@add_progress_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">load_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">load_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="c1"># Pass handler_kwargs to load_document</span>
         <span class="n">doc_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span>
             <span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
             <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">load_progress_observer</span><span class="p">,</span>
+            <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+            <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">,</span>
+            <span class="c1"># END LEGACY SUPPORT</span>
             <span class="o">**</span><span class="p">(</span><span class="n">handler_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="p">)</span>
+
+        <span class="c1"># --- Step 2 and 3 (PARSING_TABLE and SAVING_MODEL)</span>
+
+        <span class="c1"># Wrap progress observer for step 2 and 3</span>
+        <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+            <span class="nd">@offset_progress_steps</span><span class="p">(</span><span class="n">step_offset</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">build_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">build_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span>
             <span class="n">doc_object</span><span class="o">=</span><span class="n">doc_object</span><span class="p">,</span>
             <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
             <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">build_progress_observer</span><span class="p">,</span>
             <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span>
             <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
             <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">parser_kwargs</span><span class="p">,</span>
         <span class="p">)</span>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_model_from_cache</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2311,6 +2537,7 @@ model = factory.create_model(...)</p>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse and Build model from provided parsed document object.&quot;&quot;&quot;</span>
         <span class="c1"># Parse content and some metadata from the parsed document object</span>
@@ -2319,6 +2546,7 @@ model = factory.create_model(...)</p>
             <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
             <span class="n">column_to_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
             <span class="n">name_attr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span><span class="p">,</span>
             <span class="o">**</span><span class="p">(</span><span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{}),</span>
         <span class="p">)</span>
@@ -2596,12 +2824,7 @@ If None, a default logger is created.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -2650,7 +2873,12 @@ If None, a default logger is created.</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">input_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DocHandler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2715,7 +2943,7 @@ If None, a default logger is created.</p>
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.build_model" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">build_model</span><span class="p">(</span><span class="n">doc_object</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">build_model</span><span class="p">(</span><span class="n">doc_object</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2854,6 +3082,27 @@ If None, a default logger is created.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.
+See the Note below for details on the progress events and their properties.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>model_kwargs</code>
             </td>
             <td class="doc-param-details">
@@ -2939,25 +3188,22 @@ If neither is set, a ValueError is raised.</p>
 - For other formats: as defined by the handler/parser.</p>
 </details>
 
+<details class="note" open>
+  <summary>Note</summary>
+  <p>If a progress observer accepting a Progress object is provided, progress events are as follows:</p>
+<ul>
+<li><strong>Step 1 (PARSING_TABLE):</strong> Events include <code>status=PARSING_TABLE</code>, <code>step=1</code>, <code>total_steps=2</code>,
+    and a meaningful <code>percent</code> value.</li>
+<li><strong>Step 2 (SAVING_MODEL):</strong> Events include <code>status=SAVING_MODEL</code>, <code>step=2</code>, <code>total_steps=2</code>,
+    and <code>percent</code> values of <code>0</code> (start) and <code>100</code> (completion).</li>
+</ul>
+<p>For example usage in a client application,
+see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus</code></a>.</p>
+</details>
+
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
@@ -3004,13 +3250,65 @@ If neither is set, a ValueError is raised.</p>
 <span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">doc_object</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3027,6 +3325,8 @@ If neither is set, a ValueError is raised.</p>
 <span class="sd">        json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">        include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
 <span class="sd">        force_parse (bool): If True, always parse and (over)write the JSON cache file.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            See the Note below for details on the progress events and their properties.</span>
 <span class="sd">        model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
@@ -3047,23 +3347,55 @@ If neither is set, a ValueError is raised.</p>
 <span class="sd">        - For PDF: a grouped table dict as returned by PDFDocHandler.</span>
 <span class="sd">        - For other formats: as defined by the handler/parser.</span>
 
+<span class="sd">    Note:</span>
+<span class="sd">        If a progress observer accepting a Progress object is provided, progress events are as follows:</span>
+
+<span class="sd">        - **Step 1 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=1`, `total_steps=2`,</span>
+<span class="sd">            and a meaningful `percent` value.</span>
+<span class="sd">        - **Step 2 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=2`, `total_steps=2`,</span>
+<span class="sd">            and `percent` values of `0` (start) and `100` (completion).</span>
+
+<span class="sd">        For example usage in a client application,</span>
+<span class="sd">        see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Try to load from cache first</span>
     <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">model</span>
 
+    <span class="c1"># Enrich the progress observer for parsing step</span>
+    <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+        <span class="nd">@add_progress_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_TABLE</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">parsing_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">parsing_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="c1"># Parse provided document otherwise</span>
     <span class="n">merged_parser_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">parser_kwargs</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{})}</span>
     <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_and_build_model</span><span class="p">(</span>
-        <span class="n">doc_object</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">merged_parser_kwargs</span>
+        <span class="n">doc_object</span><span class="o">=</span><span class="n">doc_object</span><span class="p">,</span>
+        <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+        <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+        <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
+        <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">merged_parser_kwargs</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="o">=</span><span class="n">parsing_progress_observer</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Cache the newly built model if requested</span>
     <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
         <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+                <span class="c1"># Report start of saving</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">json_file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+                <span class="c1"># Report completion of saving</span>
+                <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -3078,7 +3410,7 @@ If neither is set, a ValueError is raised.</p>
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.create_model" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_model</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handler_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">create_model</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_parse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handler_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3231,6 +3563,49 @@ Note: force_download also implies force_parse.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.
+See the Note below for details on the progress events and their properties.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress_callback</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>[LEGACY, Deprecated] Optional callback to
+report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+instead. Will be removed in a future release.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>handler_kwargs</code>
             </td>
             <td class="doc-param-details">
@@ -3325,60 +3700,24 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
     </table>
 
 
+<details class="note" open>
+  <summary>Note</summary>
+  <p>If a progress observer accepting a Progress object is provided, progress events are as follows:</p>
+<ul>
+<li><strong>Step 1 (DOWNLOADING):</strong> Events include <code>status=DOWNLOADING</code>, <code>step=1</code>, <code>total_steps=3</code>,
+    and a meaningful <code>percent</code> value.</li>
+<li><strong>Step 2 (PARSING_TABLE):</strong> Events include <code>status=PARSING_TABLE</code>, <code>step=2</code>, <code>total_steps=3</code>,
+    and a meaningful <code>percent</code> value.</li>
+<li><strong>Step 3 (SAVING_MODEL):</strong> Events include <code>status=SAVING_MODEL</code>, <code>step=3</code>, <code>total_steps=3</code>,
+    and <code>percent</code> values of <code>0</code> (start) and <code>100</code> (completion).</li>
+</ul>
+<p>For example usage in a client application,
+see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus</code></a>.</p>
+</details>
+
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
 <span class="normal">254</span>
@@ -3387,7 +3726,110 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="normal">257</span>
 <span class="normal">258</span>
 <span class="normal">259</span>
-<span class="normal">260</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_model</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3396,6 +3838,10 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
     <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="n">handler_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3411,6 +3857,11 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="sd">            Note: force_download also implies force_parse.</span>
 <span class="sd">        json_file_name (Optional[str]): Filename to save the cached JSON model.</span>
 <span class="sd">        include_depth (Optional[int]): The depth to which included tables should be parsed.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            See the Note below for details on the progress events and their properties.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">            instead. Will be removed in a future release.</span>
 <span class="sd">        handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler&#39;s methods.</span>
 <span class="sd">        model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
@@ -3422,7 +3873,24 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 <span class="sd">    Returns:</span>
 <span class="sd">        SpecModel: The constructed model.</span>
 
+
+<span class="sd">    Note:</span>
+<span class="sd">        If a progress observer accepting a Progress object is provided, progress events are as follows:</span>
+
+<span class="sd">        - **Step 1 (DOWNLOADING):** Events include `status=DOWNLOADING`, `step=1`, `total_steps=3`,</span>
+<span class="sd">            and a meaningful `percent` value.</span>
+<span class="sd">        - **Step 2 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=2`, `total_steps=3`,</span>
+<span class="sd">            and a meaningful `percent` value.</span>
+<span class="sd">        - **Step 3 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=3`, `total_steps=3`,</span>
+<span class="sd">            and `percent` values of `0` (start) and `100` (completion).</span>
+
+<span class="sd">        For example usage in a client application,</span>
+<span class="sd">        see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="c1"># Set cache_file_name on the handler before checking cache</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
@@ -3431,19 +3899,45 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
     <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">model</span>
 
+    <span class="c1"># --- Step 1 (DOWNLOADING)</span>
+
+    <span class="c1"># Wrap progress observer for step 1</span>
+    <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+        <span class="nd">@add_progress_step</span><span class="p">(</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">load_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">load_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="c1"># Pass handler_kwargs to load_document</span>
     <span class="n">doc_object</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span>
         <span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
         <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
         <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="o">=</span><span class="n">load_progress_observer</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">,</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="o">**</span><span class="p">(</span><span class="n">handler_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
     <span class="p">)</span>
+
+    <span class="c1"># --- Step 2 and 3 (PARSING_TABLE and SAVING_MODEL)</span>
+
+    <span class="c1"># Wrap progress observer for step 2 and 3</span>
+    <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
+        <span class="nd">@offset_progress_steps</span><span class="p">(</span><span class="n">step_offset</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">build_progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
+            <span class="n">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">build_progress_observer</span> <span class="o">=</span> <span class="kc">None</span>
+
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_model</span><span class="p">(</span>
         <span class="n">doc_object</span><span class="o">=</span><span class="n">doc_object</span><span class="p">,</span>
         <span class="n">table_id</span><span class="o">=</span><span class="n">table_id</span><span class="p">,</span>
         <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="o">=</span><span class="n">json_file_name</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="o">=</span><span class="n">build_progress_observer</span><span class="p">,</span>
         <span class="n">force_parse</span><span class="o">=</span><span class="n">force_parse</span> <span class="ow">or</span> <span class="n">force_download</span><span class="p">,</span>
         <span class="n">model_kwargs</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="o">=</span><span class="n">parser_kwargs</span><span class="p">,</span>
@@ -3458,7 +3952,7 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
 
 
 <h3 id="dcmspec.spec_factory.SpecFactory.load_document" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3530,13 +4024,32 @@ For example, if your model class is <code>MyModel(metadata, content, foo, bar)</
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Optional observer to report download progress.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>progress_callback</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional callback to report download progress.
-The callback receives an integer percent (0-100). If the total file size is unknown,
-the callback will be called with -1 to indicate indeterminate progress.</p>
+                <p>[LEGACY] Optional callback to report progress
+Deprecated: use progress_observer instead. Will be removed in a future release.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -3582,14 +4095,16 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
     </table>
 
 
+<details class="note" open>
+  <summary>Note</summary>
+  <p>Progress reporting via progress_observer is delegated to the input handler (e.g., XHTMLDocHandler,
+PDFDocHandler) and typically covers only downloading and caching (writing to disk).
+Parsing and model building do not emit progress updates.</p>
+</details>
+
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
 <span class="normal"> 94</span>
 <span class="normal"> 95</span>
 <span class="normal"> 96</span>
@@ -3609,11 +4124,30 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
                 <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                 <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                 <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+                <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="c1"># END LEGACY SUPPORT</span>
                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
@@ -3621,19 +4155,27 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="sd">        url (str): The URL to download the input file from.</span>
 <span class="sd">        cache_file_name (str): Filename of the cached input file.</span>
 <span class="sd">        force_download (bool): If True, always download the input file even if cached.</span>
-<span class="sd">        progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">            The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">            the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY] Optional callback to report progress</span>
+<span class="sd">            Deprecated: use progress_observer instead. Will be removed in a future release.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Any: The document object.</span>
 
+<span class="sd">    Note:</span>
+<span class="sd">        Progress reporting via progress_observer is delegated to the input handler (e.g., XHTMLDocHandler,</span>
+<span class="sd">        PDFDocHandler) and typically covers only downloading and caching (writing to disk).</span>
+<span class="sd">        Parsing and model building do not emit progress updates.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="c1"># This will download if needed and always parse/return the DOM</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="o">=</span><span class="n">cache_file_name</span><span class="p">,</span>
                                             <span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
                                             <span class="n">force_download</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span>
-                                            <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span>
+                                            <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span>
                                             <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3657,25 +4199,25 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/spec_factory.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
 <span class="normal">132</span>
-<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_load_cache</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -3755,10 +4297,10 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
     
     
       
@@ -1548,6 +1548,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../progress/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Progress
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1684,6 +1707,9 @@
         <p>Handler class for DICOM specifications documents in XHTML format.</p>
 <p>Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.
 Inherits configuration and logging from DocHandler.</p>
+<p>Note:
+Progress reporting via progress_observer covers both downloading and caching (writing to disk).
+Parsing and cache loading are typically fast and do not emit progress updates.</p>
 
 
 
@@ -1693,11 +1719,7 @@ Inherits configuration and logging from DocHandler.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
-<span class="normal"> 19</span>
-<span class="normal"> 20</span>
-<span class="normal"> 21</span>
-<span class="normal"> 22</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 22</span>
 <span class="normal"> 23</span>
 <span class="normal"> 24</span>
 <span class="normal"> 25</span>
@@ -1820,11 +1842,46 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">XHTMLDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">XHTMLDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handler class for DICOM specifications documents in XHTML format.</span>
 
 <span class="sd">    Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.</span>
 <span class="sd">    Inherits configuration and logging from DocHandler.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">    Progress reporting via progress_observer covers both downloading and caching (writing to disk).</span>
+<span class="sd">    Parsing and cache loading are typically fast and do not emit progress updates.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1836,7 +1893,10 @@ Inherits configuration and logging from DocHandler.</p>
             <span class="bp">self</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+            <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="c1"># END LEGACY SUPPORT</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
 
@@ -1844,14 +1904,19 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="sd">            cache_file_name (str): Path to the local cached XHTML file.</span>
 <span class="sd">            url (str, optional): URL to download the file from if not cached or if force_download is True.</span>
 <span class="sd">            force_download (bool): If True, do not use cache and download the file from the URL.</span>
-<span class="sd">            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">                The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">                the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">                instead. Will be removed in a future release.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            BeautifulSoup: Parsed DOM.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
+
         <span class="c1"># Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
@@ -1860,14 +1925,21 @@ Inherits configuration and logging from DocHandler.</p>
         <span class="k">if</span> <span class="n">need_download</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must be provided to download the file.&quot;</span><span class="p">)</span>
-            <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">)</span>
+            <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+
+        <span class="c1"># No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,</span>
+        <span class="c1"># the parsing is fast and not a bottleneck. If future files or operations make parsing slow,</span>
+        <span class="c1"># consider extending progress reporting here.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dom</span><span class="p">(</span><span class="n">cache_file_path</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and cache an XHTML file from a URL.</span>
 
@@ -1876,7 +1948,10 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            url: The URL of the XHTML document to download.</span>
 <span class="sd">            cache_file_name: The filename of the cached document.</span>
-<span class="sd">            progress_callback: Optional callback to report download progress.</span>
+<span class="sd">            progress_observer: Optional observer to report download progress.</span>
+<span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">                instead. Will be removed in a future release.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The file path where the document was saved.</span>
@@ -1885,8 +1960,11 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="sd">            RuntimeError: If the download or save fails.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
@@ -1979,10 +2057,10 @@ Inherits configuration and logging from DocHandler.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the XHTML document handler and set cache_file_name to None.&quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2065,21 +2143,21 @@ Inherits configuration and logging from DocHandler.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
 
 <span class="sd">    Removes zero-width space (ZWSP) and non-breaking space (NBSP) characters.</span>
@@ -2104,7 +2182,7 @@ Inherits configuration and logging from DocHandler.</p>
 
 
 <h3 id="dcmspec.xhtml_doc_handler.XHTMLDocHandler.download" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2157,16 +2235,38 @@ Inherits configuration and logging from DocHandler.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>progress_callback</code>
+                <code>progress_observer</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional callback to report download progress.</p>
+                <p>Optional observer to report download progress.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<span title="collections.abc.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress_callback</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>[LEGACY, Deprecated] Optional callback to
+report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+instead. Will be removed in a future release.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2229,34 +2329,46 @@ Inherits configuration and logging from DocHandler.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and cache an XHTML file from a URL.</span>
 
@@ -2265,7 +2377,10 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        url: The URL of the XHTML document to download.</span>
 <span class="sd">        cache_file_name: The filename of the cached document.</span>
-<span class="sd">        progress_callback: Optional callback to report download progress.</span>
+<span class="sd">        progress_observer: Optional observer to report download progress.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">            instead. Will be removed in a future release.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The file path where the document was saved.</span>
@@ -2274,8 +2389,11 @@ Inherits configuration and logging from DocHandler.</p>
 <span class="sd">        RuntimeError: If the download or save fails.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2286,7 +2404,7 @@ Inherits configuration and logging from DocHandler.</p>
 
 
 <h3 id="dcmspec.xhtml_doc_handler.XHTMLDocHandler.load_document" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">load_document</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_download</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2362,18 +2480,38 @@ Inherits configuration and logging from DocHandler.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>progress_callback</code>
+                <code>progress_observer</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional callback to report download progress.
-The callback receives an integer percent (0-100). If the total file size is unknown,
-the callback will be called with -1 to indicate indeterminate progress.</p>
+                <p>Optional observer to report download progress.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<span title="collections.abc.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress_callback</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>[LEGACY, Deprecated] Optional callback to
+report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+instead. Will be removed in a future release.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Callable">Callable</span>[[<span title="int">int</span>], None]]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2416,16 +2554,7 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
@@ -2445,11 +2574,35 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># END LEGACY SUPPORT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
 
@@ -2457,14 +2610,19 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 <span class="sd">        cache_file_name (str): Path to the local cached XHTML file.</span>
 <span class="sd">        url (str, optional): URL to download the file from if not cached or if force_download is True.</span>
 <span class="sd">        force_download (bool): If True, do not use cache and download the file from the URL.</span>
-<span class="sd">        progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.</span>
-<span class="sd">            The callback receives an integer percent (0-100). If the total file size is unknown,</span>
-<span class="sd">            the callback will be called with -1 to indicate indeterminate progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.</span>
+<span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
+<span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
+<span class="sd">            instead. Will be removed in a future release.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        BeautifulSoup: Parsed DOM.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
+    <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
+    <span class="c1"># END LEGACY SUPPORT</span>
+
     <span class="c1"># Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
@@ -2473,7 +2631,11 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
     <span class="k">if</span> <span class="n">need_download</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must be provided to download the file.&quot;</span><span class="p">)</span>
-        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="n">progress_callback</span><span class="p">)</span>
+        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+
+    <span class="c1"># No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,</span>
+    <span class="c1"># the parsing is fast and not a bottleneck. If future files or operations make parsing slow,</span>
+    <span class="c1"># consider extending progress reporting here.</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_dom</span><span class="p">(</span><span class="n">cache_file_path</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2577,35 +2739,35 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/xhtml_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
 
 <span class="sd">    Args:</span>
@@ -2695,10 +2857,10 @@ the callback will be called with -1 to indicate indeterminate progress.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
       
     
   </body>
