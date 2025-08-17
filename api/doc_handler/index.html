@@ -1896,7 +1896,8 @@ extensibility for richer progress tracking.</p>
 <span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
-<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DocHandler</span><span class="p">:</span>
+<span class="normal">213</span>
+<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DocHandler</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for DICOM document handlers.</span>
 
 <span class="sd">    Handles DICOM documents in various formats (e.g., XHTML, PDF).</span>
@@ -1997,7 +1998,8 @@ extensibility for richer progress tracking.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">progress_observer</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="n">percent</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">downloaded</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">total</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">percent</span> <span class="o">=</span> <span class="n">calculate_percent</span><span class="p">(</span><span class="n">downloaded</span><span class="p">,</span> <span class="n">total</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">percent</span> <span class="o">!=</span> <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
             <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="n">percent</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">DOWNLOADING</span><span class="p">))</span>
             <span class="n">last_percent</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">percent</span>
@@ -2302,8 +2304,7 @@ By default, returns the text unchanged.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">161</span>
-<span class="normal">162</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
 <span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span>
@@ -2315,7 +2316,8 @@ By default, returns the text unchanged.</p>
 <span class="normal">171</span>
 <span class="normal">172</span>
 <span class="normal">173</span>
-<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">174</span>
+<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
 
 <span class="sd">    Subclasses can override this to perform format-specific cleaning (e.g., remove ZWSP/NBSP for XHTML).</span>
@@ -2820,8 +2822,7 @@ instead. Will be removed in a future release.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
-<span class="normal">177</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
@@ -2857,7 +2858,8 @@ instead. Will be removed in a future release.</p>
 <span class="normal">210</span>
 <span class="normal">211</span>
 <span class="normal">212</span>
-<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
+<span class="normal">213</span>
+<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
