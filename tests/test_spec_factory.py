@@ -34,6 +34,12 @@ class DummyInputHandler:
     ):
         """Simulate getting a DOM from a file or URL."""
         self.called = True
+        if progress_observer:
+            # Simulate download progress for step 1
+            from dcmspec.progress import Progress
+            progress_observer(Progress(33))
+            progress_observer(Progress(66))
+            progress_observer(Progress(100))
         return "DOM"
 
 class NoCacheFileNameInputHandler(DummyInputHandler):
@@ -436,7 +442,7 @@ def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
     json_file_name = "model.json"
     events = []
     def observer(progress):
-        events.append((progress.percent, progress.status))
+        events.append(progress)
 
     # Act
 
@@ -451,17 +457,19 @@ def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
     # Assert
 
     # Filter only SAVING events
-    saving_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.SAVING_MODEL]
-    assert saving_events[0] == (0, ProgressStatus.SAVING_MODEL)
-    assert saving_events[-1] == (100, ProgressStatus.SAVING_MODEL)
+    saving_events = [p for p in events if p.status == ProgressStatus.SAVING_MODEL]
+    assert saving_events[0].percent == 0
+    assert saving_events[-1].percent == 100
     assert ms.saved[1].endswith(json_file_name)
 
     # Filter only PARSING events
-    parsing_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.PARSING_TABLE]
-    assert (33, ProgressStatus.PARSING_TABLE) in parsing_events
-    assert (66, ProgressStatus.PARSING_TABLE) in parsing_events
-    assert (100, ProgressStatus.PARSING_TABLE) in parsing_events
-
+    parsing_events = [p for p in events if p.status == ProgressStatus.PARSING_TABLE]
+    assert any(p.percent == 33 for p in parsing_events)
+    assert any(p.percent == 66 for p in parsing_events)
+    assert any(p.percent == 100 for p in parsing_events)
+    # Check that all parsing events have step=1 and total_steps=2
+    assert all(p.step == 1 for p in parsing_events)
+    assert all(p.total_steps == 2 for p in parsing_events)
 
 def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
     """Test create_model reports both parsing and saving progress updates via the observer."""
@@ -474,7 +482,7 @@ def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda path: False)
     events = []
     def observer(progress):
-        events.append((progress.percent, progress.status))
+        events.append(progress)
 
     # Act
 
@@ -488,14 +496,27 @@ def test_create_model_reports_parsing_and_saving_progress(monkeypatch):
 
     # Assert
 
-    # Filter only SAVING events
-    saving_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.SAVING_MODEL]
-    assert saving_events[0] == (0, ProgressStatus.SAVING_MODEL)
-    assert saving_events[-1] == (100, ProgressStatus.SAVING_MODEL)
-    assert ms.saved[1].endswith("model.json")
+    # Step 1: DOWNLOADING
+    step1_events = [p for p in events if p.step == 1]
+    assert step1_events, "Should report progress for Step 1 (DOWNLOADING)"
+    assert all(p.step == 1 for p in step1_events)
+    assert all(p.total_steps == 3 for p in step1_events)
 
-    # Filter only PARSING events
-    parsing_events = [(percent, status) for (percent, status) in events if status == ProgressStatus.PARSING_TABLE]
-    assert (33, ProgressStatus.PARSING_TABLE) in parsing_events
-    assert (66, ProgressStatus.PARSING_TABLE) in parsing_events
-    assert (100, ProgressStatus.PARSING_TABLE) in parsing_events
+    # Step 2: PARSING_TABLE
+    step2_events = [p for p in events if p.step == 2]
+    assert step2_events, "Should report progress for Step 2 (PARSING_TABLE)"
+    assert all(p.step == 2 for p in step2_events)
+    assert all(p.total_steps == 3 for p in step2_events)
+    assert all(p.status == ProgressStatus.PARSING_TABLE for p in step2_events)
+    assert any(p.percent == 33 for p in step2_events)
+    assert any(p.percent == 66 for p in step2_events)
+    assert any(p.percent == 100 for p in step2_events)
+
+    # Step 3: SAVING_MODEL
+    step3_events = [p for p in events if p.step == 3]
+    assert step3_events, "Should report progress for Step 3 (SAVING_MODEL)"
+    assert all(p.step == 3 for p in step3_events)
+    assert all(p.total_steps == 3 for p in step3_events)
+    assert all(p.status == ProgressStatus.SAVING_MODEL for p in step3_events)
+    assert any(p.percent == 0 for p in step3_events)
+    assert any(p.percent == 100 for p in step3_events)

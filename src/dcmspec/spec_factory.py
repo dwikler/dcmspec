@@ -7,7 +7,7 @@ import logging
 import os
 from typing import Any, Optional, Dict, Type
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-from dcmspec.progress import Progress, ProgressStatus, handle_legacy_callback
+from dcmspec.progress import Progress, ProgressStatus, add_progress_step, handle_legacy_callback, offset_progress_steps
 from typing import Callable
 # END LEGACY SUPPORT
 from dcmspec.config import Config
@@ -173,9 +173,7 @@ class SpecFactory:
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             force_parse (bool): If True, always parse and (over)write the JSON cache file.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
-            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
-                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
-                instead. Will be removed in a future release.
+                See the Note below for details on the progress events and their properties.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
                 Use this to supply extra parameters required by custom SpecModel subclasses.
                 For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass
@@ -196,11 +194,30 @@ class SpecFactory:
             - For PDF: a grouped table dict as returned by PDFDocHandler.
             - For other formats: as defined by the handler/parser.
 
+        Note:
+            If a progress observer accepting a Progress object is provided, progress events are as follows:
+
+            - **Step 1 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=1`, `total_steps=2`,
+                and a meaningful `percent` value.
+            - **Step 2 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=2`, `total_steps=2`,
+                and `percent` values of `0` (start) and `100` (completion).
+
+            For example usage in a client application,
+            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).
+            
         """
         # Try to load from cache first
         model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse)
         if model is not None:
             return model
+
+        # Enrich the progress observer for parsing step
+        if progress_observer:
+            @add_progress_step(step=1, total_steps=2, status=ProgressStatus.PARSING_TABLE)
+            def parsing_progress_observer(progress):
+                progress_observer(progress)
+        else:
+            parsing_progress_observer = None
 
         # Parse provided document otherwise
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
@@ -211,7 +228,7 @@ class SpecFactory:
             include_depth=include_depth,
             model_kwargs=model_kwargs,
             parser_kwargs=merged_parser_kwargs,
-            progress_observer=progress_observer,
+            progress_observer=parsing_progress_observer,
         )
 
         # Cache the newly built model if requested
@@ -220,11 +237,12 @@ class SpecFactory:
             try:
                 if progress_observer:
                     # Report start of saving
-                    progress_observer(Progress(0, status=ProgressStatus.SAVING_MODEL))
+                    progress_observer(Progress(0, status=ProgressStatus.SAVING_MODEL, step=2, total_steps=2))
                 self.model_store.save(model, json_file_path)
                 if progress_observer:
                     # Report completion of saving
-                    progress_observer(Progress(100, status=ProgressStatus.SAVING_MODEL))
+                    progress_observer(Progress(100, status=ProgressStatus.SAVING_MODEL, step=2, total_steps=2))
+
             except Exception as e:
                 self.logger.warning(f"Failed to cache model to {json_file_path}: {e}")
 
@@ -259,6 +277,7 @@ class SpecFactory:
             json_file_name (Optional[str]): Filename to save the cached JSON model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+                See the Note below for details on the progress events and their properties.
             progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
                 report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
                 instead. Will be removed in a future release.
@@ -273,6 +292,20 @@ class SpecFactory:
         Returns:
             SpecModel: The constructed model.
 
+            
+        Note:
+            If a progress observer accepting a Progress object is provided, progress events are as follows:
+
+            - **Step 1 (DOWNLOADING):** Events include `status=DOWNLOADING`, `step=1`, `total_steps=3`,
+                and a meaningful `percent` value.
+            - **Step 2 (PARSING_TABLE):** Events include `status=PARSING_TABLE`, `step=2`, `total_steps=3`,
+                and a meaningful `percent` value.
+            - **Step 3 (SAVING_MODEL):** Events include `status=SAVING_MODEL`, `step=3`, `total_steps=3`,
+                and `percent` values of `0` (start) and `100` (completion).
+
+            For example usage in a client application,
+            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).
+
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
         progress_observer = handle_legacy_callback(progress_observer, progress_callback)
@@ -285,28 +318,50 @@ class SpecFactory:
         if model is not None:
             return model
 
+        # --- Step 1 (DOWNLOADING)
+
+        # Wrap progress observer for step 1
+        if progress_observer:
+            @add_progress_step(step=1, total_steps=3)
+            def load_progress_observer(progress):
+                progress_observer(progress)
+        else:
+            load_progress_observer = None
+
         # Pass handler_kwargs to load_document
         doc_object = self.input_handler.load_document(
             cache_file_name=cache_file_name,
             url=url,
             force_download=force_download,
-            progress_observer=progress_observer,
+            progress_observer=load_progress_observer,
             # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
             progress_callback=progress_callback,
             # END LEGACY SUPPORT
             **(handler_kwargs or {})
         )
+
+        # --- Step 2 and 3 (PARSING_TABLE and SAVING_MODEL)
+
+        # Wrap progress observer for step 2 and 3
+        if progress_observer:
+            @offset_progress_steps(step_offset=1, total_steps=3)
+            def build_progress_observer(progress):
+                progress_observer(progress)
+        else:
+            build_progress_observer = None
+            
         return self.build_model(
             doc_object=doc_object,
             table_id=table_id,
             url=url,
             json_file_name=json_file_name,
             include_depth=include_depth,
-            progress_observer=progress_observer,
+            progress_observer=build_progress_observer,
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
             parser_kwargs=parser_kwargs,
         )
+
 
     def _load_model_from_cache(
         self,

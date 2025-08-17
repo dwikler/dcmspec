@@ -50,6 +50,7 @@ nav:
       - Utils Classes:
           - Config: api/config.md
           - DOMUtils: api/dom_utils.md
+          - Progress: api/progress.md
 
 plugins:
   - search

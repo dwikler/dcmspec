@@ -14,7 +14,7 @@ from dcmspec.spec_model import SpecModel
 
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from typing import Callable
-from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, handle_legacy_callback
+from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, add_progress_step, handle_legacy_callback
 # END LEGACY SUPPORT
 
 class IODSpecBuilder:
@@ -79,6 +79,7 @@ class IODSpecBuilder:
             table_id (str): The ID of the IOD table to parse.
             force_download (bool): If True, always download the input file and generate the model even if cached.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+                See the Note below for details on the progress events and their properties.
             progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
                 report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
                 instead. Will be removed in a future release.            
@@ -87,6 +88,21 @@ class IODSpecBuilder:
 
         Returns:
             SpecModel: The expanded model with IOD and module content.
+    
+        Note:
+            If a progress observer accepting a Progress object is provided, progress events are as follows:
+            
+            - **Step 1 (DOWNLOADING_IOD):** Events include `status=DOWNLOADING_IOD`, `step=1`,
+            `total_steps=4`, and a meaningful `percent` value.
+            - **Step 2 (PARSING_IOD_MODULE_LIST):** Events include `status=PARSING_IOD_MODULE_LIST`, `step=2`,
+            `total_steps=4`, and `percent == -1` (indeterminate).
+            - **Step 3 (PARSING_IOD_MODULES):** Events include `status=PARSING_IOD_MODULES`, `step=3`,
+                `total_steps=4`, and a meaningful `percent` value.
+            - **Step 4 (SAVING_IOD_MODEL):** Events include `status=SAVING_IOD_MODEL`, `step=4`,
+                `total_steps=4`, and `percent == -1` (indeterminate).
+
+            For example usage in a client application,
+            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).
 
         """
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
@@ -102,14 +118,16 @@ class IODSpecBuilder:
 
         # --- Step 1: Load the DOM from cache file or download and cache DOM in memory ---
         if progress_observer:
-            progress_observer(
-                Progress(-1, status=ProgressStatus.DOWNLOADING_IOD, step=1, total_steps=total_steps)
-                )
+            @add_progress_step(step=1, total_steps=total_steps, status=ProgressStatus.DOWNLOADING_IOD)
+            def step1_progress_observer(progress):
+                progress_observer(progress)
+        else:
+            step1_progress_observer = None
         dom = self.iod_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,
             force_download=force_download,
-            progress_observer=progress_observer,
+            progress_observer=step1_progress_observer,
             # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
             progress_callback=progress_observer,
             # END LEGACY SUPPORT

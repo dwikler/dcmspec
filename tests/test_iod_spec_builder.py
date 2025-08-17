@@ -365,6 +365,7 @@ def test_iod_spec_builder_progress_observer(monkeypatch):
     )
     assert progress_objects  # Should be called at least once
     assert all(isinstance(p, Progress) for p in progress_objects)
+    
     # Should see at least one high-level status
     high_level_statuses = {
         ProgressStatus.DOWNLOADING_IOD,
@@ -373,6 +374,20 @@ def test_iod_spec_builder_progress_observer(monkeypatch):
         ProgressStatus.SAVING_IOD_MODEL,
     }
     assert any(p.status in high_level_statuses for p in progress_objects)
+
+    # Check for Step 1: DOWNLOADING_IOD events
+    step1_events = [p for p in progress_objects if p.status == ProgressStatus.DOWNLOADING_IOD and p.step == 1]
+    assert step1_events, "Should report progress for Step 1 (DOWNLOADING_IOD)"
+    assert all(p.step == 1 for p in step1_events)
+    assert all(p.status == ProgressStatus.DOWNLOADING_IOD for p in step1_events)
+
+    # Check for Step 3: fine-grained PARSING_IOD_MODULES progress
+    step3_events = [p for p in progress_objects if p.status == ProgressStatus.PARSING_IOD_MODULES and p.step == 3]
+    assert step3_events, "Should report progress for Step 3 (PARSING_IOD_MODULES)"
+    # Should see at least one percent update in step 3
+    assert any(isinstance(p.percent, int) and 0 <= p.percent <= 100 for p in step3_events)
+    assert all(p.step == 3 for p in step3_events)
+    assert all(p.status == ProgressStatus.PARSING_IOD_MODULES for p in step3_events)
 
 def test_iod_spec_builder_both_progress_callback_and_observer(monkeypatch):
     """Test that only progress_observer is called if both are provided."""

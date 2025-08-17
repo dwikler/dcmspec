@@ -1,11 +1,38 @@
 """Progress tracking classes for monitoring long-running operations in dcmspec."""
+
 import types
 import warnings
+import inspect
 from typing import Callable, Optional
 from enum import Enum, auto
 
 class ProgressStatus(Enum):
-    """Enumeration of progress statuses."""
+    """Enumeration of progress statuses.
+
+    This enum defines the various states that a long-running operation can be in.
+
+    | Name                    | Value | Description                                            |
+    |-------------------------|--------|-------------------------------------------------------|
+    | DOWNLOADING             | auto() | Generic download (e.g., a document)                   |
+    | DOWNLOADING_IOD         | auto() | Downloading the IOD specification document (Part 3)   |
+    | PARSING_TABLE           | auto() | Parsing a DICOM table                                 |
+    | PARSING_IOD_MODULE_LIST | auto() | Parsing the list of modules in the IOD                |
+    | PARSING_IOD_MODULES     | auto() | Parsing the IOD modules                               |
+    | SAVING_MODEL            | auto() | Saving a specification model to disk                  |
+    | SAVING_IOD_MODEL        | auto() | Saving the IOD model to disk                          
+
+    Example:
+        In your application, you can use ProgressStatus to present progress information to users:
+
+        ```python
+        from dcmspec.progress import ProgressStatus
+
+        def progress_observer(progress):
+            if progress.status == ProgressStatus.DOWNLOADING_IOD:
+                print(f"Downloading IOD... {progress.percent}%")
+        ```
+
+    """
 
     DOWNLOADING = auto()  # Generic download (e.g., a document)
     DOWNLOADING_IOD = auto()  # Downloading the IOD specification document (Part 3)
@@ -15,6 +42,37 @@ class ProgressStatus(Enum):
     SAVING_MODEL = auto()  # Saving a specification model to disk
     SAVING_IOD_MODEL = auto()  # Saving the IOD model to disk
 
+def add_progress_step(step, total_steps, status=None):
+    """Define a decorator to enrich progress events with step, total_steps, and optionally status."""
+    def decorator(observer):
+        def wrapper(progress):
+            """Wrap the observer to include step, total_steps, and optionally status in the Progress object."""
+            enriched = Progress(
+                progress.percent,
+                status=status if status is not None else progress.status,
+                step=step,
+                total_steps=total_steps
+            )
+            observer(enriched)
+        return wrapper
+    return decorator
+
+def offset_progress_steps(step_offset, total_steps):
+    """Define a decorator to offset progress steps by a fixed amount."""
+    def decorator(observer):
+        def wrapper(progress):
+            # Only update step/total_steps if they are set
+            step = progress.step + step_offset if progress.step is not None else None
+            observer(
+                Progress(
+                    progress.percent,
+                    status=progress.status,
+                    step=step,
+                    total_steps=total_steps
+                )
+            )
+        return wrapper
+    return decorator
 
 def handle_legacy_callback(
     progress_observer: Optional[Callable] = None,
@@ -68,20 +126,28 @@ def adapt_progress_observer(observer):
     """
     if observer is None:
         return None
-    import inspect
     if isinstance(observer, types.FunctionType):
         sig = inspect.signature(observer)
         params = list(sig.parameters.values())
         if len(params) == 1:
             param = params[0]
             if param.annotation in (int, inspect._empty):
+                warned = {"emitted": False}
                 def wrapper(progress):
-                    warnings.warn(
-                        "Passing a progress callback that accepts an int is deprecated. "
-                        "Update your callback to accept a Progress object.",
-                        DeprecationWarning,
-                        stacklevel=2
-                    )
+                    """Create a closure that adapts a legacy int progress callback to a Progress observer.
+
+                    The original observer function is captured in this closure — a nested function that remembers
+                    variables from the outer scope — so the returned wrapper will always call the correct callback.
+                    This allows us to adapt a legacy int callback to a Progress observer without using a class.
+                    """
+                    if not warned["emitted"]:
+                        warnings.warn(
+                            "Passing a progress callback that accepts an int is deprecated. "
+                            "Update your callback to accept a Progress object.",
+                            DeprecationWarning,
+                            stacklevel=2
+                        )
+                        warned["emitted"] = True
                     return observer(progress.percent)
                 return wrapper
     return observer
@@ -97,8 +163,8 @@ class Progress:
     """
 
     def __init__(self, percent: int, status: 'ProgressStatus' = None, step: int = None, total_steps: int = None):
-        """Initialize the progress.
-
+        """Initialize the progress private attributes.
+        
         This class is immutable: the percent value is set at initialization and should not be changed.
         To report new progress, create a new Progress instance.
 
@@ -107,13 +173,38 @@ class Progress:
             status (ProgressStatus, optional): A status code indicating the current operation.
             step (int, optional): The current step number in a multi-step process (1-based).
             total_steps (int, optional): The total number of steps in the process.
-
-
+                    
         """
-        self.percent = percent
-        self.status = status
-        self.step = step
-        self.total_steps = total_steps
+        self._percent = percent
+        self._status = status
+        self._step = step
+        self._total_steps = total_steps
+
+    @property
+    def percent(self) -> int:
+        """Get the progress percentage."""
+        return self._percent
+
+    @property
+    def status(self) -> Optional['ProgressStatus']:
+        """Get the progress status."""
+        return self._status
+
+    @property
+    def step(self) -> Optional[int]:
+        """Get the current step number."""
+        return self._step
+
+    @property
+    def total_steps(self) -> Optional[int]:
+        """Get the total number of steps."""
+        return self._total_steps
+
+    def __setattr__(self, name, value):
+        """Prevent modification of attributes after initialization."""
+        if hasattr(self, name):
+            raise AttributeError(f"{self.__class__.__name__} is immutable. Cannot modify '{name}'.")
+        super().__setattr__(name, value)
 
 class ProgressObserver:
     """Observer for monitoring progress updates."""
