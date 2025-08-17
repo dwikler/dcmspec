@@ -28,7 +28,7 @@ def test_download_cleans_xhtml(monkeypatch, caplog, dummy_response):
 
     with caplog.at_level("INFO"):
         # Call the download method
-        result_path = handler.download("http://example.com", file_name, progress_callback=None)
+        result_path = handler.download("http://example.com", file_name, progress_observer=None)
 
     # Assert the file was created and contains the expected content
     assert result_path == file_path
@@ -104,6 +104,48 @@ def test_load_document_force_download(monkeypatch):
     result = handler.load_document(file_name, url="http://example.com", force_download=True)
     assert result == "DOM_OBJECT"
     assert call_log == ["download", "parse_dom"]
+
+def test_load_document_progress_callback(monkeypatch):
+    """Test that load_document adapts a legacy int progress callback to work with the observer API."""
+    handler = XHTMLDocHandler()
+    file_name = "file.xhtml"
+    file_path = _standard_file_path(handler, file_name)
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+    # Patch download to call the observer as the real code would (with a Progress object)
+    def fake_download(url, cache_file_name, progress_observer=None, **kwargs):
+        class DummyProgress:
+            percent = 88
+        progress_observer(DummyProgress())
+        return file_path
+    monkeypatch.setattr(handler, "download", fake_download)
+    monkeypatch.setattr(handler, "parse_dom", lambda path: "DOM_OBJECT")
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    handler.load_document(file_name, url="http://example.com", force_download=True, progress_callback=progress_callback)
+    assert progress_values == [88]
+
+def test_load_document_progress_observer_class(monkeypatch):
+    """Test that load_document works with a ProgressObserver class instance."""
+    handler = XHTMLDocHandler()
+    file_name = "file.xhtml"
+    file_path = _standard_file_path(handler, file_name)
+    class MyObserver:
+        def __init__(self):
+            self.values = []
+        def __call__(self, progress):
+            self.values.append(progress.percent)
+    observer = MyObserver()
+    def fake_download(url, cache_file_name, progress_observer=None, **kwargs):
+        class DummyProgress:
+            percent = 55
+        progress_observer(DummyProgress())
+        return file_path
+    monkeypatch.setattr(handler, "download", fake_download)
+    monkeypatch.setattr(handler, "parse_dom", lambda path: "DOM_OBJECT")
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    handler.load_document(file_name, url="http://example.com", force_download=True, progress_observer=observer)
+    assert observer.values == [55]
 
 def test_load_document_file_missing(monkeypatch):
     """Test that load_document downloads and parses when file does not exist and force_download is False."""

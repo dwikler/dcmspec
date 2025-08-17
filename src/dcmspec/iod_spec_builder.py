@@ -5,12 +5,17 @@ DICOM IOD model, combining the IOD Modules and Module Attributes models.
 """
 import logging
 import os
-from typing import Callable, Optional
+from typing import Any, Dict, List, Optional
 
 from anytree import Node
 from dcmspec.dom_utils import DOMUtils
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_model import SpecModel
+
+# BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+from typing import Callable
+from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, add_progress_step, handle_legacy_callback
+# END LEGACY SUPPORT
 
 class IODSpecBuilder:
     """Orchestrates the construction of a expanded DICOM IOD specification model.
@@ -51,7 +56,10 @@ class IODSpecBuilder:
         cache_file_name: str,
         table_id: str,
         force_download: bool = False,
-        progress_callback: 'Optional[Callable[[int], None]]' =None,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_callback: 'Optional[Callable[[int], None]]' = None,
+        # END LEGACY SUPPORT
         json_file_name: str = None,
         **kwargs: object,
     ) -> SpecModel:
@@ -70,31 +78,66 @@ class IODSpecBuilder:
             cache_file_name (str): Filename of the cached input file.
             table_id (str): The ID of the IOD table to parse.
             force_download (bool): If True, always download the input file and generate the model even if cached.
-            progress_callback (Optional[Callable[[int], None]]): Optional callback to report download progress.
-                The callback receives an integer percent (0-100). If the total file size is unknown,
-                the callback will be called with -1 to indicate indeterminate progress.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+                See the Note below for details on the progress events and their properties.
+            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to
+                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer
+                instead. Will be removed in a future release.            
             json_file_name (str, optional): Filename to save the cached expanded JSON model.
             **kwargs: Additional arguments for model construction.
 
         Returns:
             SpecModel: The expanded model with IOD and module content.
+    
+        Note:
+            If a progress observer accepting a Progress object is provided, progress events are as follows:
+            
+            - **Step 1 (DOWNLOADING_IOD):** Events include `status=DOWNLOADING_IOD`, `step=1`,
+            `total_steps=4`, and a meaningful `percent` value.
+            - **Step 2 (PARSING_IOD_MODULE_LIST):** Events include `status=PARSING_IOD_MODULE_LIST`, `step=2`,
+            `total_steps=4`, and `percent == -1` (indeterminate).
+            - **Step 3 (PARSING_IOD_MODULES):** Events include `status=PARSING_IOD_MODULES`, `step=3`,
+                `total_steps=4`, and a meaningful `percent` value.
+            - **Step 4 (SAVING_IOD_MODEL):** Events include `status=SAVING_IOD_MODEL`, `step=4`,
+                `total_steps=4`, and `percent == -1` (indeterminate).
+
+            For example usage in a client application,
+            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).
 
         """
+        # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+        progress_observer = handle_legacy_callback(progress_observer, progress_callback)
+        # END LEGACY SUPPORT
         # Load from cache if the expanded IOD model is already present
         cached_model = self._load_expanded_model_from_cache(json_file_name, force_download)
         if cached_model is not None:
             cached_model.logger = self.logger
             return cached_model
 
-        # Load the DOM from cache file or download and cache DOM in memory.
+        total_steps = 4  # 1=download, 2=parse IOD, 3=build modules, 4=save
+
+        # --- Step 1: Load the DOM from cache file or download and cache DOM in memory ---
+        if progress_observer:
+            @add_progress_step(step=1, total_steps=total_steps, status=ProgressStatus.DOWNLOADING_IOD)
+            def step1_progress_observer(progress):
+                progress_observer(progress)
+        else:
+            step1_progress_observer = None
         dom = self.iod_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,
             force_download=force_download,
-            progress_callback=progress_callback,
+            progress_observer=step1_progress_observer,
+            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
+            progress_callback=progress_observer,
+            # END LEGACY SUPPORT
         )
 
-        # Build the IOD Modules model from the DOM
+        # --- Step 2: Build the IOD Module List model from the DOM ---
+        if progress_observer:
+            progress_observer(
+                Progress(-1, status=ProgressStatus.PARSING_IOD_MODULE_LIST, step=2, total_steps=total_steps)
+                )
         iodmodules_model = self.iod_factory.build_model(
             doc_object=dom,
             table_id=table_id,
@@ -102,14 +145,26 @@ class IODSpecBuilder:
             json_file_name=json_file_name,
         )
 
+        # --- Step 3: Build or load model for each module in the IOD ---
+        if progress_observer:
+            progress_observer(
+                Progress(-1, status=ProgressStatus.PARSING_IOD_MODULES, step=3, total_steps=total_steps)
+            )
+
         # Find all nodes with a "ref" attribute in the IOD Modules model
         nodes_with_ref = [node for node in iodmodules_model.content.children if hasattr(node, "ref")]
 
         # Build or load module models for each referenced section
-        module_models = self._build_module_models(nodes_with_ref, dom, url)
+        module_models = self._build_module_models(
+            nodes_with_ref, dom, url, step=3, total_steps=total_steps, progress_observer=progress_observer
+        )
         # Fail if no module models were found.
         if not module_models:
             raise RuntimeError("No module models were found for the referenced modules in the IOD table.")
+
+        # --- Step 4: Create and store the expanded model with IOD and module content ---
+        if progress_observer:
+            progress_observer(Progress(-1, status=ProgressStatus.SAVING_IOD_MODEL, step=4, total_steps=total_steps))
 
         # Create the expanded model from the IOD modules and module models
         iod_model = self._create_expanded_model(iodmodules_model, module_models)
@@ -144,10 +199,23 @@ class IODSpecBuilder:
                 )
         return None
 
-    def _build_module_models(self, nodes_with_ref, dom, url) -> dict:
-        """Build or load module models for each referenced section."""
-        module_models = {}
-        for node in nodes_with_ref:
+    def _build_module_models(
+        self,
+        nodes_with_ref: List[Any],
+        dom: Any,
+        url: str,
+        step: int,
+        total_steps: int,
+        progress_observer: Optional['ProgressObserver'] = None
+    ) -> Dict[str, Any]:        
+        """Build or load module models for each referenced section, reporting progress."""
+        module_models: Dict[str, Any] = {}
+        total_modules = len(nodes_with_ref)
+        if progress_observer and total_modules > 0:
+            progress_observer(
+                Progress(0, status=ProgressStatus.PARSING_IOD_MODULES, step=step, total_steps=total_steps)
+                )
+        for idx, node in enumerate(nodes_with_ref):
             ref_value = getattr(node, "ref", None)
             if not ref_value:
                 continue
@@ -171,6 +239,7 @@ class IODSpecBuilder:
                         table_id=module_table_id,
                         url=url,
                         json_file_name=module_json_file_name,
+                        progress_observer=progress_observer,
                     )
             else:
                 module_model = self.module_factory.build_model(
@@ -178,8 +247,17 @@ class IODSpecBuilder:
                     table_id=module_table_id,
                     url=url,
                     json_file_name=module_json_file_name,
+                    progress_observer=progress_observer,
                 )
             module_models[ref_value] = module_model
+            if progress_observer and total_modules > 0:
+                percent = int((idx + 1) * 100 / total_modules)
+                progress_observer(Progress(
+                    percent,
+                    status=ProgressStatus.PARSING_IOD_MODULES,
+                    step=step,
+                    total_steps=total_steps
+                ))
         return module_models
     
     def _create_expanded_model(self, iodmodules_model: SpecModel, module_models: dict) -> SpecModel:

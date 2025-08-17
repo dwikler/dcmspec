@@ -447,3 +447,34 @@ def test_parse_metadata_realigns_column_to_attr_when_middle_missing(docbook_samp
     # The header should have the correct number of columns and order
     assert metadata.header == ["Attr Name", "Tag", "Description"]
 
+def test_parse_table_reports_parsing_progress(docbook_sample_dom_1):  # noqa: F811
+    """Test that parse_table reports parsing progress via the observer."""
+    # Arrange
+
+    from dcmspec.dom_table_spec_parser import DOMTableSpecParser
+    from dcmspec.progress import ProgressStatus
+
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    events = []
+
+    def observer(progress):
+        events.append((progress.percent, progress.status))
+
+    # Act
+
+    parser.parse_table(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        progress_observer=observer
+    )
+
+    # Assert
+
+    # There are 2 data rows in docbook_sample_dom_1, so expect 2 progress events: 50% and 100%
+    assert (50, ProgressStatus.PARSING_TABLE) in events
+    assert (100, ProgressStatus.PARSING_TABLE) in events
+    # Optionally, check that all events are for PARSING
+    assert all(status == ProgressStatus.PARSING_TABLE for _, status in events)

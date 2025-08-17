@@ -11,7 +11,9 @@ from anytree import Node
 from bs4 import BeautifulSoup, Tag
 from typing import Any, Dict, Optional, Union
 from dcmspec.spec_parser import SpecParser
+
 from dcmspec.dom_utils import DOMUtils
+from dcmspec.progress import Progress, ProgressStatus
 
 class DOMTableSpecParser(SpecParser):
     """Parser for DICOM specification tables in XHTML DOM format.
@@ -41,6 +43,7 @@ class DOMTableSpecParser(SpecParser):
         column_to_attr: Dict[int, str],
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
+        progress_observer: Optional[object] = None,        
         skip_columns: Optional[list[int]] = None,
         unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
     ) -> tuple[Node, Node]:
@@ -56,6 +59,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr (str): The attribute name to use for building node names.
             include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
                 None means unlimited.
+            progress_observer (Optional[object], optional): Optional observer to report download progress.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
                 This argument is typically set via `parser_kwargs` when using SpecFactory.
             unformatted (Optional[Union[bool, Dict[int, bool]]]): 
@@ -83,6 +87,7 @@ class DOMTableSpecParser(SpecParser):
             column_to_attr, 
             name_attr, 
             include_depth=include_depth, 
+            progress_observer=progress_observer,
             skip_columns=skip_columns, 
             unformatted_list=unformatted_list
         )
@@ -127,6 +132,7 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
+        progress_observer: Optional[object] = None,
         skip_columns: Optional[list[int]] = None,
         visited_tables: Optional[set] = None,
         unformatted_list: Optional[list[bool]] = None,
@@ -145,6 +151,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr: tree node attribute name to use to build node name
             table_nesting_level: The nesting level of the table (used for recursion call only).
             include_depth: The depth to which included tables should be parsed.
+            progress_observer (Optional[object], optional): Optional observer to report download progress.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
             visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.
             unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as 
@@ -198,6 +205,7 @@ class DOMTableSpecParser(SpecParser):
                 unformatted_list=unformatted_list,
                 level_nodes=level_nodes,
                 root=root,
+                progress_observer=progress_observer if table_nesting_level == 0 else None,
             )
 
             self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
@@ -279,9 +287,12 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool],
         level_nodes: Dict[int, Node],
         root: Node,
+        progress_observer: Optional[object] = None
     ):
         """Process all rows in the table, handling recursion, nesting, and node creation."""
-        for row in table.find_all("tr")[1:]:
+        rows = table.find_all("tr")[1:]
+        total_rows = len(rows)
+        for idx, row in enumerate(rows):
             row_data = self._extract_row_data(row, skip_columns=skip_columns, unformatted_list=unformatted_list)
             if row_data[name_attr] is None:
                 continue  # Skip empty rows
@@ -308,6 +319,13 @@ class DOMTableSpecParser(SpecParser):
             else:
                 node_name = self._sanitize_string(row_data[name_attr])
                 self._create_node(node_name, row_data, row_nesting_level, level_nodes, root)
+            # Only report progress for the root table
+            if progress_observer is not None:
+                percent = int((idx + 1) * 100 / total_rows)
+                progress_observer(Progress(
+                    percent,
+                    status=ProgressStatus.PARSING_TABLE,
+                ))
 
     def _extract_row_data(
         self,

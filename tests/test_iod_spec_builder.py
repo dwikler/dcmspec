@@ -2,6 +2,7 @@
 import pytest
 from anytree import Node
 from dcmspec.iod_spec_builder import IODSpecBuilder
+from dcmspec.progress import Progress, ProgressStatus
 from dcmspec.spec_model import SpecModel
 
 class DummyFactory:
@@ -11,11 +12,19 @@ class DummyFactory:
         """Initialize."""
         self.called = []
 
-    def load_document(self, url, cache_file_name, force_download=False, progress_callback=None):
-        """Patch loading the DOM."""
+    def load_document(self, url, cache_file_name, force_download=False, progress_observer=None, progress_callback=None):
+        """Patch loading the document.
+
+        Note: This dummy is meant to be called through a higher-level function
+        (like IODSpecBuilder.build_from_url or SpecFactory.create_model) that adapts
+        a legacy int progress_callback to a progress_observer. Only progress_observer
+        is called here, never progress_callback. If you call this dummy directly with
+        only progress_callback set, progress will not be reported.
+        """
         self.called.append(("load_document", url, cache_file_name, force_download))
-        if progress_callback:
-            progress_callback(42)
+        if progress_observer:
+            progress_observer(Progress(42))
+        # Do NOT call progress_callback here.
         return "FAKE_DOM"
 
     def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
@@ -322,10 +331,88 @@ def test_iod_spec_builder_progress_callback(monkeypatch):
     monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
 
     progress_values = []
+    def legacy_callback(percent):
+        progress_values.append(percent)
     builder.build_from_url(
         url="http://example.com",
         cache_file_name="file.xhtml",
         table_id="table_IOD",
-        progress_callback=progress_values.append
+        progress_callback=legacy_callback
     )
+
     assert progress_values  # Should be called at least once
+    # Should be int values
+    assert all(isinstance(val, int) for val in progress_values)
+
+def test_iod_spec_builder_progress_observer(monkeypatch):
+    """Test that IODSpecBuilder.build_from_url calls progress_observer (Progress object)."""
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")
+    factory.model_store = DummyModelStore()
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+
+    progress_objects = []
+    def observer(progress):
+        progress_objects.append(progress)
+
+    builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        progress_observer=observer
+    )
+    assert progress_objects  # Should be called at least once
+    assert all(isinstance(p, Progress) for p in progress_objects)
+    
+    # Should see at least one high-level status
+    high_level_statuses = {
+        ProgressStatus.DOWNLOADING_IOD,
+        ProgressStatus.PARSING_IOD_MODULE_LIST,
+        ProgressStatus.PARSING_IOD_MODULES,
+        ProgressStatus.SAVING_IOD_MODEL,
+    }
+    assert any(p.status in high_level_statuses for p in progress_objects)
+
+    # Check for Step 1: DOWNLOADING_IOD events
+    step1_events = [p for p in progress_objects if p.status == ProgressStatus.DOWNLOADING_IOD and p.step == 1]
+    assert step1_events, "Should report progress for Step 1 (DOWNLOADING_IOD)"
+    assert all(p.step == 1 for p in step1_events)
+    assert all(p.status == ProgressStatus.DOWNLOADING_IOD for p in step1_events)
+
+    # Check for Step 3: fine-grained PARSING_IOD_MODULES progress
+    step3_events = [p for p in progress_objects if p.status == ProgressStatus.PARSING_IOD_MODULES and p.step == 3]
+    assert step3_events, "Should report progress for Step 3 (PARSING_IOD_MODULES)"
+    # Should see at least one percent update in step 3
+    assert any(isinstance(p.percent, int) and 0 <= p.percent <= 100 for p in step3_events)
+    assert all(p.step == 3 for p in step3_events)
+    assert all(p.status == ProgressStatus.PARSING_IOD_MODULES for p in step3_events)
+
+def test_iod_spec_builder_both_progress_callback_and_observer(monkeypatch):
+    """Test that only progress_observer is called if both are provided."""
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")
+    factory.model_store = DummyModelStore()
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+
+    progress_values = []
+    def legacy_callback(percent):
+        progress_values.append(percent)
+    progress_objects = []
+    def observer(progress):
+        progress_objects.append(progress)
+
+    builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        progress_callback=legacy_callback,
+        progress_observer=observer
+    )
+    # Only the observer should be called, not the callback
+    assert not progress_values
+    assert progress_objects
+    assert all(isinstance(p, Progress) for p in progress_objects)
