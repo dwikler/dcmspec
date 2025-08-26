@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dependencies
         shell: bash
-        run: poetry install --with test --without docs  --extra pdf
+        run: poetry install --with test --without docs --extras pdf
 
       - name: Run pytest
         shell: bash
