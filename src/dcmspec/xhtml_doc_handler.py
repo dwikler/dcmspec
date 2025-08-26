@@ -16,7 +16,7 @@ from typing import Callable
 
 from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
-from dcmspec.progress import ProgressObserver
+from dcmspec.progress import ProgressObserver, ProgressStatus
 
 
 class XHTMLDocHandler(DocHandler):
@@ -73,6 +73,11 @@ class XHTMLDocHandler(DocHandler):
             if not url:
                 raise ValueError("URL must be provided to download the file.")
             cache_file_path = self.download(url, cache_file_name, progress_observer=progress_observer)
+        else:
+            # Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)
+            if progress_observer:
+                from dcmspec.progress import Progress
+                progress_observer(Progress(100, status=ProgressStatus.DOWNLOADING))     
 
         # No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,
         # the parsing is fast and not a bottleneck. If future files or operations make parsing slow,
