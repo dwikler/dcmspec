@@ -165,6 +165,8 @@ class Progress:
         percent (int): The progress percentage (0-100).
         status (ProgressStatus, optional): A machine-readable status code (see ProgressStatus enum).
             Clients are responsible for mapping this code to a user-facing string or UI element.
+        step (int, optional): The current step number in a multi-step process (1-based).
+        total_steps (int, optional): The total number of steps in the process.
 
     """
 

@@ -163,6 +163,35 @@ def test_download_progress_callback_text(monkeypatch, tmp_path, dummy_response):
     # Note: Percent values use round(), so 2/3 of 100 is 67, not 66.
     assert progress_values == [33, 67, 100]
 
+def test_download_progress_callback_many_small_chunks(monkeypatch, tmp_path, dummy_response):
+    """Test that download calls progress_callback with increasing percent values for many small chunks."""
+    handler = DummyDocHandler()
+    file_name = "test_many_chunks.txt"
+    file_path = tmp_path / file_name
+
+    # Simulate 1000 chunks of 1 byte each for a 1000-byte file
+    chunks = ["a"] * 1000
+    monkeypatch.setattr(
+        "requests.get",
+        lambda url, timeout, **kwargs: dummy_response(
+            text="a" * 1000,
+            chunks=chunks,
+            headers={"content-length": "1000"}
+        )
+    )
+
+    progress_values = []
+    def progress_callback(percent):
+        progress_values.append(percent)
+
+    handler.download("http://example.com", str(file_path), progress_callback=progress_callback)
+    # Should get percent values from 1 to 100 (or at least increasing values, not just 0)
+    assert any(p > 0 for p in progress_values), f"Expected at least one non-zero percent, got: {progress_values}"
+    assert progress_values[-1] == 100
+    # Optionally, check that the first value is 0 and then increases
+    assert progress_values[0] == 1 or progress_values[0] == 0
+    assert sorted(progress_values) == progress_values  # Should be non-decreasing
+
 def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):
     """Test that download calls progress_observer with Progress objects and correct status."""
     from dcmspec.progress import Progress, ProgressStatus
