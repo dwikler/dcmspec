@@ -189,7 +189,7 @@ def test_download_progress_callback_many_small_chunks(monkeypatch, tmp_path, dum
     assert any(p > 0 for p in progress_values), f"Expected at least one non-zero percent, got: {progress_values}"
     assert progress_values[-1] == 100
     # Optionally, check that the first value is 0 and then increases
-    assert progress_values[0] == 1 or progress_values[0] == 0
+    assert progress_values[0] in [1, 0]
     assert sorted(progress_values) == progress_values  # Should be non-decreasing
 
 def test_download_progress_observer_text(monkeypatch, tmp_path, dummy_response):
