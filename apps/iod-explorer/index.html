@@ -20,7 +20,7 @@
     
     
       
-        <title>DCMSPEC Explorer - DCMspec Documentation</title>
+        <title>IOD Explorer - DCMspec Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dcmspec-explorer" class="md-skip">
+        <a href="#iod-explorer" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              DCMSPEC Explorer
+              IOD Explorer
             
           </span>
         </div>
@@ -627,7 +627,7 @@
   
   
   <span class="md-ellipsis">
-    DCMSPEC Explorer
+    IOD Explorer
     
   </span>
   
@@ -640,7 +640,7 @@
   
   
   <span class="md-ellipsis">
-    DCMSPEC Explorer
+    IOD Explorer
     
   </span>
   
@@ -1762,8 +1762,8 @@
 
 
 
-<h1 id="dcmspec-explorer">DCMSPEC Explorer</h1>
-<p>A GUI application for exploring DICOM specifications interactively.</p>
+<h1 id="iod-explorer">IOD Explorer</h1>
+<p>A GUI application for exploring DICOM IOD specifications interactively.</p>
 <h2 id="dependencies">Dependencies</h2>
 <ul>
 <li><strong>tkhtmlview</strong> (required for the GUI, but now installed only if you request the GUI extra)</li>
@@ -1783,7 +1783,7 @@
 </blockquote>
 <h2 id="installation">Installation</h2>
 <p>Clone the repository and install dependencies with Poetry:</p>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yourusername/dcmspec.git
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dwikler/dcmspec.git
 <span class="nb">cd</span><span class="w"> </span>dcmspec
 poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>gui
 </code></pre></div>
@@ -1805,19 +1805,19 @@ Poetry manages a venv automatically, but if you use pip directly, create one wit
 </blockquote>
 <h2 id="running-the-application">Running the Application</h2>
 <h3 id="option-1-using-poetry-run-recommended">Option 1: Using poetry run (recommended)</h3>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>dcmspec-explorer
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>iod-explorer
 </code></pre></div>
 <h3 id="option-2-activate-environment-then-run-directly">Option 2: Activate environment then run directly</h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># On Windows PowerShell</span>
 .<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1
-dcmspec-explorer
+iod-explorer
 
 <span class="c1"># On Unix/macOS</span>
 <span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-dcmspec-explorer
+iod-explorer
 </code></pre></div>
 <h3 id="option-3-using-the-module-path">Option 3: Using the module path</h3>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.apps.dcmspec_explorer.dcmspec_explorer
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.apps.iod_explorer.iod_explorer
 </code></pre></div>
 <h3 id="note-on-poetry-20-environment-activation">Note on Poetry 2.0+ Environment Activation</h3>
 <p>If you're using Poetry 2.0+, the <code>poetry env activate</code> command only prints the activation command but doesn't actually activate the environment in your current shell. For direct command execution, use one of these approaches:</p>
@@ -1829,9 +1829,9 @@ dcmspec-explorer
 <h2 id="configuration">Configuration</h2>
 <p>The application supports customizable configuration through JSON files. Configuration files are searched in the following order:</p>
 <ol>
-<li>Current directory: <code>dcmspec_explorer_config.json</code></li>
-<li>User config: <code>~/.config/dcmspec/dcmspec_explorer_config.json</code></li>
-<li>App config directory: <code>src/dcmspec/apps/dcmspec_explorer/config/dcmspec_explorer_config.json</code></li>
+<li>Current directory: <code>iod_explorer_config.json</code></li>
+<li>User config: <code>~/.config/dcmspec/iod_explorer_config.json</code></li>
+<li>App config directory: <code>src/dcmspec/apps/iod_explorer/config/iod_explorer_config.json</code></li>
 <li>Legacy location: Same directory as script</li>
 </ol>
 <p>For detailed configuration options and examples, see the config directory in the application source.</p>
@@ -1839,10 +1839,7 @@ dcmspec-explorer
 <ul>
 <li>Browse DICOM IODs (Information Object Definitions)</li>
 <li>Explore IOD modules and attributes hierarchically</li>
-<li>Sort and filter IOD lists</li>
-<li>Configurable logging levels</li>
 <li>Persistent caching of downloaded specifications</li>
-<li>Context menus for advanced options</li>
 </ul>
 <h2 id="configuration-examples">Configuration Examples</h2>
 <p>The application includes several example configurations:</p>
@@ -1851,7 +1848,7 @@ dcmspec-explorer
 <li><strong>Debug</strong>: Verbose logging for troubleshooting</li>
 <li><strong>Minimal</strong>: Minimal logging for production use</li>
 </ul>
-<p>Copy any example to one of the search locations and rename to <code>dcmspec_explorer_config.json</code> to use it.</p>
+<p>Copy any example to one of the search locations and rename to <code>iod_explorer_config.json</code> to use it.</p>
 
 
 

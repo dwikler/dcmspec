@@ -611,12 +611,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../apps/dcmspec-explorer/" class="md-nav__link">
+      <a href="../../apps/iod-explorer/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    DCMSPEC Explorer
+    IOD Explorer
     
   </span>
   
@@ -1903,6 +1903,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
             <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="c1"># END LEGACY SUPPORT</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
+        <span class="c1"># sourcery skip: merge-else-if-into-elif, reintroduce-else, swap-if-else-branches</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
 
 <span class="sd">        Args:</span>
@@ -1934,7 +1935,6 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)</span>
             <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">dcmspec.progress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Progress</span>
                 <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">DOWNLOADING</span><span class="p">))</span>     
 
         <span class="c1"># No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,</span>
@@ -2619,6 +2619,7 @@ instead. Will be removed in a future release.</p>
         <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># END LEGACY SUPPORT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
+    <span class="c1"># sourcery skip: merge-else-if-into-elif, reintroduce-else, swap-if-else-branches</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
 
 <span class="sd">    Args:</span>
@@ -2650,7 +2651,6 @@ instead. Will be removed in a future release.</p>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)</span>
         <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">dcmspec.progress</span><span class="w"> </span><span class="kn">import</span> <span class="n">Progress</span>
             <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">DOWNLOADING</span><span class="p">))</span>     
 
     <span class="c1"># No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,</span>
