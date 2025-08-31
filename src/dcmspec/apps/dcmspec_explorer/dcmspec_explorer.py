@@ -12,11 +12,7 @@ from tkhtmlview import HTMLLabel
 from typing import List, Tuple
 import re
 import logging
-import threading
-import queue
 import os
-import json
-import datetime
 from anytree import PreOrderIter
 
 from dcmspec.config import Config
@@ -42,13 +38,7 @@ class StatusManager:
                             is_favorites_mode: bool = False, is_filtered: bool = False,
                             favorites_count: int = 0, cache_suffix: str = ""):
         """Show count-based status when no selection."""
-        if is_favorites_mode:
-            message = (
-                f"Showing {filtered_count} of {favorites_count} favorites (filtered)"
-                if is_filtered
-                else f"Showing {filtered_count} favorites"
-            )
-        elif is_filtered:
+        if is_filtered:
             message = f"Showing {filtered_count} of {total_count} IODs (filtered)"
         else:
             message = f"Showing {filtered_count} IODs"
@@ -58,7 +48,7 @@ class StatusManager:
     def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
         """Show selection-based status when item selected."""
         if is_iod:
-            self.status_var.set(f"{title} {iod_type} • Click ▶ to expand or Double-click ♥ to toggle favorite")
+            self.status_var.set(f"{title} {iod_type} • Click ▶ to expand")
         else:
             self.status_var.set(f"{iod_type}: {title}")
 
@@ -66,270 +56,6 @@ class StatusManager:
         """Show loading status."""
         self.status_var.set(message)
 
-
-class FavoritesManager:
-    """Handles all favorites-related functionality."""
-    
-    def __init__(self, config, logger):
-        """Initialize the FavoritesManager.
-
-        Args:
-            config: Configuration object providing the cache directory path.
-            logger: Logger instance for logging favorite operations.
-
-        """
-        self.favorites = set()
-        self.favorites_file = os.path.join(config.cache_dir, "favorites.json")
-        self.logger = logger
-        self.load_favorites()
-    
-    def toggle_favorite(self, table_id: str) -> bool:
-        """Toggle favorite status. Returns True if now favorited."""
-        if table_id in self.favorites:
-            self.favorites.remove(table_id)
-            self.logger.debug(f"Removed {table_id} from favorites")
-            is_favorited = False
-        else:
-            self.favorites.add(table_id)
-            self.logger.debug(f"Added {table_id} to favorites")
-            is_favorited = True
-        
-        self.save_favorites()
-        return is_favorited
-    
-    def is_favorite(self, table_id: str) -> bool:
-        """Check if table_id is favorited."""
-        return table_id in self.favorites
-    
-    def get_favorites_list(self) -> list:
-        """Get list of all favorites."""
-        return list(self.favorites)
-    
-    def get_favorites_count(self) -> int:
-        """Get count of favorites."""
-        return len(self.favorites)
-    
-    def load_favorites(self):
-        """Load favorites from file."""
-        try:
-            if os.path.exists(self.favorites_file):
-                with open(self.favorites_file, 'r') as f:
-                    favorites_data = json.load(f)
-                    self.favorites = set(favorites_data.get('favorites', []))
-                    self.logger.debug(f"Loaded {len(self.favorites)} favorites")
-            else:
-                self.favorites = set()
-                self.logger.debug("No favorites file found, starting with empty favorites")
-        except Exception as e:
-            self.logger.warning(f"Error loading favorites: {e}")
-            self.favorites = set()
-    
-    def save_favorites(self):
-        """Save favorites to file."""
-        try:
-            os.makedirs(os.path.dirname(self.favorites_file), exist_ok=True)
-            favorites_data = {
-                'favorites': list(self.favorites),
-                'last_updated': str(datetime.datetime.now())
-            }
-            with open(self.favorites_file, 'w') as f:
-                json.dump(favorites_data, f, indent=2)
-            self.logger.debug(f"Saved {len(self.favorites)} favorites")
-        except Exception as e:
-            self.logger.error(f"Error saving favorites: {e}")
-
-
-class ProgressLogHandler(logging.Handler):
-    """Custom logging handler that captures log messages for progress display."""
-    
-    def __init__(self, progress_queue: queue.Queue):
-        """Initialize the handler with a queue for thread-safe communication.
-        
-        Args:
-            progress_queue (queue.Queue): Queue to send log messages to the main thread.
-
-        """
-        super().__init__()
-        self.progress_queue = progress_queue
-        
-    def emit(self, record):
-        """Emit a log record by putting it in the progress queue."""
-        try:
-            message = self.format(record)
-            self.progress_queue.put(("LOG", message))
-        except Exception:
-            # Ignore errors in the handler to avoid breaking the logging system
-            pass
-
-
-class ProgressDialog:
-    """Modal progress dialog that shows log messages during IOD building."""
-    
-    def __init__(self, parent, title="Loading IOD Structure"):
-        """Initialize the progress dialog.
-        
-        Args:
-            parent: Parent window
-            title (str): Dialog title
-
-        """
-        self.parent = parent
-        self.dialog = tk.Toplevel(parent)
-        self.dialog.title(title)
-        self.dialog.transient(parent)
-        self.dialog.grab_set()
-        
-        # Make dialog modal and center it
-        self.dialog.resizable(False, False)
-        self._center_dialog()
-        
-        # Progress queue for thread communication
-        self.progress_queue = queue.Queue()
-        
-        # Result variables
-        self.result = None
-        self.error = None
-        self.cancelled = False
-        
-        self._setup_ui()
-        self._start_queue_check()
-        
-    def _center_dialog(self):
-        """Center the dialog on the parent window."""
-        self.dialog.update_idletasks()
-        
-        # Get parent window position and size
-        parent_x = self.parent.winfo_rootx()
-        parent_y = self.parent.winfo_rooty()
-        parent_width = self.parent.winfo_width()
-        parent_height = self.parent.winfo_height()
-        
-        # Calculate dialog position to center it
-        dialog_width = 700
-        dialog_height = 400
-        x = parent_x + (parent_width - dialog_width) // 2
-        y = parent_y + (parent_height - dialog_height) // 2
-        
-        self.dialog.geometry(f"{dialog_width}x{dialog_height}+{x}+{y}")
-        
-    def _setup_ui(self):
-        """Set up the progress dialog UI."""
-        main_frame = ttk.Frame(self.dialog, padding="20")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-        
-        # Title label
-        title_label = ttk.Label(main_frame, text="Building IOD Structure...", 
-                                font=("Arial", 12, "bold"))
-        title_label.pack(pady=(0, 10))
-        
-        # Progress bar (indeterminate) with default styling
-        self.progress_bar = ttk.Progressbar(main_frame, mode='indeterminate')
-        self.progress_bar.pack(fill=tk.X, pady=(0, 10))
-        self.progress_bar.start(25)  # Start animation (slower: higher value = slower speed)
-        
-        # Status label
-        self.status_label = ttk.Label(main_frame, text="Initializing...")
-        self.status_label.pack(pady=(0, 10))
-        
-        # Log text area
-        log_label = ttk.Label(main_frame, text="Progress Log:")
-        log_label.pack(anchor=tk.W)
-        
-        log_frame = ttk.Frame(main_frame)
-        log_frame.pack(fill=tk.BOTH, expand=True, pady=(5, 10))
-        
-        self.log_text = tk.Text(log_frame, wrap=tk.WORD, height=10, width=60, 
-                                font=("Courier", 9), state=tk.DISABLED)
-        
-        log_scroll = ttk.Scrollbar(log_frame, orient=tk.VERTICAL, command=self.log_text.yview)
-        self.log_text.configure(yscrollcommand=log_scroll.set)
-        
-        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        log_scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        # Cancel button
-        button_frame = ttk.Frame(main_frame)
-        button_frame.pack(fill=tk.X)
-        
-        self.cancel_button = ttk.Button(button_frame, text="Cancel", command=self._cancel)
-        self.cancel_button.pack(side=tk.RIGHT)
-        
-    def _start_queue_check(self):
-        """Start checking the progress queue for updates."""
-        self._check_queue()
-        
-    def _check_queue(self):
-        """Check the progress queue for new messages and update the UI."""
-        try:
-            while True:
-                try:
-                    message_type, data = self.progress_queue.get_nowait()
-                    
-                    if message_type == "LOG":
-                        self._add_log_message(data)
-                    elif message_type == "STATUS":
-                        self._update_status(data)
-                    elif message_type == "DONE":
-                        self.result = data
-                        self._finish_dialog()
-                        return
-                    elif message_type == "ERROR":
-                        self.error = data
-                        self._finish_dialog()
-                        return
-                        
-                except queue.Empty:
-                    break
-                    
-        except Exception:
-            pass  # Ignore errors in queue processing
-            
-        # Schedule next check if dialog is still open
-        if self.dialog.winfo_exists():
-            self.dialog.after(100, self._check_queue)
-            
-    def _add_log_message(self, message):
-        """Add a log message to the text area."""
-        self.log_text.config(state=tk.NORMAL)
-        self.log_text.insert(tk.END, f"{message}\n")
-        self.log_text.see(tk.END)  # Auto-scroll to bottom
-        self.log_text.config(state=tk.DISABLED)
-        
-        # Update status based on log message content
-        if "Downloading document from" in message:
-            self._update_status("Downloading DICOM specification...")
-        elif "Reading XHTML DOM" in message:
-            self._update_status("Parsing document...")
-        elif "Loaded model from cache" in message:
-            self._update_status("Loading from cache...")
-        elif "Failed to load" in message:
-            self._update_status("Cache miss, building from source...")
-        else:
-            # Generic progress indication
-            current_status = self.status_label.cget("text")
-            if not current_status.endswith("..."):
-                self._update_status("Processing...")
-                
-    def _update_status(self, status):
-        """Update the status label."""
-        self.status_label.config(text=status)
-        
-    def _cancel(self):
-        """Handle cancel button click."""
-        self.cancelled = True
-        self.progress_queue.put(("CANCEL", None))
-        self._finish_dialog()
-        
-    def _finish_dialog(self):
-        """Clean up and close the dialog."""
-        self.progress_bar.stop()
-        self.dialog.grab_release()
-        self.dialog.destroy()
-        
-    def show(self):
-        """Show the dialog and wait for completion."""
-        self.dialog.wait_window()
-        return self.result, self.error, self.cancelled
 
 
 def load_app_config() -> Config:
@@ -459,17 +185,12 @@ class DCMSpecExplorer:
         # Initialize list of filtered IODs for display (populated after filtering)
         self.filtered_data = []
         self.search_text = ""
-        # Initialize user favorites managers
-        self.favorites_manager = FavoritesManager(self.config, self.logger)
         # Store IOD models to keep AnyTree nodes in memory
         self.iod_models = {}  # table_id -> model mapping
         # Store DICOM version
         self.dicom_version = "Unknown"
 
         # --- Frontend State / Controller ---
-
-        # Initialize view state to show all IODs
-        self.show_favorites_only = False  # Current view mode
 
         # --- View ---
 
@@ -517,11 +238,6 @@ class DCMSpecExplorer:
         self.search_var.trace_add('write', self.on_search_changed)
         search_entry = ttk.Entry(search_controls_frame, textvariable=self.search_var, width=30)
         search_entry.pack(side=tk.LEFT, padx=(0, 20))
-        
-        # Add favorites toggle button
-        self.view_toggle_btn = ttk.Button(search_controls_frame, text="Show: All", 
-                                            command=self._toggle_view_mode)
-        self.view_toggle_btn.pack(side=tk.LEFT, padx=(0, 10))
         
         # Create right controls frame (column 1)
         controls_frame = ttk.Frame(top_frame)
@@ -577,7 +293,7 @@ class DCMSpecExplorer:
         # Treeview with scrollbar - configure with monospaced font for better tag display
         self.tree = ttk.Treeview(
             left_frame, 
-            columns=("iod_type", "usage", "favorite"), 
+            columns=("iod_type", "usage"), 
             show="tree headings"
         )
         
@@ -612,11 +328,9 @@ class DCMSpecExplorer:
         self.tree.heading("#0", text="Name", command=lambda: self.sort_treeview("#0"))
         self.tree.heading("iod_type", text="Kind", command=lambda: self.sort_treeview("iod_type"))
         self.tree.heading("usage", text="")  # No sorting command
-        self.tree.heading("favorite", text="♥")  # Heart icon as column header
         self.tree.column("#0", width=400)
         self.tree.column("iod_type", width=100, stretch=tk.NO)
         self.tree.column("usage", width=30, stretch=tk.NO)  # Small column for usage icon
-        self.tree.column("favorite", width=20, anchor="center", stretch=tk.NO)  # Small centered column
 
         # Grid layout for treeview and scrollbars
         self.tree.grid(row=0, column=0, sticky="nsew")
@@ -664,12 +378,6 @@ class DCMSpecExplorer:
         
         # Bind treeview selection event
         self.tree.bind("<<TreeviewSelect>>", self.on_tree_select)
-    
-        # Bind double-click for favorites toggle
-        self.tree.bind("<Double-1>", self._on_double_click)
-        
-        # Add context menu for favorites
-        self._create_treeview_context_menu()
 
         # Status bar
         status_frame = ttk.Frame(main_frame)
@@ -723,52 +431,6 @@ class DCMSpecExplorer:
         refresh_btn.bind("<Enter>", on_enter)
         refresh_btn.bind("<Leave>", on_leave)
 
-    def _create_treeview_context_menu(self):
-        """Create a context menu for the treeview to manage favorites."""
-        self.tree_context_menu = tk.Menu(self.root, tearoff=0)
-        
-        def show_tree_context_menu(event):
-            # Identify the item under the cursor
-            item = self.tree.identify_row(event.y)
-            if not item:
-                return
-            
-            # Select the item
-            self.tree.selection_set(item)
-            
-            # Check if this is a top-level IOD item
-            tags = self.tree.item(item, "tags")
-            if not (tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_")):
-                return  # Not a top-level IOD item
-            
-            table_id = tags[0]
-            title = self.tree.item(item, "text")
-            
-            # Clear the menu
-            self.tree_context_menu.delete(0, tk.END)
-            
-            # Add appropriate menu item
-            if self.favorites_manager.is_favorite(table_id):
-                self.tree_context_menu.add_command(
-                    label=f"Remove '{title}' from favorites",
-                    command=lambda: self.toggle_favorite(table_id)
-                )
-            else:
-                self.tree_context_menu.add_command(
-                    label=f"Add '{title}' to favorites",
-                    command=lambda: self.toggle_favorite(table_id)
-                )
-            
-            # Show the menu
-            try:
-                self.tree_context_menu.tk_popup(event.x_root, event.y_root)
-            finally:
-                self.tree_context_menu.grab_release()
-        
-        # Bind right-click to show context menu
-        self.tree.bind("<Button-3>", show_tree_context_menu)  # Right click
-        self.tree.bind("<Button-2>", show_tree_context_menu)  # Middle click (alternative)
-
     def on_search_changed(self, *args):
         """Handle search text change."""
         self.search_text = self.search_var.get()  # Remove .lower() to make case sensitive
@@ -787,16 +449,6 @@ class DCMSpecExplorer:
 
         # Start with original data
         data = self.iod_modules_data
-
-        # Apply favorites filter first if in favorites mode
-        if self.show_favorites_only:
-            favorites_data = []
-            favorites_data.extend(
-                (title, table_id, href, iod_type)
-                for title, table_id, href, iod_type in data
-                if self.favorites_manager.is_favorite(table_id)
-            )
-            data = favorites_data
 
         # Apply search filter if there's search text
         if self.search_text:
@@ -858,16 +510,15 @@ class DCMSpecExplorer:
 
         # Update status
         total_count = len(self.iod_modules_data)
-        favorites_count = self.favorites_manager.get_favorites_count()
         filtered_count = len(data)
 
         # Use StatusManager for consistent status messages
         self.status_manager.show_count_status(
             filtered_count=filtered_count,
             total_count=total_count,
-            is_favorites_mode=self.show_favorites_only,
+            is_favorites_mode=False,
             is_filtered=bool(self.search_text),
-            favorites_count=favorites_count,
+            favorites_count=0,
             cache_suffix=""
         )
 
@@ -932,14 +583,6 @@ class DCMSpecExplorer:
 
             # Apply filter and sort (this will populate the treeview)
             self.apply_filter_and_sort()
-
-            # Set initial view mode based on whether we have favorites
-            if self.favorites_manager.get_favorites_count() > 0 and not self.show_favorites_only:
-                # If we have favorites and haven't explicitly chosen a view, show favorites
-                self.set_view_mode(True)
-            else:
-                # Otherwise show all (which is the current state)
-                self.set_view_mode(False)
 
             # Update column headings to show initial sort state
             self.update_column_headings()
@@ -1007,9 +650,7 @@ class DCMSpecExplorer:
     def populate_treeview(self, iod_modules: List[Tuple[str, str, str, str]]):
         """Populate the treeview with IOD modules."""
         for title, table_id, href, iod_type in iod_modules:
-            # Show heart in favorite column if favorited
-            heart_icon = "♥" if self.favorites_manager.is_favorite(table_id) else ""
-            self.tree.insert("", tk.END, text=title, values=(iod_type, "", heart_icon), 
+            self.tree.insert("", tk.END, text=title, values=(iod_type, ""), 
                             tags=(table_id, iod_type))
 
     def sort_treeview(self, column: str):
@@ -1028,40 +669,10 @@ class DCMSpecExplorer:
         # Update column headings to show sort direction
         self.update_column_headings()
 
-    def _on_double_click(self, event):
-        """Handle double-click events on the treeview."""
-        # Identify what was clicked
-        item = self.tree.identify_row(event.y)
-        column = self.tree.identify_column(event.x)
-        
-        if not item:
-            return
-            
-        # Check if double-click was on the favorites column (#3) or anywhere on an IOD row
-        tags = self.tree.item(item, "tags")
-        if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_") and column == "#3":
-            table_id = tags[0]
-            self.toggle_favorite(table_id)
-            self._update_favorite_display()
-            return "break"  # Prevent default double-click behavior
-    
-    def _update_favorite_display(self):
-        """Update the heart display in the favorites column for all items."""
-        for item in self.tree.get_children():
-            tags = self.tree.item(item, "tags")
-            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
-                table_id = tags[0]
-                current_values = list(self.tree.item(item, "values"))
-                if len(current_values) >= 3:
-                    # Update the heart in the favorites column (now at index 2)
-                    current_values[2] = "♥" if self.favorites_manager.is_favorite(table_id) else ""
-                    self.tree.item(item, values=current_values)
-
     def update_column_headings(self):
         """Update column headings to show sort direction."""
         # Reset all headings
         self.tree.heading("#0", text="Name")
-        self.tree.heading("favorite", text="♥")
         self.tree.heading("iod_type", text="Kind")
         self.tree.heading("usage", text="")
         
@@ -1152,9 +763,26 @@ class DCMSpecExplorer:
                     # Update status for IOD selection even when there's an error
                     self.status_manager.show_selection_status(title, iod_type, is_iod=True)
             else:
-                # Not cached - show progress dialog for building from web
+                # Not cached - load directly (will freeze UI briefly)
                 try:
-                    self._build_iod_model_with_progress(item, table_id, title, iod_type)
+                    self.status_manager.show_loading_status(f"Loading {title} (this may take a moment)...")
+                    self.root.update()  # Update UI to show status
+                    
+                    # Build directly without progress dialog
+                    model = self._build_iod_model(table_id, self.logger)
+                    
+                    if model:
+                        # Store the model to keep AnyTree nodes in memory
+                        self.iod_models[table_id] = model
+                        
+                        if model.content:
+                            # Populate the tree item with the IOD structure
+                            self._populate_iod_structure(item, model.content)
+                        
+                        self._update_details_text(table_id, title, iod_type)
+                        # Update status for successful IOD selection
+                        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
+                        
                 except Exception as e:
                     # Handle building errors
                     if "No module models were found" in str(e):
@@ -1302,101 +930,6 @@ class DCMSpecExplorer:
 
             self.status_var.set(f"Selected: {node_type} - {readable_path}")
 
-    def _build_iod_model_with_progress(self, item, table_id: str, title: str, iod_type: str):
-        """Build IOD model with progress dialog in a separate thread.
-        
-        This method is used when the IOD model is not cached and needs to be built from
-        the web. It shows a modal progress dialog with real-time log updates while the
-        model is being downloaded, parsed, and built in a background thread.
-        
-        The progress dialog displays:
-        - Progress bar with animation
-        - Current status updates (downloading, parsing, building)
-        - Real-time log messages from the IODSpecBuilder
-        - Cancel button (though cancellation may not stop all operations)
-        
-        Args:
-            item: The treeview item to populate with the IOD structure when complete
-            table_id (str): The table identifier (e.g., "table_A.49-1")
-            title (str): Human-readable IOD name for display in progress dialog
-            iod_type (str): IOD type ("Composite", "Normalized", or "Other")
-            
-        Raises:
-            Exception: Re-raises any exceptions from the model building process
-            
-        Side Effects:
-            - Shows modal progress dialog that blocks UI interaction
-            - Updates self.iod_models[table_id] with the built model
-            - Populates the treeview item with IOD structure on success
-            - Expands the treeview item to show the structure
-            - Updates details text area
-            - Updates status bar
-            
-        Note:
-            This method is only called for non-cached IODs. Cached IODs use
-            _build_iod_model() directly without the progress dialog.
-
-        """        # Create and show progress dialog
-        progress_dialog = ProgressDialog(self.root, f"Loading {title} Structure")
-        
-        # Thread function that builds the model
-        def build_model_thread():
-            try:
-                # Create a separate logger for this thread to capture progress
-                thread_logger = logging.getLogger(f"dcmspec_build_{table_id}")
-                thread_logger.setLevel(self.logger.level)
-                
-                # Remove any existing handlers
-                for handler in thread_logger.handlers[:]:
-                    thread_logger.removeHandler(handler)
-                
-                # Add our progress handler
-                progress_handler = ProgressLogHandler(progress_dialog.progress_queue)
-                progress_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-                thread_logger.addHandler(progress_handler)
-                
-                # Also add console handler for debugging (optional)
-                if self.config.get_param("log_level") == "DEBUG":
-                    console_handler = logging.StreamHandler()
-                    console_handler.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
-                    thread_logger.addHandler(console_handler)
-                
-                # Build the IOD model with progress logging
-                progress_dialog.progress_queue.put(("STATUS", "Building IOD model..."))
-                model = self._build_iod_model(table_id, thread_logger)
-                
-                # Send completion signal
-                progress_dialog.progress_queue.put(("DONE", model))
-                
-            except Exception as e:
-                # Send error signal
-                progress_dialog.progress_queue.put(("ERROR", e))
-        
-        # Start the background thread
-        thread = threading.Thread(target=build_model_thread, daemon=True)
-        thread.start()
-        
-        # Show dialog and wait for completion
-        result, error, cancelled = progress_dialog.show()
-        
-        if cancelled:
-            self.status_var.set("Operation cancelled")
-            return
-            
-        if error:
-            raise error
-            
-        if result:
-            # Store the model to keep AnyTree nodes in memory
-            self.iod_models[table_id] = result
-            
-            if result and hasattr(result, 'content') and result.content:
-                # Populate the tree item with the IOD structure
-                self._populate_iod_structure(item, result.content)        
-            
-            self._update_details_text(table_id, title, iod_type)
-            # Update status for successful IOD selection
-            self.status_manager.show_selection_status(title, iod_type, is_iod=True)
     
     def _build_iod_model(self, table_id: str, logger: logging.Logger):
         """Build the IOD model for the given table_id using the IODSpecBuilder API.
@@ -1588,40 +1121,6 @@ class DCMSpecExplorer:
         
         # Join with " > " separator for a readable hierarchical path
         return "/".join(path_parts)
-
-    def toggle_favorite(self, table_id: str):
-        """Toggle favorite status for a table_id."""
-        self.favorites_manager.toggle_favorite(table_id)
-        
-        # Update the heart display
-        self._update_favorite_display()
-        
-        # Update the display if we're showing favorites
-        if self.show_favorites_only:
-            self.apply_filter_and_sort()
-    
-    def _toggle_view_mode(self):
-        """Toggle between favorites and all view modes."""
-        self.set_view_mode(not self.show_favorites_only)
-
-    def set_view_mode(self, show_favorites: bool):
-        """Set the view mode (favorites or all IODs)."""
-        previous_mode = self.show_favorites_only
-        self.show_favorites_only = show_favorites
-        
-        # Clear search when switching modes to avoid confusion
-        if previous_mode != show_favorites:
-            self.search_var.set("")
-            self.search_text = ""
-        
-        # Update button text - show what will happen when clicked (opposite of current state)
-        if show_favorites:
-            self.view_toggle_btn.config(text="Show All IODs")
-        else:
-            self.view_toggle_btn.config(text="Show Favorites ♥")
-        
-        # Apply the filter
-        self.apply_filter_and_sort()
 
 def main() -> None:
     """Entry point for the DCMspec Explorer GUI application.
