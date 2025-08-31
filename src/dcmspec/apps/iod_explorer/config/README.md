@@ -1,6 +1,6 @@
-# DCMSPEC Explorer Configuration
+# IOD Explorer Configuration
 
-This directory contains configuration files and documentation for the DCMSPEC Explorer GUI application.
+This directory contains configuration files and documentation for the IOD Explorer GUI application.
 
 ## Configuration File Search Order
 
@@ -8,24 +8,24 @@ The application searches for configuration files in the following priority order
 
 ### Tier 1: App-Specific Configuration Files
 
-1. `dcmspec_explorer_config.json` in the current directory
-2. `~/.config/dcmspec/dcmspec_explorer_config.json` in the user config directory
-3. `dcmspec_explorer_config.json` in this app config directory (`src/dcmspec/apps/dcmspec_explorer/config/`)
-4. `dcmspec_explorer_config.json` in the same directory as the script (legacy support)
+1. `iod_explorer_config.json` in the current directory
+2. `~/.config/dcmspec/iod_explorer_config.json` in the user config directory
+3. `iod_explorer_config.json` in this app config directory (`src/dcmspec/apps/iod_explorer/config/`)
+4. `iod_explorer_config.json` in the same directory as the script (legacy support)
 
 ### Tier 2: Base Library Configuration (Fallback)
 
 If no app-specific config is found, the base `Config` class looks for:
 
-- **macOS**: `~/Library/Application Support/dcmspec_explorer/config.json`
-- **Linux**: `~/.config/dcmspec_explorer/config.json`
-- **Windows**: `%USERPROFILE%\AppData\Local\dcmspec_explorer\config.json`
+- **macOS**: `~/Library/Application Support/iod_explorer/config.json`
+- **Linux**: `~/.config/iod_explorer/config.json`
+- **Windows**: `%USERPROFILE%\AppData\Local\iod_explorer\config.json`
 
 ### Default Behavior (No Config Files)
 
 If no configuration files are found anywhere, the application uses:
 
-- **Cache directory**: Platform-specific cache directory (e.g., `~/Library/Caches/dcmspec_explorer`)
+- **Cache directory**: Platform-specific cache directory (e.g., `~/Library/Caches/iod_explorer`)
 - **Log level**: INFO
 
 ## Configuration Options
@@ -33,7 +33,7 @@ If no configuration files are found anywhere, the application uses:
 ### `cache_dir`
 
 - **Type**: String
-- **Default**: Platform-specific cache directory (e.g., `~/Library/Caches/dcmspec_explorer` on macOS)
+- **Default**: Platform-specific cache directory (e.g., `~/Library/Caches/iod_explorer` on macOS)
 - **Description**: Directory to store downloaded DICOM specifications and cached models
 
 ### `log_level`
@@ -47,15 +47,15 @@ If no configuration files are found anywhere, the application uses:
 
 This directory contains several example configuration files:
 
-- **`dcmspec_explorer_config.json`**: Default configuration with INFO logging
-- **`dcmspec_explorer_config_example.json`**: Basic example configuration
-- **`dcmspec_explorer_config_debug.json`**: Debug configuration with verbose logging
-- **`dcmspec_explorer_config_minimal_logging.json`**: Minimal logging configuration
+- **`iod_explorer_config.json`**: Default configuration with INFO logging
+- **`iod_explorer_config_example.json`**: Basic example configuration
+- **`iod_explorer_config_debug.json`**: Debug configuration with verbose logging
+- **`iod_explorer_config_minimal_logging.json`**: Minimal logging configuration
 
 To use any of these configurations:
 
 1. Copy the desired config file to one of the search locations (see above)
-2. Rename it to `dcmspec_explorer_config.json`
+2. Rename it to `iod_explorer_config.json`
 3. Modify settings as needed
 
 ## Example Configuration Files
@@ -73,7 +73,7 @@ To use any of these configurations:
 
 ```json
 {
-  "cache_dir": "/tmp/dcmspec_debug_cache",
+  "cache_dir": "/tmp/debug_cache",
   "log_level": "DEBUG"
 }
 ```
@@ -82,7 +82,7 @@ To use any of these configurations:
 
 ```json
 {
-  "cache_dir": "~/Documents/dcmspec_cache",
+  "cache_dir": "~/Documents/iod_explorer_cache",
   "log_level": "WARNING"
 }
 ```
@@ -95,23 +95,23 @@ You can test the configuration search order and see the logging output:
 cd /path/to/dcmspec
 
 # Test with app-specific config (Tier 1)
-echo '{"cache_dir": "./app_cache", "log_level": "INFO"}' > dcmspec_explorer_config.json
+echo '{"cache_dir": "./app_cache", "log_level": "INFO"}' > iod_explorer_config.json
 /path/to/python -c "
-from src.dcmspec.apps.dcmspec_explorer import load_app_config, setup_logger
+from src.dcmspec.apps.iod_explorer import load_app_config, setup_logger
 config = load_app_config()
 logger = setup_logger(config)
-logger.info('Starting DCMSPEC Explorer')
+logger.info('Starting IOD Explorer')
 log_level = config.get_param('log_level') or 'INFO'
-source = 'app-specific' if 'dcmspec_explorer_config.json' in (config.config_file or '') else 'default'
+source = 'app-specific' if 'iod_explorer_config.json' in (config.config_file or '') else 'default'
 logger.info(f'Logging configured: level={log_level.upper()}, source={source}')
 logger.info(f'Config file: {config.config_file or \"none (using defaults)\"}')
 logger.info(f'Cache directory: {config.cache_dir}')
 "
 
 # Expected output:
-# INFO - Starting DCMSPEC Explorer
+# INFO - Starting IOD Explorer
 # INFO - Logging configured: level=INFO, source=app-specific
-# INFO - Config file: dcmspec_explorer_config.json
+# INFO - Config file: iod_explorer_config.json
 # INFO - Cache directory: ./app_cache
 ```
 
@@ -130,7 +130,7 @@ You can test your configuration without running the full GUI:
 ```bash
 cd /path/to/dcmspec
 /path/to/python -c "
-from src.dcmspec.apps.dcmspec_explorer import load_app_config, setup_logger
+from src.dcmspec.apps.iod_explorer import load_app_config, setup_logger
 config = load_app_config()
 logger = setup_logger(config)
 print(f'Config file: {config.config_file}')
@@ -144,8 +144,8 @@ logger.debug('Debug message')
 ## Usage
 
 1. Copy one of the example configuration files to one of the supported locations
-2. Rename it to `dcmspec_explorer_config.json`
+2. Rename it to `iod_explorer_config.json`
 3. Modify the settings as needed
-4. Start the DCMSPEC Explorer application
+4. Start the IOD Explorer application
 
 The application will automatically detect and use the configuration file. You'll see log messages indicating which configuration file was loaded and the current settings.

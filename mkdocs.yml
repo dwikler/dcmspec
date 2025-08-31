@@ -20,7 +20,7 @@ nav:
 
   - Applications:
       - Apps Overview: apps/index.md
-      - DCMSPEC Explorer: apps/dcmspec-explorer.md
+      - IOD Explorer: apps/iod-explorer.md
 
   - API Reference:
       - API Overview: api/index.md

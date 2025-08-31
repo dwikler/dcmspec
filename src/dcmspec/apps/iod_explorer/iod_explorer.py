@@ -1,4 +1,4 @@
-"""DCMspec Explorer - GUI application for dcmspec.
+"""IOD Explorer - GUI application for dcmspec.
 
 This module provides a graphical user interface for exploring DICOM specifications,
 allowing users to browse IODs, modules, and attributes through an interactive interface.
@@ -55,10 +55,10 @@ def load_app_config() -> Config:
     """Load app-specific configuration with priority search order.
     
     Search order:
-    1. App-specific config files (dcmspec_explorer_config.json) - Tier 1
+    1. App-specific config files (iod_explorer_config.json) - Tier 1
         - Current directory
         - ~/.config/dcmspec/
-        - App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
+        - App config directory (src/dcmspec/apps/iod_explorer/config/)
         - Same directory as script (legacy support)
     2. Base library config file (config.json) - Tier 2 fallback
         - Platform-specific user config directory via Config class
@@ -75,10 +75,10 @@ def load_app_config() -> Config:
 
     # Look for app-specific config file in several locations (highest priority)
     app_config_locations = [
-        "dcmspec_explorer_config.json",  # Current directory
-        os.path.expanduser("~/.config/dcmspec/dcmspec_explorer_config.json"),  # User config
-        os.path.join(os.path.dirname(__file__), "config", "dcmspec_explorer_config.json"),  # App config dir
-        os.path.join(os.path.dirname(__file__), "dcmspec_explorer_config.json"),  # Same dir as script (legacy)
+        "iod_explorer_config.json",  # Current directory
+        os.path.expanduser("~/.config/dcmspec/iod_explorer_config.json"),  # User config
+        os.path.join(os.path.dirname(__file__), "config", "iod_explorer_config.json"),  # App config dir
+        os.path.join(os.path.dirname(__file__), "iod_explorer_config.json"),  # Same dir as script (legacy)
     ]
 
     config_file = next(
@@ -90,8 +90,8 @@ def load_app_config() -> Config:
         None,
     )
     # If no app-specific config found, let Config class use its default location
-    # This will be: user_config_dir("dcmspec_explorer")/config.json
-    config = Config(app_name="dcmspec_explorer", config_file=config_file)
+    # This will be: user_config_dir("iod_explorer")/config.json
+    config = Config(app_name="iod_explorer", config_file=config_file)
 
     # Set default log level if not specified
     if config.get_param("log_level") is None:
@@ -110,7 +110,7 @@ def setup_logger(config: Config) -> logging.Logger:
         logging.Logger: Configured logger instance.
         
     """
-    logger = logging.getLogger("dcmspec_explorer")
+    logger = logging.getLogger("iod_explorer")
     
     # Remove any existing handlers to avoid duplicates
     for handler in logger.handlers[:]:
@@ -136,11 +136,11 @@ def setup_logger(config: Config) -> logging.Logger:
     return logger
 
 
-class DCMSpecExplorer:
-    """Main window for the DCMspec Explorer application."""
+class IODExplorer:
+    """Main window for the IOD Explorer application."""
 
     def __init__(self, root: tk.Tk):
-        """Initialize the DCMspec Explorer application.
+        """Initialize the IOD Explorer application.
 
         This method initializes the backend services and domain model, as well as the frontend controllers and views.
         """
@@ -152,11 +152,11 @@ class DCMSpecExplorer:
         self.logger = setup_logger(self.config)
 
         # Log startup information
-        self.logger.info("Starting DCMspec Explorer")
+        self.logger.info("Starting IOD Explorer")
         # Log configuration information at INFO level
         log_level_configured = self.config.get_param('log_level') or 'INFO'
         config_source = ("app-specific" if self.config.config_file and 
-                        "dcmspec_explorer_config.json" in self.config.config_file else "default")
+                        "iod_explorer_config.json" in self.config.config_file else "default")
         self.logger.info(f"Logging configured: level={log_level_configured.upper()}, source={config_source}")
         # Log operational configuration at INFO level (important for users to know)
         config_file_display = self.config.config_file or "none (using defaults)"
@@ -183,7 +183,7 @@ class DCMSpecExplorer:
         # --- View ---
 
         self.root = root
-        self.root.title("DCMspec Explorer")
+        self.root.title("IOD Explorer")
         self._init_window_geometry()
         self.setup_ui()
 
@@ -927,13 +927,13 @@ class DCMSpecExplorer:
         return "/".join(path_parts)
 
 def main() -> None:
-    """Entry point for the DCMspec Explorer GUI application.
+    """Entry point for the IOD Explorer GUI application.
     
     Loads configuration and starts the GUI. Configuration can be customized
-    by placing a dcmspec_explorer_config.json file in:
+    by placing a iod_explorer_config.json file in:
     1. Current directory
     2. ~/.config/dcmspec/
-    3. App config directory (src/dcmspec/apps/dcmspec_explorer/config/)
+    3. App config directory (src/dcmspec/apps/iod_explorer/config/)
     4. Same directory as script (legacy support)
     
     Example config file:
@@ -955,7 +955,7 @@ def main() -> None:
     - Cache directory path
     """
     root = tk.Tk()
-    DCMSpecExplorer(root)
+    IODExplorer(root)
     root.mainloop()
 
 

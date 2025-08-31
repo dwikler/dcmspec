@@ -52,7 +52,7 @@ upsioddimseattributes = "dcmspec.cli.upsioddimseattributes:main"
 tdwiicontent = "dcmspec.cli.tdwiicontent:main"
 upsdimseattributes = "dcmspec.cli.upsdimseattributes:main"
 modattributes = "dcmspec.cli.modattributes:main"
-dcmspec-explorer = "dcmspec.apps.dcmspec_explorer.dcmspec_explorer:main"
+iod-explorer = "dcmspec.apps.iod_explorer.iod_explorer:main"
 
 [tool.ruff]
 line-length = 120
