@@ -51,7 +51,6 @@ class StatusManager:
         self.status_var.set(message)
 
 
-
 def load_app_config() -> Config:
     """Load app-specific configuration with priority search order.
     
@@ -173,7 +172,7 @@ class DCMSpecExplorer:
         # URL for DICOM Part 3 Table of Contents
         self.part3_toc_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
         # Initialize list of all IODs
-        self.iod_modules_data = []
+        self.iod_list = []
         # Store IOD models to keep AnyTree nodes in memory
         self.iod_models = {}  # table_id -> model mapping
         # Store DICOM version
@@ -352,7 +351,7 @@ class DCMSpecExplorer:
         
         status_bar = ttk.Label(status_frame, textvariable=self.status_var, relief=tk.FLAT)
         status_bar.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        
+
     def load_iod_modules(self):
         """Load IOD modules from the DICOM specification."""
         self.status_var.set("Loading IOD modules...")
@@ -396,17 +395,17 @@ class DCMSpecExplorer:
                 messagebox.showerror("Error", "Could not find list-of-tables section")
                 return
 
-            # Extract IOD modules
-            iod_modules = self.extract_iod_modules(list_of_tables)
+            # Extract list of IODs
+            iod_list = self.extract_iod_list(list_of_tables)
 
             # Store the data
-            self.iod_modules_data = iod_modules
+            self.iod_list = iod_list
 
             # Populate the treeview directly
-            self.populate_treeview(iod_modules)
+            self.populate_treeview(iod_list)
 
             # Update status
-            self.status_manager.show_count_status(count=len(iod_modules))
+            self.status_manager.show_count_status(count=len(iod_list))
 
         except RuntimeError as e:
             messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
@@ -415,14 +414,14 @@ class DCMSpecExplorer:
             messagebox.showerror("Error", f"An error occurred:\n{str(e)}")
             self.status_var.set("Error loading modules")
     
-    def extract_iod_modules(self, list_of_tables) -> List[Tuple[str, str, str, str]]:
-        """Extract IOD modules from the list of tables section.
+    def extract_iod_list(self, list_of_tables) -> List[Tuple[str, str, str, str]]:
+        """Extract IOD list from the list of tables section.
         
         Returns:
             List of tuples (title, table_id, href, iod_type)
             
         """
-        iod_modules = []
+        iod_list = []
         
         # Find all dt elements
         dt_elements = list_of_tables.find_all('dt')
@@ -448,20 +447,15 @@ class DCMSpecExplorer:
                     title = title_match[1] if title_match else text
                     
                     # Strip " IOD Modules" from the end of the title
-                    if title.endswith(" IOD Modules"):
-                        title = title[:-12]  # Remove " IOD Modules" (12 characters)
+                    title = title.removesuffix(" IOD Modules")
                     
                     # Determine IOD type based on table_id
-                    if "_A." in table_id:
-                        iod_type = "Composite"
-                    elif "_B." in table_id:
-                        iod_type = "Normalized"
-                    else:
-                        iod_type = "Other"
+                    iod_type = ("Composite" if "_A." in table_id else 
+                               "Normalized" if "_B." in table_id else "Other")
                     
-                    iod_modules.append((title, table_id, href, iod_type))
+                    iod_list.append((title, table_id, href, iod_type))
         
-        return sorted(iod_modules, key=lambda x: x[0])
+        return iod_list
     
     def populate_treeview(self, iod_modules: List[Tuple[str, str, str, str]]):
         """Populate the treeview with IOD modules."""
@@ -470,7 +464,7 @@ class DCMSpecExplorer:
                             tags=(table_id, iod_type))
 
     def _is_model_cached(self, table_id: str) -> bool:
-        """Check if the IOD model is already cached on disk."""
+        """Check if the IOD model is already cached."""
         model_file_name = f"Part3_{table_id}_expanded.json"
         cache_file_path = os.path.join(self.config.cache_dir, "model", model_file_name)
         exists = os.path.exists(cache_file_path)
@@ -482,238 +476,260 @@ class DCMSpecExplorer:
         if not selection:
             return
 
+        # Get selected item data
         item = selection[0]
         item_values = self.tree.item(item, "values")
         title = self.tree.item(item, "text")
         tags = self.tree.item(item, "tags")
 
-        # Check if this is a top-level IOD item (has table_id in tags)
-        # Top-level IOD items have table_id starting with "table_", 
-        # while modules/attributes have AnyTree node objects
-        if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
-            # This is a top-level IOD item
-            table_id = tags[0]
-            iod_type = tags[1] if len(tags) > 1 else "Unknown"
+        # Determine if this is a top-level IOD or a module/attribute item
+        if self._is_top_level_iod_item(tags):
+            self._handle_iod_selection(item, title, tags)
+        else:
+            self._handle_module_attribute_selection(item, item_values, title, tags)
 
-            # Update status
+    def _is_top_level_iod_item(self, tags):
+        """Check if the selected item is a top-level IOD item.
+
+        A top-level IOD item is identified by its tag starting with "table_".
+        """
+        return (tags and 
+                isinstance(tags[0], str) and 
+                tags[0].startswith("table_"))
+
+    def _handle_iod_selection(self, item, title, tags):
+        """Handle selection of a top-level IOD item."""
+        table_id = tags[0]
+        iod_type = tags[1] if len(tags) > 1 else "Unknown"
+
+        # Update status
+        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
+
+        # Check if IOD spec model is already loaded in memory
+        if self.iod_models.get(table_id):
+            self._update_details_text(table_id, title, iod_type)
+            return
+
+        # Load IOD model otherwise (from cache or from web)
+        self._load_iod_model(item, table_id, title, iod_type, is_cached=self._is_model_cached(table_id))
+
+    def _load_iod_model(self, item, table_id, title, iod_type, is_cached=True):
+        """Load IOD model from cache or web.
+        
+        Args:
+            item: The tree item to populate with the IOD structure
+            table_id: The table identifier for the IOD
+            title: The IOD title for display
+            iod_type: The IOD type (Composite, Normalized, etc.)
+            is_cached: The flag indicating if the model is cached
+
+        """
+        try:
+            # Update the status bar with loading information
+            if is_cached:
+                self.status_manager.show_loading_status(f"Loading {title} from cache...")
+            else:
+                self.status_manager.show_loading_status(f"Loading {title} (this may take a moment)...")
+            
+            self.root.update()
+
+            # Build the IOD model and populate the treeview
+            model = self._build_iod_model(table_id, self.logger)
+            self._update_treeview_and_details(item, model, table_id, title, iod_type)
+
+        except Exception as e:
+            self._handle_iod_loading_error(e, table_id, title, iod_type)
+
+    def _update_treeview_and_details(self, item, model, table_id, title, iod_type):
+        """Update the treeview and the details pane with the loaded IOD model."""
+        if model:
+            # Store the model in memory
+            self.iod_models[table_id] = model
+            
+            if model.content:
+                # Populate the tree item with the IOD structure
+                self._populate_treeview_item(item, model.content)
+            
+            self._update_details_text(table_id, title, iod_type)
             self.status_manager.show_selection_status(title, iod_type, is_iod=True)
 
-            # Check if we already have the structure loaded in memory
-            if table_id in self.iod_models and self.iod_models[table_id]:
-                # Already in memory - just update details
-                self._update_details_text(table_id, title, iod_type)
-                return
-
-            # Check if model is cached on disk
-            if self._is_model_cached(table_id):
-                # Cached - load immediately without progress dialog
-                try:
-                    self.status_manager.show_loading_status(f"Loading {title} from cache...")
-                    self.root.update()  # Update UI to show status
-
-                    # Use the API directly since it's cached - should be fast
-                    model = self._build_iod_model(table_id, self.logger)
-
-                    if model:
-                        # Store the model to keep AnyTree nodes in memory
-                        self.iod_models[table_id] = model
-
-                        if model.content:
-                            # Populate the tree item with the IOD structure
-                            self._populate_iod_structure(item, model.content)
-
-                            # Expand the item to show the structure
-                            # self.tree.item(item, open=True)
-
-                        self._update_details_text(table_id, title, iod_type)
-                        # Update status for successful IOD selection
-                        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-
-                except Exception as e:
-                    # Handle errors for cached loading
-                    if "No module models were found" in str(e):
-                        detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
-                                        f"The IOD references modules that could not be found or parsed. "
-                                        f"This may happen if:\n"
-                                        f"• Module reference tables are missing from the DICOM specification\n"
-                                        f"• Module tables have different naming conventions\n"
-                                        f"• The IOD table format is not supported\n\n"
-                                        f"Technical details: {str(e)}")
-                        messagebox.showwarning("IOD Structure Not Available", detailed_msg)
-                        self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
-                    else:
-                        messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
-
-                    self._update_details_text(table_id, title, iod_type)
-                    # Update status for IOD selection even when there's an error
-                    self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-            else:
-                # Not cached - load directly (will freeze UI briefly)
-                try:
-                    self.status_manager.show_loading_status(f"Loading {title} (this may take a moment)...")
-                    self.root.update()  # Update UI to show status
-                    
-                    # Build directly without progress dialog
-                    model = self._build_iod_model(table_id, self.logger)
-                    
-                    if model:
-                        # Store the model to keep AnyTree nodes in memory
-                        self.iod_models[table_id] = model
-                        
-                        if model.content:
-                            # Populate the tree item with the IOD structure
-                            self._populate_iod_structure(item, model.content)
-                        
-                        self._update_details_text(table_id, title, iod_type)
-                        # Update status for successful IOD selection
-                        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-                        
-                except Exception as e:
-                    # Handle building errors
-                    if "No module models were found" in str(e):
-                        detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
-                                        f"The IOD references modules that could not be found or parsed. "
-                                        f"This may happen if:\n"
-                                        f"• Module reference tables are missing from the DICOM specification\n"
-                                        f"• Module tables have different naming conventions\n"
-                                        f"• The IOD table format is not supported\n\n"
-                                        f"Technical details: {str(e)}")
-                        messagebox.showwarning("IOD Structure Not Available", detailed_msg)
-                        self.logger.warning(f"Failed to build IOD model for {table_id}: {str(e)}")
-                    else:
-                        messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(e)}")
-
-                    self._update_details_text(table_id, title, iod_type)
-                    # Update status for IOD selection even when there's an error
-                    self.status_manager.show_selection_status(title, iod_type, is_iod=True)
-
+    def _handle_iod_loading_error(self, error, table_id, title, iod_type):
+        """Handle errors that occur during IOD model loading."""
+        if "No module models were found" in str(error):
+            detailed_msg = (f"Failed to load IOD structure for {title}:\n\n"
+                            f"The IOD references modules that could not be found or parsed. "
+                            f"This may happen if:\n"
+                            f"• Module reference tables are missing from the DICOM specification\n"
+                            f"• Module tables have different naming conventions\n"
+                            f"• The IOD table format is not supported\n\n"
+                            f"Technical details: {str(error)}")
+            messagebox.showwarning("IOD Structure Not Available", detailed_msg)
+            self.logger.warning(f"Failed to build IOD model for {table_id}: {str(error)}")
         else:
-            # This is a module or attribute item
-            node_type = item_values[0] if len(item_values) > 0 else "Unknown"  # Changed from index 1 to 0
-            usage = item_values[1] if len(item_values) > 1 else ""  # Changed from index 2 to 1
+            messagebox.showerror("Error", f"Failed to load IOD structure:\n{str(error)}")
 
-            # Get the corresponding AnyTree node using the node path stored in tags
-            node = None
-            if tags and len(tags) > 0:
-                node_path = tags[0]
-                # Find the node by traversing the path in the appropriate IOD model
-                current_item = item
-                table_id = None
+        self._update_details_text(table_id, title, iod_type)
+        self.status_manager.show_selection_status(title, iod_type, is_iod=True)
 
-                # Walk up the tree to find the root IOD item
-                while current_item:
-                    parent_item = self.tree.parent(current_item)
-                    if not parent_item:  # This is a root item
-                        item_tags = self.tree.item(current_item, "tags")
-                        if item_tags and item_tags[0].startswith("table_"):
-                            table_id = item_tags[0]
+    def _handle_module_attribute_selection(self, item, item_values, title, tags):
+        """Handle selection of a module or attribute item."""
+        node_type = item_values[0] if len(item_values) > 0 else "Unknown"
+        usage = item_values[1] if len(item_values) > 1 else ""
+
+        # Find the corresponding AnyTree node
+        node = self._find_node_from_path(item, tags)
+        display_path = self._build_readable_path(node) if node else title
+
+        # Generate details HTML depending on node type
+        details = self._generate_node_details(node_type, node, title, usage)
+
+        # Update UI
+        self._update_details_html(details)
+        self.status_var.set(f"Selected: {node_type} - {display_path}")
+
+    def _find_node_from_path(self, item, tags):
+        """Find the AnyTree node corresponding to the selected tree item."""
+        if not tags or len(tags) == 0:
+            return None
+
+        node_path = tags[0]
+        table_id = self._find_parent_table_id(item)
+        
+        if not table_id or table_id not in self.iod_models:
+            return None
+
+        model = self.iod_models[table_id]
+        if not model or not hasattr(model, 'content') or not model.content:
+            return None
+
+        return self._traverse_node_path(model.content, node_path)
+
+    def _find_parent_table_id(self, item):
+        """Walk up the tree to find the parent IOD's table_id."""
+        current_item = item
+        while current_item:
+            parent_item = self.tree.parent(current_item)
+            if not parent_item:  # This is a root item
+                item_tags = self.tree.item(current_item, "tags")
+                if item_tags and item_tags[0].startswith("table_"):
+                    return item_tags[0]
+                break
+            current_item = parent_item
+        return None
+
+    def _traverse_node_path(self, root_node, node_path):
+        """Traverse the AnyTree structure to find the node at the given path."""
+        try:
+            path_parts = node_path.split("/")
+            current_node = root_node
+
+            # Navigate through the path (skip the first part which is the root)
+            for part in path_parts[1:]:
+                found = False
+                for child in current_node.children:
+                    if str(child.name) == part:
+                        current_node = child
+                        found = True
                         break
-                    current_item = parent_item
+                if not found:
+                    return None
+            
+            return current_node
+        except Exception as e:
+            self.logger.debug(f"Error finding node at path {node_path}: {e}")
+            return None
 
-                # Get the node from the IOD model using the path
-                if table_id and table_id in self.iod_models:
-                    model = self.iod_models[table_id]
-                    if model and hasattr(model, 'content') and model.content:
-                        # Find the node by path
-                        try:
-                            # Split the path and traverse to find the node
-                            path_parts = node_path.split("/")
-                            current_node = model.content
+    def _generate_node_details(self, node_type, node, title, usage):
+        """Generate HTML details for a module or attribute node."""
+        if node_type == "Module" and node:
+            return self._generate_module_details(node)
+        elif node_type == "Attribute" and node:
+            return self._generate_attribute_details(node)
+        else:
+            return self._generate_fallback_details(title, node_type, usage)
 
-                            # Navigate through the path (skip the first part which is the root)
-                            for part in path_parts[1:]:  
-                                found = False
-                                for child in current_node.children:
-                                    if str(child.name) == part:
-                                        current_node = child
-                                        found = True
-                                        break
-                                if not found:
-                                    break
-                            else:
-                                # Successfully found the node
-                                node = current_node
-                                # Build readable path for status bar
-                                readable_path = self._build_readable_path(node)
-                        except Exception as e:
-                            self.logger.debug(f"Error finding node at path {node_path}: {e}")
+    def _generate_module_details(self, node):
+        """Generate HTML details for a module node."""
+        name = getattr(node, 'module', 'Unknown Module')
+        usage = getattr(node, 'usage', '')
+        module_ref = getattr(node, 'ref', '')
+        ie = getattr(node, 'ie', '')
 
-            # Update details text for module/attribute
-            if node_type == "Module" and node:
-                # Get all available module attributes
-                name = getattr(node, 'module', 'Unknown Module')
-                usage = getattr(node, 'usage', '')
-                module_ref = getattr(node, 'ref', '')
-                ie = getattr(node, 'ie', '')
+        details = f"<h2>{name} Module</h2>"
 
-                details = f"<h2>{name} {node_type}</h2>"
+        if ie:
+            details += f"<span><b>Information Entity:</b> {ie}</span><br>"
 
-                if ie:
-                    details += f"<span><b>Information Entity:</b> {ie}</span><br>"
+        if usage:
+            usage_display = self._format_usage_display(usage)
+            details += f"<span><b>Usage:</b> {usage_display}</span><br>"
 
-                if usage:
-                    # Format usage as a single line with description and code
-                    if usage.startswith("M"):
-                        usage_display = "Mandatory (M)"
-                    elif usage.startswith("U"):
-                        usage_display = "User Optional (U)"
-                    elif usage.startswith("C"):
-                        # For conditional, include the conditional statement
-                        if len(usage) > 1 and " - " in usage:
-                            conditional_part = usage[usage.find(" - ") + 3:]
-                            usage_display = f"Conditional (C) - {conditional_part}"
-                        else:
-                            usage_display = "Conditional (C)"
-                    else:
-                        usage_display = usage
+        if module_ref:
+            details += f"<span><b>Reference:</b> {module_ref}</span><br>"
 
-                    details += f"<span><b>Usage:</b> {usage_display}</span><br>"
+        return details
 
-                if module_ref:
-                    details += f"<span><b>Reference:</b> {module_ref}</span><br>"
+    def _generate_attribute_details(self, node):
+        """Generate HTML details for an attribute node."""
+        elem_name = getattr(node, 'elem_name', 'Unknown')
+        elem_tag = getattr(node, 'elem_tag', '')
+        elem_type = getattr(node, 'elem_type', '')
+        elem_description = getattr(node, 'elem_description', '')
 
-            elif node_type == "Attribute" and node:
-                # Get all available attribute details from the node
-                elem_name = getattr(node, 'elem_name', 'Unknown')
-                elem_tag = getattr(node, 'elem_tag', '')
-                elem_type = getattr(node, 'elem_type', '')
-                elem_description = getattr(node, 'elem_description', '')
+        details = f"<h2>{elem_name} Attribute</h2>"
 
-                # Display all available attribute information
-                details = f"<h2>{elem_name} {node_type}</h2>"
+        if elem_tag:
+            details += f"<span><b>Tag:</b> {elem_tag}</span><br>"
+        
+        if elem_type:
+            type_display = self._format_type_display(elem_type)
+            details += f"<span><b>Type:</b> {type_display}</span><br>"
+        
+        if elem_description:
+            details += f"{elem_description}"
 
-                if elem_tag:
-                    details += f"<span><b>Tag:</b> {elem_tag}</span><br>"
-                if elem_type:
-                    # Map DICOM attribute types to meaningful descriptions
-                    type_map = {
-                        "1": "Mandatory (1)",
-                        "1C": "Conditional (1C)",
-                        "2": "Mandatory, may be empty (2)",
-                        "2C": "Conditional, may be empty (2C)",
-                        "3": "Optional (3)",
-                        "": "Unspecified"
-                    }
-                    type_display = type_map.get(elem_type, f"Other ({elem_type})") if elem_type else "Unspecified"
-                    details += f"<span><b>Type:</b> {type_display}</span><br>"
-                if elem_description:
-                    details += f"{elem_description}"
+        return details
+
+    def _generate_fallback_details(self, title, node_type, usage):
+        """Generate fallback HTML details when node is not available."""
+        details = f"<h2>{title} {node_type}</h2>"
+        if usage:
+            details += f"<span><b>Usage/Type:</b> {usage}</span><br>"
+        return details
+
+    def _format_usage_display(self, usage):
+        """Format usage code into a readable display string."""
+        if usage.startswith("M"):
+            return "Mandatory (M)"
+        elif usage.startswith("U"):
+            return "User Optional (U)"
+        elif usage.startswith("C"):
+            if len(usage) > 1 and " - " in usage:
+                conditional_part = usage[usage.find(" - ") + 3:]
+                return f"Conditional (C) - {conditional_part}"
             else:
-                # Fallback for cases without node reference
-                details = f"{title} {node_type}\n\n"
-                details = f"<h2>{title} {node_type}</h2>"
-                if usage:
-                    details += f"<span><b>Usage/Type:</b> {usage}</span><br>"
-                readable_path = title
+                return "Conditional (C)"
+        else:
+            return usage
 
-            self.details_text.set_html(
-                (
-                    f'<div style="font-family: {self.details_font_family}; '
-                    f'font-size: {self.details_font_size}px;">{details}</div>'
-                )
-            )
+    def _format_type_display(self, elem_type):
+        """Format DICOM attribute type into a readable display string."""
+        type_map = {
+            "1": "Mandatory (1)",
+            "1C": "Conditional (1C)",
+            "2": "Mandatory, may be empty (2)",
+            "2C": "Conditional, may be empty (2C)",
+            "3": "Optional (3)",
+            "": "Unspecified"
+        }
+        return type_map.get(elem_type, f"Other ({elem_type})" if elem_type else "Unspecified")
 
-            self.status_var.set(f"Selected: {node_type} - {readable_path}")
+    def _update_details_html(self, details):
+        """Update the details pane with formatted HTML."""
+        self.details_text.set_html(
+            f'<div style="font-family: {self.details_font_family}; '
+            f'font-size: {self.details_font_size}px;">{details}</div>'
+        )
 
     
     def _build_iod_model(self, table_id: str, logger: logging.Logger):
@@ -755,12 +771,15 @@ class DCMSpecExplorer:
             logger=logger,  # Use the custom logger for progress tracking
         )
         
-        # Create the modules specification factory
-        
-        # Set unformatted to False for elem_description (column 3), others remain True
+        # Create the Modules specification factory
+
+        # Ensure that the Attribute Description is parsed as formatted HTML by
+        # setting unformatted to False for elem_description (column 3), others remain True
         parser_kwargs = {"unformatted": {0: True, 1: True, 2: True, 3: False}}
+        # Skip the elem_type column for normalized IODs (for Module tables where it does exist such as SOP Common)
         if not composite_iod:
             parser_kwargs["skip_columns"] = [2]
+
         module_factory = SpecFactory(
             column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
             name_attr="elem_name",
@@ -769,14 +788,14 @@ class DCMSpecExplorer:
             logger=logger,  # Use the custom logger for progress tracking
         )
         
-        # Create the builder
+        # Create the IOD builder
         builder = IODSpecBuilder(
             iod_factory=iod_factory, 
             module_factory=module_factory,
             logger=logger,  # Use the custom logger for progress tracking
         )
         
-        # Build and return the model
+        # Build and return the IOD specification model
         return builder.build_from_url(
             url=url,
             cache_file_name=cache_file_name,
@@ -785,8 +804,8 @@ class DCMSpecExplorer:
             force_download=False,
         )
     
-    def _populate_iod_structure(self, parent_item, content):
-        """Populate the tree with IOD structure from the model content using AnyTree traversal."""
+    def _populate_treeview_item(self, parent_item, content):
+        """Populate the treeview item with IOD structure from the model content using AnyTree traversal."""
         if not content:
             return
 
@@ -884,7 +903,7 @@ class DCMSpecExplorer:
         self.details_text.set_html(html)
         
     def _build_readable_path(self, node):
-        """Build a human-readable path from the AnyTree node using display names."""
+        """Build a human-readable path from the AnyTree using node names."""
         path_parts = []
         
         # Walk up the tree from the current node to the root
@@ -892,16 +911,16 @@ class DCMSpecExplorer:
         while current and current.parent:  # Stop before the root content node
             if hasattr(current, 'module'):
                 # This is a module node - use module name
-                display_name = getattr(current, 'module', 'Unknown Module')
+                node_name = getattr(current, 'module', 'Unknown Module')
             elif hasattr(current, 'elem_name'):
                 # This is an attribute node - use elem_name
                 elem_name = getattr(current, 'elem_name', 'Unknown Attribute')
-                display_name = re.sub(r'^(?:&gt;|>)+', '', elem_name)  # Remove leading > characters
+                node_name = re.sub(r'^(?:&gt;|>)+', '', elem_name)  # Remove leading > characters
             else:
                 # Fallback to node name
-                display_name = str(getattr(current, 'name', 'Unknown'))
+                node_name = str(getattr(current, 'name', 'Unknown'))
             
-            path_parts.insert(0, display_name)  # Insert at beginning to build path from root
+            path_parts.insert(0, node_name)  # Insert at beginning to build path from root
             current = current.parent
         
         # Join with " > " separator for a readable hierarchical path
