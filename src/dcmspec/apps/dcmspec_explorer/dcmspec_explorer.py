@@ -34,15 +34,9 @@ class StatusManager:
         """
         self.status_var = status_var
     
-    def show_count_status(self, filtered_count: int, total_count: int, 
-                            is_favorites_mode: bool = False, is_filtered: bool = False,
-                            favorites_count: int = 0, cache_suffix: str = ""):
+    def show_count_status(self, count: int, cache_suffix: str = ""):
         """Show count-based status when no selection."""
-        if is_filtered:
-            message = f"Showing {filtered_count} of {total_count} IODs (filtered)"
-        else:
-            message = f"Showing {filtered_count} IODs"
-
+        message = f"Showing {count} IODs"
         self.status_var.set(f"{message}{cache_suffix}")
     
     def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
@@ -178,13 +172,8 @@ class DCMSpecExplorer:
         self.dom_parser = DOMTableSpecParser(logger=self.logger)
         # URL for DICOM Part 3 Table of Contents
         self.part3_toc_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
-        # Initialize list of all IODs (original, unsorted/filtered)
+        # Initialize list of all IODs
         self.iod_modules_data = []
-        self.sort_column = None
-        self.sort_reverse = False
-        # Initialize list of filtered IODs for display (populated after filtering)
-        self.filtered_data = []
-        self.search_text = ""
         # Store IOD models to keep AnyTree nodes in memory
         self.iod_models = {}  # table_id -> model mapping
         # Store DICOM version
@@ -222,34 +211,13 @@ class DCMSpecExplorer:
         top_frame = ttk.Frame(main_frame)
         top_frame.pack(fill=tk.X, pady=(0, 10))
         
-        # Configure grid columns: column 0 (search) gets all extra space, column 1 (controls) stays minimal
-        top_frame.columnconfigure(0, weight=1)  # Search area expands
-        top_frame.columnconfigure(1, weight=0)  # Controls area stays fixed
-        
-        # Create search controls frame (left side, column 0)
-        search_controls_frame = ttk.Frame(top_frame)
-        search_controls_frame.grid(row=0, column=0, sticky="ew", padx=(0, 20))
-        
-        # Add search label and entry
-        search_label = ttk.Label(search_controls_frame, text="Search:")
-        search_label.pack(side=tk.LEFT, padx=(0, 5))
-        
-        self.search_var = tk.StringVar()
-        self.search_var.trace_add('write', self.on_search_changed)
-        search_entry = ttk.Entry(search_controls_frame, textvariable=self.search_var, width=30)
-        search_entry.pack(side=tk.LEFT, padx=(0, 20))
-        
-        # Create right controls frame (column 1)
-        controls_frame = ttk.Frame(top_frame)
-        controls_frame.grid(row=0, column=1, sticky="e")
-        
         # Add version label to the left of the button with right justification and spacing
-        self.version_label = ttk.Label(controls_frame, text="", font=("Arial", 10), anchor="e")
-        self.version_label.pack(side=tk.LEFT, padx=(0, 10))
+        self.version_label = ttk.Label(top_frame, text="", font=("Arial", 10))
+        self.version_label.pack(side=tk.LEFT)
         
         # Add refresh button with context menu option
-        refresh_btn = ttk.Button(controls_frame, text="Reload", command=self.load_iod_modules)
-        refresh_btn.pack(side=tk.LEFT)
+        refresh_btn = ttk.Button(top_frame, text="Reload", command=self.load_iod_modules)
+        refresh_btn.pack(side=tk.RIGHT)
         
         # Add context menu for refresh button
         self._create_refresh_context_menu(refresh_btn)
@@ -325,9 +293,9 @@ class DCMSpecExplorer:
         # Verify the configuration
         actual_font = style.lookup("Treeview", "font")
         self.logger.debug(f"Final font configuration: {actual_font}")
-        self.tree.heading("#0", text="Name", command=lambda: self.sort_treeview("#0"))
-        self.tree.heading("iod_type", text="Kind", command=lambda: self.sort_treeview("iod_type"))
-        self.tree.heading("usage", text="")  # No sorting command
+        self.tree.heading("#0", text="Name")
+        self.tree.heading("iod_type", text="Kind")
+        self.tree.heading("usage", text="")
         self.tree.column("#0", width=400)
         self.tree.column("iod_type", width=100, stretch=tk.NO)
         self.tree.column("usage", width=30, stretch=tk.NO)  # Small column for usage icon
@@ -431,97 +399,6 @@ class DCMSpecExplorer:
         refresh_btn.bind("<Enter>", on_enter)
         refresh_btn.bind("<Leave>", on_leave)
 
-    def on_search_changed(self, *args):
-        """Handle search text change."""
-        self.search_text = self.search_var.get()  # Remove .lower() to make case sensitive
-        self.apply_filter_and_sort()
-    
-    def apply_filter_and_sort(self):
-        """Apply current search filter and sort to the data."""
-        # Remember current selection before clearing
-        current_selection_table_id = None
-        selection = self.tree.selection()
-        if selection:
-            selected_item = selection[0]
-            tags = self.tree.item(selected_item, "tags")
-            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
-                current_selection_table_id = tags[0]
-
-        # Start with original data
-        data = self.iod_modules_data
-
-        # Apply search filter if there's search text
-        if self.search_text:
-            filtered_data = []
-            filtered_data.extend(
-                (title, table_id, href, iod_type)
-                for title, table_id, href, iod_type in data
-                if (self.search_text in title or self.search_text in iod_type)
-            )
-            data = filtered_data
-
-        self.filtered_data = data
-
-        # Apply current sort if any
-        if self.sort_column:
-            if self.sort_column == "#0":  # IOD Name column
-                data = sorted(data, key=lambda x: x[0].lower(), reverse=self.sort_reverse)
-            elif self.sort_column == "iod_type":  # IOD Type column
-                data = sorted(data, key=lambda x: x[3].lower(), reverse=self.sort_reverse)
-
-        # Clear the treeview
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        # Repopulate with filtered and sorted data
-        self.populate_treeview(data)
-
-        # Restore IOD structures for any IODs that were previously loaded
-        for item in self.tree.get_children():
-            tags = self.tree.item(item, "tags")
-            if tags and len(tags) > 0 and isinstance(tags[0], str) and tags[0].startswith("table_"):
-                table_id = tags[0]
-                # If we have a model for this IOD, restore its structure
-                if table_id in self.iod_models and self.iod_models[table_id]:
-                    model = self.iod_models[table_id]
-                    if model and hasattr(model, 'content') and model.content:
-                        # Repopulate the IOD structure
-                        self._populate_iod_structure(item, model.content)
-                        # Don't auto-expand - let user decide when to expand
-
-        # Restore selection if the previously selected item is still visible
-        if current_selection_table_id:
-            for item in self.tree.get_children():
-                tags = self.tree.item(item, "tags")
-                if tags and len(tags) > 0 and tags[0] == current_selection_table_id:
-                    self.tree.selection_set(item)
-                    self.tree.focus(item)
-                    # Scroll to make the selected item visible
-                    self.tree.see(item)
-                    # Trigger the selection event to update details
-                    self.on_tree_select(None)
-                    break
-        else:
-            self.details_text.set_html(
-                f'<div style="font-family: {self.details_font_family}; font-size: {self.details_font_size}px;">'
-                f'<span>Select an IOD to view details.</span><br>'
-                f'</div>'
-)
-
-        # Update status
-        total_count = len(self.iod_modules_data)
-        filtered_count = len(data)
-
-        # Use StatusManager for consistent status messages
-        self.status_manager.show_count_status(
-            filtered_count=filtered_count,
-            total_count=total_count,
-            is_favorites_mode=False,
-            is_filtered=bool(self.search_text),
-            favorites_count=0,
-            cache_suffix=""
-        )
-
     def load_iod_modules(self, force_download: bool = False):
         """Load IOD modules from the DICOM specification.
 
@@ -574,23 +451,17 @@ class DCMSpecExplorer:
             # Extract IOD modules
             iod_modules = self.extract_iod_modules(list_of_tables)
 
-            # Store the data for sorting and filtering
+            # Store the data
             self.iod_modules_data = iod_modules
 
-            # Set initial sort state to show that data is sorted by IOD Name
-            self.sort_column = "#0"
-            self.sort_reverse = False
+            # Populate the treeview directly
+            self.populate_treeview(iod_modules)
 
-            # Apply filter and sort (this will populate the treeview)
-            self.apply_filter_and_sort()
-
-            # Update column headings to show initial sort state
-            self.update_column_headings()
-
-            # Add cache status to the current status (after apply_filter_and_sort sets it)
-            cache_status = " (downloaded)" if force_download else " (from cache)"
-            current_status = self.status_var.get()
-            self.status_var.set(f"{current_status}{cache_status}")
+            # Update status
+            self.status_manager.show_count_status(
+                count=len(iod_modules),
+                cache_suffix=" (downloaded)" if force_download else " (from cache)"
+            )
 
         except RuntimeError as e:
             messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
@@ -652,37 +523,6 @@ class DCMSpecExplorer:
         for title, table_id, href, iod_type in iod_modules:
             self.tree.insert("", tk.END, text=title, values=(iod_type, ""), 
                             tags=(table_id, iod_type))
-
-    def sort_treeview(self, column: str):
-        """Sort the treeview by the specified column."""
-        # Determine if we need to reverse the sort
-        if self.sort_column == column:
-            self.sort_reverse = not self.sort_reverse
-        else:
-            self.sort_reverse = False
-        
-        self.sort_column = column
-        
-        # Apply filter and sort (this will update the treeview)
-        self.apply_filter_and_sort()
-        
-        # Update column headings to show sort direction
-        self.update_column_headings()
-
-    def update_column_headings(self):
-        """Update column headings to show sort direction."""
-        # Reset all headings
-        self.tree.heading("#0", text="Name")
-        self.tree.heading("iod_type", text="Kind")
-        self.tree.heading("usage", text="")
-        
-        # Add sort indicator to the current sort column
-        if self.sort_column:
-            indicator = " ↓" if self.sort_reverse else " ↑"
-            if self.sort_column == "#0":
-                self.tree.heading("#0", text=f"Name{indicator}")
-            elif self.sort_column == "iod_type":
-                self.tree.heading("iod_type", text=f"Kind{indicator}")
 
     def _is_model_cached(self, table_id: str) -> bool:
         """Check if the IOD model is already cached on disk."""
