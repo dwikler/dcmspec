@@ -34,10 +34,10 @@ class StatusManager:
         """
         self.status_var = status_var
     
-    def show_count_status(self, count: int, cache_suffix: str = ""):
+    def show_count_status(self, count: int):
         """Show count-based status when no selection."""
         message = f"Showing {count} IODs"
-        self.status_var.set(f"{message}{cache_suffix}")
+        self.status_var.set(message)
     
     def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
         """Show selection-based status when item selected."""
@@ -206,21 +206,14 @@ class DCMSpecExplorer:
         # Create main frame
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        # Create top frame for controls
+
+        # Create top frame for controls and labels
         top_frame = ttk.Frame(main_frame)
         top_frame.pack(fill=tk.X, pady=(0, 10))
-        
-        # Add version label to the left of the button with right justification and spacing
+
+        # Add version label in top frame
         self.version_label = ttk.Label(top_frame, text="", font=("Arial", 10))
         self.version_label.pack(side=tk.LEFT)
-        
-        # Add refresh button with context menu option
-        refresh_btn = ttk.Button(top_frame, text="Reload", command=self.load_iod_modules)
-        refresh_btn.pack(side=tk.RIGHT)
-        
-        # Add context menu for refresh button
-        self._create_refresh_context_menu(refresh_btn)
         
         # Create resizable paned window for IOD list and details
         paned_window = ttk.PanedWindow(main_frame, orient=tk.HORIZONTAL)
@@ -359,53 +352,9 @@ class DCMSpecExplorer:
         
         status_bar = ttk.Label(status_frame, textvariable=self.status_var, relief=tk.FLAT)
         status_bar.pack(side=tk.LEFT, fill=tk.X, expand=True)
-    
-    def _create_refresh_context_menu(self, refresh_btn):
-        """Create a context menu for the refresh button."""
-        context_menu = tk.Menu(self.root, tearoff=0)
-        context_menu.add_command(label="Reload (from cache)", command=self.load_iod_modules)
-        context_menu.add_command(label="Download latest (from web)", 
-                                command=lambda: self.load_iod_modules(force_download=True))
         
-        def show_context_menu(event):
-            try:
-                context_menu.tk_popup(event.x_root, event.y_root)
-            finally:
-                context_menu.grab_release()
-        
-        # Add tooltip to explain the context menu
-        def create_tooltip():
-            tooltip = tk.Toplevel(self.root)
-            tooltip.wm_overrideredirect(True)
-            tooltip.wm_geometry("+%d+%d" % (refresh_btn.winfo_rootx(), 
-                                            refresh_btn.winfo_rooty() + refresh_btn.winfo_height() + 5))
-            label = ttk.Label(tooltip, text="Right-click for more options", 
-                            background="lightyellow", relief=tk.SOLID, borderwidth=1)
-            label.pack()
-            tooltip.after(2000, tooltip.destroy)  # Auto-hide after 2 seconds
-        
-        # Bind events
-        refresh_btn.bind("<Button-2>", show_context_menu)  # Middle click
-        refresh_btn.bind("<Button-3>", show_context_menu)  # Right click
-        refresh_btn.bind("<Control-Button-1>", show_context_menu)  # Ctrl+Left click (alternative)
-        
-        # Show tooltip on hover (to help users discover the context menu)
-        def on_enter(event):
-            refresh_btn.after(1000, create_tooltip)  # Show tooltip after 1 second hover
-        
-        def on_leave(event):
-            refresh_btn.after_cancel(refresh_btn.after_idle(lambda: None))  # Cancel tooltip
-        
-        refresh_btn.bind("<Enter>", on_enter)
-        refresh_btn.bind("<Leave>", on_leave)
-
-    def load_iod_modules(self, force_download: bool = False):
-        """Load IOD modules from the DICOM specification.
-
-        Args:
-            force_download (bool): If True, force download from URL instead of using cache.
-
-        """
+    def load_iod_modules(self):
+        """Load IOD modules from the DICOM specification."""
         self.status_var.set("Loading IOD modules...")
         self.root.update()
 
@@ -434,7 +383,6 @@ class DCMSpecExplorer:
             soup = self.doc_handler.load_document(
                 cache_file_name=cache_file_name,
                 url=self.part3_toc_url,
-                force_download=force_download,
                 progress_callback=progress_callback
             )
 
@@ -458,10 +406,7 @@ class DCMSpecExplorer:
             self.populate_treeview(iod_modules)
 
             # Update status
-            self.status_manager.show_count_status(
-                count=len(iod_modules),
-                cache_suffix=" (downloaded)" if force_download else " (from cache)"
-            )
+            self.status_manager.show_count_status(count=len(iod_modules))
 
         except RuntimeError as e:
             messagebox.showerror("Error", f"Failed to load DICOM specification:\n{str(e)}")
