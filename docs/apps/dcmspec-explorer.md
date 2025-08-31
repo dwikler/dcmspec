@@ -100,10 +100,7 @@ For detailed configuration options and examples, see the config directory in the
 
 - Browse DICOM IODs (Information Object Definitions)
 - Explore IOD modules and attributes hierarchically
-- Sort and filter IOD lists
-- Configurable logging levels
 - Persistent caching of downloaded specifications
-- Context menus for advanced options
 
 ## Configuration Examples
 
