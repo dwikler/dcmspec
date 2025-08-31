@@ -1,4 +1,4 @@
-# DCMSPEC Explorer
+# IOD Explorer
 
 A GUI application for exploring DICOM specifications interactively.
 
@@ -6,12 +6,12 @@ A GUI application for exploring DICOM specifications interactively.
 
 For complete documentation including installation, configuration, and usage instructions, see:
 
-**[DCMSPEC Explorer Documentation](../../../../docs/apps/dcmspec-explorer.md)**
+**[IOD Explorer Documentation](../../../../docs/apps/iod-explorer.md)**
 
 ## Quick Start
 
 ```bash
-poetry run dcmspec-explorer
+poetry run iod-explorer
 ```
 
 For more running options and configuration details, refer to the main documentation linked above.

@@ -1,6 +1,6 @@
-# DCMSPEC Explorer
+# IOD Explorer
 
-A GUI application for exploring DICOM specifications interactively.
+A GUI application for exploring DICOM IOD specifications interactively.
 
 ## Dependencies
 
@@ -23,7 +23,7 @@ A GUI application for exploring DICOM specifications interactively.
 Clone the repository and install dependencies with Poetry:
 
 ```bash
-git clone https://github.com/yourusername/dcmspec.git
+git clone https://github.com/dwikler/dcmspec.git
 cd dcmspec
 poetry install --with gui
 ```
@@ -56,7 +56,7 @@ pip install -e .[gui]
 ### Option 1: Using poetry run (recommended)
 
 ```bash
-poetry run dcmspec-explorer
+poetry run iod-explorer
 ```
 
 ### Option 2: Activate environment then run directly
@@ -64,17 +64,17 @@ poetry run dcmspec-explorer
 ```bash
 # On Windows PowerShell
 .\.venv\Scripts\Activate.ps1
-dcmspec-explorer
+iod-explorer
 
 # On Unix/macOS
 source .venv/bin/activate
-dcmspec-explorer
+iod-explorer
 ```
 
 ### Option 3: Using the module path
 
 ```bash
-poetry run python -m src.dcmspec.apps.dcmspec_explorer.dcmspec_explorer
+poetry run python -m src.dcmspec.apps.iod_explorer.iod_explorer
 ```
 
 ### Note on Poetry 2.0+ Environment Activation
@@ -89,9 +89,9 @@ If you're using Poetry 2.0+, the `poetry env activate` command only prints the a
 
 The application supports customizable configuration through JSON files. Configuration files are searched in the following order:
 
-1. Current directory: `dcmspec_explorer_config.json`
-2. User config: `~/.config/dcmspec/dcmspec_explorer_config.json`
-3. App config directory: `src/dcmspec/apps/dcmspec_explorer/config/dcmspec_explorer_config.json`
+1. Current directory: `iod_explorer_config.json`
+2. User config: `~/.config/dcmspec/iod_explorer_config.json`
+3. App config directory: `src/dcmspec/apps/iod_explorer/config/iod_explorer_config.json`
 4. Legacy location: Same directory as script
 
 For detailed configuration options and examples, see the config directory in the application source.
@@ -100,10 +100,7 @@ For detailed configuration options and examples, see the config directory in the
 
 - Browse DICOM IODs (Information Object Definitions)
 - Explore IOD modules and attributes hierarchically
-- Sort and filter IOD lists
-- Configurable logging levels
 - Persistent caching of downloaded specifications
-- Context menus for advanced options
 
 ## Configuration Examples
 
@@ -113,4 +110,4 @@ The application includes several example configurations:
 - **Debug**: Verbose logging for troubleshooting
 - **Minimal**: Minimal logging for production use
 
-Copy any example to one of the search locations and rename to `dcmspec_explorer_config.json` to use it.
+Copy any example to one of the search locations and rename to `iod_explorer_config.json` to use it.

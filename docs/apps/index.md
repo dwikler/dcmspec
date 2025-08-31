@@ -4,7 +4,7 @@ This section documents the sample interactive applications provided by **dcmspec
 
 ## Available Applications
 
-- [DCMspec Explorer](dcmspec-explorer.md) - GUI application using Tkinter for browsing DICOM IODs and modules
+- [IOD Explorer](iod-explorer.md) - GUI application using Tkinter for browsing DICOM IODs and modules
 
 ## Getting Started
 

@@ -16,7 +16,7 @@ from typing import Callable
 
 from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
-from dcmspec.progress import ProgressObserver, ProgressStatus
+from dcmspec.progress import ProgressObserver, ProgressStatus, Progress
 
 
 class XHTMLDocHandler(DocHandler):
@@ -45,6 +45,7 @@ class XHTMLDocHandler(DocHandler):
             progress_callback: 'Optional[Callable[[int], None]]' = None,
             # END LEGACY SUPPORT
     ) -> BeautifulSoup:
+        # sourcery skip: merge-else-if-into-elif, reintroduce-else, swap-if-else-branches
         """Open and parse an XHTML file, downloading it if needed.
 
         Args:
@@ -76,7 +77,6 @@ class XHTMLDocHandler(DocHandler):
         else:
             # Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)
             if progress_observer:
-                from dcmspec.progress import Progress
                 progress_observer(Progress(100, status=ProgressStatus.DOWNLOADING))     
 
         # No need to report progress for parsing as, even for the largest DICOM standard XHTML file of 35 MB,

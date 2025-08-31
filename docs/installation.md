@@ -78,13 +78,13 @@
 - Run the GUI application:
 
   ```bash
-  poetry run dcmspec-explorer
+  poetry run iod-explorer
   ```
 
   Or, after activating your environment:
 
   ```bash
-  dcmspec-explorer
+  iod-explorer
   ```
 
 ---
