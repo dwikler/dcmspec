@@ -334,6 +334,39 @@ def test_parse_table_colspan_rowspan(table_colspan_rowspan_dom):  # noqa: F811
     assert children[1].col1 == "A"  # from rowspan+colspan
     assert children[1].col3 == "C"
 
+
+def test_parse_table_colspan_rowspan_unformatted(table_colspan_rowspan_dom):  # noqa: F811
+    """Test parse_table handles both colspan and rowspan together, and unformatted_list."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    # Set unformatted_list so that col2 returns HTML, others return text
+    unformatted_list = [True, False, True]
+    node = parser.parse_table(
+        dom=table_colspan_rowspan_dom,
+        table_id="table_COLSPANROWSPAN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        unformatted_list=unformatted_list
+    )
+    children = list(node.children)
+    # Print the actual values for inspection
+    print("Row 0:", "col1:", repr(children[0].col1), "col2:", repr(children[0].col2), "col3:", repr(children[0].col3))
+    print("Row 1:", "col1:", repr(children[1].col1), "col2:", repr(children[1].col2), "col3:", repr(children[1].col3))
+    # There should be 2 rows
+    assert len(children) == 2
+
+    # First row: col1="A", col2=None (colspan), col3="<p>B</p>"
+    assert children[0].col1 == "A"
+    assert hasattr(children[0], "col2")
+    assert children[0].col2 is None
+    assert children[0].col3.strip() == "<p>B</p>"
+
+    # Second row: col1="A" (from rowspan+colspan), col2=None (colspan), col3="C"
+    assert children[1].col1 == "A"
+    assert hasattr(children[1], "col2")
+    assert children[1].col2 is None
+    assert children[1].col3 == "C"
+
 def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F811
     """Test that parse_table handles an 'Include' row and recursively parses the included table."""
     parser = DOMTableSpecParser()
