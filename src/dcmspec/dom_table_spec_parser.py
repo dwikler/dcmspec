@@ -23,7 +23,7 @@ class DOMTableSpecParser(SpecParser):
     Inherits logging from SpecParser.
     """
 
-    def __init__(self, logger=None):
+    def __init__(self, logger: Optional[Any] = None):
         """Initialize the DOMTableSpecParser.
 
         Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.
@@ -43,7 +43,7 @@ class DOMTableSpecParser(SpecParser):
         column_to_attr: Dict[int, str],
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
-        progress_observer: Optional[object] = None,        
+        progress_observer: Optional[Any] = None,
         skip_columns: Optional[list[int]] = None,
         unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
     ) -> tuple[Node, Node]:
@@ -107,7 +107,7 @@ class DOMTableSpecParser(SpecParser):
         return metadata, content
 
     @contextmanager
-    def _visit_table(self, table_id, visited_tables):
+    def _visit_table(self, table_id: str, visited_tables: set) -> Any:
         """Context manager to temporarily add a table_id to the visited_tables set during recursion.
 
         Ensures that table_id is added to visited_tables when entering the context,
@@ -132,7 +132,7 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         table_nesting_level: int = 0,
         include_depth: Optional[int] = None,  # None means unlimited
-        progress_observer: Optional[object] = None,
+        progress_observer: Optional[Any] = None,
         skip_columns: Optional[list[int]] = None,
         visited_tables: Optional[set] = None,
         unformatted_list: Optional[list[bool]] = None,
@@ -262,14 +262,14 @@ class DOMTableSpecParser(SpecParser):
             self.logger.warning("DICOM Standard version not found")
         return version
 
-    def _version_from_book(self, dom):
+    def _version_from_book(self, dom: BeautifulSoup) -> Optional[str]:
         """Extract version of DICOM books in HTML format."""
         titlepage = dom.find("div", class_="titlepage")
         if titlepage:
             subtitle = titlepage.find("h2", class_="subtitle")
         return subtitle.text.split()[2] if subtitle else None
 
-    def _version_from_section(self, dom):
+    def _version_from_section(self, dom: BeautifulSoup) -> Optional[str]:
         """Extract version of DICOM sections in the CHTML format."""
         document_release = dom.find("span", class_="documentreleaseinformation")
         return document_release.text.split()[2] if document_release else None
@@ -287,8 +287,8 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool],
         level_nodes: Dict[int, Node],
         root: Node,
-        progress_observer: Optional[object] = None
-    ):
+        progress_observer: Optional[Any] = None
+    ) -> None:
         """Process all rows in the table, handling recursion, nesting, and node creation."""
         rows = table.find_all("tr")[1:]
         total_rows = len(rows)
@@ -342,7 +342,8 @@ class DOMTableSpecParser(SpecParser):
 
         If, after accounting for colspans and rowspans, the row has one fewer value than the number of logical columns
         in the mapping and if skip_columns is set, those columns will be skipped for this row, allowing for robust
-        alignment when a column is sometimes missing such as in the case of some of the Modules of a normalized IOD.
+        alignment when Module Tables and nested Attributes Tables may not have the same number of columns as it may be
+        for normalized IOD Modules.
 
         Args:
             row: The table row element (BeautifulSoup Tag for <tr> element).
@@ -359,54 +360,192 @@ class DOMTableSpecParser(SpecParser):
                 - The value physically present in the current row,
                 - Or a value carried over from a previous row due to rowspan.
 
-            This ensures that each row's dictionary contains values for all requested logical columns, regardless of
-            whether the value is physically present in the current row or carried forward from a previous row due to
-            rowspan. The result is a complete, logically-aligned mapping for each row in the table.
-
         """
         # Initialize rowspan trackers if not present
         if not hasattr(self, "_rowspan_trackers") or self._rowspan_trackers is None:
             self._rowspan_trackers = []
 
-        # Add cells from pending rowspans
-        cells, colspans, rowspans, physical_col_idx, logical_col_idx = self._handle_pending_rowspans()
+        num_logical_columns = len(self.column_to_attr)  # Number of logical columns, hence expected number of cells
+        logical_cells = []  # List to hold the logical cell values
+        logical_col_idx = 0  # Logical column index in the table, index of the attribute in column_to_attr, 0-based
+        physical_col_idx = 0  # Physical column index in the DOM, index of the <td> cell in the <tr>, 0-based
 
-        attr_indices = list(self.column_to_attr.keys())
+        # Iterator for the <td> elements in the current row
+        cell_iter = iter(row.find_all("td"))
+        num_physical_cells = len(row.find_all("td"))
 
-        # Process the actual cells in this row, using skip_columns to align indices
-        physical_col_idx = self._process_actual_cells(
-            row,
-            cells,
-            colspans,
-            rowspans,
-            physical_col_idx,
-            unformatted_list,
-            skip_columns=skip_columns,
-            logical_col_idx=logical_col_idx
+        # Only apply skip_columns if the row is missing exactly that many columns
+        apply_skip = (
+            skip_columns
+            and num_physical_cells == num_logical_columns - len(skip_columns)
         )
 
-        # Clean up rowspan trackers for cells that are no longer needed
+        # 1. Handle carried-forward cells from rowspans
+        logical_cells, logical_col_idx, physical_col_idx = self._handle_rowspan_cells(
+            logical_cells, logical_col_idx, physical_col_idx, num_logical_columns
+        )
+
+        # 2. Process each logical column in the row, extracting values from physical <td> cells
+        while logical_col_idx < num_logical_columns:
+            # Skip this logical column if requested and missing in the row
+            if apply_skip and logical_col_idx in skip_columns:
+                logical_col_idx += 1
+                continue
+
+            logical_cells, logical_col_idx, physical_col_idx = self._process_logical_column(
+                cell_iter, logical_cells, logical_col_idx, physical_col_idx, skip_columns, unformatted_list
+            )
+
+        # 3. Trim _rowspan_trackers to match the number of physical columns in this row
         if len(self._rowspan_trackers) > physical_col_idx:
             self._rowspan_trackers = self._rowspan_trackers[:physical_col_idx]
 
-        return (
-            self._align_row_with_skipped_columns(
-                cells, colspans, attr_indices, skip_columns
+        # 4. Map logical cells to attributes, omitting skipped columns if missing in the row
+        attr_indices = list(self.column_to_attr.keys())
+        if skip_columns and len(logical_cells) == len(self.column_to_attr) - len(skip_columns):
+            return self._map_cells_with_skipped_columns(
+                logical_cells, attr_indices, skip_columns
             )
-            if skip_columns
-            and len(cells) == len(self.column_to_attr) - len(skip_columns)
-            else self._align_row_default(cells, colspans, attr_indices)
-        )
+        else:
+            return self._map_cells_to_attributes(logical_cells, attr_indices)
     
-    def _align_row_with_skipped_columns(
-        self, cells, colspans, attr_indices, skip_columns
-    ):
-        """Align cells to attributes when skip_columns is used.
 
-        This method aligns the row's cells to the attribute indices, skipping the columns
-        specified in skip_columns. It is used when the row is missing exactly the number of
-        columns specified, ensuring the remaining cells are mapped to the correct attributes.
+    def _handle_rowspan_cells(
+        self,
+        logical_cells: list,
+        logical_col_idx: int,
+        physical_col_idx: int,
+        num_logical_columns: int
+    ) -> tuple[list, int, int]:
+        """Handle carried-forward cells from rowspans for the current row.
 
+        For each logical column, if a rowspan tracker is active for the current physical column,
+        use its carried-forward value for this logical column.
+        Advances logical and physical indices as needed.
+
+        Returns:
+            tuple: (logical_cells, logical_col_idx, physical_col_idx)
+                - logical_cells: The updated list of extracted cell values for the row.
+                - logical_col_idx: The next logical column index to process.
+                - physical_col_idx: The next physical column index to process.
+
+        """
+        while (
+            physical_col_idx < len(self._rowspan_trackers)
+            and logical_col_idx < num_logical_columns
+            and self._rowspan_trackers[physical_col_idx]
+            and self._rowspan_trackers[physical_col_idx]["rows_left"] > 0
+        ):
+            # Use carried-forward value for this logical column
+            value = self._rowspan_trackers[physical_col_idx]["value"]
+            logical_cells.append(value)
+            self._rowspan_trackers[physical_col_idx]["rows_left"] -= 1
+
+        # Advance to next logical column and past all physical columns spanned by the carried-forward cell
+            physical_col_idx += self._rowspan_trackers[physical_col_idx]["colspan"]
+            logical_col_idx += 1
+
+        return logical_cells, logical_col_idx, physical_col_idx
+
+
+    def _process_logical_column(
+        self,
+        cell_iter: Any,
+        logical_cells: list,
+        logical_col_idx: int,
+        physical_col_idx: int,
+        skip_columns: Optional[list[int]],
+        unformatted_list: Optional[list[bool]]
+    ) -> tuple[list, int, int]:
+        """Process a single logical column in the row.
+
+        Extract the value from the corresponding physical <td> cell (if present),
+        handle colspans and rowspans, and update logical and physical indices.
+
+        Returns:
+            tuple: (logical_cells, logical_col_idx, physical_col_idx)
+                - logical_cells: The updated list of extracted cell values for the row.
+                - logical_col_idx: The next logical column index to process.
+                - physical_col_idx: The next physical column index to process.
+
+        """
+        # Ensure _rowspan_trackers has an entry for this physical column
+        if physical_col_idx >= len(self._rowspan_trackers):
+            self._rowspan_trackers.append(None)
+
+        # Ensure logical_cells has an entry for this logical column (fill with None if missing in DOM)
+        try:
+            cell = next(cell_iter)
+        except StopIteration:
+            logical_cells.append(None)
+            logical_col_idx += 1
+            return logical_cells, logical_col_idx, physical_col_idx
+
+        # Check the logical column's unformatted setting
+        use_unformatted = (
+            unformatted_list[logical_col_idx]
+            if unformatted_list and logical_col_idx < len(unformatted_list)
+            else True
+        )
+        # Extract value for the current logical column using the specified unformatted setting
+        value = self._clean_extracted_text(
+            cell.get_text(separator="\n", strip=True) if use_unformatted else cell.decode_contents()
+        )
+
+        # Determine colspan and rowspan
+        colspan = int(cell.get("colspan", 1))
+        rowspan = int(cell.get("rowspan", 1))
+
+        # Add the value for the first logical column spanned by this cell
+        logical_cells.append(value)
+        # Add None for each additional logical column spanned by colspan, unless skipped
+        logical_cells.extend(
+            None
+            for j in range(1, colspan)
+            if not skip_columns or logical_col_idx + j not in skip_columns
+        )
+        
+        # Update rowspan tracker for each physical column spanned by this cell
+        for i in range(colspan):
+            while len(self._rowspan_trackers) <= physical_col_idx + i:
+                self._rowspan_trackers.append(None)
+            if rowspan > 1:
+                value_for_tracker = value if i == 0 else None
+                self._rowspan_trackers[physical_col_idx + i] = {
+                    "value": value_for_tracker,
+                    "rows_left": rowspan - 1,
+                    "colspan": 1,
+                }
+            else:
+                self._rowspan_trackers[physical_col_idx + i] = None
+
+        # Advance logical and physical column indices by colspan
+        physical_col_idx += colspan
+        logical_col_idx += colspan
+
+        return logical_cells, logical_col_idx, physical_col_idx
+
+
+    def _map_cells_with_skipped_columns(
+        self,
+        cells: list,
+        attr_indices: list[int],
+        skip_columns: list[int]
+    ) -> dict:
+        """Map the list of extracted cell values to the attribute names for this row in presence of skipped columns.
+
+        This method is used when skip_columns is set and the number of logical cells
+        matches the expected number of non-skipped columns. It ensures that only the
+        non-skipped attributes are present in the output dictionary.
+
+        Args:
+            cells (list): Extracted cell values for the row, in logical column order (excluding skipped columns).
+            attr_indices (list): Column indices (keys from column_to_attr) in logical order.
+            skip_columns (list): Column indices to skip.
+
+        Returns:
+            dict: Dictionary mapping attribute names to cell values (excluding skipped columns).
+            
         """
         attr_indices = [i for i in attr_indices if i not in skip_columns]
 
@@ -416,39 +555,37 @@ class DOMTableSpecParser(SpecParser):
         # Map the remaining cells to the correct attributes
         return {
             self.column_to_attr[attr_indices[attr_index]]: cell
-            for attr_index, (cell, colspan) in enumerate(zip(cells, colspans))
+            for attr_index, cell in enumerate(cells)
             if attr_index < len(attr_indices)
         }
 
-    def _align_row_default(self, cells, colspans, attr_indices):
-        """Align cells to attributes by default, handling colspans and missing cells.
-        
-        Always set all attributes, even if missing in this row, filling spanned columns with None
-        to maintain alignment with the column_to_attr mapping.
-        
+    def _map_cells_to_attributes(
+        self,
+        cells: list,
+        attr_indices: list[int]
+    ) -> dict:
+        """Map the list of extracted cell values to the attribute names for this row.
+
+        This method builds a dictionary mapping each attribute name (from column_to_attr)
+        to the corresponding value in the `cells` list. If there are fewer cells than attributes,
+        the remaining attributes are filled with None.
+
+        Args:
+            cells (list): List of extracted cell values for the row, in logical column order.
+            attr_indices (list): List of column indices (keys from column_to_attr) in logical order.
+
+        Returns:
+            dict: Dictionary mapping attribute names to cell values (or None if missing).
+
         """
         row_data = {}
-        cell_idx = 0
         attr_indices = sorted(attr_indices)
-        i = 0
-        while i < len(attr_indices):
-            attr = self.column_to_attr[attr_indices[i]]
-            if cell_idx < len(cells):
-                row_data[attr] = cells[cell_idx]
-                colsp = colspans[cell_idx] if cell_idx < len(colspans) else 1
-                # Fill in None for skipped columns due to colspan
-                for _ in range(1, colsp):
-                    i += 1
-                    if i < len(attr_indices):
-                        skipped_attr = self.column_to_attr[attr_indices[i]]
-                        row_data[skipped_attr] = None
-                cell_idx += 1
-            else:
-                row_data[attr] = None
-            i += 1
+        for i, attr_idx in enumerate(attr_indices):
+            attr = self.column_to_attr[attr_idx]
+            row_data[attr] = cells[i] if i < len(cells) else None
         return row_data
     
-    def _handle_pending_rowspans(self):
+    def _handle_pending_rowspans(self) -> tuple[list, list, list, int, int]:
         """Handle cells that are carried forward from previous rows due to rowspan.
 
         This method checks the internal _rowspan_trackers for any cells that are being
@@ -486,7 +623,13 @@ class DOMTableSpecParser(SpecParser):
 
         return cells, colspans, rowspans, physical_col_idx, logical_col_idx
 
-    def _enforce_unformatted_for_name_attr(self, column_to_attr, name_attr, unformatted_list):
+    def _enforce_unformatted_for_name_attr(
+        self,
+        column_to_attr: dict[int, str],
+        name_attr: str,
+        unformatted_list: list[bool]
+    ) -> None:
+        """Enforce unformatted=True for the name_attr column if it is not already set."""
         name_attr_col = next((col_idx for col_idx, attr in column_to_attr.items() if attr == name_attr), None)
         if name_attr_col is not None and not unformatted_list[name_attr_col]:
             unformatted_list[name_attr_col] = True
@@ -496,109 +639,12 @@ class DOMTableSpecParser(SpecParser):
                     "Forcing unformatted=True for this column to ensure correct parsing."
                 )
 
-    def _process_actual_cells(
+    def _check_circular_reference(
         self,
-        row,
-        cells,
-        colspans,
-        rowspans,
-        physical_col_idx,
-        unformatted_list,
-        skip_columns=None,
-        logical_col_idx=0
-    ):
-        """Process the actual (non-rowspan) cells in a table row, extracting text or HTML as needed.
-
-        The "actual (non-rowspan) cells" are the BeautifulSoup Tag objects for <td> elements
-        that are physically present in the current row of the HTML table. These do not include
-        cells that are logically present due to a rowspan from a previous row; those are handled
-        separately by _handle_pending_rowspans.
-
-        This method iterates through the logical columns of the row, skipping columns as specified,
-        and for each column:
-            - If a cell is present in the current row, extracts its value (as text or HTML depending on
-                the boolean value in unformatted_list).
-            - If a cell is carried forward due to rowspan, it is already handled by _handle_pending_rowspans.
-            - Updates the physical and logical column indices as it processes each cell.
-
-        Args:
-            row: The BeautifulSoup Tag for the current table row.
-            cells: List to append extracted cell values to.
-            colspans: List to append colspans for each cell.
-            rowspans: List to append rowspans for each cell.
-            physical_col_idx: The current physical column index in the HTML table (including colspans).
-            unformatted_list: List of booleans indicating whether to extract each column as unformatted text.
-            skip_columns: Optional list of logical column indices to skip.
-            logical_col_idx: The current logical column index in the data model (default 0).
-
-        Returns:
-            int: The updated physical_col_idx after processing all cells in the row.
-
-        Note:
-            - physical_col_idx tracks the actual position in the HTML table, including colspans.
-            - logical_col_idx tracks the logical data model column, incremented by 1 per cell.
-            - This method ensures correct alignment between the HTML table and the data model,
-            even in the presence of rowspans and colspans.
-
-        """
-        cell_iter = iter(row.find_all("td"))
-        num_columns = len(unformatted_list)
-        while logical_col_idx < num_columns:
-            # Skip columns as needed
-            if skip_columns and logical_col_idx in skip_columns:
-                logical_col_idx += 1
-                continue
-
-            if physical_col_idx >= len(self._rowspan_trackers):
-                self._rowspan_trackers.append(None)
-
-            try:
-                cell = next(cell_iter)
-            except StopIteration:
-                # If we run out of cells, fill the rest with None
-                cells.append(None)
-                colspans.append(1)
-                rowspans.append(1)
-                logical_col_idx += 1
-                continue
-
-            use_unformatted = (
-                unformatted_list[logical_col_idx]
-                if unformatted_list and logical_col_idx < len(unformatted_list)
-                else True
-            )
-            if use_unformatted:
-                cell_text = self._clean_extracted_text(cell.get_text(separator="\n", strip=True))
-            else:
-                cell_text = self._clean_extracted_text(cell.decode_contents())
-
-            colspan = int(cell.get("colspan", 1))
-            rowspan = int(cell.get("rowspan", 1))
-
-            # Add the value for the first logical column spanned by this cell
-            cells.append(cell_text)
-            colspans.append(colspan)
-            rowspans.append(rowspan)
-
-            # Set rowspan trackers for all physical columns spanned
-            for i in range(colspan):
-                while len(self._rowspan_trackers) <= physical_col_idx + i:
-                    self._rowspan_trackers.append(None)
-                if rowspan > 1:
-                    value_for_tracker = cell_text if i == 0 else None
-                    self._rowspan_trackers[physical_col_idx + i] = {
-                        "value": value_for_tracker,
-                        "rows_left": rowspan - 1,
-                        "colspan": 1,
-                    }
-                else:
-                    self._rowspan_trackers[physical_col_idx + i] = None
-
-            physical_col_idx += colspan
-            logical_col_idx += 1  # Only advance by 1 logical column per <td>
-        return physical_col_idx
-
-    def _check_circular_reference(self, row, visited_tables, table_nesting_level):
+        row: Tag,
+        visited_tables: set,
+        table_nesting_level: int
+    ) -> bool:
         """Check for circular reference before attempting to parse an included table.
 
         Returns:
@@ -654,15 +700,26 @@ class DOMTableSpecParser(SpecParser):
         self._nest_included_table(included_table_tree, level_nodes, table_nesting_level, root)
 
     def _nest_included_table(
-        self, included_table_tree: Node, level_nodes: Dict[int, Node], row_nesting_level: int, root: Node
+        self,
+        included_table_tree: Node,
+        level_nodes: Dict[int, Node],
+        row_nesting_level: int,
+        root: Node
     ) -> None:
+        """Nest the included table tree under the appropriate parent node."""
         parent_node = level_nodes.get(row_nesting_level - 1, root)
         for child in included_table_tree.children:
             child.parent = parent_node
 
     def _create_node(
-        self, node_name: str, row_data: Dict[str, Any], row_nesting_level: int, level_nodes: Dict[int, Node], root: Node
+        self,
+        node_name: str,
+        row_data: Dict[str, Any],
+        row_nesting_level: int,
+        level_nodes: Dict[int, Node],
+        root: Node
     ) -> None:
+        """Create a new node and attach it to the appropriate parent."""
         parent_node = level_nodes.get(row_nesting_level - 1, root)
         self.logger.debug(
             f"Nesting Level: {row_nesting_level}, Name: {node_name}, "
@@ -671,7 +728,11 @@ class DOMTableSpecParser(SpecParser):
         node = Node(node_name, parent=parent_node, **row_data)
         level_nodes[row_nesting_level] = node
 
-    def _extract_header(self, table: Tag, column_to_attr: Dict[int, str]) -> list:
+    def _extract_header(
+        self,
+        table: Tag,
+        column_to_attr: Dict[int, str]
+    ) -> list[str]:
         """Extract headers from the table and saves them in the headers attribute.
 
         Realign the keys in column_to_attr to consecutive indices if the number of columns in the table
