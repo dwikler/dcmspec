@@ -281,6 +281,26 @@ def test_parse_table_skip_columns_all_cells_not_in_dom(docbook_sample_dom_1):  #
     # The column_to_attr should not include the missing column
     assert metadata.column_to_attr == {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
 
+def test_parse_table_skip_columns_column_present_not_skipped(docbook_sample_dom_1):  # noqa: F811
+    """Test that specifying skip_columns for a column that is present in the DOM does NOT skip it."""
+    parser = DOMTableSpecParser()
+    # All columns are present in the DOM, but we specify skip_columns for column 2 ("elem_type")
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    node = parser.parse_table(
+        dom=docbook_sample_dom_1,
+        table_id="table_SAMPLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        skip_columns=[2],  # "elem_type" is present in the DOM, so should NOT be skipped
+    )
+    children = list(node.children)
+    assert len(children) == 2
+    # "elem_type" should be present and have the correct value
+    assert hasattr(children[0], "elem_type")
+    assert children[0].elem_type == "1"
+    assert hasattr(children[1], "elem_type")
+    assert children[1].elem_type == "2"
+
 def test_parse_table_skip_columns_all_cells_colspan(table_colspan_dom):  # noqa: F811
     """Test parse_table with skip_columns skips columns for all rows when all cells are missing that column."""
     parser = DOMTableSpecParser()
@@ -333,6 +353,39 @@ def test_parse_table_colspan_rowspan(table_colspan_rowspan_dom):  # noqa: F811
     assert children[0].col3 == "B"
     assert children[1].col1 == "A"  # from rowspan+colspan
     assert children[1].col3 == "C"
+
+
+def test_parse_table_colspan_rowspan_unformatted(table_colspan_rowspan_dom):  # noqa: F811
+    """Test parse_table handles both colspan and rowspan together, and unformatted_list, including HTML alignment."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    # Set unformatted_list so that col3 returns HTML, others return text
+    unformatted_list = [True, False, False]
+    node = parser.parse_table(
+        dom=table_colspan_rowspan_dom,
+        table_id="table_COLSPANROWSPAN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        unformatted_list=unformatted_list
+    )
+    children = list(node.children)
+    # Print the actual values for inspection
+    print("Row 0:", "col1:", repr(children[0].col1), "col2:", repr(children[0].col2), "col3:", repr(children[0].col3))
+    print("Row 1:", "col1:", repr(children[1].col1), "col2:", repr(children[1].col2), "col3:", repr(children[1].col3))
+    # There should be 2 rows
+    assert len(children) == 2
+
+    # First row: col1="A", col2=None (colspan), col3="<p>B</p>"
+    assert children[0].col1 == "A"
+    assert hasattr(children[0], "col2")
+    assert children[0].col2 is None
+    assert children[0].col3.strip() == "<p>B</p>"
+
+    # Second row: col1="A" (from rowspan+colspan), col2=None (colspan), col3="<p><span class=\"foo\">C</span></p>"
+    assert children[1].col1 == "A"
+    assert hasattr(children[1], "col2")
+    assert children[1].col2 is None
+    assert children[1].col3.strip() == '<p><span class="foo">C</span></p>'
 
 def test_parse_table_include_triggers_recursion(table_include_dom):  # noqa: F811
     """Test that parse_table handles an 'Include' row and recursively parses the included table."""

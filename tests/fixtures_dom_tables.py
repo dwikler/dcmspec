@@ -12,7 +12,9 @@ def docbook_sample_dom_1():
                 <tbody>
                     <tr>
                         <th colspan="1" align="center" rowspan="1">
-                            <span class="documentreleaseinformation">DICOM PS3.3 2025b - Information Object Definitions</span>
+                            <span class="documentreleaseinformation">
+                                DICOM PS3.3 2025b - Information Object Definitions
+                            </span>
                         </th>
                     </tr>
                 </tbody>
@@ -191,7 +193,7 @@ def table_colspan_dom():
 
 @pytest.fixture
 def table_mixed_colspan_dom():
-    """Return a DocBook-style XHTML DOM with a table where some rows have a missing column (colspan) and others do not."""
+    """Return a DocBook-style XHTML DOM with a table where some rows have a merged columns and others do not."""
     xhtml = """
     <html xmlns="http://www.w3.org/1999/xhtml">
         <body>
@@ -289,7 +291,7 @@ def table_colspan_rowspan_dom():
                                     <td><p>B</p></td>
                                 </tr>
                                 <tr valign="top">
-                                    <td><p>C</p></td>
+                                    <td><p><span class="foo">C</span></p></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -337,7 +339,9 @@ def table_include_dom():
                                 <tr valign="top">
                                     <td align="left" colspan="4" rowspan="1">
                                         <p>
-                                            <span class="italic">Include <a class="xref" href="#table_MACRO">Table Macro</a></span>
+                                            <span class="italic">
+                                                Include <a class="xref" href="#table_MACRO">Table Macro</a>
+                                            </span>
                                         </p>
                                     </td>
                                 </tr>
@@ -395,7 +399,9 @@ def section_dom():
             </div>
         </div>
         <p>
-            <a class="xref" href="#table_C.7-1" title="Table&nbsp;C.7-1.&nbsp;Patient Module Attributes" shape="rect">Table&nbsp;C.7-1</a>
+            <a class="xref" href="#table_C.7-1" title="Table&nbsp;C.7-1.&nbsp;Patient Module Attributes" shape="rect">
+                Table&nbsp;C.7-1
+            </a>
         </p>
         <div class="table">
             <a id="table_C.7-1" shape="rect"></a>

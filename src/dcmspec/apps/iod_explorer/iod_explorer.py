@@ -13,13 +13,20 @@ from typing import List, Tuple
 import re
 import logging
 import os
+
 from anytree import PreOrderIter
+from bs4 import BeautifulSoup
 
 from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.xhtml_doc_handler import XHTMLDocHandler
 from dcmspec.dom_table_spec_parser import DOMTableSpecParser
+
+# Canonical DICOM Part 3 TOC (Table of Contents) URL
+PART3_TOC_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
+# Canonical DICOM Part 3 HTML URL
+PART3_HTML_URL = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
 
 
 class StatusManager:
@@ -170,7 +177,7 @@ class IODExplorer:
         # Initialize DOM parser for DICOM standard version extraction
         self.dom_parser = DOMTableSpecParser(logger=self.logger)
         # URL for DICOM Part 3 Table of Contents
-        self.part3_toc_url = "https://dicom.nema.org/medical/dicom/current/output/chtml/part03/ps3.3.html"
+        self.part3_toc_url = PART3_TOC_URL
         # Initialize list of all IODs
         self.iod_list = []
         # Store IOD models to keep AnyTree nodes in memory
@@ -665,8 +672,7 @@ class IODExplorer:
             details += f"<span><b>Usage:</b> {usage_display}</span><br>"
 
         if module_ref:
-            details += f"<span><b>Reference:</b> {module_ref}</span><br>"
-
+            details += self._format_module_reference(module_ref)
         return details
 
     def _generate_attribute_details(self, node):
@@ -712,6 +718,22 @@ class IODExplorer:
         else:
             return usage
 
+    def _format_module_reference(self, module_ref: str) -> str:
+        """Format module reference as an HTML anchor into a DICOM Part 3 URL."""
+        # Use the built-in 'xml' parser for both full documents and fragments,
+        # since DICOM standard files and cell values are well-formed XHTML.
+        soup = BeautifulSoup(module_ref, "xml")
+        anchor = soup.find("a", class_="xref")
+        if not anchor or not anchor.has_attr("href"):
+            return f"<span><b>Reference:</b> {module_ref}</span><br>"
+        href = anchor["href"]
+        module_url = f"{PART3_HTML_URL}{href}" if href.startswith("#") else href
+        return (
+            f'<span><b>Reference:</b> '
+            f'<a href="{module_url}" target="_blank">{anchor.get_text(strip=True)}</a>'
+            f'</span><br>'
+        )
+
     def _format_type_display(self, elem_type):
         """Format DICOM attribute type into a readable display string."""
         type_map = {
@@ -753,7 +775,7 @@ class IODExplorer:
             or None if building failed.
 
         """
-        url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
+        url = PART3_HTML_URL
         cache_file_name = "Part3.xhtml"
         model_file_name = f"Part3_{table_id}_expanded.json"
         
@@ -762,13 +784,17 @@ class IODExplorer:
         
         # Create the IOD specification factory
         c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
+        c_iod_unformatted = {0: True, 1: True, 2: False, 3: True}
         n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+        n_iod_unformatted = {0: True, 1: False, 2: True}
         iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
+        iod_unformatted = c_iod_unformatted if composite_iod else n_iod_unformatted
         iod_factory = SpecFactory(
             column_to_attr=iod_columns_mapping, 
             name_attr="module",
             config=self.config,
             logger=logger,  # Use the custom logger for progress tracking
+            parser_kwargs={"unformatted": iod_unformatted}
         )
         
         # Create the Modules specification factory

@@ -60,6 +60,38 @@ class DummyFactory:
         """Patch for compatibility."""
         return self
 
+class CustomRefFactory(DummyFactory):
+    """A dummy factory that sets 'reference' instead of 'ref' for custom ref_attr tests."""
+
+    def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
+        """Patch building the model with custom reference attribute."""
+        metadata = self._create_metadata_node()
+        content = Node("content")
+        iod_node = Node("iod_node", parent=content)
+        setattr(iod_node, "reference", "PATIENT")
+        module_content = Node("content")
+        module_attr = Node("attr", parent=module_content)
+        setattr(module_attr, "attr1", "Value1")
+        setattr(module_attr, "attr2", "Value2")
+        module_metadata = self._create_metadata_node()
+        module_model = SpecModel(metadata=module_metadata, content=module_content)
+        if table_id == "table_IOD":
+            return SpecModel(metadata=metadata, content=content)
+        else:
+            return module_model
+
+class NoRefFactory(DummyFactory):
+    """A dummy factory that returns a model with no reference attribute for negative tests."""
+
+    def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
+        """Patch building the model with no reference attribute."""
+        metadata = Node("metadata")
+        metadata.header = ["Attr1", "Attr2"]
+        metadata.column_to_attr = {0: "attr1", 1: "attr2"}
+        content = Node("content")
+        # No node with a ref attribute
+        return SpecModel(metadata=metadata, content=content)
+
 class DummyConfig:
     """A dummy Config that returns a cache directory."""
 
@@ -123,16 +155,31 @@ def test_iod_spec_builder_combines_iod_and_module(monkeypatch):
     assert getattr(module_attr, "attr1", None) == "Value1"
     assert getattr(module_attr, "attr2", None) == "Value2"
 
+def test_iod_spec_builder_custom_ref_attr(monkeypatch):
+    """Test IODSpecBuilder works with a custom reference attribute name using DummyFactory."""
+    factory = CustomRefFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")
+    factory.model_store = DummyModelStore()
+
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory, ref_attr="reference")
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+
+    model = builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        force_download=False,
+        json_file_name=None,
+    )
+    iod_node = next(iter(model.content.children))
+    assert getattr(iod_node, "reference", None) == "PATIENT"
+    module_attr = next(iter(iod_node.children))
+    assert getattr(module_attr, "attr1", None) == "Value1"
+    assert getattr(module_attr, "attr2", None) == "Value2"  
+
 def test_iod_spec_builder_no_referenced_modules(monkeypatch):
     """Test IODSpecBuilder raises if no referenced modules are found."""
-    class NoRefFactory(DummyFactory):
-        def build_model(self, doc_object, table_id, url, json_file_name, **kwargs):
-            metadata = Node("metadata")
-            metadata.header = ["Attr1", "Attr2"]
-            metadata.column_to_attr = {0: "attr1", 1: "attr2"}
-            content = Node("content")
-            # No node with a ref attribute
-            return SpecModel(metadata=metadata, content=content)
     factory = NoRefFactory()
     factory.table_parser = factory
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)

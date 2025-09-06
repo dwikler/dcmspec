@@ -8,13 +8,22 @@ import os
 from typing import Any, Dict, List, Optional
 
 from anytree import Node
+from bs4 import BeautifulSoup
+
 from dcmspec.dom_utils import DOMUtils
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_model import SpecModel
 
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from typing import Callable
-from dcmspec.progress import Progress, ProgressStatus, ProgressObserver, add_progress_step, calculate_percent, handle_legacy_callback
+from dcmspec.progress import (
+    Progress,
+    ProgressStatus,
+    ProgressObserver,
+    add_progress_step,
+    calculate_percent,
+    handle_legacy_callback,
+)
 # END LEGACY SUPPORT
 
 class IODSpecBuilder:
@@ -30,6 +39,7 @@ class IODSpecBuilder:
         iod_factory: SpecFactory = None,
         module_factory: SpecFactory = None,
         logger: logging.Logger = None,
+        ref_attr: str = None,
     ):
         """Initialize the IODSpecBuilder.
 
@@ -39,9 +49,14 @@ class IODSpecBuilder:
             iod_factory (Optional[SpecFactory]): Factory for building the IOD model. If None, uses SpecFactory().
             module_factory (Optional[SpecFactory]): Factory for building module models. If None, uses iod_factory.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
+            ref_attr (Optional[str]): Attribute name to use for module references. If None, defaults to "ref".
 
-        The builder is initialized with factories for the IOD and module models. By default, the same
-        factory is used for both, but a different factory can be provided for modules if needed.
+        Raises:
+            ValueError: If `ref_attr` is not a non-empty string.
+
+        Note:
+            The builder is initialized with factories for the IOD and module models. By default, the same
+            factory is used for both, but a different factory can be provided for modules if needed.
 
         """
         self.logger = logger or logging.getLogger(self.__class__.__name__)
@@ -49,7 +64,10 @@ class IODSpecBuilder:
         self.iod_factory = iod_factory or SpecFactory(logger=self.logger)
         self.module_factory = module_factory or self.iod_factory
         self.dom_utils = DOMUtils(logger=self.logger)
-
+        self.ref_attr = ref_attr or "ref"
+        if not isinstance(self.ref_attr, str) or not self.ref_attr.strip():
+            raise ValueError("ref_attr must be a non-empty string.")
+        
     def build_from_url(
         self,
         url: str,
@@ -151,8 +169,8 @@ class IODSpecBuilder:
                 Progress(-1, status=ProgressStatus.PARSING_IOD_MODULES, step=3, total_steps=total_steps)
             )
 
-        # Find all nodes with a "ref" attribute in the IOD Modules model
-        nodes_with_ref = [node for node in iodmodules_model.content.children if hasattr(node, "ref")]
+        # Find all nodes with a reference attribute in the IOD Modules model
+        nodes_with_ref = [node for node in iodmodules_model.content.children if hasattr(node, self.ref_attr)]
 
         # Build or load module models for each referenced section
         module_models = self._build_module_models(
@@ -207,7 +225,7 @@ class IODSpecBuilder:
         step: int,
         total_steps: int,
         progress_observer: Optional['ProgressObserver'] = None
-    ) -> Dict[str, Any]:        
+    ) -> Dict[str, Any]:
         """Build or load module models for each referenced section, reporting progress."""
         module_models: Dict[str, Any] = {}
         total_modules = len(nodes_with_ref)
@@ -216,11 +234,13 @@ class IODSpecBuilder:
                 Progress(0, status=ProgressStatus.PARSING_IOD_MODULES, step=step, total_steps=total_steps)
                 )
         for idx, node in enumerate(nodes_with_ref):
-            ref_value = getattr(node, "ref", None)
-            if not ref_value:
+            ref_value = getattr(node, self.ref_attr, None)
+            section_id = self._get_section_id_from_ref(ref_value)
+            if not section_id:
                 continue
-            section_id = f"sect_{ref_value}"
+
             module_table_id = self.dom_utils.get_table_id_from_section(dom, section_id)
+            self.logger.debug(f"First Module table_id for section_id={repr(section_id)}: {repr(module_table_id)}")
             if not module_table_id:
                 self.logger.warning(f"No table found for section id {section_id}")
                 continue
@@ -249,7 +269,7 @@ class IODSpecBuilder:
                     json_file_name=module_json_file_name,
                     progress_observer=progress_observer,
                 )
-            module_models[ref_value] = module_model
+            module_models[section_id] = module_model
             if progress_observer and total_modules > 0:
                 percent = calculate_percent(idx + 1, total_modules)
                 progress_observer(Progress(
@@ -259,7 +279,34 @@ class IODSpecBuilder:
                     total_steps=total_steps
                 ))
         return module_models
-    
+
+    def _get_section_id_from_ref(self, ref_value: str) -> Optional[str]:
+        """Normalize a ref_value (plain text or HTML anchor) to a section_id.
+
+        For HTML, extract the href after '#'. For plain text, always prepend 'sect_'.
+        Strips whitespace for robust lookup.
+        (Do NOT lowercase: DICOM IDs are mixed case and BeautifulSoup search is case-sensitive.)
+        """
+        if not ref_value:
+            return None
+        if "<a " not in ref_value:
+            # Always prepend 'sect_' for plain text references, strip only
+            section_id = f"sect_{ref_value.strip()}"
+            self.logger.debug(f"Extracted section_id from plain text reference: {repr(section_id)}")
+            return section_id
+        soup = BeautifulSoup(ref_value, "lxml-xml")
+        # Find the anchor with class "xref" (the actual module reference)
+        anchor = soup.find("a", class_="xref")
+        if anchor and anchor.has_attr("href"):
+            href = anchor["href"].strip()
+            section_id = href.split("#", 1)[-1] if "#" in href else href
+            section_id = section_id.strip()
+            self.logger.debug(f"Extracted section_id from HTML reference: {repr(section_id)}")
+            return section_id
+        else:
+            self.logger.debug(f"No section_id could be extracted from ref_value={repr(ref_value)}")
+            return None
+
     def _create_expanded_model(self, iodmodules_model: SpecModel, module_models: dict) -> SpecModel:
         """Create the expanded model by attaching Module nodes content to IOD nodes."""
         # Use the first module's metadata node for the expanded model
@@ -271,9 +318,10 @@ class IODSpecBuilder:
         # and for each referenced module, its content's children will be attached directly under the iod node
         iod_content = Node("content")
         for iod_node in iodmodules_model.content.children:
-            ref_value = getattr(iod_node, "ref", None)
-            if ref_value and ref_value in module_models:
-                module_content = module_models[ref_value].content
+            ref_value = getattr(iod_node, self.ref_attr, None)
+            section_id = self._get_section_id_from_ref(ref_value)
+            if section_id and section_id in module_models:
+                module_content = module_models[section_id].content
                 for child in list(module_content.children):
                     child.parent = iod_node
             iod_node.parent = iod_content
