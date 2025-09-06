@@ -1661,16 +1661,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
-<span class="normal"> 21</span>
-<span class="normal"> 22</span>
-<span class="normal"> 23</span>
-<span class="normal"> 24</span>
-<span class="normal"> 25</span>
-<span class="normal"> 26</span>
-<span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 29</span>
 <span class="normal"> 30</span>
 <span class="normal"> 31</span>
 <span class="normal"> 32</span>
@@ -1923,7 +1914,55 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
-<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Orchestrates the construction of a expanded DICOM IOD specification model.</span>
 
 <span class="sd">    The IODSpecBuilder uses a factory to build the IOD Modules model and, for each referenced module,</span>
@@ -1936,6 +1975,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="n">iod_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">module_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the IODSpecBuilder.</span>
 
@@ -1945,9 +1985,14 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 <span class="sd">            iod_factory (Optional[SpecFactory]): Factory for building the IOD model. If None, uses SpecFactory().</span>
 <span class="sd">            module_factory (Optional[SpecFactory]): Factory for building module models. If None, uses iod_factory.</span>
 <span class="sd">            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
+<span class="sd">            ref_attr (Optional[str]): Attribute name to use for module references. If None, defaults to &quot;ref&quot;.</span>
 
-<span class="sd">        The builder is initialized with factories for the IOD and module models. By default, the same</span>
-<span class="sd">        factory is used for both, but a different factory can be provided for modules if needed.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If `ref_attr` is not a non-empty string.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The builder is initialized with factories for the IOD and module models. By default, the same</span>
+<span class="sd">            factory is used for both, but a different factory can be provided for modules if needed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1955,6 +2000,9 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span> <span class="o">=</span> <span class="n">ref_attr</span> <span class="ow">or</span> <span class="s2">&quot;ref&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ref_attr must be a non-empty string.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2057,8 +2105,8 @@ model with the IOD nodes and their referenced module nodes as children, and cach
                 <span class="n">Progress</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_IOD_MODULES</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="n">total_steps</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="c1"># Find all nodes with a &quot;ref&quot; attribute in the IOD Modules model</span>
-        <span class="n">nodes_with_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">)]</span>
+        <span class="c1"># Find all nodes with a reference attribute in the IOD Modules model</span>
+        <span class="n">nodes_with_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">)]</span>
 
         <span class="c1"># Build or load module models for each referenced section</span>
         <span class="n">module_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_module_models</span><span class="p">(</span>
@@ -2113,7 +2161,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ProgressObserver&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>        
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build or load module models for each referenced section, reporting progress.&quot;&quot;&quot;</span>
         <span class="n">module_models</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">total_modules</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes_with_ref</span><span class="p">)</span>
@@ -2122,11 +2170,13 @@ model with the IOD nodes and their referenced module nodes as children, and cach
                 <span class="n">Progress</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_IOD_MODULES</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="n">total_steps</span><span class="p">)</span>
                 <span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nodes_with_ref</span><span class="p">):</span>
-            <span class="n">ref_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_value</span><span class="p">:</span>
+            <span class="n">ref_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">section_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_section_id_from_ref</span><span class="p">(</span><span class="n">ref_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">section_id</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">section_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sect_</span><span class="si">{</span><span class="n">ref_value</span><span class="si">}</span><span class="s2">&quot;</span>
+
             <span class="n">module_table_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table_id_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">section_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First Module table_id for section_id=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">section_id</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">module_table_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module_table_id</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No table found for section id </span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
@@ -2155,7 +2205,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
                     <span class="n">json_file_name</span><span class="o">=</span><span class="n">module_json_file_name</span><span class="p">,</span>
                     <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="n">module_models</span><span class="p">[</span><span class="n">ref_value</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_model</span>
+            <span class="n">module_models</span><span class="p">[</span><span class="n">section_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_model</span>
             <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">and</span> <span class="n">total_modules</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">percent</span> <span class="o">=</span> <span class="n">calculate_percent</span><span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">total_modules</span><span class="p">)</span>
                 <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span>
@@ -2165,6 +2215,33 @@ model with the IOD nodes and their referenced module nodes as children, and cach
                     <span class="n">total_steps</span><span class="o">=</span><span class="n">total_steps</span>
                 <span class="p">))</span>
         <span class="k">return</span> <span class="n">module_models</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_section_id_from_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref_value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize a ref_value (plain text or HTML anchor) to a section_id.</span>
+
+<span class="sd">        For HTML, extract the href after &#39;#&#39;. For plain text, always prepend &#39;sect_&#39;.</span>
+<span class="sd">        Strips whitespace for robust lookup.</span>
+<span class="sd">        (Do NOT lowercase: DICOM IDs are mixed case and BeautifulSoup search is case-sensitive.)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ref_value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;&lt;a &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref_value</span><span class="p">:</span>
+            <span class="c1"># Always prepend &#39;sect_&#39; for plain text references, strip only</span>
+            <span class="n">section_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sect_</span><span class="si">{</span><span class="n">ref_value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted section_id from plain text reference: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">section_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">section_id</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">ref_value</span><span class="p">,</span> <span class="s2">&quot;lxml-xml&quot;</span><span class="p">)</span>
+        <span class="c1"># Find the anchor with class &quot;xref&quot; (the actual module reference)</span>
+        <span class="n">anchor</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;xref&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">anchor</span> <span class="ow">and</span> <span class="n">anchor</span><span class="o">.</span><span class="n">has_attr</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">):</span>
+            <span class="n">href</span> <span class="o">=</span> <span class="n">anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">section_id</span> <span class="o">=</span> <span class="n">href</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;#&quot;</span> <span class="ow">in</span> <span class="n">href</span> <span class="k">else</span> <span class="n">href</span>
+            <span class="n">section_id</span> <span class="o">=</span> <span class="n">section_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted section_id from HTML reference: </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">section_id</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">section_id</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No section_id could be extracted from ref_value=</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">ref_value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_expanded_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iodmodules_model</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span> <span class="n">module_models</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the expanded model by attaching Module nodes content to IOD nodes.&quot;&quot;&quot;</span>
@@ -2177,9 +2254,10 @@ model with the IOD nodes and their referenced module nodes as children, and cach
         <span class="c1"># and for each referenced module, its content&#39;s children will be attached directly under the iod node</span>
         <span class="n">iod_content</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">iod_node</span> <span class="ow">in</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-            <span class="n">ref_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">iod_node</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">ref_value</span> <span class="ow">and</span> <span class="n">ref_value</span> <span class="ow">in</span> <span class="n">module_models</span><span class="p">:</span>
-                <span class="n">module_content</span> <span class="o">=</span> <span class="n">module_models</span><span class="p">[</span><span class="n">ref_value</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
+            <span class="n">ref_value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">iod_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">section_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_section_id_from_ref</span><span class="p">(</span><span class="n">ref_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">section_id</span> <span class="ow">and</span> <span class="n">section_id</span> <span class="ow">in</span> <span class="n">module_models</span><span class="p">:</span>
+                <span class="n">module_content</span> <span class="o">=</span> <span class="n">module_models</span><span class="p">[</span><span class="n">section_id</span><span class="p">]</span><span class="o">.</span><span class="n">content</span>
                 <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">module_content</span><span class="o">.</span><span class="n">children</span><span class="p">):</span>
                     <span class="n">child</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">iod_node</span>
             <span class="n">iod_node</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">iod_content</span>
@@ -2205,7 +2283,7 @@ model with the IOD nodes and their referenced module nodes as children, and cach
 
 
 <h3 id="dcmspec.iod_spec_builder.IODSpecBuilder.__init__" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">iod_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">iod_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_factory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_attr</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2284,24 +2362,63 @@ model with the IOD nodes and their referenced module nodes as children, and cach
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ref_attr</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Attribute name to use for module references. If None, defaults to "ref".</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
-        <p>The builder is initialized with factories for the IOD and module models. By default, the same
-factory is used for both, but a different factory can be provided for modules if needed.</p>
 
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RAISES</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+              <span class="doc-raises-annotation">
+                  <code><span title="ValueError">ValueError</span></code>
+              </span>
+            </td>
+            <td class="doc-raises-details">
+              <div class="doc-md-description">
+                <p>If <code>ref_attr</code> is not a non-empty string.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p>The builder is initialized with factories for the IOD and module models. By default, the same
+factory is used for both, but a different factory can be provided for modules if needed.</p>
+</details>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -2315,11 +2432,30 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
-<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">iod_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">module_factory</span><span class="p">:</span> <span class="n">SpecFactory</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ref_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the IODSpecBuilder.</span>
 
@@ -2329,9 +2465,14 @@ factory is used for both, but a different factory can be provided for modules if
 <span class="sd">        iod_factory (Optional[SpecFactory]): Factory for building the IOD model. If None, uses SpecFactory().</span>
 <span class="sd">        module_factory (Optional[SpecFactory]): Factory for building module models. If None, uses iod_factory.</span>
 <span class="sd">        logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
+<span class="sd">        ref_attr (Optional[str]): Attribute name to use for module references. If None, defaults to &quot;ref&quot;.</span>
 
-<span class="sd">    The builder is initialized with factories for the IOD and module models. By default, the same</span>
-<span class="sd">    factory is used for both, but a different factory can be provided for modules if needed.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If `ref_attr` is not a non-empty string.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The builder is initialized with factories for the IOD and module models. By default, the same</span>
+<span class="sd">        factory is used for both, but a different factory can be provided for modules if needed.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -2339,6 +2480,9 @@ factory is used for both, but a different factory can be provided for modules if
     <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span> <span class="o">=</span> <span class="n">iod_factory</span> <span class="ow">or</span> <span class="n">SpecFactory</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">module_factory</span> <span class="o">=</span> <span class="n">module_factory</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">iod_factory</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span> <span class="o">=</span> <span class="n">ref_attr</span> <span class="ow">or</span> <span class="s2">&quot;ref&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ref_attr must be a non-empty string.&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2576,25 +2720,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/iod_spec_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 71</span>
 <span class="normal"> 72</span>
 <span class="normal"> 73</span>
 <span class="normal"> 74</span>
@@ -2707,7 +2833,25 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_from_url</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2808,8 +2952,8 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
             <span class="n">Progress</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">PARSING_IOD_MODULES</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="n">total_steps</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="c1"># Find all nodes with a &quot;ref&quot; attribute in the IOD Modules model</span>
-    <span class="n">nodes_with_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;ref&quot;</span><span class="p">)]</span>
+    <span class="c1"># Find all nodes with a reference attribute in the IOD Modules model</span>
+    <span class="n">nodes_with_ref</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">iodmodules_model</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">children</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_attr</span><span class="p">)]</span>
 
     <span class="c1"># Build or load module models for each referenced section</span>
     <span class="n">module_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_module_models</span><span class="p">(</span>

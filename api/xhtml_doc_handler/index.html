@@ -1877,7 +1877,9 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
-<span class="normal">180</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">XHTMLDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">XHTMLDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Handler class for DICOM specifications documents in XHTML format.</span>
 
 <span class="sd">    Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.</span>
@@ -2009,9 +2011,11 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="c1"># dom = BeautifulSoup(content, &quot;html.parser&quot;)  # use python HTML parser. Fine for XHTML. Unreliable for XML.</span>
-            <span class="c1"># dom = BeautifulSoup(content, &quot;lxml&quot;)  # use lxml package parser. Default to HTML and generates a warning.</span>
-            <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span>  <span class="c1"># use lxml package parser. Force using XML. Safest choice.</span>
+            <span class="c1"># Use the built-in &#39;xml&#39; parser since DICOM files and cell values are well-formed XHTML.</span>
+            <span class="c1"># &quot;html.parser&quot; is fine for XHTML but unreliable for strict XML.</span>
+            <span class="c1"># &quot;lxml&quot; defaults to HTML mode and generates a warning for XML.</span>
+            <span class="c1"># &quot;lxml-xml&quot; forces XML parsing but adds the lxml dependency.</span>
+            <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span> 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XHTML DOM read successfully&quot;</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">dom</span>
@@ -2787,7 +2791,9 @@ instead. Will be removed in a future release.</p>
 <span class="normal">162</span>
 <span class="normal">163</span>
 <span class="normal">164</span>
-<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
 
 <span class="sd">    Args:</span>
@@ -2804,9 +2810,11 @@ instead. Will be removed in a future release.</p>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="c1"># dom = BeautifulSoup(content, &quot;html.parser&quot;)  # use python HTML parser. Fine for XHTML. Unreliable for XML.</span>
-        <span class="c1"># dom = BeautifulSoup(content, &quot;lxml&quot;)  # use lxml package parser. Default to HTML and generates a warning.</span>
-        <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span>  <span class="c1"># use lxml package parser. Force using XML. Safest choice.</span>
+        <span class="c1"># Use the built-in &#39;xml&#39; parser since DICOM files and cell values are well-formed XHTML.</span>
+        <span class="c1"># &quot;html.parser&quot; is fine for XHTML but unreliable for strict XML.</span>
+        <span class="c1"># &quot;lxml&quot; defaults to HTML mode and generates a warning for XML.</span>
+        <span class="c1"># &quot;lxml-xml&quot; forces XML parsing but adds the lxml dependency.</span>
+        <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XHTML DOM read successfully&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">dom</span>
