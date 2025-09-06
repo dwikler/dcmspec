@@ -151,9 +151,11 @@ class XHTMLDocHandler(DocHandler):
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
-            # dom = BeautifulSoup(content, "html.parser")  # use python HTML parser. Fine for XHTML. Unreliable for XML.
-            # dom = BeautifulSoup(content, "lxml")  # use lxml package parser. Default to HTML and generates a warning.
-            dom = BeautifulSoup(content, features="xml")  # use lxml package parser. Force using XML. Safest choice.
+            # Use the built-in 'xml' parser since DICOM files and cell values are well-formed XHTML.
+            # "html.parser" is fine for XHTML but unreliable for strict XML.
+            # "lxml" defaults to HTML mode and generates a warning for XML.
+            # "lxml-xml" forces XML parsing but adds the lxml dependency.
+            dom = BeautifulSoup(content, features="xml") 
             self.logger.info("XHTML DOM read successfully")
 
             return dom

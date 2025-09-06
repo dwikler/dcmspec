@@ -720,7 +720,9 @@ class IODExplorer:
 
     def _format_module_reference(self, module_ref: str) -> str:
         """Format module reference as an HTML anchor into a DICOM Part 3 URL."""
-        soup = BeautifulSoup(module_ref, "lxml-xml")
+        # Use the built-in 'xml' parser for both full documents and fragments,
+        # since DICOM standard files and cell values are well-formed XHTML.
+        soup = BeautifulSoup(module_ref, "xml")
         anchor = soup.find("a", class_="xref")
         if not anchor or not anchor.has_attr("href"):
             return f"<span><b>Reference:</b> {module_ref}</span><br>"

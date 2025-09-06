@@ -481,16 +481,8 @@ class DOMTableSpecParser(SpecParser):
             logical_col_idx += 1
             return logical_cells, logical_col_idx, physical_col_idx
 
-        # Check the logical column's unformatted setting
-        use_unformatted = (
-            unformatted_list[logical_col_idx]
-            if unformatted_list and logical_col_idx < len(unformatted_list)
-            else True
-        )
         # Extract value for the current logical column using the specified unformatted setting
-        value = self._clean_extracted_text(
-            cell.get_text(separator="\n", strip=True) if use_unformatted else cell.decode_contents()
-        )
+        value = self._extract_cell_value(cell, logical_col_idx, unformatted_list)
 
         # Determine colspan and rowspan
         colspan = int(cell.get("colspan", 1))
@@ -506,6 +498,39 @@ class DOMTableSpecParser(SpecParser):
         )
         
         # Update rowspan tracker for each physical column spanned by this cell
+        self._update_rowspan_trackers(physical_col_idx, colspan, rowspan, value)
+
+        # Advance logical and physical column indices by colspan
+        physical_col_idx += colspan
+        logical_col_idx += colspan
+
+        return logical_cells, logical_col_idx, physical_col_idx
+
+    def _extract_cell_value(
+        self,
+        cell: Tag,
+        logical_col_idx: int,
+        unformatted_list: list[bool]
+    ) -> str:
+        """Extract and clean the value from a cell as unformatted text or HTML."""
+        use_unformatted = (
+            unformatted_list[logical_col_idx]
+            if unformatted_list and logical_col_idx < len(unformatted_list)
+            else True
+        )
+        if use_unformatted:
+            return self._clean_extracted_text(cell.get_text(separator="\n", strip=True))
+        else:
+            return self._clean_extracted_text(cell.decode_contents())
+
+    def _update_rowspan_trackers(
+        self,
+        physical_col_idx: int,
+        colspan: int,
+        rowspan: int,
+        value: Any
+    ) -> None:
+        """Update the rowspan tracker for each physical column spanned by the cell."""
         for i in range(colspan):
             while len(self._rowspan_trackers) <= physical_col_idx + i:
                 self._rowspan_trackers.append(None)
@@ -518,13 +543,6 @@ class DOMTableSpecParser(SpecParser):
                 }
             else:
                 self._rowspan_trackers[physical_col_idx + i] = None
-
-        # Advance logical and physical column indices by colspan
-        physical_col_idx += colspan
-        logical_col_idx += colspan
-
-        return logical_cells, logical_col_idx, physical_col_idx
-
 
     def _map_cells_with_skipped_columns(
         self,

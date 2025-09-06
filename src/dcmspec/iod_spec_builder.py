@@ -51,8 +51,12 @@ class IODSpecBuilder:
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
             ref_attr (Optional[str]): Attribute name to use for module references. If None, defaults to "ref".
 
-        The builder is initialized with factories for the IOD and module models. By default, the same
-        factory is used for both, but a different factory can be provided for modules if needed.
+        Raises:
+            ValueError: If `ref_attr` is not a non-empty string.
+
+        Note:
+            The builder is initialized with factories for the IOD and module models. By default, the same
+            factory is used for both, but a different factory can be provided for modules if needed.
 
         """
         self.logger = logger or logging.getLogger(self.__class__.__name__)
@@ -61,7 +65,9 @@ class IODSpecBuilder:
         self.module_factory = module_factory or self.iod_factory
         self.dom_utils = DOMUtils(logger=self.logger)
         self.ref_attr = ref_attr or "ref"
-
+        if not isinstance(self.ref_attr, str) or not self.ref_attr.strip():
+            raise ValueError("ref_attr must be a non-empty string.")
+        
     def build_from_url(
         self,
         url: str,

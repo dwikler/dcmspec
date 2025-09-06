@@ -74,6 +74,10 @@ class SpecFactory:
         Raises:
             TypeError: If config is not a Config instance or None.
 
+        Note:
+            `column_to_attr` and related flags (such as `unformatted`) are dicts to support non-sequential
+            column mappings.
+
         """
         import logging
         if config is not None and not isinstance(config, Config):
