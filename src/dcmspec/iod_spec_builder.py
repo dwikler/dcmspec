@@ -295,15 +295,18 @@ class IODSpecBuilder:
         progress_observer: Optional['ProgressObserver'] = None
     ) -> Dict[str, Any]:
         """Build or load module models for each referenced section, reporting progress.
-        
+
         If a module is already present in the registry, it is reused and not loaded from cache again.
         """
         module_models: Dict[str, Any] = {}
+
+        # Initialize progress tracking
         total_modules = len(nodes_with_ref)
         if progress_observer and total_modules > 0:
             progress_observer(
                 Progress(0, status=ProgressStatus.PARSING_IOD_MODULES, step=step, total_steps=total_steps)
-                )
+            )
+        # Iterate over nodes with references to modules
         for idx, node in enumerate(nodes_with_ref):
             ref_value = getattr(node, self.ref_attr, None)
             section_id = self._get_section_id_from_ref(ref_value)
@@ -319,37 +322,15 @@ class IODSpecBuilder:
             # Enrich iod module node with the module's table_id for reference to registry.
             setattr(node, "table_id", module_table_id)
 
-            # Use registry if available and module already present
-            if self.module_registry is not None and module_table_id in self.module_registry:
-                module_model = self.module_registry[module_table_id]
-            else:
-                module_json_file_name = f"{module_table_id}.json"
-                module_json_file_path = self._get_module_model_cache_path(module_json_file_name)
-                if module_json_file_path and os.path.exists(module_json_file_path):
-                    try:
-                        module_model = self.module_factory.model_store.load(module_json_file_path)
-                    except Exception as e:
-                        self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
-                        module_model = self.module_factory.build_model(
-                            doc_object=dom,
-                            table_id=module_table_id,
-                            url=url,
-                            json_file_name=module_json_file_name,
-                            progress_observer=progress_observer,
-                        )
-                else:
-                    module_model = self.module_factory.build_model(
-                        doc_object=dom,
-                        table_id=module_table_id,
-                        url=url,
-                        json_file_name=module_json_file_name,
-                        progress_observer=progress_observer,
-                    )
-                # Store in registry if using reference mode
-                if self.module_registry is not None:
-                    self.module_registry[module_table_id] = module_model
+            # Load the module model from cache or registry, or build it if not found
+            module_model = self._get_or_build_module_model(
+                module_table_id, dom, url, progress_observer
+            )
+            # Add Module model to dict
+            if module_model is not None:
+                module_models[module_table_id] = module_model
 
-            module_models[module_table_id] = module_model
+            # Update progress
             if progress_observer and total_modules > 0:
                 percent = calculate_percent(idx + 1, total_modules)
                 progress_observer(Progress(
@@ -359,6 +340,47 @@ class IODSpecBuilder:
                     total_steps=total_steps
                 ))
         return module_models
+
+    def _get_or_build_module_model(
+        self,
+        module_table_id: str,
+        dom: Any,
+        url: str,
+        progress_observer: Optional['ProgressObserver'] = None
+    ) -> Optional[Any]:
+        """Get or build a module model for the given table_id, using registry and cache as appropriate."""
+        # Use registry if available and module already present
+        if self.module_registry is not None and module_table_id in self.module_registry:
+            return self.module_registry[module_table_id]
+        
+        # Attempt to load from cache
+        module_json_file_name = f"{module_table_id}.json"
+        module_json_file_path = self._get_module_model_cache_path(module_json_file_name)
+        if module_json_file_path and os.path.exists(module_json_file_path):
+            try:
+                module_model = self.module_factory.model_store.load(module_json_file_path)
+            except Exception as e:
+                self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
+                module_model = self.module_factory.build_model(
+                    doc_object=dom,
+                    table_id=module_table_id,
+                    url=url,
+                    json_file_name=module_json_file_name,
+                    progress_observer=progress_observer,
+                )
+        else:
+            # Build the module model without caching (it will be cached when building the IOD model)
+            module_model = self.module_factory.build_model(
+                doc_object=dom,
+                table_id=module_table_id,
+                url=url,
+                json_file_name=module_json_file_name,
+                progress_observer=progress_observer,
+            )
+        # Store in registry if using reference mode
+        if self.module_registry is not None:
+            self.module_registry[module_table_id] = module_model
+        return module_model
 
     def _get_section_id_from_ref(self, ref_value: str) -> Optional[str]:
         """Normalize a ref_value (plain text or HTML anchor) to a section_id.
