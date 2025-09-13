@@ -2,6 +2,12 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.2.1] - 2025-09-13
+
+### Fixed
+
+- Sanitize node and attribute names to remove "/" in DOMTableSpecParser ([#56](https://github.com/yourrepo/issues/56))
+
 ## [0.2.0] - 2025-09-13
 
 ### Changed
