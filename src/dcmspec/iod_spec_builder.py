@@ -94,6 +94,11 @@ class IODSpecBuilder:
     ) -> tuple[SpecModel, Optional[Dict[str, SpecModel]]]:
         """Build and cache a DICOM IOD specification model from a URL.
 
+        Warning::
+            This method now returns a tuple ``(iod_model, module_models)``, which is a **breaking change** from
+            previous versions that returned only the IOD model. All callers must be updated to unpack the tuple,
+            or use backward-compatible wrappers if needed.
+
         This method orchestrates the full workflow:
         - Loads or downloads the IOD table and builds/caches the IOD model using the iod_factory.
         - Finds all nodes in the IOD model with a "ref" attribute, indicating a referenced module.
@@ -120,6 +125,12 @@ class IODSpecBuilder:
                 - iod_model (SpecModel): The expanded IOD model (if expand=True) or the IOD model (if expand=False).
                 - module_models (dict or None): The Module models dict (None if expand=True).
 
+        Note:
+            The returned `module_models` dict contains only the modules referenced by the current IOD.
+            If you provided a `ModuleRegistry`, it may contain additional modules from previous or future builds.
+            The registry enables sharing and reuse, but the returned dict is always specific to the current IOD.
+
+  
         Note:
             If a progress observer accepting a Progress object is provided, progress events are as follows:
             
@@ -204,8 +215,8 @@ class IODSpecBuilder:
 
         # Cache the expanded or enriched model if a json_file_name is provided
         if json_file_name:
-            iod_json_file_path = os.path.join(
-                self.iod_factory.config.get_param("cache_dir"), "model", json_file_name
+            iod_json_file_path = self._get_model_cache_path(
+                json_file_name, self.iod_factory.config.get_param("cache_dir")
             )
             try:
                 self.iod_factory.model_store.save(expanded_iod_model, iod_json_file_path)
@@ -221,15 +232,17 @@ class IODSpecBuilder:
 
     def _get_model_cache_path(self, json_file_name: Optional[str], cache_dir: str) -> Optional[str]:
         """Return the full path to the model cache file for the given cache_dir and json_file_name."""
-        if json_file_name:
-            return os.path.join(cache_dir, "model", json_file_name)
-        return None
+        return self._get_cache_path(json_file_name, cache_dir)
 
     def _get_module_model_cache_path(self, module_json_file_name: str) -> Optional[str]:
         """Return the full path to the module model cache file for the current module_factory."""
         cache_dir = self.module_factory.config.get_param("cache_dir")
-        if module_json_file_name:
-            return os.path.join(cache_dir, "model", module_json_file_name)
+        return self._get_cache_path(module_json_file_name, cache_dir)
+
+    def _get_cache_path(self, json_file_name: Optional[str], cache_dir: Optional[str]) -> Optional[str]:
+        """Return the full path to a cache file in the model cache directory."""
+        if json_file_name and cache_dir:
+            return os.path.join(cache_dir, "model", json_file_name)
         return None
 
     def _load_iod_model_from_cache(self, iod_model_path: Optional[str], force_download: bool) -> Optional[SpecModel]:

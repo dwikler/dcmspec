@@ -13,4 +13,6 @@ For setup instructions, refer to the [Installation](installation.md) page. Infor
 
 ---
 
+See the [Release Notes](changelog.md) for a summary of changes, improvements, and breaking updates in each version.
+
 Further information is available in the [GitHub repository](https://github.com/dwikler/dcmspec).

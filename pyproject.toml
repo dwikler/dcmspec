@@ -1,6 +1,6 @@
 [project]
 name = "dcmspec"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = [
     {name = "David Wikler",email = "david.wikler@ulb.ac.be"}

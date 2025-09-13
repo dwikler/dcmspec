@@ -7,11 +7,9 @@ A table_id is a string identifier for a DICOM table, typically extracted from th
 for example: <a id="table_C.7-1" shape="rect"></a> yields table_id="table_C.7-1".
 """
 
-from typing import Dict, ItemsView, KeysView, ValuesView
+from collections import UserDict
 
-from dcmspec.spec_model import SpecModel
-
-class ModuleRegistry:
+class ModuleRegistry(UserDict):
     """Registry for sharing module models by table_id across IODs.
 
     This class manages a mapping from table_id (str) to SpecModel.
@@ -19,16 +17,24 @@ class ModuleRegistry:
         <a id="table_C.7-1" shape="rect"></a>
     It is used to avoid duplicating module models in memory when building many IODs.
 
+    Access patterns:
+        - registry[table_id] -> SpecModel
+        - registry.get(table_id) -> SpecModel or None
+        - for table_id, model in registry.items(): ...
+
     Example:
         ```python
         registry = ModuleRegistry()
         # When building IODs, pass registry to IODSpecBuilder(module_registry=registry)
 
         # Setting a module model:
-        registry["table_C.7-1"] = module_model
+        registry["table_C.7-1"] = module_model  # module_model is a SpecModel
 
-        # Getting a module model:
+        # Getting a module model (returns SpecModel):
         model = registry["table_C.7-1"]
+
+        # Safe get (returns SpecModel or None):
+        model = registry.get("table_C.7-1")
 
         # Checking if a module is present:
         if "table_C.7-1" in registry:
@@ -36,75 +42,10 @@ class ModuleRegistry:
 
         # Iterating over all table_ids and models:
         for table_id, model in registry.items():
+            # table_id: str, model: SpecModel
             ...
         ```
-        
+
+    All values in the registry are instances of SpecModel.
+    
     """
-
-    def __init__(self):
-        """Initialize an empty module registry."""
-        self._modules: Dict[str, SpecModel] = {}
-
-    def __contains__(self, table_id: str) -> bool:
-        """Return True if the registry contains a module for the given table_id.
-
-        Args:
-            table_id (str): The table ID to check (e.g., "table_C.7-1").
-
-        Returns:
-            bool: True if present, False otherwise.
-
-        """
-        return table_id in self._modules
-
-    def __getitem__(self, table_id: str) -> SpecModel:
-        """Get the module model for the given table_id.
-
-        Args:
-            table_id (str): The table ID of the module (e.g., "table_C.7-1").
-
-        Returns:
-            SpecModel: The module model.
-
-        Raises:
-            KeyError: If the table_id is not present.
-
-        """
-        return self._modules[table_id]
-
-    def __setitem__(self, table_id: str, model: SpecModel) -> None:
-        """Set the module model for the given table_id.
-
-        Args:
-            table_id (str): The table ID of the module (e.g., "table_C.7-1").
-            model (SpecModel): The module model to set.
-
-        """
-        self._modules[table_id] = model
-
-    def items(self) -> ItemsView[str, SpecModel]:
-        """Return a set-like object providing a view on the registry's items.
-
-        Returns:
-            ItemsView[str, SpecModel]: A view of (table_id, model) pairs.
-
-        """
-        return self._modules.items()
-
-    def keys(self) -> KeysView[str]:
-        """Return a set-like object providing a view on the registry's keys.
-
-        Returns:
-            KeysView[str]: A view of table_ids.
-
-        """
-        return self._modules.keys()
-
-    def values(self) -> ValuesView[SpecModel]:
-        """Return an object providing a view on the registry's values.
-
-        Returns:
-            ValuesView[SpecModel]: A view of module models.
-
-        """
-        return self._modules.values()

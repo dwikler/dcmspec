@@ -6,6 +6,7 @@ site_name: DCMspec Documentation
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Release Notes: changelog.md
   - Configuration & Caching: configuration.md
   - CLI Applications:
       - CLI Overview: cli/index.md

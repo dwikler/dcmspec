@@ -22,6 +22,10 @@ See the [Installation Guide](https://dwikler.github.io/dcmspec/installation/) fo
 - For API usage, see the [API documentation](https://dwikler.github.io/dcmspec/api/).
 - For CLI usage, see the [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/).
 
+## Release Notes
+
+See the [Release Notes](https://dwikler.github.io/dcmspec/changelog/) for a summary of changes, improvements, and breaking updates in each version.
+
 ## Configuration
 
 See [Configuration & Caching](https://dwikler.github.io/dcmspec/configuration/) for details on configuring cache and other settings.
