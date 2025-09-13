@@ -32,22 +32,6 @@ class ServiceAttributeModel(SpecModel):
 
         Sets up the model with metadata, content, and a DIMSE mapping for filtering.
         Initializes the DIMSE and role selection to None.
-
-        The `dimse_mapping` argument should be a dictionary with the following structure:
-
-        ```python
-        {
-            "ALL_DIMSE": {
-                "attributes": [<attribute_name>, ...]
-            },
-            "<DIMSE>": {
-                "attributes": [<attribute_name>, ...],
-                "req_attributes": [<attribute_name>, ...],  # optional, for role-based requirements
-                "req_separator": "<separator>",             # optional, e.g. "/"
-            },
-            ...
-        }
-        ```
             
         Args:
             metadata (Node): Node holding table and document metadata.
@@ -55,6 +39,21 @@ class ServiceAttributeModel(SpecModel):
             dimse_mapping (dict): Dictionary defining DIMSE and role-based attribute requirements.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
 
+        Note:
+            The `dimse_mapping` argument should be a dictionary with the following structure:
+            ```python
+            {
+                "ALL_DIMSE": {
+                    "attributes": [<attribute_name>, ...]
+                },
+                "<DIMSE>": {
+                    "attributes": [<attribute_name>, ...],
+                    "req_attributes": [<attribute_name>, ...],  # optional, for role-based requirements
+                    "req_separator": "<separator>",             # optional, e.g. "/"
+                },
+                ...
+            }
+            ```
 
         Example:
             ```python

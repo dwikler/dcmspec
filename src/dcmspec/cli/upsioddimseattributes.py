@@ -245,7 +245,7 @@ def main():
         logger=logger
     )
     builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory, logger=logger)
-    iod_model = builder.build_from_url(
+    iod_model, _ = builder.build_from_url(
         url=iod_url,
         cache_file_name=iod_cache_file,
         json_file_name=iod_model_file,

@@ -58,13 +58,16 @@ class SpecPrinter:
                 If provided, each attribute will be padded/truncated to the specified width.
             colorize (bool): Whether to colorize the output by node depth.
 
-        Example:
-            # This will nicely align the tag, type, and name values in the tree output:
-            printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64])
-
         Returns:
             None
 
+        
+        Example:
+            ```python
+            # This will nicely align the tag, type, and name values in the tree output:
+            printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64])
+            ```
+            
         """
         for pre, fill, node in RenderTree(self.model.content):
             style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"

@@ -541,7 +541,7 @@ class IODExplorer:
             self.root.update()
 
             # Build the IOD model and populate the treeview
-            model = self._build_iod_model(table_id, self.logger)
+            model, _ = self._build_iod_model(table_id, self.logger)
             self._update_treeview_and_details(item, model, table_id, title, iod_type)
 
         except Exception as e:

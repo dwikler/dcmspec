@@ -19,23 +19,23 @@ Note:
 
     
 Example usage:
-```python
-from dcmspec.service_attribute_defaults import UPS_DIMSE_MAPPING, UPS_COLUMNS_MAPPING, UPS_NAME_ATTR
-factory = SpecFactory(
-    model_class=ServiceAttributeModel,
-    input_handler=UPSXHTMLDocHandler(),
-    column_to_attr=UPS_COLUMNS_MAPPING.copy(),
-    name_attr=UPS_NAME_ATTR,
-    config=config
-)
-model = factory.create_model(
-    url=url,
-    cache_file_name=cache_file_name,
-    table_id=table_id,
-    force_download=False,
-    model_kwargs={"dimse_mapping": copy.deepcopy(UPS_DIMSE_MAPPING)},
+    ```python
+    from dcmspec.service_attribute_defaults import UPS_DIMSE_MAPPING, UPS_COLUMNS_MAPPING, UPS_NAME_ATTR
+    factory = SpecFactory(
+        model_class=ServiceAttributeModel,
+        input_handler=UPSXHTMLDocHandler(),
+        column_to_attr=UPS_COLUMNS_MAPPING.copy(),
+        name_attr=UPS_NAME_ATTR,
+        config=config
     )
-```
+    model = factory.create_model(
+        url=url,
+        cache_file_name=cache_file_name,
+        table_id=table_id,
+        force_download=False,
+        model_kwargs={"dimse_mapping": copy.deepcopy(UPS_DIMSE_MAPPING)},
+        )
+    ```
 
 """
 

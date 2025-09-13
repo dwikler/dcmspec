@@ -6,6 +6,7 @@ site_name: DCMspec Documentation
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Release Notes: changelog.md
   - Configuration & Caching: configuration.md
   - CLI Applications:
       - CLI Overview: cli/index.md
@@ -32,6 +33,7 @@ nav:
           - ServiceAttributeModel: api/service_attribute_model.md
           - SpecFactory: api/spec_factory.md
           - IODSpecBuilder: api/iod_spec_builder.md
+          - ModuleRegistry: api/module_registry.md
       - Parse Classes:
           - SpecParser: api/spec_parser.md
           - DOMTableSpecParser: api/dom_table_spec_parser.md
