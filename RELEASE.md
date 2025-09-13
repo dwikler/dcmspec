@@ -15,7 +15,7 @@
    - Support for ... ([#NN](https://github.com/dwikler/dcmspec/issues/NN))
 
    ### Changed
-   - Improved ... ([#NN](https://github.com/dwikler/dcmspec//issues/NN))
+   - Improved ... ([#NN](https://github.com/dwikler/dcmspec/issues/NN))
 
    ### Fixed
    - Corrected ... ([#NN](https://github.com/yourrepo/issues/NN))
