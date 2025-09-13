@@ -32,6 +32,7 @@ nav:
           - ServiceAttributeModel: api/service_attribute_model.md
           - SpecFactory: api/spec_factory.md
           - IODSpecBuilder: api/iod_spec_builder.md
+          - ModuleRegistry: api/module_registry.md
       - Parse Classes:
           - SpecParser: api/spec_parser.md
           - DOMTableSpecParser: api/dom_table_spec_parser.md

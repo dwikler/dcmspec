@@ -30,8 +30,11 @@ class SpecFactory:
     Supports flexible configuration and caching strategies.
 
     Typical usage:
+        ```python
         factory = SpecFactory(...)
         model = factory.create_model(...)
+        ```
+        
     """
 
     def __init__(

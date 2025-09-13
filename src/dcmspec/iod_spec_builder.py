@@ -28,11 +28,14 @@ from dcmspec.progress import (
 # END LEGACY SUPPORT
 
 class IODSpecBuilder:
-    """Orchestrates the construction of a expanded DICOM IOD specification model.
+    """Orchestrates the construction of DICOM IOD specification models supporting two modes.
 
-    The IODSpecBuilder uses a factory to build the IOD Modules model and, for each referenced module,
-    uses a (possibly different) factory to build and cache the Module models. It then assembles a new
-    model with the IOD nodes and their referenced module nodes as children, and caches the expanded model.
+    - Expanded (legacy) mode: Produces a single expanded IOD model, where each IOD node has its referenced
+    Module's content nodes attached as children. This is the default if no module_registry is provided.
+
+    - Registry/reference mode: If a ModuleRegistry is provided, Module models are shared by reference via the registry,
+    enabling efficient reuse and reduced memory usage when building many IODs.
+
     """
 
     def __init__(
@@ -51,9 +54,9 @@ class IODSpecBuilder:
             iod_factory (Optional[SpecFactory]): Factory for building the IOD model. If None, uses SpecFactory().
             module_factory (Optional[SpecFactory]): Factory for building module models. If None, uses iod_factory.
             logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
-            ref_attr (Optional[str]): Attribute name to use for module references. If None, defaults to "ref".
-            module_registry (Optional[ModuleRegistry]): Registry for sharing module models by table_id.
-                If provided, module models are shared by reference across IODs.
+            ref_attr (Optional[str]): Attribute name to use for Module references. If None, defaults to "ref".
+            module_registry (Optional[ModuleRegistry]): Registry for sharing Module models by table_id.
+                If provided, Module models are shared by reference across IODs.
 
         Raises:
             ValueError: If `ref_attr` is not a non-empty string.

@@ -7,7 +7,8 @@ A table_id is a string identifier for a DICOM table, typically extracted from th
 for example: <a id="table_C.7-1" shape="rect"></a> yields table_id="table_C.7-1".
 """
 
-from typing import Dict
+from typing import Dict, ItemsView, KeysView, ValuesView
+
 from dcmspec.spec_model import SpecModel
 
 class ModuleRegistry:
@@ -18,7 +19,8 @@ class ModuleRegistry:
         <a id="table_C.7-1" shape="rect"></a>
     It is used to avoid duplicating module models in memory when building many IODs.
 
-    Example usage:
+    Example:
+        ```python
         registry = ModuleRegistry()
         # When building IODs, pass registry to IODSpecBuilder(module_registry=registry)
 
@@ -35,6 +37,8 @@ class ModuleRegistry:
         # Iterating over all table_ids and models:
         for table_id, model in registry.items():
             ...
+        ```
+        
     """
 
     def __init__(self):
@@ -78,29 +82,29 @@ class ModuleRegistry:
         """
         self._modules[table_id] = model
 
-    def items(self):
+    def items(self) -> ItemsView[str, SpecModel]:
         """Return a set-like object providing a view on the registry's items.
 
         Returns:
-            ItemsView: A view of (table_id, model) pairs.
+            ItemsView[str, SpecModel]: A view of (table_id, model) pairs.
 
         """
         return self._modules.items()
 
-    def keys(self):
+    def keys(self) -> KeysView[str]:
         """Return a set-like object providing a view on the registry's keys.
 
         Returns:
-            KeysView: A view of table_ids.
+            KeysView[str]: A view of table_ids.
 
         """
         return self._modules.keys()
 
-    def values(self):
+    def values(self) -> ValuesView[SpecModel]:
         """Return an object providing a view on the registry's values.
 
         Returns:
-            ValuesView: A view of module models.
+            ValuesView[SpecModel]: A view of module models.
 
         """
         return self._modules.values()

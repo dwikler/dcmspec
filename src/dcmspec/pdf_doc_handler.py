@@ -404,11 +404,13 @@ class PDFDocHandler(DocHandler):
             dict: Mapping from note key (e.g., "Note 1:") to a dict with 'text' and 'table_id' (if provided).
 
         Example return:
+            ```json
             {
                 "Note 1:": {"text": "...", "table_id": "T-7.5-1"},
                 "Note 2:": {"text": "...", "table_id": "T-7.5-1"},
             }
-
+            ```
+            
         """
         import re
 

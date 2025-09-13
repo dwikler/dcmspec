@@ -20,9 +20,12 @@ class DOMUtils:
     with optional logging for warnings and debug information.
 
     Typical usage:
+        ```python
         dom_utils = DOMUtils(logger=logger)
         table = dom_utils.get_table(dom, table_id)
         table_id = dom_utils.get_table_id_from_section(dom, section_id)
+        ```
+
     """
 
     def __init__(self, logger: Optional[logging.Logger] = None):
@@ -70,9 +73,13 @@ class DOMUtils:
     
     def get_table_id_from_section(self, dom: BeautifulSoup, section_id: str) -> Optional[str]:
         """Get the id of the first table in a section.
-        
-        Retrieve the first table_id (anchor id) of a <div class="table"> inside a <div class="section">
-        that contains an <a> anchor with the given section id.
+
+        Retrieve the first table_id (anchor id) of a `<div class="table">` inside a `<div class="section">`
+        that contains an anchor tag with the given section id, e.g.:
+
+        ```html
+        <a id="table_C.7-1" shape="rect"></a>
+        ```
 
         Args:
             dom (BeautifulSoup): The parsed XHTML DOM object.
