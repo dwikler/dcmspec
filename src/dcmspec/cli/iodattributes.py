@@ -105,7 +105,7 @@ def main():
     builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory)
 
     # Download, parse, and cache the combined model
-    model = builder.build_from_url(
+    model, _ = builder.build_from_url(
         url=url,
         cache_file_name=cache_file_name,
         json_file_name=model_file_name,
