@@ -184,6 +184,13 @@ class RegistryOnlyModelStore(DummyModelStore):
                 raise AssertionError(f"Should not load module {table_id} from cache when registry is present")
         return super().load(path)
 
+class CorruptModelStore(DummyModelStore):
+    """Dummy ModelStore that simulates a corrupted cache file by raising a ValueError."""
+
+    def load(self, path):
+        """Simulate a corrupted cache file by raising ValueError."""
+        raise ValueError("Corrupted cache file")
+
 def test_iod_spec_builder_combines_iod_and_module():
     """Test IODSpecBuilder combines IOD and module models correctly."""
     factory = DummyFactory(ref_value=["PATIENT", "STUDY"])
@@ -337,6 +344,22 @@ def test_iod_spec_builder_no_referenced_modules(monkeypatch):
     # Add a dummy config for cache_dir to support module cache loading
     factory.config = DummyConfig(cache_dir="cache")
     builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+    with pytest.raises(RuntimeError, match="No module models were found"):
+        builder.build_from_url(
+            url="http://example.com",
+            cache_file_name="file.xhtml",
+            table_id="table_IOD",
+            force_download=False,
+            json_file_name=None,
+        )
+
+def test_iod_spec_builder_registry_mode_no_referenced_modules():
+    """Test IODSpecBuilder in registry/reference mode when there are no referenced modules."""
+    factory = NoRefFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir="cache")
+    registry = ModuleRegistry()
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory, module_registry=registry)
     with pytest.raises(RuntimeError, match="No module models were found"):
         builder.build_from_url(
             url="http://example.com",
@@ -662,6 +685,38 @@ def test_iod_spec_builder_load_cache_failure(monkeypatch, tmp_path, caplog):
     assert "Failed to load IOD model from cache" in caplog.text
     assert "Failed to load module model from cache" in caplog.text
     assert "Simulated load failure" in caplog.text
+
+def test_iod_spec_builder_corrupt_cache(monkeypatch, tmp_path, caplog):
+    """Test IODSpecBuilder handles corrupted or invalid cache files gracefully."""
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir=str(tmp_path))
+
+    factory.model_store = CorruptModelStore()
+    builder = IODSpecBuilder(iod_factory=factory, module_factory=factory)
+    builder.iod_factory.model_store = factory.model_store
+
+    # Patch DOMUtils.get_table_id_from_section to always return "table_PATIENT"
+    monkeypatch.setattr(builder.dom_utils, "get_table_id_from_section", lambda dom, section_id: "table_PATIENT")
+    # Patch os.path.exists to always return True (simulate cache exists)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    with caplog.at_level("WARNING"):
+        model, _ = builder.build_from_url(
+            url="http://example.com",
+            cache_file_name="file.xhtml",
+            table_id="table_IOD",
+            force_download=False,
+            json_file_name="expanded.json",
+        )
+    # The model should still be returned (built, not loaded)
+    assert isinstance(model, SpecModel)
+    # The warning for corrupted cache should be logged
+    assert (
+        "Failed to load IOD model from cache" in caplog.text
+        or "Failed to load module model from cache" in caplog.text
+    )
+    assert "Corrupted cache file" in caplog.text
 
 def test_iod_spec_builder_progress_callback(monkeypatch):
     """Test that IODSpecBuilder.build_from_url passes and calls progress_callback."""
