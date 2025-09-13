@@ -811,7 +811,7 @@ class DOMTableSpecParser(SpecParser):
         """Sanitize string to use it as a node attribute name.
 
         - Convert non-ASCII characters to closest ASCII equivalents
-        - Replace space characters with underscores
+        - Replace space characters and slashes with underscores
         - Replace parentheses characters with dashes
 
         Args:
@@ -823,8 +823,9 @@ class DOMTableSpecParser(SpecParser):
         """
         # Normalize the string to NFC form and transliterate to ASCII
         normalized_str = unidecode(input_string.lower())
+        # Replace spaces and slashes with underscores, parentheses with dashes, and single quotes with underscores
         return re.sub(
-            r"[ \-()']",
+            r"[ /\-()']",
             lambda match: "-" if match.group(0) in "()" else "_",
             normalized_str,
         )
