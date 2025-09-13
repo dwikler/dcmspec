@@ -2574,7 +2574,8 @@ Inherits logging from SpecParser.</p>
 <span class="normal">827</span>
 <span class="normal">828</span>
 <span class="normal">829</span>
-<span class="normal">830</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">830</span>
+<span class="normal">831</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -3370,7 +3371,7 @@ Inherits logging from SpecParser.</p>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sanitize string to use it as a node attribute name.</span>
 
 <span class="sd">        - Convert non-ASCII characters to closest ASCII equivalents</span>
-<span class="sd">        - Replace space characters with underscores</span>
+<span class="sd">        - Replace space characters and slashes with underscores</span>
 <span class="sd">        - Replace parentheses characters with dashes</span>
 
 <span class="sd">        Args:</span>
@@ -3382,8 +3383,9 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Normalize the string to NFC form and transliterate to ASCII</span>
         <span class="n">normalized_str</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">input_string</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="c1"># Replace spaces and slashes with underscores, parentheses with dashes, and single quotes with underscores</span>
         <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;[ \-()&#39;]&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;[ /\-()&#39;]&quot;</span><span class="p">,</span>
             <span class="k">lambda</span> <span class="n">match</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span> <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="ow">in</span> <span class="s2">&quot;()&quot;</span> <span class="k">else</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span>
             <span class="n">normalized_str</span><span class="p">,</span>
         <span class="p">)</span>
