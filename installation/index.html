@@ -487,12 +487,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/" class="md-nav__link">
+      <a href="../apps/cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    CLI Overview
+    CLI Apps Overview
     
   </span>
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/modattributes/" class="md-nav__link">
+      <a href="../apps/cli/modattributes/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/iodattributes/" class="md-nav__link">
+      <a href="../apps/cli/iodattributes/" class="md-nav__link">
         
   
   
@@ -556,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/iodmodules/" class="md-nav__link">
+      <a href="../apps/cli/iodmodules/" class="md-nav__link">
         
   
   
@@ -579,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/dataelements/" class="md-nav__link">
+      <a href="../apps/cli/dataelements/" class="md-nav__link">
         
   
   
@@ -602,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/uidvalues/" class="md-nav__link">
+      <a href="../apps/cli/uidvalues/" class="md-nav__link">
         
   
   
@@ -625,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/upsdimseattributes/" class="md-nav__link">
+      <a href="../apps/cli/upsdimseattributes/" class="md-nav__link">
         
   
   
@@ -648,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/upsioddimseattributes/" class="md-nav__link">
+      <a href="../apps/cli/upsioddimseattributes/" class="md-nav__link">
         
   
   
@@ -671,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/tdwiicontent/" class="md-nav__link">
+      <a href="../apps/cli/tdwiicontent/" class="md-nav__link">
         
   
   
@@ -717,7 +717,7 @@
   
   
   <span class="md-ellipsis">
-    Applications
+    UI Applications
     
   </span>
   
@@ -728,7 +728,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
-            Applications
+            UI Applications
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -739,12 +739,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../apps/" class="md-nav__link">
+      <a href="../apps/ui/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Apps Overview
+    UI Apps Overview
     
   </span>
   
@@ -762,7 +762,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apps/iod-explorer/" class="md-nav__link">
+      <a href="../apps/ui/iod-explorer/" class="md-nav__link">
         
   
   
@@ -1798,7 +1798,11 @@
 <ul>
 <li>Install with pip (recommended for CLI use):</li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@v0.1.0&quot;</span>
+<p>To install from PyPI:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>dcmspec
+</code></pre></div>
+<p>Or, for the latest development version from GitHub:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@main&quot;</span>
 </code></pre></div>
 <ul>
 <li>Alternatively, install with Poetry (requires cloning the repo):</li>
@@ -1810,24 +1814,34 @@ poetry<span class="w"> </span>install
 <ul>
 <li>Run CLI applications (replace <code>&lt;script_name&gt;</code> with one of the following):</li>
 </ul>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>dcmspec.cli.&lt;script_name&gt;<span class="w"> </span>--help
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>dcmspec.apps.cli.&lt;script_name&gt;<span class="w"> </span>--help
 </code></pre></div>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>dcmspec.cli.iodattributes<span class="w"> </span>--help
-python<span class="w"> </span>-m<span class="w"> </span>dcmspec.cli.tdwiimoddefinition<span class="w"> </span>--help
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>dcmspec.apps.cli.iodattributes<span class="w"> </span>--help
+python<span class="w"> </span>-m<span class="w"> </span>dcmspec.apps.cli.tdwiimoddefinition<span class="w"> </span>--help
 </code></pre></div>
 <p>Or, if using Poetry:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.cli.&lt;script_name&gt;<span class="w"> </span>--help
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>dcmspec.apps.cli.&lt;script_name&gt;<span class="w"> </span>--help
 </code></pre></div>
-<p>See the <a href="../cli/">CLI Applications</a> for available scripts and usage examples.</p>
+<p>See the <a href="../apps/cli/">CLI Applications</a> for available scripts and usage examples.</p>
 <hr />
 <h2 id="for-users-of-the-gui-application">For Users of the GUI Application</h2>
 <ul>
 <li>Install the package with the GUI extra (installs <code>tkhtmlview</code>):</li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@v0.1.0#egg=dcmspec[gui]&quot;</span>
+<p>To install from <strong>PyPI</strong> (recommended for most users):</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
 </code></pre></div>
-<p>Or, with Poetry:</p>
+<p>Or, for the latest development version from GitHub (for advanced users or contributors):</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[gui]&quot;</span>
+</code></pre></div>
+<p>Or, with Poetry from PyPI (recommended for most users):</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+</code></pre></div>
+<p>Or, for the latest development version from GitHub (for advanced users or contributors):</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>@git+https://github.com/dwikler/dcmspec.git
+</code></pre></div>
+<p>Or, for local development or contributing (using Poetry):</p>
 <div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dwikler/dcmspec.git
 <span class="nb">cd</span><span class="w"> </span>dcmspec
 poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>gui
@@ -1861,7 +1875,11 @@ poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="
 <li>Add the following to your <code>pyproject.toml</code> (for Poetry-based projects):</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="k">[tool.poetry.dependencies]</span>
-<span class="n">dcmspec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/dwikler/dcmspec.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;v0.1.0&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">dcmspec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;^0.2.1&quot;</span>
+</code></pre></div>
+<p>(Optional) To use the latest development version from GitHub:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.poetry.dependencies]</span>
+<span class="n">dcmspec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/dwikler/dcmspec.git&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 <ul>
 <li>Install the dependencies:</li>
@@ -1903,8 +1921,18 @@ See the <a href="https://lxml.de/installation.html">lxml installation docs</a> f
 </blockquote>
 <h3 id="optional-pdftable-extraction-dependencies">Optional PDF/Table Extraction Dependencies</h3>
 <p>Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are <strong>not installed by default</strong> and are grouped under the <code>pdf</code> optional dependency.</p>
-<p>To install with PDF/table extraction support:</p>
-<div class="highlight"><pre><span></span><code>poetry add &quot;dcmspec[pdf]&quot;@git+https://github.com/dwikler/dcmspec.git
+<p>To install with PDF/table extraction support from PyPI:</p>
+<p>Using pip:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>
+</code></pre></div>
+<p>Or, for the latest development version from GitHub:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[pdf]&quot;</span>
+</code></pre></div>
+<p>Or, using Poetry:</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>
+</code></pre></div>
+<p>Or, for the latest development version from GitHub:</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>@git+https://github.com/dwikler/dcmspec.git
 </code></pre></div>
 <p>Optional dependencies for PDF/table extraction:</p>
 <ul>
@@ -1917,7 +1945,14 @@ See the <a href="https://lxml.de/installation.html">lxml installation docs</a> f
 <p>These are only needed if you want to extract tables from PDF documents.</p>
 <h3 id="gui-dependencies">GUI Dependencies</h3>
 <p>If you want to use the sample GUI explorer app, you can install the <code>gui</code> extra:</p>
-<div class="highlight"><pre><span></span><code>poetry add &quot;dcmspec[gui]&quot;@git+https://github.com/dwikler/dcmspec.git
+<p>Using pip from PyPI:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+</code></pre></div>
+<p>Or, with Poetry from PyPI:</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+</code></pre></div>
+<p>Or, for the latest development version from GitHub:</p>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>@git+https://github.com/dwikler/dcmspec.git
 </code></pre></div>
 <p>This will install:</p>
 <ul>
@@ -1928,8 +1963,9 @@ See the <a href="https://lxml.de/installation.html">lxml installation docs</a> f
 <li>Default install: Lightweight, core parsing features only.</li>
 <li>With <code>[pdf]</code> extra: Adds PDF/table extraction support.</li>
 <li>With <code>[gui]</code> extra: Adds GUI dependencies for the sample explorer app.</li>
+<li>You can combine extras, e.g., pip install "dcmspec[gui,pdf]".
+  See the pyproject.toml for the full list of dependencies and extras.</li>
 </ul>
-<p>See the pyproject.toml for the full list of dependencies and extras.</p>
 <p>See the <a href="../api/">API Reference</a> for details on available classes.</p>
 
 

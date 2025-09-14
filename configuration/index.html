@@ -12,7 +12,7 @@
         <link rel="prev" href="../changelog/">
       
       
-        <link rel="next" href="../cli/">
+        <link rel="next" href="../apps/cli/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -418,12 +418,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/" class="md-nav__link">
+      <a href="../apps/cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    CLI Overview
+    CLI Apps Overview
     
   </span>
   
@@ -441,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/modattributes/" class="md-nav__link">
+      <a href="../apps/cli/modattributes/" class="md-nav__link">
         
   
   
@@ -464,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/iodattributes/" class="md-nav__link">
+      <a href="../apps/cli/iodattributes/" class="md-nav__link">
         
   
   
@@ -487,7 +487,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/iodmodules/" class="md-nav__link">
+      <a href="../apps/cli/iodmodules/" class="md-nav__link">
         
   
   
@@ -510,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/dataelements/" class="md-nav__link">
+      <a href="../apps/cli/dataelements/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/uidvalues/" class="md-nav__link">
+      <a href="../apps/cli/uidvalues/" class="md-nav__link">
         
   
   
@@ -556,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/upsdimseattributes/" class="md-nav__link">
+      <a href="../apps/cli/upsdimseattributes/" class="md-nav__link">
         
   
   
@@ -579,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/upsioddimseattributes/" class="md-nav__link">
+      <a href="../apps/cli/upsioddimseattributes/" class="md-nav__link">
         
   
   
@@ -602,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/tdwiicontent/" class="md-nav__link">
+      <a href="../apps/cli/tdwiicontent/" class="md-nav__link">
         
   
   
@@ -648,7 +648,7 @@
   
   
   <span class="md-ellipsis">
-    Applications
+    UI Applications
     
   </span>
   
@@ -659,7 +659,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
-            Applications
+            UI Applications
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -670,12 +670,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../apps/" class="md-nav__link">
+      <a href="../apps/ui/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Apps Overview
+    UI Apps Overview
     
   </span>
   
@@ -693,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apps/iod-explorer/" class="md-nav__link">
+      <a href="../apps/ui/iod-explorer/" class="md-nav__link">
         
   
   
@@ -1701,14 +1701,14 @@
 <li><strong>Using the <code>--config</code> option:</strong><br />
    The path to the config file can be provided on the command line:</li>
 </ul>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.cli.modattributes<span class="w"> </span>&lt;table_id&gt;<span class="w"> </span>--config<span class="w"> </span>myconfig.json
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.apps.cli.modattributes<span class="w"> </span>&lt;table_id&gt;<span class="w"> </span>--config<span class="w"> </span>myconfig.json
 </code></pre></div>
 <ul>
 <li><strong>Using the <code>DCMSPEC_CONFIG</code> environment variable:</strong><br />
    The environment variable can be set to the path of the config file:</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">DCMSPEC_CONFIG</span><span class="o">=</span>./myconfig.json
-poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.cli.modattributes<span class="w"> </span>&lt;table_id&gt;
+poetry<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>src.dcmspec.apps.cli.modattributes<span class="w"> </span>&lt;table_id&gt;
 </code></pre></div>
 
 
