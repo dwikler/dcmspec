@@ -2,11 +2,17 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.2.1] - 2025-09-13
+## [0.2.1] - 2025-09-14
 
 ### Fixed
 
 - Sanitize node and attribute names to remove "/" in DOMTableSpecParser ([#56](https://github.com/yourrepo/issues/56))
+
+### Changed
+
+- Major project restructure: moved CLI and UI apps to new `apps/cli` and `apps/ui` folders
+- Improved installation instructions and documentation
+- Prepared and published the package to [PyPI](https://pypi.org/project/dcmspec/)
 
 ## [0.2.0] - 2025-09-13
 

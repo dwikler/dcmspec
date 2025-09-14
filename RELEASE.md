@@ -164,13 +164,13 @@ Use these steps only if you need to update the tag after making additional chang
    - Then try installing from TestPyPI:
 
    ```bash
-   pip install --index-url https://test.pypi.org/simple/ dcmspec
+   pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ dcmspec
    ```
 
    Note: If you want to test optional dependencies (like GUI or PDF support), include the extras:
 
    ```bash
-   pip install --index-url https://test.pypi.org/simple/ "dcmspec[gui,pdf]"
+   pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ "dcmspec[gui,pdf]"
    ```
 
 6. Deactivate and remove the test environment when done:
@@ -180,3 +180,17 @@ Use these steps only if you need to update the tag after making additional chang
    ```
 
 This process helps ensure your package is complete, installs cleanly, and works as expected before you publish to PyPI.
+
+---
+
+## Poetry TestPyPI Configuration (for maintainers)
+
+To configure Poetry for publishing to TestPyPI, run these commands once per machine/user:
+
+```bash
+poetry config repositories.testpypi https://test.pypi.org/legacy/
+poetry config pypi-token.testpypi <your-testpypi-token>
+```
+
+- You can generate a TestPyPI token at https://test.pypi.org/manage/account/#api-tokens (2FA required).
+- The token is used as the "password" with username `__token__` (Poetry handles this automatically).
