@@ -9,7 +9,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.iodattributes <table_id> [options]
+    poetry run python -m src.dcmspec.apps.cli.iodattributes <table_id> [options]
 
 For more details, use the --help option.
 """
@@ -39,7 +39,7 @@ def main():
     other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.iodattributes <table_id> [options]
+        poetry run python -m src.dcmspec.apps.cli.iodattributes <table_id> [options]
 
     Options:
         table (str): Table ID to extract (e.g., "table_A.3-1" or "table_B.26.2-1").
@@ -47,7 +47,7 @@ def main():
         --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
 
     Example:
-        poetry run python -m src.dcmspec.cli.iodattributes table_A.3-1 --print-mode tree
+        poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.3-1 --print-mode tree
 
     """
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"

@@ -4,14 +4,17 @@
 
 ## Overview
 
-**dcmspec** is a versatile **Python toolkit** designed to provide processing of _DICOM specifications_ from the _DICOM standard_ or _IHE profiles_.
+**dcmspec** is a versatile **Python toolkit** designed to provide processing of DICOM<sup>®</sup> specifications from the DICOM standard or IHE profiles.
 
-Designed as a general-purpose, extensible framework, **dcmspec** enables flexible extraction, parsing, and processing of specification tables.
+Designed as a general-purpose, extensible framework, **dcmspec** enables flexible extraction, parsing, and processing of DICOM specifications.
 
 ## Features
 
-- An API to programmatically access, parse, and process DICOM and IHE specification tables.
-- Command-Line Interface (CLI) Sample Scripts which extract, parse, and process specific DICOM and IHE specification tables.
+- An API to programmatically access, parse, and process DICOM and IHE specifications.
+- Command-Line Interface (CLI) Sample Scripts which extract, parse, and process specific DICOM and IHE specifications.
+- User Interface (UI) sample application for interactive exploration of DICOM IODs.
+
+> **Note:** CLI and UI sample applications are provided as developer examples and are not intended to be full-featured or production-grade applications.
 
 ## Installation
 
@@ -20,7 +23,9 @@ See the [Installation Guide](https://dwikler.github.io/dcmspec/installation/) fo
 ## Usage
 
 - For API usage, see the [API documentation](https://dwikler.github.io/dcmspec/api/).
-- For CLI usage, see the [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/).
+- For example developer applications usage (CLI and UI), see:
+  - [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/)
+  - [UI Application Overview](https://dwikler.github.io/dcmspec/ui/)
 
 ## Release Notes
 
@@ -63,5 +68,15 @@ There are a few great related open source projects worth checking out:
 **How dcmspec differs:**
 
 - The above projects focus on parsing specific sections of the DICOM standard to support targeted use cases, such as browsing or validation.
-- **dcmspec** is designed with a broader scope. It provides a flexible framework for parsing any DICOM specification table from DICOM standard documents and IHE profiles.
-- The object-oriented architecture of **dcmspec** is extensible, making it possible to support additional sources (such as DICOM Conformance Statements) and to define custom structured data models as output.
+- **dcmspec** is designed with a broader scope. It provides a flexible framework for parsing any DICOM specification document, including the DICOM Standard itself, DICOM Conformance Statements, and IHE Integration Profiles.
+- The object-oriented architecture of **dcmspec** is extensible, making it possible to support additional sources, and to define custom structured data models as output.
+
+---
+
+<sub>
+DICOM<sup>®</sup> is the registered trademark of the National Electrical Manufacturers Association for its Standards publications relating to digital communications of medical information.<br>
+<br>
+National Electrical Manufacturers Association (NEMA), Rosslyn, VA USA.<br>
+PS3 / ISO 12052 Digital Imaging and Communications in Medicine (DICOM) Standard.<br>
+<a href="http://www.dicomstandard.org">http://www.dicomstandard.org</a>
+</sub>

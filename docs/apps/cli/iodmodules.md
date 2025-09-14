@@ -10,13 +10,13 @@ The tool parses only the specified IOD table to extract the list of referenced m
 
 The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured, machine-readable representation of the IOD's module composition, which can be used for further processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
-For more information on configuration and caching location see the [Configuration and Caching](../configuration.md) page.
+For more information on configuration and caching location see the [Configuration and Caching](../../configuration.md) page.
 
 ---
 
 ## Usage
 
-    poetry run python -m src.dcmspec.cli.iodmodules <table_id> [options]
+    poetry run python -m src.dcmspec.apps.cli.iodmodules <table_id> [options]
 
 `<table_id>`  
 : The DICOM IOD table ID to extract (e.g., `table_A.1-1` for Composite IODs or `table_B.1-1` for Normalized IODs).
@@ -38,8 +38,8 @@ For more information on configuration and caching location see the [Configuratio
 
 To parse a Composite IOD table and print its module list as a table:
 
-    poetry run python -m src.dcmspec.cli.iodmodules table_A.1-1
+    poetry run python -m src.dcmspec.apps.cli.iodmodules table_A.1-1
 
 To parse a Normalized IOD table and print its module list as a table:
 
-    poetry run python -m src.dcmspec.cli.iodmodules table_B.1-1
+    poetry run python -m src.dcmspec.apps.cli.iodmodules table_B.1-1

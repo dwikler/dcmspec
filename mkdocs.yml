@@ -9,19 +9,19 @@ nav:
   - Release Notes: changelog.md
   - Configuration & Caching: configuration.md
   - CLI Applications:
-      - CLI Overview: cli/index.md
-      - modattributes: cli/modattributes.md
-      - iodattributes: cli/iodattributes.md
-      - iodmodules: cli/iodmodules.md
-      - dataelements: cli/dataelements.md
-      - uidvalues: cli/uidvalues.md
-      - upsdimseattributes: cli/upsdimseattributes.md
-      - upsioddimseattributes: cli/upsioddimseattributes.md
-      - tdwiicontent: cli/tdwiicontent.md
+      - CLI Apps Overview: apps/cli/index.md
+      - modattributes: apps/cli/modattributes.md
+      - iodattributes: apps/cli/iodattributes.md
+      - iodmodules: apps/cli/iodmodules.md
+      - dataelements: apps/cli/dataelements.md
+      - uidvalues: apps/cli/uidvalues.md
+      - upsdimseattributes: apps/cli/upsdimseattributes.md
+      - upsioddimseattributes: apps/cli/upsioddimseattributes.md
+      - tdwiicontent: apps/cli/tdwiicontent.md
 
-  - Applications:
-      - Apps Overview: apps/index.md
-      - IOD Explorer: apps/iod-explorer.md
+  - UI Applications:
+      - UI Apps Overview: apps/ui/index.md
+      - IOD Explorer: apps/ui/iod-explorer.md
 
   - API Reference:
       - API Overview: api/index.md

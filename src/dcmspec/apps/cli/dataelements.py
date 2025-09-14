@@ -7,7 +7,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.dataelements [options]
+    poetry run python -m src.dcmspec.apps.cli.dataelements [options]
 
 For more details, use the --help option.
 """
@@ -33,13 +33,13 @@ def main():
     in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.dataelements [options]
+        poetry run python -m src.dcmspec.apps.cli.dataelements [options]
 
     Options:
         --config (str): Path to the configuration file.
 
     Example:
-        poetry run python -m src.dcmspec.cli.dataelements
+        poetry run python -m src.dcmspec.apps.cli.dataelements
 
     """
     # Parse command-line arguments

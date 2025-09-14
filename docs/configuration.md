@@ -55,7 +55,7 @@ This file can be named `config.json` and placed in the default configuration fol
    The path to the config file can be provided on the command line:
 
   ```bash
-  poetry run python -m src.dcmspec.cli.modattributes <table_id> --config myconfig.json
+  poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> --config myconfig.json
   ```
 
 - **Using the `DCMSPEC_CONFIG` environment variable:**  
@@ -63,5 +63,5 @@ This file can be named `config.json` and placed in the default configuration fol
 
   ```bash
   export DCMSPEC_CONFIG=./myconfig.json
-  poetry run python -m src.dcmspec.cli.modattributes <table_id>
+  poetry run python -m src.dcmspec.apps.cli.modattributes <table_id>
   ```
