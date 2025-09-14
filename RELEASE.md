@@ -185,12 +185,70 @@ This process helps ensure your package is complete, installs cleanly, and works 
 
 ## Poetry TestPyPI Configuration (for maintainers)
 
-To configure Poetry for publishing to TestPyPI, run these commands once per machine/user:
+### How to get a TestPyPI token
+
+- Go to https://test.pypi.org/manage/account/#api-tokens (2FA required).
+- Click "Add API token".
+- Give your token a name and (optionally) restrict it to your project.
+- Copy the generated token and save it in a secure place (you will not be able to see it again).
+
+The token is used as the "password" with username `__token__` (Poetry handles this automatically).
+
+### How to configure Poetry for TestPyPI
+
+First, always configure the TestPyPI repository:
 
 ```bash
 poetry config repositories.testpypi https://test.pypi.org/legacy/
-poetry config pypi-token.testpypi <your-testpypi-token>
 ```
 
-- You can generate a TestPyPI token at https://test.pypi.org/manage/account/#api-tokens (2FA required).
-- The token is used as the "password" with username `__token__` (Poetry handles this automatically).
+Then, choose one of the following authentication methods:
+
+- Persist the token (less secure, but convenient for local use):
+
+  ```bash
+  poetry config pypi-token.testpypi <your-testpypi-token>
+  ```
+
+- Or, for ephemeral use (recommended), set the token as an environment variable:
+
+  ```bash
+  export POETRY_PYPI_TOKEN_TESTPYPI=<your-testpypi-token>
+  ```
+
+- Or for CI/CD, set the token as a secret environment variable
+
+  In **GitHub Actions** (or other CI/CD systems), set this as a secret environment variable in your pipeline configuration:
+
+  1.  Go to your repository on GitHub → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+  2.  Name it: `TESTPYPI_TOKEN`
+  3.  Paste your TestPyPI token as the value.
+
+  Then, in your workflow YAML, add:
+
+  ```yaml
+  env:
+    POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TESTPYPI_TOKEN }}
+  ```
+
+  Example GitHub Actions workflow:
+
+  ```yaml
+  jobs:
+  publish-testpypi:
+     runs-on: ubuntu-latest
+     env:
+        POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TESTPYPI_TOKEN }}
+     steps:
+        - uses: actions/checkout@v4
+        - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+           python-version: '3.12'
+        - name: Install Poetry
+        run: pip install poetry
+        - name: Build and publish to TestPyPI
+        run: |
+           poetry config repositories.testpypi https://test.pypi.org/legacy/
+           poetry publish --build --repository testpypi
+  ```

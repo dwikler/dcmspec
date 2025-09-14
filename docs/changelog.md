@@ -6,7 +6,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Fixed
 
-- Sanitize node and attribute names to remove "/" in DOMTableSpecParser ([#56](https://github.com/yourrepo/issues/56))
+- Sanitize node and attribute names to remove "/" in DOMTableSpecParser ([#56](https://github.com/dwikler/dcmspec/issues/56))
 
 ### Changed
 
