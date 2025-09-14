@@ -74,7 +74,7 @@ iod-explorer
 ### Option 3: Using the module path
 
 ```bash
-poetry run python -m src.dcmspec.apps.iod_explorer.iod_explorer
+poetry run python -m src.dcmspec.apps.ui.iod_explorer.iod_explorer
 ```
 
 ### Note on Poetry 2.0+ Environment Activation
@@ -91,7 +91,7 @@ The application supports customizable configuration through JSON files. Configur
 
 1. Current directory: `iod_explorer_config.json`
 2. User config: `~/.config/dcmspec/iod_explorer_config.json`
-3. App config directory: `src/dcmspec/apps/iod_explorer/config/iod_explorer_config.json`
+3. App config directory: `src/dcmspec/apps/ui/iod_explorer/config/iod_explorer_config.json`
 4. Legacy location: Same directory as script
 
 For detailed configuration options and examples, see the config directory in the application source.

@@ -8,7 +8,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.upsioddimseattributes [options]
+    poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes [options]
 
 For more details, use the --help option.
 """
@@ -165,7 +165,7 @@ def main():
     subsequent runs of the CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.upsioddimseattributes [options]
+        poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes [options]
 
     Options:
         --config (str): Path to the configuration file.
@@ -176,7 +176,7 @@ def main():
         -d, --debug: Enable debug logging to the console (overrides --verbose).
 
     Example:
-        poetry run python -m src.dcmspec.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree
+        poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree
 
     """    
     parser = argparse.ArgumentParser()

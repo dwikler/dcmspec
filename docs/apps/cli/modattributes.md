@@ -10,14 +10,14 @@ The tool parses the specified Module Attributes table to extract all attributes,
 
 The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured, machine-readable representation of the module's attributes, which can be used for further processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
-For more information on configuration and caching location see the [Configuration and Caching](../configuration.md) page.
+For more information on configuration and caching location see the [Configuration and Caching](../../configuration.md) page.
 
 ---
 
 ## Usage
 
 ```bash
-poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
+poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 ```
 
 `<table_id>`  
@@ -65,17 +65,17 @@ poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
 To parse the Patient Module Attributes Table and print it as a table:
 
 ```bash
-poetry run python -m src.dcmspec.cli.modattributes table_C.7-1
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1
 ```
 
 To enrich the table with VR and VM information from Part 6:
 
 ```bash
-poetry run python -m src.dcmspec.cli.modattributes table_C.7-1 --add-part6 VR VM
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --add-part6 VR VM
 ```
 
 To print the result as a tree:
 
 ```bash
-poetry run python -m src.dcmspec.cli.modattributes table_C.7-1 --print-mode tree
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode tree
 ```

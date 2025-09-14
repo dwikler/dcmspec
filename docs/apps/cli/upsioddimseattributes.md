@@ -8,13 +8,13 @@ This CLI downloads, merges, caches, and prints the attributes for a DICOM UPS IO
 
 The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured, machine-readable representation of the merged IOD and DIMSE service attributes, which can be used for further processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
-For more information on configuration and caching location see the [Configuration and Caching](../configuration.md) page.
+For more information on configuration and caching location see the [Configuration and Caching](../../configuration.md) page.
 
 ---
 
 ## Usage
 
-    poetry run python -m src.dcmspec.cli.upsioddimseattributes [options]
+    poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes [options]
 
 `[options]`  
 : Additional command-line options (see below).
@@ -48,8 +48,8 @@ For more information on configuration and caching location see the [Configuratio
 
 To print the merged UPS IOD attributes for all DIMSE services as a table:
 
-    poetry run python -m src.dcmspec.cli.upsioddimseattributes
+    poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes
 
 To print only the N-CREATE service attributes for the SCU role as a tree:
 
-    poetry run python -m src.dcmspec.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree
+    poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree

@@ -13,14 +13,14 @@ The resulting model is cached as a JSON file. The primary purpose of this cache 
 machine-readable representation of the content definition, which can be used for further processing or integration
 in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
-For more information on configuration and caching location see the [Configuration and Caching](../configuration.md)
+For more information on configuration and caching location see the [Configuration and Caching](../../configuration.md)
 page.
 
 ---
 
 ## Usage
 
-    poetry run python -m src.dcmspec.cli.tdwiicontent <content_definition> [options]
+    poetry run python -m src.dcmspec.apps.cli.tdwiicontent <content_definition> [options]
 
 `<content_definition>`  
 : Required positional argument. One of:
@@ -51,8 +51,8 @@ page.
 
 To extract and print the TDW-II Progress Update transaction UPS content specification:
 
-    poetry run python -m src.dcmspec.cli.tdwiicontent ups_progress --debug
+    poetry run python -m src.dcmspec.apps.cli.tdwiicontent ups_progress --debug
 
 To extract and print the RT Beam Delivery Instruction Module definition:
 
-    poetry run python -m src.dcmspec.cli.tdwiicontent rt_bdi
+    poetry run python -m src.dcmspec.apps.cli.tdwiicontent rt_bdi

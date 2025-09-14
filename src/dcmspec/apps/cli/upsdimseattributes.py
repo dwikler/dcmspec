@@ -8,7 +8,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.upsdimseattributes [options]
+    poetry run python -m src.dcmspec.apps.cli.upsdimseattributes [options]
 
 For more details, use the --help option.
 """
@@ -38,7 +38,7 @@ def main():
     CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.upsdimseattributes [options]
+        poetry run python -m src.dcmspec.apps.cli.upsdimseattributes [options]
 
     Options:
         --config (str): Path to the configuration file.
@@ -46,7 +46,7 @@ def main():
         --role (str): Role to select (SCU or SCP). Only valid if --dimse is not ALL_DIMSE.
 
     Example:
-        poetry run python -m src.dcmspec.cli.upsdimseattributes --dimse N-CREATE --role SCU
+        poetry run python -m src.dcmspec.apps.cli.upsdimseattributes --dimse N-CREATE --role SCU
 
     """
     # Parse command-line arguments

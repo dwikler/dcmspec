@@ -8,7 +8,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.iodmodules <table_id> [options]
+    poetry run python -m src.dcmspec.apps.cli.iodmodules <table_id> [options]
 
 For more details, use the --help option.
 """
@@ -37,14 +37,14 @@ def main():
     CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.iodmodules <table_id> [options]
+        poetry run python -m src.dcmspec.apps.cli.iodmodules <table_id> [options]
 
     Options:
         table (str): Table ID to extract (e.g., "table_A.1-1" or "table_B.1-1").
         --config (str): Path to the configuration file.
 
     Example:
-        poetry run python -m src.dcmspec.cli.iodmodules table_A.1-1
+        poetry run python -m src.dcmspec.apps.cli.iodmodules table_A.1-1
 
     """
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"

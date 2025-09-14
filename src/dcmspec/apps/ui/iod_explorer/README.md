@@ -6,7 +6,7 @@ A GUI application for exploring DICOM specifications interactively.
 
 For complete documentation including installation, configuration, and usage instructions, see:
 
-**[IOD Explorer Documentation](../../../../docs/apps/iod-explorer.md)**
+**[IOD Explorer Documentation](../../../../../docs/apps/iod-explorer.md)**
 
 ## Quick Start
 

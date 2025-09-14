@@ -1,10 +1,11 @@
 [project]
 name = "dcmspec"
 version = "0.2.1"
-description = ""
+description = "Toolkit for extracting, parsing, and processing DICOM specifications."
 authors = [
-    {name = "David Wikler",email = "david.wikler@ulb.ac.be"}
+    {name = "David Wikler",email = "david.wikler@ulb.be"}
 ]
+license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 dependencies = [
@@ -29,6 +30,16 @@ gui = ["tkhtmlview (>=0.3.1,<0.4.0)"]
 
 [tool.poetry]
 packages = [{include = "dcmspec", from = "src"}]
+include = [
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "src/dcmspec/*"
+]
+exclude = [
+    "src/dcmspec/tests/*",
+    "src/dcmspec/.DS_Store",
+]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.5"
@@ -44,15 +55,15 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-dataelements = "dcmspec.cli.dataelements:main"
-iodattributes = "dcmspec.cli.iodattributes:main"
-uidvalues = "dcmspec.cli.uidvalues:main"
-iodmodules = "dcmspec.cli.iodmodules:main"
-upsioddimseattributes = "dcmspec.cli.upsioddimseattributes:main"
-tdwiicontent = "dcmspec.cli.tdwiicontent:main"
-upsdimseattributes = "dcmspec.cli.upsdimseattributes:main"
-modattributes = "dcmspec.cli.modattributes:main"
-iod-explorer = "dcmspec.apps.iod_explorer.iod_explorer:main"
+dataelements = "dcmspec.apps.cli.dataelements:main"
+iodattributes = "dcmspec.apps.cli.iodattributes:main"
+uidvalues = "dcmspec.apps.cli.uidvalues:main"
+iodmodules = "dcmspec.apps.cli.iodmodules:main"
+upsioddimseattributes = "dcmspec.apps.cli.upsioddimseattributes:main"
+tdwiicontent = "dcmspec.apps.cli.tdwiicontent:main"
+upsdimseattributes = "dcmspec.apps.cli.upsdimseattributes:main"
+modattributes = "dcmspec.apps.cli.modattributes:main"
+iod-explorer = "dcmspec.apps.ui.iod_explorer.iod_explorer:main"
 
 [tool.ruff]
 line-length = 120

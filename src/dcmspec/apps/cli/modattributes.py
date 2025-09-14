@@ -8,7 +8,7 @@ Features:
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
+    poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 
 For more details, use the --help option.
 """
@@ -121,7 +121,7 @@ def main():
     of the CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.modattributes <table_id> [options]
+        poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 
     Options:
         table (str): Table ID to extract (e.g., "table_C.7-1").
@@ -136,7 +136,7 @@ def main():
         -v, --verbose: Enable verbose (info-level) logging to the console.
 
     Example:
-        poetry run python -m src.dcmspec.cli.modattributes table_C.7-1 --add-part6 VR VM
+        poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --add-part6 VR VM
 
     """
     # Parse command-line arguments

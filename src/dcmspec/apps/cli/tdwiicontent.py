@@ -17,7 +17,7 @@ Features:
 - Supports configuration, caching, and command-line options for flexible workflows.
 
 Usage:
-    poetry run python -m src.dcmspec.cli.tdwiimoddefinition [options]
+    poetry run python -m src.dcmspec.apps.cli.tdwiimoddefinition [options]
 
 For more details, use the --help option.
 """
@@ -296,7 +296,7 @@ def main():
     in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
     Usage:
-        poetry run python -m src.dcmspec.cli.tdwiicontent <content_definition> [options]
+        poetry run python -m src.dcmspec.apps.cli.tdwiicontent <content_definition> [options]
 
         Where <content_definition> is one of:
         - ups_create: content of scheduled UPS creation (combined UPS Scheduled and Relationship definitions).
@@ -310,7 +310,7 @@ def main():
         -v, --verbose: Enable verbose output.
 
     Example:
-        poetry run python -m src.dcmspec.cli.tdwiicontent ups_progress --debug
+        poetry run python -m src.dcmspec.apps.cli.tdwiicontent ups_progress --debug
 
     For more details, use the --help option.
 

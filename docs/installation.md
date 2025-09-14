@@ -11,8 +11,16 @@
 
 - Install with pip (recommended for CLI use):
 
+  To install from PyPI:
+
   ```bash
-  pip install "git+https://github.com/dwikler/dcmspec.git@v0.1.0"
+  pip install dcmspec
+  ```
+
+  Or, for the latest development version from GitHub:
+
+  ```bash
+  pip install "git+https://github.com/dwikler/dcmspec.git@main"
   ```
 
 - Alternatively, install with Poetry (requires cloning the repo):
@@ -26,23 +34,23 @@
 - Run CLI applications (replace `<script_name>` with one of the following):
 
   ```bash
-  python -m dcmspec.cli.<script_name> --help
+  python -m dcmspec.apps.cli.<script_name> --help
   ```
 
   Examples:
 
   ```bash
-  python -m dcmspec.cli.iodattributes --help
-  python -m dcmspec.cli.tdwiimoddefinition --help
+  python -m dcmspec.apps.cli.iodattributes --help
+  python -m dcmspec.apps.cli.tdwiimoddefinition --help
   ```
 
   Or, if using Poetry:
 
   ```bash
-  poetry run python -m src.dcmspec.cli.<script_name> --help
+  poetry run python -m dcmspec.apps.cli.<script_name> --help
   ```
 
-  See the [CLI Applications](./cli/index.md) for available scripts and usage examples.
+  See the [CLI Applications](./apps/cli/index.md) for available scripts and usage examples.
 
 ---
 
@@ -50,11 +58,31 @@
 
 - Install the package with the GUI extra (installs `tkhtmlview`):
 
+  To install from **PyPI** (recommended for most users):
+
   ```bash
-  pip install "git+https://github.com/dwikler/dcmspec.git@v0.1.0#egg=dcmspec[gui]"
+  pip install "dcmspec[gui]"
   ```
 
-  Or, with Poetry:
+  Or, for the latest development version from GitHub (for advanced users or contributors):
+
+  ```bash
+  pip install "git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[gui]"
+  ```
+
+  Or, with Poetry from PyPI (recommended for most users):
+
+  ```bash
+  poetry add "dcmspec[gui]"
+  ```
+
+  Or, for the latest development version from GitHub (for advanced users or contributors):
+
+  ```bash
+  poetry add "dcmspec[gui]"@git+https://github.com/dwikler/dcmspec.git
+  ```
+
+  Or, for local development or contributing (using Poetry):
 
   ```bash
   git clone https://github.com/dwikler/dcmspec.git
@@ -95,7 +123,14 @@
 
   ```toml
   [tool.poetry.dependencies]
-  dcmspec = { git = "https://github.com/dwikler/dcmspec.git", tag = "v0.1.0" }
+  dcmspec = "^0.2.1"
+  ```
+
+  (Optional) To use the latest development version from GitHub:
+
+  ```toml
+  [tool.poetry.dependencies]
+  dcmspec = { git = "https://github.com/dwikler/dcmspec.git", branch = "main" }
   ```
 
 - Install the dependencies:
@@ -147,9 +182,29 @@ These are sufficient for most use cases, including all parsing and tree-building
 
 Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are **not installed by default** and are grouped under the `pdf` optional dependency.
 
-To install with PDF/table extraction support:
+To install with PDF/table extraction support from PyPI:
 
+Using pip:
+
+```bash
+pip install "dcmspec[pdf]"
 ```
+
+Or, for the latest development version from GitHub:
+
+```bash
+pip install "git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[pdf]"
+```
+
+Or, using Poetry:
+
+```bash
+poetry add "dcmspec[pdf]"
+```
+
+Or, for the latest development version from GitHub:
+
+```bash
 poetry add "dcmspec[pdf]"@git+https://github.com/dwikler/dcmspec.git
 ```
 
@@ -167,7 +222,21 @@ These are only needed if you want to extract tables from PDF documents.
 
 If you want to use the sample GUI explorer app, you can install the `gui` extra:
 
+Using pip from PyPI:
+
+```bash
+pip install "dcmspec[gui]"
 ```
+
+Or, with Poetry from PyPI:
+
+```bash
+poetry add "dcmspec[gui]"
+```
+
+Or, for the latest development version from GitHub:
+
+```bash
 poetry add "dcmspec[gui]"@git+https://github.com/dwikler/dcmspec.git
 ```
 
@@ -180,7 +249,7 @@ This will install:
 - Default install: Lightweight, core parsing features only.
 - With `[pdf]` extra: Adds PDF/table extraction support.
 - With `[gui]` extra: Adds GUI dependencies for the sample explorer app.
-
-See the pyproject.toml for the full list of dependencies and extras.
+- You can combine extras, e.g., pip install "dcmspec[gui,pdf]".
+  See the pyproject.toml for the full list of dependencies and extras.
 
 See the [API Reference](./api/index.md) for details on available classes.
