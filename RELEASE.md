@@ -23,20 +23,14 @@
 
    - Use **"Added"** for new features, **"Changed"** for enhancements or improvements, and **"Fixed"** for bug fixes.
 
-3. [ ] Update the documentation changelog:
-
-   ```bash
-   cp CHANGELOG.md docs/changelog.md
-   ```
-
-4. [ ] Commit the changes:
+3. [ ] Commit the changes:
 
    ```bash
    git add pyproject.toml CHANGELOG.md docs/changelog.md
    git commit -m "Bump version to x.y.z and update CHANGELOG"
    ```
 
-5. [ ] Tag the release:
+4. [ ] Tag the release:
 
    Choose the appropriate command below based on the main type of change in this release.
 
@@ -58,20 +52,20 @@
    git tag -a vX.Y.Z -m "Corrected ... (#NN)"
    ```
 
-6. [ ] Push commits and tags:
+5. [ ] Push commits and tags:
 
    ```bash
    git push
    git push --tags
    ```
 
-7. [ ] Create a GitHub Release for the new tag:
+6. [ ] Create a GitHub Release for the new tag:
 
    - Copy the changelog entry into the release notes.
 
-8. [ ] [Build and test the distribution locally before publishing](#how-to-test-the-distribution-before-publishing)
+7. [ ] [Build and test the distribution locally before publishing](#how-to-test-the-distribution-before-publishing)
 
-9. [ ] Publish to PyPI:
+8. [ ] Publish to PyPI:
 
    ```bash
    poetry publish --build
