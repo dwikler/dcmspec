@@ -1,19 +1,8 @@
 # Installation
 
-## Table of Contents
-
-- [Prerequisites](#prerequisites)
-- [Sample Application Users](#sample-application-users)
-- [API Users](#api-users)
-- [Contributors](#contributors)
-- [Dependencies and Optional Features](#dependencies-and-optional-features)
-- [Python Installation](#python-installation)
-- [Tkinter Installation](#tkinter-installation)
-- [Poetry Installation](#poetry-installation)
-
 ## Prerequisites
 
-- **Python 3.9.2 or newer**
+- **Python 3.10 or newer**
 
   - See [Python installation](#python-installation) for platform-specific instructions.
 
@@ -33,7 +22,7 @@
 
 ## Sample Application Users
 
-### Install from PyPI (recommended for all sample applications, CLI and GUI)
+- **Install from PyPI (recommended for all sample applications, CLI and GUI)**
 
 ```bash
 pip install "dcmspec[gui]"
@@ -41,7 +30,7 @@ pip install "dcmspec[gui]"
 
 > If you get an error about `tkinter`, see [Tkinter installation](#tkinter-installation).
 
-### Run CLI applications
+- **Run CLI applications**
 
 ```bash
 <command> --help
@@ -62,7 +51,7 @@ python -m dcmspec.apps.cli.<script_name> --help
 
 See the [CLI Applications](./apps/cli/index.md) for available commands and usage examples.
 
-### Run the GUI application
+- **Run the GUI application**
 
 ```bash
 iod-explorer
@@ -70,43 +59,41 @@ iod-explorer
 
 See the [UI Applications](./apps/ui/index.md) for more information.
 
-<sub>[Back to top](#table-of-contents)</sub>
-
 ---
 
 ## API Users
 
-> **Tip:** If you use Poetry to manage your own project, you can skip the pip instructions below and go directly to [Add to your Poetry project](#add-to-your-poetry-project).
+> **Tip:** If you use Poetry to manage your own project, you can skip the pip instructions below and go directly to [Using Poetry](#using-poetry).
 >
 > See [Dependencies and Optional Features](#dependencies-and-optional-features) below for details on core vs extra dependencies versions.
 
 ### Using pip
 
-#### Install core (lightweight) version from PyPI
+- **Install core (lightweight) version from PyPI**
 
 ```bash
 pip install dcmspec
 ```
 
-#### Install with PDF/table extraction support
+- **Install with PDF/table extraction support**
 
 ```bash
 pip install "dcmspec[pdf]"
 ```
 
-#### Install with GUI support
+- **Install with GUI support**
 
 ```bash
 pip install "dcmspec[gui]"
 ```
 
-#### Install with both PDF and GUI support
+- **Install with both PDF and GUI support**
 
 ```bash
 pip install "dcmspec[gui,pdf]"
 ```
 
-#### (Optional) To use the latest development version from GitHub
+- **(Optional) To use the latest development version from GitHub**
 
 ```bash
 pip install "git+https://github.com/dwikler/dcmspec.git@main"
@@ -114,7 +101,7 @@ pip install "git+https://github.com/dwikler/dcmspec.git@main"
 
 ### Using Poetry
 
-#### Add to your Poetry project
+- **Add to your Poetry project**
 
 If you are using Poetry to manage your own project, add dcmspec as a dependency with the desired optional features:
 
@@ -125,7 +112,7 @@ poetry add "dcmspec[pdf]"       # with PDF support
 poetry add "dcmspec[gui,pdf]"   # with both
 ```
 
-#### (Optional) To use the latest development version from GitHub
+- **(Optional) To use the latest development version from GitHub**
 
 ```bash
 poetry add "dcmspec@git+https://github.com/dwikler/dcmspec.git"
@@ -140,23 +127,17 @@ from dcmspec.spec_model import SpecModel
 # ... your code here ...
 ```
 
-<sub>[Back to top](#table-of-contents)</sub>
-
 ---
 
 ## Contributors
 
-## Contributors
-
-For contributor installation and development instructions, see the [CONTRIBUTING.md](https://github.com/dwikler/dcmspec/blob/main/CONTRIBUTING.md){:target="\_blank"} on GitHub.
-
-<sub>[Back to top](#table-of-contents)</sub>
+For contributor installation and development instructions, see the <a href="https://github.com/dwikler/dcmspec/blob/main/CONTRIBUTING.md" target="_blank">CONTRIBUTING.md</a> on GitHub.
 
 ---
 
 ## Dependencies and Optional Features
 
-### Core Dependencies
+- **Core Dependencies**
 
 The core `dcmspec` library is designed to be lightweight and only requires a minimal set of dependencies for parsing and working with DICOM specification tables in HTML/XHTML format.
 
@@ -172,12 +153,11 @@ Core dependencies include:
 
 These are sufficient for most use cases, including all parsing and tree-building from DICOM standard HTML/XHTML documents.
 
-> **Note on lxml:**  
-> `lxml` is a core dependency for fast and robust XML/HTML parsing. It is not a pure Python package, but pre-built wheels are available for most platforms.  
-> On some Linux systems, you may need to install system packages (e.g., `libxml2-dev`, `libxslt-dev`, and `python3-dev`) before installing `lxml`.  
+> **Note on lxml:** > `lxml` is a core dependency for fast and robust XML/HTML parsing. It is not a pure Python package, but pre-built wheels are available for most platforms.
+> On some Linux systems, you may need to install system packages (e.g., `libxml2-dev`, `libxslt-dev`, and `python3-dev`) before installing `lxml`.
 > See the [lxml installation docs](https://lxml.de/installation.html) for details.
 
-### Optional PDF/Table Extraction Dependencies
+- **Optional PDF/Table Extraction Dependencies**
 
 Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are **not installed by default** and are grouped under the `pdf` optional dependency.
 
@@ -217,7 +197,7 @@ Optional dependencies for PDF/table extraction:
 
 These are only needed if you want to extract tables from PDF documents.
 
-### GUI Dependencies
+- **GUI Dependencies**
 
 If you want to use the sample GUI explorer app, you can install the `gui` extra:
 
@@ -243,7 +223,7 @@ This will install:
 
 - tkhtmlview
 
-### Summary
+- **Summary**
 
 - Default install: Lightweight, core parsing features only.
 - With `[pdf]` extra: Adds PDF/table extraction support.
@@ -253,7 +233,7 @@ This will install:
 
 See the [API Reference](./api/index.md) for details on available classes.
 
-<sub>[Back to top](#table-of-contents)</sub>
+---
 
 ## Python Installation
 
@@ -265,7 +245,7 @@ See the [API Reference](./api/index.md) for details on available classes.
 - On Linux, use your system package manager (e.g., `sudo apt install python3`).
 - On Windows, use the [python.org](https://www.python.org/downloads/) installer.
 
-<sub>[Back to top](#table-of-contents)</sub>
+---
 
 ## Tkinter Installation
 
@@ -286,9 +266,9 @@ tkinter is the Python interface to the Tcl/Tk GUI toolkit. On some platforms, in
     brew install python-tk@3.12
     ```
 
-- **Windows or macOS (python.org installer):**  
+- **Windows or macOS (python.org installer):**
   `tkinter` is usually included by default.
-- **Ubuntu/Debian:**  
+- **Ubuntu/Debian:**
   Install with `sudo apt install python3-tk`
 
 After installation, you can test if `tkinter` is available by running:
@@ -301,7 +281,7 @@ If a small window appears, `tkinter` is working.
 
 For more details, see the [Homebrew Python and Tkinter documentation](https://docs.brew.sh/Homebrew-and-Python#tkinter) and the [python-tk Homebrew formulae](https://formulae.brew.sh/formula/python-tk@3.12).
 
-<sub>[Back to top](#table-of-contents)</sub>
+---
 
 ## Poetry Installation
 
@@ -331,4 +311,6 @@ For more details, see the [Homebrew Python and Tkinter documentation](https://do
 
 - For more details or troubleshooting, refer to the [Poetry installation guide](https://python-poetry.org/docs/#installation).
 
-<sub>[Back to top](#table-of-contents)</sub>
+```
+
+```
