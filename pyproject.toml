@@ -9,6 +9,17 @@ license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 keywords = ["DICOM", "python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
 dependencies = [
     "anytree (>=2.13.0,<3.0.0) ; python_version >= \"3.12\" and python_version < \"4.0\"",
     "platformdirs (>=4.3.8,<5.0.0)",
