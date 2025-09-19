@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
     
     
       
@@ -24,7 +24,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -326,19 +326,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#021-2025-09-13" class="md-nav__link">
+  <a href="#021-2025-09-14" class="md-nav__link">
     <span class="md-ellipsis">
-      [0.2.1] - 2025-09-13
+      [0.2.1] - 2025-09-14
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[0.2.1] - 2025-09-13">
+    <nav class="md-nav" aria-label="[0.2.1] - 2025-09-14">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -360,7 +369,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -1670,19 +1679,28 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#021-2025-09-13" class="md-nav__link">
+  <a href="#021-2025-09-14" class="md-nav__link">
     <span class="md-ellipsis">
-      [0.2.1] - 2025-09-13
+      [0.2.1] - 2025-09-14
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[0.2.1] - 2025-09-13">
+    <nav class="md-nav" aria-label="[0.2.1] - 2025-09-14">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#fixed" class="md-nav__link">
     <span class="md-ellipsis">
       Fixed
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Changed
     </span>
   </a>
   
@@ -1704,7 +1722,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#changed" class="md-nav__link">
+  <a href="#changed_1" class="md-nav__link">
     <span class="md-ellipsis">
       Changed
     </span>
@@ -1759,13 +1777,19 @@
 
 <h1 id="release-notes">Release Notes</h1>
 <p>These release notes summarize key changes, improvements, and breaking updates for each version of <strong>dcmspec</strong>.</p>
-<h2 id="021-2025-09-13">[0.2.1] - 2025-09-13</h2>
+<h2 id="021-2025-09-14">[0.2.1] - 2025-09-14</h2>
 <h3 id="fixed">Fixed</h3>
 <ul>
-<li>Sanitize node and attribute names to remove "/" in DOMTableSpecParser (<a href="https://github.com/yourrepo/issues/56">#56</a>)</li>
+<li>Sanitize node and attribute names to remove "/" in DOMTableSpecParser (<a href="https://github.com/dwikler/dcmspec/issues/56">#56</a>)</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Major project restructure: moved CLI and UI apps to new <code>apps/cli</code> and <code>apps/ui</code> folders</li>
+<li>Improved installation instructions and documentation</li>
+<li>Prepared and published the package to <a href="https://pypi.org/project/dcmspec/">PyPI</a></li>
 </ul>
 <h2 id="020-2025-09-13">[0.2.0] - 2025-09-13</h2>
-<h3 id="changed">Changed</h3>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li><strong>Breaking change:</strong> <code>IODSpecBuilder.build_from_url</code> now returns a tuple <code>(iod_model, module_models)</code> instead of just the IOD model. All callers must be updated to unpack the tuple.</li>
 <li>Updated CLI and UI applications to support new return value.</li>
@@ -1827,7 +1851,7 @@
       <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
       
     
   </body>
