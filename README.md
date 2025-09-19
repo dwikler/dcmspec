@@ -4,28 +4,59 @@
 
 ## Overview
 
-**dcmspec** is a versatile **Python toolkit** designed to provide processing of DICOM<sup>®</sup> specifications from the DICOM standard or IHE profiles.
+**dcmspec** is a versatile **Python toolkit** designed to provide processing of DICOM<sup>®</sup> specifications such as the DICOM standard or IHE profiles.
 
 Designed as a general-purpose, extensible framework, **dcmspec** enables flexible extraction, parsing, and processing of DICOM specifications.
 
 ## Features
 
 - An API to programmatically access, parse, and process DICOM and IHE specifications.
-- Command-Line Interface (CLI) Sample Scripts which extract, parse, and process specific DICOM and IHE specifications.
+- Command-Line Interface (CLI) sample scripts which extract, parse, and process specific DICOM and IHE specifications.
 - User Interface (UI) sample application for interactive exploration of DICOM IODs.
 
 > **Note:** CLI and UI sample applications are provided as developer examples and are not intended to be full-featured or production-grade applications.
 
 ## Installation
 
-See the [Installation Guide](https://dwikler.github.io/dcmspec/installation/) for detailed instructions.
+To install the core package:
 
-## Usage
+```bash
+pip install dcmspec
+```
 
-- For API usage, see the [API documentation](https://dwikler.github.io/dcmspec/api/).
-- For example developer applications usage (CLI and UI), see:
-  - [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/)
-  - [UI Application Overview](https://dwikler.github.io/dcmspec/ui/)
+For information on installing optional features (UI sample, PDF parsing), see the [Installation Guide](https://dwikler.github.io/dcmspec/installation/).
+
+## Quick Start
+
+This example downloads and prints the DICOM Patient Module table as a tree:
+
+```python
+from dcmspec.spec_factory import SpecFactory
+from dcmspec.spec_printer import SpecPrinter
+
+patient_module = SpecFactory().create_model(
+    url="https://dicom.nema.org/medical/dicom/current/output/html/part03.html",
+    table_id="table_C.7-1",
+    cache_file_name="Part3.xhtml",
+    json_file_name="patient_module.json",
+)
+
+SpecPrinter(patient_module).print_tree(
+    attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
+)
+```
+
+> **Note:**  
+> The first time you run this, the full DICOM Part 3 HTML file (~30MB) will be downloaded and parsed. Subsequent runs will use the cached file and be much faster.
+
+## Documentation
+
+## Documentation
+
+- [Full Documentation Home](https://dwikler.github.io/dcmspec/)
+- [API documentation](https://dwikler.github.io/dcmspec/api/)
+- [CLI Applications Overview](https://dwikler.github.io/dcmspec/cli/)
+- [UI Application Overview](https://dwikler.github.io/dcmspec/ui/)
 
 ## Release Notes
 
@@ -37,26 +68,7 @@ See [Configuration & Caching](https://dwikler.github.io/dcmspec/configuration/) 
 
 ## Contributing
 
-If you want to contribute to the project, follow these steps:
-
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/dwikler/dcmspec.git
-   cd dcmspec
-   ```
-
-2. **Install dependencies**:
-
-   ```bash
-   poetry install
-   ```
-
-3. **Activate the virtual environment**:
-
-   ```bash
-   poetry shell
-   ```
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines and instructions on how to contribute to the project.
 
 ## Similar Projects
 

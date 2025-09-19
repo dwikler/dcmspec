@@ -7,7 +7,7 @@ authors = [
 ]
 license = {text = "Apache-2.0"}
 readme = "README.md"
-requires-python = ">=3.12,<4.0"
+requires-python = ">=3.10,<4.0"
 keywords = ["DICOM", "python"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -15,13 +15,16 @@ classifiers = [
     "Intended Audience :: Healthcare Industry",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
 ]
 dependencies = [
-    "anytree (>=2.13.0,<3.0.0) ; python_version >= \"3.12\" and python_version < \"4.0\"",
+    "anytree (>=2.13.0,<3.0.0)",
     "platformdirs (>=4.3.8,<5.0.0)",
     "unidecode (>=1.4.0,<2.0.0)",
     "bs4 (>=0.0.2,<0.0.3)",
@@ -60,11 +63,9 @@ exclude = [
     "src/dcmspec/.DS_Store",
 ]
 
-[tool.poetry.group.test.dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
-
-[tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.1"
 mkdocstrings = {extras = ["python"], version = "^0.29.1"}
 mkdocs-material = "^9.6.14"
