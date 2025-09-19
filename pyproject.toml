@@ -8,6 +8,21 @@ authors = [
 license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
+keywords = ["DICOM", "python"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
 dependencies = [
     "anytree (>=2.13.0,<3.0.0)",
     "platformdirs (>=4.3.8,<5.0.0)",
@@ -17,6 +32,13 @@ dependencies = [
     "lxml (>=5.4.0,<6.0.0)",
     "rich (>=14.0.0,<15.0.0)",
 ]
+
+[project.urls]
+Homepage = "https://github.com/dwikler/dcmspec"
+Documentation = "https://dwikler.github.io/dcmspec/"
+Source = "https://github.com/dwikler/dcmspec"
+Changelog = "https://dwikler.github.io/dcmspec/changelog/"
+Issues = "https://github.com/dwikler/dcmspec/issues"
 
 [project.optional-dependencies]
 pdf = [
