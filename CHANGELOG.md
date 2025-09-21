@@ -2,6 +2,23 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.3.0] - unreleased
+
+### Changed
+
+- (upcoming) Major refactor and new features. See milestone for details.
+
+## [0.2.2] - unreleased
+
+### Fixed
+
+- Fix CONTRIBUTING.md link in README for PyPI compatibility
+
+### Changed
+
+- Update README with PyPI and Python version badges
+- Additional bug fixes and small non-breaking enhancements
+
 ## [0.2.1] - 2025-09-19
 
 ### Fixed
