@@ -4,6 +4,8 @@ version = "0.3.0"
 description = "Toolkit for extracting, parsing, and processing DICOM specifications."
 authors = [{ name = "David Wikler", email = "david.wikler@ulb.be" }]
 license = { text = "Apache-2.0" }
+authors = [{ name = "David Wikler", email = "david.wikler@ulb.be" }]
+license = { text = "Apache-2.0" }
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 keywords = ["DICOM", "python"]
@@ -52,11 +54,15 @@ gui = ["tkhtmlview (>=0.3.1,<0.4.0)"]
 packages = [{ include = "dcmspec", from = "src" }]
 include = ["README.md", "LICENSE", "CHANGELOG.md", "src/dcmspec/*"]
 exclude = ["src/dcmspec/tests/*", "src/dcmspec/.DS_Store"]
+packages = [{ include = "dcmspec", from = "src" }]
+include = ["README.md", "LICENSE", "CHANGELOG.md", "src/dcmspec/*"]
+exclude = ["src/dcmspec/tests/*", "src/dcmspec/.DS_Store"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
 mkdocs = "^1.6.1"
+mkdocstrings = { extras = ["python"], version = "^0.29.1" }
 mkdocstrings = { extras = ["python"], version = "^0.29.1" }
 mkdocs-material = "^9.6.14"
 
@@ -77,6 +83,12 @@ iod-explorer = "dcmspec.apps.ui.iod_explorer.iod_explorer:main"
 
 [tool.ruff]
 line-length = 120
+select = [
+    "E",
+    "F",
+    "D",
+] # E includes line-too-long (E501), D includes docstrings checks
+
 select = [
     "E",
     "F",

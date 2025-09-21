@@ -1,4 +1,6 @@
 [![tests](https://github.com/dwikler/dcmspec/actions/workflows/test.yml/badge.svg)](https://github.com/dwikler/dcmspec/actions/workflows/test.yml)
+[![PyPI version](https://badge.fury.io/py/dcmspec.svg)](https://badge.fury.io/py/dcmspec)
+[![Python versions](https://img.shields.io/pypi/pyversions/dcmspec.svg)](https://pypi.org/project/dcmspec/)
 
 # dcmspec
 
@@ -68,7 +70,7 @@ See [Configuration & Caching](https://dwikler.github.io/dcmspec/configuration/) 
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines and instructions on how to contribute to the project.
+See [CONTRIBUTING.md](https://github.com/dwikler/dcmspec/blob/main/CONTRIBUTING.md) for guidelines and instructions on how to contribute to the project.
 
 ## Similar Projects
 
