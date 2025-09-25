@@ -9,7 +9,7 @@
 - After a release is finalized, merge it into `main` to keep the main branch up to date.
 - **In the diagram below, all merges labeled "PR ..." represent pull request merges.**
 
-### DCMspec Git Workflow
+> **Note:** If the diagram below does not render, refer to the bullet list above for a summary of the workflow.
 
 ```mermaid
 gitGraph
@@ -70,8 +70,6 @@ gitGraph
    ### Fixed
    - Corrected ... ([#NN](https://github.com/dwikler/dcmspec/issues/NN))
    ```
-
-````
 
 - Use **"Added"** for new features, **"Changed"** for enhancements or improvements, and **"Fixed"** for bug fixes.
 
@@ -298,4 +296,7 @@ Then, choose one of the following authentication methods:
            poetry config repositories.testpypi https://test.pypi.org/legacy/
            poetry publish --build --repository testpypi
   ```
-````
+
+```
+
+```
