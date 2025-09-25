@@ -28,36 +28,6 @@ PART3_TOC_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part0
 # Canonical DICOM Part 3 HTML URL
 PART3_HTML_URL = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
 
-
-class StatusManager:
-    """Handles status bar messaging with consistent logic."""
-    
-    def __init__(self, status_var):
-        """Initialize the StatusManager.
-
-        Args:
-            status_var: A tkinter StringVar or similar object used to update the status bar text.
-
-        """
-        self.status_var = status_var
-    
-    def show_count_status(self, count: int):
-        """Show count-based status when no selection."""
-        message = f"Showing {count} IODs"
-        self.status_var.set(message)
-    
-    def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
-        """Show selection-based status when item selected."""
-        if is_iod:
-            self.status_var.set(f"{title} {iod_type} • Click ▶ to expand")
-        else:
-            self.status_var.set(f"{iod_type}: {title}")
-
-    def show_loading_status(self, message: str):
-        """Show loading status."""
-        self.status_var.set(message)
-
-
 def load_app_config() -> Config:
     """Load app-specific configuration with priority search order.
     
@@ -78,8 +48,6 @@ def load_app_config() -> Config:
         Config: Configuration object with app-specific settings.
         
     """
-    import os
-
     # Look for app-specific config file in several locations (highest priority)
     app_config_locations = [
         "iod_explorer_config.json",  # Current directory
@@ -141,6 +109,34 @@ def setup_logger(config: Config) -> logging.Logger:
     logger.addHandler(console_handler)
     
     return logger
+
+class StatusManager:
+    """Handles status bar messaging with consistent logic."""
+    
+    def __init__(self, status_var):
+        """Initialize the StatusManager.
+
+        Args:
+            status_var: A tkinter StringVar or similar object used to update the status bar text.
+
+        """
+        self.status_var = status_var
+    
+    def show_count_status(self, count: int):
+        """Show count-based status when no selection."""
+        message = f"Showing {count} IODs"
+        self.status_var.set(message)
+    
+    def show_selection_status(self, title: str, iod_type: str, is_iod: bool = True):
+        """Show selection-based status when item selected."""
+        if is_iod:
+            self.status_var.set(f"{title} {iod_type} • Click > to expand")
+        else:
+            self.status_var.set(f"{iod_type}: {title}")
+
+    def show_loading_status(self, message: str):
+        """Show loading status."""
+        self.status_var.set(message)
 
 
 class IODExplorer:
@@ -207,7 +203,7 @@ class IODExplorer:
         y = (screen_height - window_height) // 2
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
     
-    def setup_ui(self):
+    def setup_ui(self): 
         """Set up the user interface."""
         # Create main frame
         main_frame = ttk.Frame(self.root)
@@ -248,7 +244,7 @@ class IODExplorer:
         details_label_header.pack(side=tk.LEFT)
         
         # Left frame for treeview
-        left_frame = ttk.Frame(left_panel)
+        left_frame = ttk.Frame(left_panel)  # sourcery skip: extract-duplicate-method
         left_frame.pack(fill=tk.BOTH, expand=True)
         
         # Configure grid for treeview area
@@ -329,11 +325,14 @@ class IODExplorer:
                 f'</div>'
             ),
             width=50,
-            height=30
-        )
+            height=30,
+            highlightthickness=0,
+            )
+        
         self.details_text.grid(row=0, column=0, sticky="nsew")
         self.details_font_family = selected_font  # Store for later use
         self.details_font_size = 10
+        self.details_text.config(cursor="arrow")
 
         # Add scrollbars that match the treeview style
         details_scroll_y = ttk.Scrollbar(right_frame, orient=tk.VERTICAL, command=self.details_text.yview)
@@ -710,11 +709,12 @@ class IODExplorer:
         elif usage.startswith("U"):
             return "User Optional (U)"
         elif usage.startswith("C"):
-            if len(usage) > 1 and " - " in usage:
-                conditional_part = usage[usage.find(" - ") + 3:]
-                return f"Conditional (C) - {conditional_part}"
+            match = re.match(r"^C\s*-?\s*(.*)$", usage)
+            condition = match[1].strip() if match and match[1] else ""
+            if condition:
+                return f"Conditional (C) - {condition}"
             else:
-                return "Conditional (C)"
+                return "Conditional (C) - Condition not found"
         else:
             return usage
 
