@@ -296,7 +296,3 @@ Then, choose one of the following authentication methods:
            poetry config repositories.testpypi https://test.pypi.org/legacy/
            poetry publish --build --repository testpypi
   ```
-
-```
-
-```
