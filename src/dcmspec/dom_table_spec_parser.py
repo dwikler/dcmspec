@@ -161,7 +161,7 @@ class DOMTableSpecParser(SpecParser):
             root: The root node of the tree representation of the specification table.
 
         """
-        self.logger.info(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
+        self.logger.debug(f"Nesting Level: {table_nesting_level}, Parsing table with id {table_id}")
 
         if unformatted_list is None:
             num_columns = max(column_to_attr.keys()) + 1
@@ -208,7 +208,7 @@ class DOMTableSpecParser(SpecParser):
                 progress_observer=progress_observer if table_nesting_level == 0 else None,
             )
 
-            self.logger.info(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
+            self.logger.debug(f"Nesting Level: {table_nesting_level}, Table parsed successfully")
 
             return root
 
@@ -777,7 +777,7 @@ class DOMTableSpecParser(SpecParser):
             for col_idx in column_to_attr
             if col_idx < len(cells)
         )
-        self.logger.info(f"Extracted Header: {header}")
+        self.logger.debug(f"Extracted Header: {header}")
         return header
 
     def _clean_extracted_text(self, text: str) -> str:
