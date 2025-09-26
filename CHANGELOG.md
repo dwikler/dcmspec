@@ -2,15 +2,19 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.2.2] - 2025-09-20
+## [0.2.2] - 2025-09-25
 
 ### Fixed
 
 - Fix CONTRIBUTING.md link in README for PyPI compatibility
+- Remove focus border and misleading text cursor in iod-explorer details panel.
 
 ### Changed
 
 - Update README: add PyPI and Python version badges
+- Replace Unicode ▶ with ASCII > in status bar for compatibility.
+- Improved DICOM Modules usage condition parsing using regex for robustness to missing spaces.
+- Add PR template to remind contributors to check the target branch and check tests and docs were updated.
 
 ## [0.2.1] - 2025-09-19
 
