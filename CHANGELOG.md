@@ -15,6 +15,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - Replace Unicode ▶ with ASCII > in status bar for compatibility
 - Improve DICOM Modules usage condition parsing using regex for robustness to missing spaces
 - Add PR template to remind contributors to check the target branch and check tests and docs were updated
+- Move detailed table parsing logs to DEBUG level for less verbose INFO output
 
 ## [0.2.1] - 2025-09-19
 
