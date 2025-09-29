@@ -94,6 +94,9 @@ class DocHandler:
         try:
             with requests.get(url, timeout=30, stream=True, headers={"Accept-Encoding": "identity"}) as response:
                 response.raise_for_status()
+                # Force utf-8 decoding as DICOM standard XHTML files are always UTF-8, but web server does not specify
+                # the charset in the HTTP response Content-Type header.
+                response.encoding = "utf-8"
                 total = int(response.headers.get('content-length', 0))
                 chunk_size = 8192
                 if binary:

@@ -1,6 +1,6 @@
 [project]
 name = "dcmspec"
-version = "0.2.2"
+version = "0.2.3"
 description = "Toolkit for extracting, parsing, and processing DICOM specifications."
 authors = [{ name = "David Wikler", email = "david.wikler@ulb.be" }]
 license = { text = "Apache-2.0" }

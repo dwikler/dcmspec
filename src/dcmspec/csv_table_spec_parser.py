@@ -18,6 +18,7 @@ class CSVTableSpecParser(SpecParser):
         name_attr="elem_name",
         table_id=None,
         include_depth=None,
+        progress_observer=None,
     ) -> Tuple[Node, Node]:
         """Parse specification metadata and content from a single table dict.
 
@@ -27,6 +28,7 @@ class CSVTableSpecParser(SpecParser):
             name_attr (str): The attribute to use for node names.
             table_id (str, optional): Table identifier for model parsing.
             include_depth (int, optional): The depth to which included tables should be parsed.
+            progress_observer (Optional[object], optional): Optional observer to report download progress.
 
         Returns:
             tuple: (metadata_node, content_node)
