@@ -43,7 +43,7 @@ class DOMTableSpecParser(SpecParser):
         column_to_attr: Dict[int, str],
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
-        progress_observer: Optional[Any] = None,
+        progress_observer: Optional[ProgressObserver] = None,
         skip_columns: Optional[list[int]] = None,
         unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
     ) -> tuple[Node, Node]:
@@ -59,7 +59,7 @@ class DOMTableSpecParser(SpecParser):
             name_attr (str): The attribute name to use for building node names.
             include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
                 None means unlimited.
-            progress_observer (Optional[object], optional): Optional observer to report download progress.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
                 This argument is typically set via `parser_kwargs` when using SpecFactory.
             unformatted (Optional[Union[bool, Dict[int, bool]]]): 
