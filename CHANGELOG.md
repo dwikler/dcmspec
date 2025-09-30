@@ -2,6 +2,13 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.2.3] - 2025-09-29
+
+### Fixed
+
+- Hotfix: Force UTF-8 decoding for DICOM standard XHTML downloads to prevent mojibake when server omits charset ([#85](https://github.com/dwikler/dcmspec/issues/85)).
+- Hotfix: Add missing `progress_observer` argument to `CSVTableSpecParser.parse` for interface compatibility and to prevent `TypeError` when used with `SpecFactory` ([#86](https://github.com/dwikler/dcmspec/issues/86)).
+
 ## [0.2.2] - 2025-09-25
 
 ### Fixed
