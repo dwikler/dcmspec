@@ -37,6 +37,10 @@ class CSVTableSpecParser(SpecParser):
             tuple: (metadata_node, content_node)
 
         """
+        if progress_observer is not None and hasattr(self, "logger"):
+            self.logger.debug(
+                "Progress reporting is not supported yet for CSV parsing and will be ignored."
+            )
         # Use the header and data from the grouped table dict
         header = table.get("header", [])
         data = table.get("data", [])
