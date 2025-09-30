@@ -1705,8 +1705,7 @@
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/csv_table_spec_parser.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
-<span class="normal">12</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>
 <span class="normal">15</span>
@@ -1779,16 +1778,26 @@
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CSVTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CSVTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base parser for DICOM Specification IHE tables in CSV-like format.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-        <span class="n">column_to_attr</span><span class="p">,</span>
-        <span class="n">name_attr</span><span class="o">=</span><span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
-        <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+        <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from a single table dict.</span>
 
@@ -1798,11 +1807,18 @@
 <span class="sd">            name_attr (str): The attribute to use for node names.</span>
 <span class="sd">            table_id (str, optional): Table identifier for model parsing.</span>
 <span class="sd">            include_depth (int, optional): The depth to which included tables should be parsed.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): </span>
+<span class="sd">                Accepted for interface compatibility, but ignored in this parser.</span>
+<span class="sd">                Included so that this method can be called with the same arguments as other table parsers.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple: (metadata_node, content_node)</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Progress reporting is not supported yet for CSV parsing and will be ignored.&quot;</span>
+            <span class="p">)</span>
         <span class="c1"># Use the header and data from the grouped table dict</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[])</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -1818,8 +1834,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
-        <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
+        <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a tree from tables using column mapping and &#39;&gt;&#39; nesting logic.</span>
@@ -1873,7 +1889,7 @@
 
 
 <h3 id="dcmspec.csv_table_spec_parser.CSVTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;elem_name&#39;</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;elem_name&#39;</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1983,6 +1999,27 @@
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>progress_observer</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Accepted for interface compatibility, but ignored in this parser.
+Included so that this method can be called with the same arguments as other table parsers.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -2017,8 +2054,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/csv_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
-<span class="normal">15</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
 <span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
@@ -2049,13 +2085,23 @@
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">column_to_attr</span><span class="p">,</span>
-    <span class="n">name_attr</span><span class="o">=</span><span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
-    <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+    <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from a single table dict.</span>
 
@@ -2065,11 +2111,18 @@
 <span class="sd">        name_attr (str): The attribute to use for node names.</span>
 <span class="sd">        table_id (str, optional): Table identifier for model parsing.</span>
 <span class="sd">        include_depth (int, optional): The depth to which included tables should be parsed.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): </span>
+<span class="sd">            Accepted for interface compatibility, but ignored in this parser.</span>
+<span class="sd">            Included so that this method can be called with the same arguments as other table parsers.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (metadata_node, content_node)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Progress reporting is not supported yet for CSV parsing and will be ignored.&quot;</span>
+        <span class="p">)</span>
     <span class="c1"># Use the header and data from the grouped table dict</span>
     <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[])</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -2196,16 +2249,7 @@
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/csv_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
@@ -2233,10 +2277,19 @@
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">tables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
-    <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
+    <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a tree from tables using column mapping and &#39;&gt;&#39; nesting logic.</span>

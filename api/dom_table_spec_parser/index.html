@@ -2603,7 +2603,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
-        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
@@ -2619,7 +2619,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">                None means unlimited.</span>
-<span class="sd">            progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 <span class="sd">            unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
@@ -2692,7 +2692,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
-        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2711,7 +2711,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">            table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">            include_depth: The depth to which included tables should be parsed.</span>
-<span class="sd">            progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
+<span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
 <span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
@@ -2847,7 +2847,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
-        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process all rows in the table, handling recursion, nesting, and node creation.&quot;&quot;&quot;</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
@@ -3722,12 +3722,12 @@ None means unlimited.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional observer to report download progress.</p>
+                <p>Optional observer to report parsing progress.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<span title="object">object</span>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -3884,7 +3884,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
-    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
@@ -3900,7 +3900,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="sd">        name_attr (str): The attribute name to use for building node names.</span>
 <span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
 <span class="sd">            None means unlimited.</span>
-<span class="sd">        progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 <span class="sd">        unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
@@ -4262,12 +4262,12 @@ model.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>Optional observer to report download progress.</p>
+                <p>Optional observer to report parsing progress.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="typing.Optional">Optional</span>[<span title="object">object</span>]</code>
+                      <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="            ProgressObserver (dcmspec.progress.ProgressObserver)" href="../progress/#dcmspec.progress.ProgressObserver">ProgressObserver</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -4465,7 +4465,7 @@ unformatted text.</p>
     <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None means unlimited</span>
-    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4484,7 +4484,7 @@ unformatted text.</p>
 <span class="sd">        name_attr: tree node attribute name to use to build node name</span>
 <span class="sd">        table_nesting_level: The nesting level of the table (used for recursion call only).</span>
 <span class="sd">        include_depth: The depth to which included tables should be parsed.</span>
-<span class="sd">        progress_observer (Optional[object], optional): Optional observer to report download progress.</span>
+<span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">        visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
 <span class="sd">        unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
