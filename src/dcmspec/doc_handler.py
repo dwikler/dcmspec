@@ -94,6 +94,8 @@ class DocHandler:
         try:
             with requests.get(url, timeout=30, stream=True, headers={"Accept-Encoding": "identity"}) as response:
                 response.raise_for_status()
+                self._set_response_encoding(response)
+
                 total = int(response.headers.get('content-length', 0))
                 chunk_size = 8192
                 if binary:
@@ -109,6 +111,19 @@ class DocHandler:
             self.logger.error(f"Failed to save file {file_path}: {e}")
             raise RuntimeError(f"Failed to save file {file_path}: {e}") from e
 
+    def _set_response_encoding(self, response):
+        """Set response.encoding to UTF-8 only if the Content-Type header does not specify a charset.
+        
+        Force utf-8 decoding if the web server does not specify the charset in the HTTP response
+        Content-Type header (DICOM standard XHTML files are always UTF-8 encoded).  
+        """
+        content_type = response.headers.get("Content-Type", "")
+        if "charset=" not in content_type.lower():
+            response.encoding = "utf-8"
+            self.logger.debug("No charset in Content-Type header; forcing UTF-8 decoding.")
+        else:
+            self.logger.debug(f"Using server-specified encoding from Content-Type: {content_type}")
+            
     def _report_progress(self, downloaded, total, progress_observer, last_percent):
         """Report progress if percent changed.
 
