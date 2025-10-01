@@ -3,10 +3,11 @@
 Provides the CSVTableSpecParser class for parsing DICOM specification tables in CSV format,
 converting them into structured in-memory representations using anytree.
 """
-from typing import Tuple
+from typing import Dict, List, Tuple, Optional
 from anytree import Node
 
 from dcmspec.spec_parser import SpecParser
+from dcmspec.progress import ProgressObserver
 
 class CSVTableSpecParser(SpecParser):
     """Base parser for DICOM Specification IHE tables in CSV-like format."""
@@ -14,10 +15,11 @@ class CSVTableSpecParser(SpecParser):
     def parse(
         self,
         table: dict,
-        column_to_attr,
-        name_attr="elem_name",
-        table_id=None,
-        include_depth=None,
+        column_to_attr: dict,
+        name_attr: str = "elem_name",
+        table_id: Optional[str] = None,
+        include_depth: Optional[int] = None,
+        progress_observer: Optional[ProgressObserver] = None,
     ) -> Tuple[Node, Node]:
         """Parse specification metadata and content from a single table dict.
 
@@ -27,11 +29,18 @@ class CSVTableSpecParser(SpecParser):
             name_attr (str): The attribute to use for node names.
             table_id (str, optional): Table identifier for model parsing.
             include_depth (int, optional): The depth to which included tables should be parsed.
+            progress_observer (Optional[ProgressObserver]): 
+                Accepted for interface compatibility, but ignored in this parser.
+                Included so that this method can be called with the same arguments as other table parsers.
 
         Returns:
             tuple: (metadata_node, content_node)
 
         """
+        if progress_observer is not None and hasattr(self, "logger"):
+            self.logger.debug(
+                "Progress reporting is not supported yet for CSV parsing and will be ignored."
+            )
         # Use the header and data from the grouped table dict
         header = table.get("header", [])
         data = table.get("data", [])
@@ -47,8 +56,8 @@ class CSVTableSpecParser(SpecParser):
 
     def parse_table(
         self,
-        tables: list,  # List of tables, each a list of rows (list of str)
-        column_to_attr: dict,
+        tables: List[List[List[str]]],  # List of tables, each a list of rows (list of str)
+        column_to_attr: Dict[int, str],
         name_attr: str = "elem_name",
     ) -> Node:
         """Build a tree from tables using column mapping and '>' nesting logic.
