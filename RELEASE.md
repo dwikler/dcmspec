@@ -1,6 +1,56 @@
+# Branching and Release Workflow
+
+- Direct commits and direct pushes to `main` and `release/*` branches are not allowed. All changes must be made via pull requests.
+- All release branches must be named `release/x.y.z` (e.g., `release/0.2.2`, `release/0.3.0`) to match the branch protection and CI rules.
+- **All changes to release branches must be made via feature, fix, or change branches (e.g., `feat/feature-name`, `fix/bug-description`, `change/description`) created from the relevant release branch, and merged back via pull requests.**
+- Hotfix branches (e.g., `hotfix/bug-description`) should be created from `main` and merged back into `main` via pull request, then merged into active release branches as needed.
+- Changes merged via pull requests to `main` and `release/*` branches trigger CI workflows. Pull requests require review and conversation resolution before merging, as enforced by branch protection rules.
+- When a release branch is finalized, merge it into the next release branch to propagate fixes and changes.
+- After a release is finalized, merge it into `main` to keep the main branch up to date.
+- **In the diagram below, all merges labeled "PR ..." represent pull request merges.**
+
+> **Note:** If the diagram below does not render, refer to the bullet list above for a summary of the workflow.
+
+```mermaid
+gitGraph
+    commit id: "main"
+    branch release/0.2.2
+    branch fix/this
+    commit id: "fix/this"
+    checkout release/0.2.2
+    merge fix/this id: "PR fix/this"
+    branch release/0.3.0
+    branch feat/this
+    commit id: "feat/this"
+    checkout release/0.3.0
+    merge feat/this id: "PR feat/this"
+    checkout release/0.2.2
+    branch change/that
+    commit id: "change/that"
+    checkout release/0.2.2
+    merge change/that id: "PR change/that"
+    checkout release/0.3.0
+    branch change/this
+    commit id: "change/this"
+    checkout release/0.3.0
+    merge change/this id: "PR change/this"
+    checkout main
+    merge release/0.2.2 id: "PR 0.2.2"
+    checkout release/0.3.0
+    merge main id: "merge main/0.2.2"
+    checkout main
+    branch hotfix/some-bugfix
+    commit id: "fix/bug"
+    checkout main
+    merge hotfix/some-bugfix id: "PR hotfix"
+    checkout release/0.3.0
+    merge main id: "merge main/hotfix"
+    commit id: "continue 0.3.0"
+```
+
 # Release Checklist for dcmspec
 
-> **Note:** This checklist is intended for project maintainers and developers.  
+> **Note:** This checklist is intended for project maintainers and developers.
 > It is not required for users of the dcmspec library.
 
 1. [ ] Update `pyproject.toml` with the new version number.
@@ -21,7 +71,7 @@
    - Corrected ... ([#NN](https://github.com/dwikler/dcmspec/issues/NN))
    ```
 
-   - Use **"Added"** for new features, **"Changed"** for enhancements or improvements, and **"Fixed"** for bug fixes.
+- Use **"Added"** for new features, **"Changed"** for enhancements or improvements, and **"Fixed"** for bug fixes.
 
 3. [ ] Commit the changes:
 
