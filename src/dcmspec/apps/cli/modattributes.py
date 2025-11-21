@@ -164,7 +164,7 @@ def main():
     )
     parser.add_argument(
         "--print-mode", 
-        choices=["table", "tree", "none"],
+        choices=["table", "tree", "csv", "none"],
         default="table",
         help="Print as 'table' (default), 'tree', or 'none' to skip printing"
     )
@@ -259,6 +259,8 @@ def main():
         printer.print_tree(colorize=True)
     elif args.print_mode == "table":
         printer.print_table(colorize=True)
+    elif args.print_mode == "csv":
+        printer.print_csv(colorize=True)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":
