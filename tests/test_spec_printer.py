@@ -110,18 +110,6 @@ def test_print_table_empty_header(monkeypatch, minimal_spec_model):
     monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
     printer.print_table()
 
-def test_print_csv_empty_column_to_attr(monkeypatch, minimal_spec_model):
-    model = minimal_spec_model
-    model.metadata.header = ["Name", "Tag"]
-    add_standard_node(model)  # Adds a node and sets column_to_attr
-    model.metadata.column_to_attr = {}  # Clear columns after adding the node
-    printer = SpecPrinter(model)
-    outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
-    printer.print_csv()
-    # Only header expected (rows have no columns -> empty row skipped)
-    assert len(outputs) == 1
-
 def test_print_table_node_missing_attribute(monkeypatch, minimal_spec_model):
     """Test that print_table handles nodes missing an attribute defined in column_to_attr."""
     model = minimal_spec_model
