@@ -89,7 +89,7 @@ class SpecPrinter:
             self.console.print(pre_text + node_text)
 
     def print_table(self, colorize: bool = False) -> None:
-        """Print the specification model as a flat table to the console.
+        """Print the specification model as an ascii table to the console
 
         Traverses the content tree and prints each node's attributes in a flat table,
         using column headers from the metadata node. Optionally colorizes rows.
@@ -129,3 +129,48 @@ class SpecPrinter:
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
+
+    def print_csv(self, colorize: bool = False) -> None:
+        """Print the specification model as CSV to the console.
+
+        Traverses the content tree and prints each node's attributes in CSV format,
+        with column headers from the metadata node. Optionally colorizes rows.
+
+        Args:
+            colorize (bool): Whether to colorize the output by node depth.
+
+        Returns:
+            None
+            
+        """
+        # Print CSV header
+        header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
+        self.console.print(header_row)
+
+        # Traverse the tree and print rows
+        for node in PreOrderIter(self.model.content):
+            # skip the root node
+            if node.name == "content":
+                continue
+            
+            row = [str(getattr(node, attr, "")) for attr in self.model.metadata.column_to_attr.values()]
+            # Skip row if all values are empty or whitespace
+            if all(not cell.strip() for cell in row):
+                continue
+
+            # Escape quotes inside each field by doubling them 
+            # (e.g., Include Table 10.29-1 “UDI Macro Attributes”→ Include Table 10.29-1 “”UDI Macro Attributes””),
+            # then wrap the entire field in quotes for proper CSV formattin
+            csv_row = ",".join(f'"{cell.replace(chr(34), chr(34) + chr(34))}"' for cell in row)
+            
+            row_style = None
+            if colorize:
+                row_style = (
+                    "yellow"
+                    if self.model._is_include(node)
+                    else "magenta"
+                    if self.model._is_title(node)
+                    else LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
+                )
+            
+            self.console.print(csv_row, style=row_style)

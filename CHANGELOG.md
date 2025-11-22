@@ -4,13 +4,13 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ## [0.3.0] - unreleased
 
+### Added
+- CSV output mode in `SpecPrinter` via `print_csv` method
+- New CLI option `--print-mode csv` in `modattributes` script for CSV output
+
 ### Fixed
 
-- Some fix.
-
-### Changed
-
-- Some new feature.
+- N/A
 
 ## [0.2.3] - 2025-09-29
 

@@ -38,10 +38,10 @@ poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 : Force update of the specifications merged from part 6, even if cached. Only applies when `--add-part6` is used.
 
 `--print-mode <mode>`  
-: Print as `'table'` (default), `'tree'`, or `'none'` to skip printing.
+: Print as `'table'` (default), `'tree'`, `'csv'`, or `'none'` to skip printing.
 
 `--include-depth <int>`  
-: Depth to which included tables should be parsed (default: unlimited).
+: Depth to which included tables should be parsed (default: unlimited, 0: none).
 
 `--force-parse`  
 : Force reparsing of the DOM and regeneration of the JSON model, even if the JSON cache exists.
