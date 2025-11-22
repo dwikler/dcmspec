@@ -2,12 +2,18 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.3.0] - unreleased
+## [0.4.0] - unreleased
 
 ### Changed
 
 - Switch PyPI version badge in README from badge.fury.io to shields.io for faster updates.
 - (upcoming) Major refactor and new features. See milestone for details.
+
+## [0.3.0] - unreleased
+
+### Changed
+
+- Some new features.
 
 ## [0.2.3] - 2025-09-29
 
