@@ -89,7 +89,7 @@ class SpecPrinter:
             self.console.print(pre_text + node_text)
 
     def print_table(self, colorize: bool = False) -> None:
-        """the specification model as an ascii table to the console
+        """Print the specification model as an ascii table to the console
 
         Traverses the content tree and prints each node's attributes in a flat table,
         using column headers from the metadata node. Optionally colorizes rows.

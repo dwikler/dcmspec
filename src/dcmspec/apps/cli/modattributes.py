@@ -166,7 +166,7 @@ def main():
         "--print-mode", 
         choices=["table", "tree", "csv", "none"],
         default="table",
-        help="Print as 'table' (default), 'tree', or 'none' to skip printing"
+        help="Print as 'table' (default), 'tree', 'csv', or 'none' to skip printing"
     )
     parser.add_argument(
         "--add-part6",

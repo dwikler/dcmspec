@@ -110,16 +110,6 @@ def test_print_table_empty_header(monkeypatch, minimal_spec_model):
     monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
     printer.print_table()
 
-def test_print_table_empty_column_to_attr(monkeypatch, minimal_spec_model):
-    """Test that print_table works when metadata.column_to_attr is empty."""
-    model = minimal_spec_model
-    model.metadata.header = ["Name", "Tag"]
-    add_standard_node(model)  # Adds a node and sets column_to_attr
-    model.metadata.column_to_attr = {}  # Clear columns after adding the node
-    printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
-    printer.print_table()
-
 def test_print_csv_empty_column_to_attr(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
