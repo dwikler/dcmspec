@@ -807,25 +807,35 @@ class DOMTableSpecParser(SpecParser):
 
         return cleaned.strip()
 
-    def _sanitize_string(self, input_string: str) -> str:
-        """Sanitize string to use it as a node attribute name.
+    @staticmethod
+    def _sanitize_string(input_string: str) -> str:
+        """
+        Sanitize a string to make it safe for use as a node attribute name.
 
-        - Convert non-ASCII characters to closest ASCII equivalents
-        - Replace space characters and slashes with underscores
-        - Replace parentheses characters with dashes
+        Transformations applied:
+        - Convert to lowercase.
+        - Transliterate non-ASCII characters to ASCII.
+        - Replace spaces, slashes, newlines, and dots with underscores ("_").
+        - Replace parentheses with dashes ("-").
+        - Remove all characters except letters, digits, underscores, and dashes.
+        - Collapse multiple consecutive underscores into a single underscore.
+        - Remove leading and trailing underscores for cleanliness.
 
         Args:
-            input_string (str): The string to be sanitized.
+            input_string (str): The original string to sanitize.
 
         Returns:
-            str: The sanitized string.
+            str: A sanitized version of the input string, suitable for use as an identifier.
 
+        Example:
+            >>> DOMTableSpecParser._sanitize_string('>>Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.')
+            'include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes'
         """
-        # Normalize the string to NFC form and transliterate to ASCII
         normalized_str = unidecode(input_string.lower())
-        # Replace spaces and slashes with underscores, parentheses with dashes, and single quotes with underscores
-        return re.sub(
-            r"[ /\-()']",
-            lambda match: "-" if match.group(0) in "()" else "_",
-            normalized_str,
-        )
+        sanitized = re.sub(r"[ /\n\\.]", "_", normalized_str)  # spaces, slashes, newlines, dots → _
+        sanitized = re.sub(r"[()]", "-", sanitized)            # parentheses → -
+        sanitized = re.sub(r"[^a-z0-9_\\-]", "", sanitized)    # remove other chars
+        sanitized = re.sub(r"_+", "_", sanitized)              # collapse multiple underscores
+        sanitized = sanitized.strip("_")                       # remove leading/trailing underscores
+        return sanitized
+    
