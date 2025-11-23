@@ -820,22 +820,31 @@ class DOMTableSpecParser(SpecParser):
         - Remove all characters except letters, digits, underscores, and dashes.
         - Collapse multiple consecutive underscores into a single underscore.
         - Remove leading and trailing underscores for cleanliness.
+        - Return a default name if the result is empty after sanitization.
 
         Args:
             input_string (str): The original string to sanitize.
 
         Returns:
             str: A sanitized version of the input string, suitable for use as an identifier.
+                 Returns "unnamed_node" if sanitization results in an empty string.
 
         Example:
             >>> DOMTableSpecParser._sanitize_string('>>Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.')
             'include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes'
+            >>> DOMTableSpecParser._sanitize_string('...')
+            'unnamed_node'
         """
         normalized_str = unidecode(input_string.lower())
         sanitized = re.sub(r"[ /\n\\.]", "_", normalized_str)  # spaces, slashes, newlines, dots → _
         sanitized = re.sub(r"[()]", "-", sanitized)            # parentheses → -
-        sanitized = re.sub(r"[^a-z0-9_\\-]", "", sanitized)    # remove other chars
+        sanitized = re.sub(r"[^a-z0-9_-]", "", sanitized)      # remove other chars
         sanitized = re.sub(r"_+", "_", sanitized)              # collapse multiple underscores
         sanitized = sanitized.strip("_")                       # remove leading/trailing underscores
+        
+        # Fallback to default name if sanitization resulted in empty string
+        if not sanitized:
+            return "unnamed_node"
+        
         return sanitized
-    
+
