@@ -130,6 +130,7 @@ def main():
         --force-parse: Force reparsing of the DOM and regeneration of the JSON model.
         --force-download: Force download of the input file and regeneration of the model.
         --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
+        --output (str): Path to output file. If not specified, prints to stdout.
         --add-part6 (list): Specification(s) to merge from Part 6 (e.g., --add-part6 VR VM).
         --force-update: Force update of the specifications merged from part 6, even if cached.
         -d, --debug: Enable debug logging to the console.
@@ -167,6 +168,11 @@ def main():
         choices=["table", "tree", "csv", "none"],
         default="table",
         help="Print as 'table' (default), 'tree', 'csv', or 'none' to skip printing"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to output file. If not specified, prints to stdout."
     )
     parser.add_argument(
         "--add-part6",
@@ -254,9 +260,9 @@ def main():
         model = module_model
 
     logger.debug("Model ready for printing/output")
-    printer = SpecPrinter(model)
+    printer = SpecPrinter(model, output=args.output)
     if args.print_mode == "tree":
-        printer.print_tree(colorize=True)
+        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64], colorize=True)
     elif args.print_mode == "table":
         printer.print_table(colorize=True)
     elif args.print_mode == "csv":
