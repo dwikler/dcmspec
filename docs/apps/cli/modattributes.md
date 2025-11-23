@@ -6,7 +6,7 @@ CLI for extracting, caching, and printing DICOM Module Attributes tables from Pa
 
 This CLI downloads, caches, and prints the attributes of a given DICOM Module from Part 3 of the DICOM standard. Optionally, it can enrich the module with VR, VM, Keyword, or Status information from Part 6 (Data Elements dictionary).
 
-The tool parses the specified Module Attributes table to extract all attributes, tags, types, and descriptions for the module. Optionally, it can merge in VR, VM, Keyword, or Status information from Part 6. The output can be printed as a table or tree.
+The tool parses the specified Module Attributes table to extract all attributes, tags, types, and descriptions for the module. Optionally, it can merge in VR, VM, Keyword, or Status information from Part 6. The output can be printed as a table, tree or csv either to the console or to a specified file.
 
 The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured, machine-readable representation of the module's attributes, which can be used for further processing or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs of the CLI scripts.
 
@@ -39,6 +39,9 @@ poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 
 `--print-mode <mode>`  
 : Print as `'table'` (default), `'tree'`, `'csv'`, or `'none'` to skip printing.
+
+`--output <file>`  
+: Path to output file. If not specified, prints to stdout (console). When writing to a file, colorization is automatically disabled and plain text is used.
 
 `--include-depth <int>`  
 : Depth to which included tables should be parsed (default: unlimited, 0: none).
@@ -78,4 +81,16 @@ To print the result as a tree:
 
 ```bash
 poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode tree
+```
+
+To save the output to a file:
+
+```bash
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --output patient_module.txt
+```
+
+To save as CSV to a file:
+
+```bash
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode csv --output patient_module.csv
 ```

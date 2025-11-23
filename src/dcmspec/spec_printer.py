@@ -1,7 +1,7 @@
 """Printer class for specification model in dcmspec.
 
 Provides the SpecPrinter class for printing DICOM specification models (SpecModel)
-to standard output, either as a hierarchical tree or as a flat table, using rich formatting.
+to a file or standard output.
 """
 from rich.console import Console
 from rich.table import Table, box
@@ -22,24 +22,48 @@ LEVEL_COLORS = [
 class SpecPrinter:
     """Printer for DICOM specification models.
 
-    Provides methods to print a SpecModel as a hierarchical tree or as a flat table,
-    using rich formatting for console output. Supports colorized output and customizable logging.
+    Provides methods to render a SpecModel in multiple formats:
+    - Hierarchical tree (ASCII)
+    - Flat table (ASCII, using Rich for styling)
+    - CSV (plain text)
+
+    Output can be directed to the console (default) or to a file by specifying
+    an output path when initializing the printer. Rich formatting is used for
+    tree and table views when writing to the console; when writing to a file,
+    plain text is used.
+
+    Responsibilities:
+    - Encapsulates all presentation logic for SpecModel.
+    - Supports colorized output for better readability.
+    - Handles output destination internally (stdout or file).
+
+    Args:
+        model (SpecModel): The specification model to print.
+        output (Optional[str]): Path to an output file. If None, prints to stdout.
+        logger (Optional[logging.Logger]): Logger instance for debug/info messages.
     """
 
-    def __init__(self, model: object, logger: Optional[logging.Logger] = None) -> None:
-        """Initialize the input handler with an optional logger.
+    def __init__(self, model: object, output: Optional[str] = None, logger: Optional[logging.Logger] = None) -> None:
+        """Initialize the printer with a specification model and optional output destination.
 
         Args:
-            model (object): An instance of SpecModel.
-            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.
-
+            model (object): An instance of SpecModel to render.
+            output (Optional[str]): Path to an output file. If None, defaults to stdout.
+            logger (Optional[logging.Logger]): Logger instance for debug/info messages.
         """
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
         self.logger = logger or logging.getLogger(self.__class__.__name__)
 
         self.model = model
-        self.console = Console(highlight=False)
+        self.output = output
+        # Disable styling when writing to file
+        self.console = Console(
+            highlight=False,
+            file=open(output, "w", encoding="utf-8") if output else None,
+            force_terminal=not output,
+            no_color=bool(output)
+        )
 
     def print_tree(
         self,
@@ -47,7 +71,7 @@ class SpecPrinter:
         attr_widths: Optional[List[int]] = None,
         colorize: bool = False,
     ) -> None:
-        """Print the specification model as a hierarchical tree to the console.
+        """Print the specification model as a hierarchical tree to the console or file.
 
         Args:
             attr_names (Optional[Union[str, list[str]]]): Attribute name(s) to display for each node.
@@ -56,7 +80,7 @@ class SpecPrinter:
                 If a list of strings, displays all specified attributes.
             attr_widths (Optional[list[int]]): List of widths for each attribute in attr_names.
                 If provided, each attribute will be padded/truncated to the specified width.
-            colorize (bool): Whether to colorize the output by node depth.
+            colorize (bool): Whether to colorize the output by node depth. Ignored when writing to file.
 
         Returns:
             None
@@ -69,6 +93,10 @@ class SpecPrinter:
             ```
             
         """
+        # Disable colorization if writing to file
+        if self.output:
+            colorize = False
+            
         for pre, fill, node in RenderTree(self.model.content):
             style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"
             pre_text = Text(pre)
@@ -88,32 +116,89 @@ class SpecPrinter:
                 node_text = Text(attr_text, style=style)
             self.console.print(pre_text + node_text)
 
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
+
     def print_table(self, colorize: bool = False) -> None:
-        """Print the specification model as an ascii table to the console
+        """Print the specification model as an ascii table to the console or file.
 
         Traverses the content tree and prints each node's attributes in a flat table,
         using column headers from the metadata node. Optionally colorizes rows.
 
         Args:
-            colorize (bool): Whether to colorize the output by node depth.
+            colorize (bool): Whether to colorize the output by node depth. Ignored when writing to file.
 
         Returns:
             None
             
         """
+        # Disable colorization if writing to file
+        if self.output:
+            colorize = False
+            
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         # Define the columns using the extracted headers
         for header in self.model.metadata.header:
             table.add_column(header, width=20)
 
-        # Traverse the tree and add rows to the table
+        # Add rows to the table
+        for row, row_style in self._iterate_rows(colorize):
+            table.add_row(*row, style=row_style)
+
+        self.console.print(table)
+        
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
+
+    def print_csv(self, colorize: bool = False) -> None:
+        """Print the specification model as CSV to the console or file.
+
+        Traverses the content tree and prints each node's attributes in CSV format,
+        with column headers from the metadata node. Optionally colorizes rows.
+
+        Args:
+            colorize (bool): Whether to colorize the output by node depth. Ignored when writing to file.
+
+        Returns:
+            None
+            
+        """
+        # Disable colorization if writing to file
+        if self.output:
+            colorize = False
+            
+        # Print CSV header
+        header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
+        self.console.print(header_row)
+
+        # Add data rows
+        for row, row_style in self._iterate_rows(colorize):
+            # Escape quotes inside each field by doubling them 
+            # (e.g., Include Table 10.29-1 "UDI Macro Attributes"→ Include Table 10.29-1 ""UDI Macro Attributes""),
+            # then wrap the entire field in quotes for proper CSV formatting
+            csv_row = ",".join(f'"{cell.replace(chr(34), chr(34) + chr(34))}"' for cell in row)
+            self.console.print(csv_row, style=row_style)
+
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
+
+    def _iterate_rows(self, colorize: bool = False):
+        """Generate rows from the model tree with optional styling.
+
+        Args:
+            colorize (bool): Whether to apply color styling to rows.
+
+        Yields:
+            tuple: (row_data, row_style) where row_data is a list of cell values
+                   and row_style is the color style string or None.
+        """
         for node in PreOrderIter(self.model.content):
             # skip the root node
             if node.name == "content":
                 continue
             
-            row = [getattr(node, attr, "") for attr in self.model.metadata.column_to_attr.values()]
+            row = [str(getattr(node, attr, "")) for attr in self.model.metadata.column_to_attr.values()]
             # Skip row if all values are empty or whitespace
             if all(not str(cell).strip() for cell in row):
                 continue
@@ -126,51 +211,10 @@ class SpecPrinter:
                     if self.model._is_title(node)
                     else LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
                 )
-            table.add_row(*row, style=row_style)
-
-        self.console.print(table)
-
-    def print_csv(self, colorize: bool = False) -> None:
-        """Print the specification model as CSV to the console.
-
-        Traverses the content tree and prints each node's attributes in CSV format,
-        with column headers from the metadata node. Optionally colorizes rows.
-
-        Args:
-            colorize (bool): Whether to colorize the output by node depth.
-
-        Returns:
-            None
             
-        """
-        # Print CSV header
-        header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
-        self.console.print(header_row)
+            yield row, row_style
 
-        # Traverse the tree and print rows
-        for node in PreOrderIter(self.model.content):
-            # skip the root node
-            if node.name == "content":
-                continue
-            
-            row = [str(getattr(node, attr, "")) for attr in self.model.metadata.column_to_attr.values()]
-            # Skip row if all values are empty or whitespace
-            if all(not cell.strip() for cell in row):
-                continue
-
-            # Escape quotes inside each field by doubling them 
-            # (e.g., Include Table 10.29-1 “UDI Macro Attributes”→ Include Table 10.29-1 “”UDI Macro Attributes””),
-            # then wrap the entire field in quotes for proper CSV formattin
-            csv_row = ",".join(f'"{cell.replace(chr(34), chr(34) + chr(34))}"' for cell in row)
-            
-            row_style = None
-            if colorize:
-                row_style = (
-                    "yellow"
-                    if self.model._is_include(node)
-                    else "magenta"
-                    if self.model._is_title(node)
-                    else LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
-                )
-            
-            self.console.print(csv_row, style=row_style)
+    def __del__(self):
+        """Close output file when the printer is deleted, if opened."""
+        if self.output and hasattr(self.console, 'file') and self.console.file:
+            self.console.file.close()

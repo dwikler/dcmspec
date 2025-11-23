@@ -1,4 +1,5 @@
 """Tests for the SpecPrinter class in dcmspec.spec_model."""
+import gc
 import logging
 import pytest
 from anytree import Node
@@ -337,6 +338,67 @@ def test_print_csv_skips_empty_rows(monkeypatch, minimal_spec_model):
     printer.print_csv()
     # Only header printed because row is empty (whitespace)
     assert len(outputs) == 1
+
+def test_init_with_output_file(minimal_spec_model, tmp_path):
+    """Test that SpecPrinter initializes with an output file path."""
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    assert printer.output == str(output_file)
+    assert printer.console.file is not None
+    # Clean up
+    del printer
+
+def test_print_tree_to_file(minimal_spec_model, tmp_path):
+    """Test that print_tree writes plain text to file without colors."""
+    output_file = tmp_path / "tree_output.txt"
+    add_standard_node(minimal_spec_model)
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_tree(attr_names="elem_name", colorize=True)
+    del printer  # Ensure file is closed
+    
+    content = output_file.read_text(encoding="utf-8")
+    assert "Element1" in content
+    # Tree drawing characters should be present
+    assert "└──" in content or "├──" in content
+    # Verify no ANSI color codes (RGB sequences won't be in plain text)
+    assert "\x1b[" not in content
+
+def test_print_table_to_file(minimal_spec_model, tmp_path):
+    """Test that print_table writes plain text to file without colors."""
+    output_file = tmp_path / "table_output.txt"
+    add_standard_node(minimal_spec_model)
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_table(colorize=True)
+    del printer
+    
+    content = output_file.read_text()
+    assert "Element1" in content
+    assert "(0101,0010)" in content
+    assert "\x1b[" not in content
+
+def test_print_csv_to_file(minimal_spec_model, tmp_path):
+    """Test that print_csv writes CSV to file without colors."""
+    output_file = tmp_path / "csv_output.csv"
+    add_standard_node(minimal_spec_model)
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_csv(colorize=True)
+    del printer
+    
+    content = output_file.read_text()
+    lines = content.strip().split("\n")
+    assert len(lines) == 2  # Header + 1 data row
+    assert lines[0] == '"Name","Tag"'
+    assert lines[1] == '"Element1","(0101,0010)"'
+    assert "\x1b[" not in content
+
+def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
+    """Test that output file is properly closed when printer is deleted."""
+    output_file = tmp_path / "closed_test.txt"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    file_obj = printer.console.file
+    del printer
+    gc.collect()  # Force garbage collection so __del__ runs
+    assert file_obj.closed
 
 
 
