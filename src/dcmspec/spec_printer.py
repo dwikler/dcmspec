@@ -116,6 +116,9 @@ class SpecPrinter:
                 node_text = Text(attr_text, style=style)
             self.console.print(pre_text + node_text)
 
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
+
     def print_table(self, colorize: bool = False) -> None:
         """Print the specification model as an ascii table to the console or file.
 
@@ -144,6 +147,9 @@ class SpecPrinter:
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
+        
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
 
     def print_csv(self, colorize: bool = False) -> None:
         """Print the specification model as CSV to the console or file.
@@ -174,6 +180,9 @@ class SpecPrinter:
             csv_row = ",".join(f'"{cell.replace(chr(34), chr(34) + chr(34))}"' for cell in row)
             self.console.print(csv_row, style=row_style)
 
+        if self.console.file:
+            self.console.file.flush()  # Ensure data is written immediately
+
     def _iterate_rows(self, colorize: bool = False):
         """Generate rows from the model tree with optional styling.
 
@@ -191,9 +200,8 @@ class SpecPrinter:
             
             row = [str(getattr(node, attr, "")) for attr in self.model.metadata.column_to_attr.values()]
             # Skip row if all values are empty or whitespace
-            if all(not cell.strip() for cell in row):
+            if all(not str(cell).strip() for cell in row):
                 continue
-
             row_style = None
             if colorize:
                 row_style = (

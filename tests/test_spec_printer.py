@@ -1,4 +1,5 @@
 """Tests for the SpecPrinter class in dcmspec.spec_model."""
+import gc
 import logging
 import pytest
 from anytree import Node
@@ -396,6 +397,7 @@ def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
     printer = SpecPrinter(minimal_spec_model, output=str(output_file))
     file_obj = printer.console.file
     del printer
+    gc.collect()  # Force garbage collection so __del__ runs
     assert file_obj.closed
 
 
