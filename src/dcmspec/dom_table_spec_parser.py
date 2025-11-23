@@ -3,15 +3,18 @@
 Provides the DOMSpecParser class for parsing DICOM specification tables from XHTML documents,
 converting them into structured in-memory representations using anytree.
 """
+
 from contextlib import contextmanager
 import re
 import unicodedata
+from typing import Any, Dict, Optional, Union
+
 from unidecode import unidecode
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
-from typing import Any, Dict, Optional, Union
-from dcmspec.spec_parser import SpecParser
+import html2text
 
+from dcmspec.spec_parser import SpecParser
 from dcmspec.dom_utils import DOMUtils
 from dcmspec.progress import Progress, ProgressObserver, ProgressStatus, calculate_percent
 
@@ -506,6 +509,7 @@ class DOMTableSpecParser(SpecParser):
 
         return logical_cells, logical_col_idx, physical_col_idx
 
+
     def _extract_cell_value(
         self,
         cell: Tag,
@@ -513,15 +517,32 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool]
     ) -> str:
         """Extract and clean the value from a cell as unformatted text or HTML."""
+        
         use_unformatted = (
             unformatted_list[logical_col_idx]
             if unformatted_list and logical_col_idx < len(unformatted_list)
             else True
         )
-        if use_unformatted:
-            return self._clean_extracted_text(cell.get_text(separator="\n", strip=True))
-        else:
+
+        # Guard clause: if formatted HTML is required, return content as-is
+        if not use_unformatted:
+            # Keep original HTML content
             return self._clean_extracted_text(cell.decode_contents())
+
+        # Use html2text for better readability of unformatted text extraction
+        converter = self._create_html2text_converter()
+        raw_text = converter.handle(str(cell))
+        return self._clean_extracted_text(raw_text)
+
+
+    def _create_html2text_converter(self) -> html2text.HTML2Text:
+        """Create and configure an html2text converter for consistent text extraction."""
+        converter = html2text.HTML2Text()
+        converter.ignore_links = True       # Remove URLs
+        converter.ignore_images = True      # Remove image references
+        converter.ignore_emphasis = True    # Remove Markdown emphasis
+        converter.body_width = 0            # Disable word wrapping
+        return converter
 
     def _update_rowspan_trackers(
         self,
@@ -781,15 +802,7 @@ class DOMTableSpecParser(SpecParser):
         return header
 
     def _clean_extracted_text(self, text: str) -> str:
-        """Clean extracted text using Unicode normalization and regex.
-
-        Args:
-            text (str): The text to be cleaned.
-
-        Returns:
-            str: The cleaned text.
-
-        """
+        """Clean extracted text using Unicode normalization and regex."""
         # Normalize unicode characters to compatibility form
         cleaned = unicodedata.normalize('NFKC', text)
 
@@ -804,6 +817,9 @@ class DOMTableSpecParser(SpecParser):
         cleaned = re.sub(r'[\u2013\u2014]', '-', cleaned)
         # Remove stray Â character
         cleaned = cleaned.replace('\u00c2', '')
+
+        # Collapse multiple newlines (including those separated by spaces/tabs) into a single newline
+        cleaned = re.sub(r'(\n\s*){2,}', '\n', cleaned)
 
         return cleaned.strip()
 
