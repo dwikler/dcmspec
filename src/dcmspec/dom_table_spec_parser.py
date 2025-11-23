@@ -509,6 +509,7 @@ class DOMTableSpecParser(SpecParser):
 
         return logical_cells, logical_col_idx, physical_col_idx
 
+
     def _extract_cell_value(
         self,
         cell: Tag,
@@ -516,25 +517,32 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool]
     ) -> str:
         """Extract and clean the value from a cell as unformatted text or HTML."""
+        
         use_unformatted = (
             unformatted_list[logical_col_idx]
             if unformatted_list and logical_col_idx < len(unformatted_list)
             else True
         )
 
-        if use_unformatted:
-            # Use html2text for better readability
-            converter = html2text.HTML2Text()
-            converter.ignore_links = True       # Remove URLs
-            converter.ignore_images = True      # Remove image references
-            converter.ignore_emphasis = True    # Remove Markdown emphasis
-            converter.body_width = 0            # Disable word wrapping
-
-            raw_text = converter.handle(str(cell))
-            return self._clean_extracted_text(raw_text)
-        else:
+        # Guard clause: if formatted HTML is required, return content as-is
+        if not use_unformatted:
             # Keep original HTML content
             return self._clean_extracted_text(cell.decode_contents())
+
+        # Use html2text for better readability of unformatted text extraction
+        converter = self._create_html2text_converter()
+        raw_text = converter.handle(str(cell))
+        return self._clean_extracted_text(raw_text)
+
+
+    def _create_html2text_converter(self) -> html2text.HTML2Text:
+        """Create and configure an html2text converter for consistent text extraction."""
+        converter = html2text.HTML2Text()
+        converter.ignore_links = True       # Remove URLs
+        converter.ignore_images = True      # Remove image references
+        converter.ignore_emphasis = True    # Remove Markdown emphasis
+        converter.body_width = 0            # Disable word wrapping
+        return converter
 
     def _update_rowspan_trackers(
         self,
