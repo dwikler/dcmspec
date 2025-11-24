@@ -262,9 +262,9 @@ def main():
     logger.debug("Model ready for printing/output")
     printer = SpecPrinter(model, output=args.output)
     if args.print_mode == "tree":
-        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64], colorize=True)
+        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=True)
     elif args.print_mode == "table":
-        printer.print_table(colorize=True)
+        printer.print_table(colorize=True, column_widths=[30, 11, 4, 60])
     elif args.print_mode == "csv":
         printer.print_csv(colorize=True)
     # else: do not print anything if print_mode == "none"

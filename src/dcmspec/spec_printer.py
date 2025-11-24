@@ -138,13 +138,20 @@ class SpecPrinter:
         if self.console.file:
             self.console.file.flush()  # Ensure data is written immediately
 
-    def print_table(self, colorize: bool = False) -> None:
+    def print_table(self, column_widths: Optional[List[int]] = None, colorize: bool = False) -> None:
         """Print the specification model as an ascii table to the console or file.
 
         Traverses the content tree and prints each node's attributes in a flat table,
         using column headers from the metadata node. Optionally colorizes rows.
 
+
         Args:
+            column_widths (Optional[List[int]]): List of widths for each column's **content**.
+                These widths do not include borders or padding added by Rich.
+                If provided, each column will be set to the specified content width.
+                If None, all columns default to width 20.            
+                If the list is shorter than the number of columns, remaining columns default to width 20.
+
             colorize (bool): Whether to colorize the output by node depth. Ignored when writing to file.
 
         Returns:
@@ -158,8 +165,9 @@ class SpecPrinter:
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         # Define the columns using the extracted headers
-        for header in self.model.metadata.header:
-            table.add_column(header, width=20)
+        for i, header in enumerate(self.model.metadata.header):
+            width = column_widths[i] if column_widths and i < len(column_widths) else 20
+            table.add_column(header, width=width)
 
         # Add rows to the table
         for row, row_style in self._iterate_rows(colorize):
