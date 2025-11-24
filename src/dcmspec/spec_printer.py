@@ -41,6 +41,7 @@ class SpecPrinter:
         model (SpecModel): The specification model to print.
         output (Optional[str]): Path to an output file. If None, prints to stdout.
         logger (Optional[logging.Logger]): Logger instance for debug/info messages.
+
     """
 
     def __init__(self, model: object, output: Optional[str] = None, logger: Optional[logging.Logger] = None) -> None:
@@ -50,6 +51,7 @@ class SpecPrinter:
             model (object): An instance of SpecModel to render.
             output (Optional[str]): Path to an output file. If None, defaults to stdout.
             logger (Optional[logging.Logger]): Logger instance for debug/info messages.
+            
         """
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
@@ -191,14 +193,15 @@ class SpecPrinter:
 
         Yields:
             tuple: (row_data, row_style) where row_data is a list of cell values
-                   and row_style is the color style string or None.
+                    and row_style is the color style string or None.
+
         """
         for node in PreOrderIter(self.model.content):
             # skip the root node
             if node.name == "content":
                 continue
             
-            row = [str(getattr(node, attr, "")) for attr in self.model.metadata.column_to_attr.values()]
+            row = [str(getattr(node, attr, "") or "") for attr in self.model.metadata.column_to_attr.values()]
             # Skip row if all values are empty or whitespace
             if all(not str(cell).strip() for cell in row):
                 continue
