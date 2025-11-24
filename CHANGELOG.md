@@ -13,7 +13,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Changed
 
-- Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates.
+- Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates
 
 ### Fixed
 
