@@ -8,6 +8,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 - CSV output mode in `SpecPrinter` via `print_csv` method
 - Optional `output` parameter in `SpecPrinter` for writing to files
+- Optional `column_width` parameter in `print_table`
 - `--print-mode` option in `modattributes` CLI for CSV output
 - `--output` option in `modattributes` CLI for directing output to files
 
@@ -17,7 +18,8 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Fixed
 
-- Correct handling of `include_table` names in DOM table spec parser
+- Correct handling of `include_table` names in `DOMTableSpecParser`
+- Correct handling of empty node attributes in `SpecPrinter`
 
 ## [0.2.3] - 2025-09-29
 
