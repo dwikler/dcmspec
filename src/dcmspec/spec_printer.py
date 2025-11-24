@@ -100,22 +100,39 @@ class SpecPrinter:
             colorize = False
             
         for pre, fill, node in RenderTree(self.model.content):
-            style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"
+            color_style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"
             pre_text = Text(pre)
+
             if attr_names is None:
-                node_text = Text(str(node.name), style=style)
+                # Just show the node name, safely handle missing name attribute
+                node_text = Text(str(node.name), style=color_style)
             else:
+                # Ensure attr_names is a list
                 if isinstance(attr_names, str):
                     attr_names = [attr_names]
-                values = [str(getattr(node, attr, "")) for attr in attr_names]
+
+                # Collect attribute values, replacing None with empty string
+                raw_values = []
+                for attr in attr_names:
+                    value = getattr(node, attr, None)
+                    raw_values.append("" if value is None else str(value))
+
+                # Apply padding/truncation if attr_widths is provided
                 if attr_widths:
-                    # Pad/truncate each value to the specified width
-                    values = [
-                        v.ljust(w)[:w] if w is not None else v
-                        for v, w in zip(values, attr_widths)
-                    ]
-                attr_text = " ".join(values)
-                node_text = Text(attr_text, style=style)
+                    padded_values = []
+                    for v, w in zip(raw_values, attr_widths):
+                        if w is not None:
+                            padded_values.append(v.ljust(w)[:w])
+                        else:
+                            padded_values.append(v)
+                    values = padded_values
+                else:
+                    values = raw_values
+
+                # Join values into a single string and remove leading spaces
+                attr_text = " ".join(values).lstrip()
+                node_text = Text(attr_text, style=color_style)
+
             self.console.print(pre_text + node_text)
 
         if self.console.file:
