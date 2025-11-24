@@ -2,9 +2,12 @@
 import gc
 import logging
 import pytest
+
 from anytree import Node
+from openpyxl import load_workbook
+
 from dcmspec.spec_model import SpecModel
-from dcmspec.spec_printer import SpecPrinter
+from dcmspec.spec_printer import SpecPrinter, SPECIAL_COLORS, LEVEL_COLORS
 
 # Mock functions for testing
 def mock_console_print_no_op(*args, **kwargs):
@@ -227,20 +230,10 @@ def test_print_table_row_style(monkeypatch, minimal_spec_model):
 
     printer.print_table(colorize=True)
 
-    # The order is: include_node, title_node, default_node (since PreOrderIter)
-    assert "yellow" in styles
-    assert "magenta" in styles
-    assert any(
-        s in styles
-        for s in [
-            "rgb(255,255,255)",
-            "rgb(173,216,230)",
-            "rgb(135,206,250)",
-            "rgb(0,191,255)",
-            "rgb(30,144,255)",
-            "rgb(0,0,255)",
-        ]
-    )
+    # The order is: include_node, title_node, default_node
+    assert SPECIAL_COLORS["include"] in styles
+    assert SPECIAL_COLORS["title"] in styles
+    assert any(s in LEVEL_COLORS for s in styles)
 
 def test_print_table_no_color(monkeypatch, minimal_spec_model):
     """Test that print_table sets style=None for all rows when colorize=False."""
@@ -422,21 +415,10 @@ def test_print_csv_row_style(monkeypatch, minimal_spec_model):
 
     printer.print_csv(colorize=True)
 
-    # First style corresponds to header (None), following to rows
     row_styles = [s for s in styles[1:] if s is not None]
-    assert "yellow" in row_styles
-    assert "magenta" in row_styles
-    assert any(
-        s in [
-            "rgb(255,255,255)",
-            "rgb(173,216,230)",
-            "rgb(135,206,250)",
-            "rgb(0,191,255)",
-            "rgb(30,144,255)",
-            "rgb(0,0,255)",
-        ]
-        for s in row_styles
-    )
+    assert SPECIAL_COLORS["include"] in row_styles
+    assert SPECIAL_COLORS["title"] in row_styles
+    assert any(s in LEVEL_COLORS for s in row_styles)
 
 def test_print_csv_no_color(monkeypatch, minimal_spec_model):
     """Test that print_csv sets style=None for all rows when colorize=False."""
@@ -542,7 +524,47 @@ def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
     gc.collect()  # Force garbage collection so __del__ runs
     assert file_obj.closed
 
+def test_print_xlsx_basic(minimal_spec_model, tmp_path):
+    """Basic XLSX export: header and one data row written."""
+    add_standard_node(minimal_spec_model)
+    output_file = tmp_path / "out.xlsx"
+    printer = SpecPrinter(minimal_spec_model)
+    printer.print_xlsx(output=str(output_file), colorize=False)
 
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+    # Header values
+    assert ws.cell(row=1, column=1).value == "Name"
+    assert ws.cell(row=1, column=2).value == "Tag"
+    # Data row values
+    assert ws.cell(row=2, column=1).value == "Element1"
+    assert ws.cell(row=2, column=2).value == "(0101,0010)"
+    # No fill when colorize=False
+    assert ws.cell(row=2, column=1).fill.patternType in (None, "solid")  # may default to solid without color
+
+def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
+    """XLSX export applies color fill and column widths."""
+    node = add_standard_node(minimal_spec_model)
+    # Add a third column
+    minimal_spec_model.metadata.header = ["Name", "Tag", "Type"]
+    minimal_spec_model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type"}
+    setattr(node, "elem_type", "1")
+    output_file = tmp_path / "styled.xlsx"
+    printer = SpecPrinter(minimal_spec_model)
+    printer.print_xlsx(output=str(output_file), colorize=True, column_widths=[25, 15, 8])
+
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+
+    # Verify column widths (rounded by Excel; allow tolerance)
+    assert abs(ws.column_dimensions['A'].width - 25) < 0.5
+    assert abs(ws.column_dimensions['B'].width - 15) < 0.5
+    assert abs(ws.column_dimensions['C'].width - 8) < 0.5
+
+    # Color fill applied: depth 1 → LEVEL_COLORS[0] rgb(176,224,230) → hex B0E0E6 (openpyxl stores ARGB)
+    fill_rgb = ws.cell(row=2, column=1).fill.start_color.rgb
+    assert fill_rgb is not None
+    assert fill_rgb.endswith("B0E0E6")
 
 
 

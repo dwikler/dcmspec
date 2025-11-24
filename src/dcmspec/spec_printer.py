@@ -3,21 +3,31 @@
 Provides the SpecPrinter class for printing DICOM specification models (SpecModel)
 to a file or standard output.
 """
+
+from typing import Optional, List, Union
+import logging
+
 from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
 from anytree import RenderTree, PreOrderIter
-from typing import Optional, List, Union
-import logging
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 LEVEL_COLORS = [
-    "rgb(255,255,255)",  # Node depth 0, Root: White
-    "rgb(173,216,230)",  # Node depth 1, Table Level 0: Light Blue
-    "rgb(135,206,250)",  # Node depth 2, Table Level 1: Sky Blue
-    "rgb(0,191,255)",  # Node depth 3, Table Level 2: Deep Sky Blue
-    "rgb(30,144,255)",  # Node depth 4, Table Level 3: Dodger Blue
-    "rgb(0,0,255)",  # Node depth 5, Table Level 4: Blue
+    "rgb(176,224,230)",  # Root: Powder Blue
+    "rgb(135,206,250)",  # Level 1: Sky Blue
+    "rgb(0,191,255)",    # Level 2: Deep Sky Blue
+    "rgb(30,144,255)",   # Level 3: Dodger Blue
+    "rgb(0,0,255)",      # Level 4: Blue
+    "rgb(0,0,205)",      # Level 5: Medium Blue
+    "rgb(0,0,139)",      # Level 6: Dark Blue
 ]
+
+SPECIAL_COLORS = {
+    "include": "rgb(255,255,135)",  # Yellow for include nodes
+    "title": "rgb(255,0,255)",    # Magenta for title nodes
+}
 
 class SpecPrinter:
     """Printer for DICOM specification models.
@@ -53,13 +63,14 @@ class SpecPrinter:
             logger (Optional[logging.Logger]): Logger instance for debug/info messages.
             
         """
+        self.model = model
+        self.output = output
+        self.console = None  # ensure attribute exists even if validation raises
+
         if logger is not None and not isinstance(logger, logging.Logger):
             raise TypeError("logger must be an instance of logging.Logger or None")
         self.logger = logger or logging.getLogger(self.__class__.__name__)
 
-        self.model = model
-        self.output = output
-        # Disable styling when writing to file
         self.console = Console(
             highlight=False,
             file=open(output, "w", encoding="utf-8") if output else None,
@@ -210,6 +221,102 @@ class SpecPrinter:
         if self.console.file:
             self.console.file.flush()  # Ensure data is written immediately
 
+    def print_xlsx(self, output:str, column_widths: Optional[List[int]] = None, colorize: bool = False) -> None:
+        """Print the specification model to an OOXML format Excel (.xlsx) file.
+
+        Traverses the content tree and writes each node's attributes into an Excel sheet,
+        with column headers from the metadata node. Handles newlines and applies background
+        colorization using the same color scheme as console output (LEVEL_COLORS).
+
+        Args:
+            output (str): Path to the Excel file to write. Required.
+            column_widths (list): Optional list of column widths for Excel columns.
+            colorize (bool): Whether to apply color styling to cell backgrounds.
+
+        Returns:
+            None
+
+            
+        Note:
+            All values are written as text to preserve DICOM identifiers and prevent unintended
+            numeric conversion. Excel may still display a 'Number stored as text' warning for
+            values that look numeric. This is expected and harmless. To suppress it:
+            - On Windows: File → Options → Formulas → Error Checking → Uncheck "Numbers stored as text".
+            - On macOS: Excel → Preferences → Error Checking → Uncheck "Numbers formatted as text".
+
+        """
+        header_style, data_style = self._create_styles()
+        wb, ws = self._setup_workbook("Specification")
+
+        self._write_headers(ws, self.model.metadata.header, header_style)
+        if column_widths:
+            self._set_column_widths(ws, column_widths)
+
+        self._write_data_rows(ws, self._iterate_rows(colorize=colorize), data_style, colorize)
+        wb.save(output)
+
+    def _create_styles(self):
+        border = Border(
+            left=Side(style="thin", color="B3B3B3"),
+            right=Side(style="thin", color="B3B3B3"),
+            top=Side(style="thin", color="B3B3B3"),
+            bottom=Side(style="thin", color="B3B3B3")
+        )
+        alignment = Alignment(wrap_text=True, vertical="top")
+        header_style = {
+            "font": Font(bold=True, name="Consolas"),
+            "alignment": alignment,
+            "fill": PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid"),
+            "border": border
+        }
+        data_style = {
+            "font": Font(name="Consolas"),
+            "alignment": alignment,
+            "border": border
+        }
+        return header_style, data_style
+
+    def _setup_workbook(self, title: str):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = title
+        return wb, ws
+
+    def _write_headers(self, ws, headers, style):
+        ws.append(headers)
+        for cell in ws[1]:
+            self._apply_style(cell, style)
+
+    def _set_column_widths(self, ws, widths):
+        from openpyxl.utils import get_column_letter
+        for idx, width in enumerate(widths, start=1):
+            ws.column_dimensions[get_column_letter(idx)].width = width
+
+    def _write_data_rows(self, ws, rows, style, colorize):
+        for row, row_style in rows:
+            current_row = ws.max_row + 1
+            for col_idx, value in enumerate(row, start=1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.number_format = '@'
+                cell.value = str(value)
+                self._apply_style(cell, style)
+                if colorize and row_style:
+                    cell.fill = PatternFill(start_color=self._rgb_to_hex(row_style),
+                                            end_color=self._rgb_to_hex(row_style),
+                                            fill_type="solid")
+                    
+    @staticmethod
+    def _apply_style(cell, style_dict):
+        """Apply a style dictionary (font, alignment, fill, border) to a cell."""
+        for attr, value in style_dict.items():
+            setattr(cell, attr, value)
+
+    @staticmethod
+    def _rgb_to_hex(rgb_str: str) -> str:
+        """Convert an RGB string like 'rgb(255,255,0)' to HEX format."""
+        rgb = rgb_str.replace("rgb(", "").replace(")", "").split(",")
+        return "{:02X}{:02X}{:02X}".format(*map(int, rgb))
+
     def _iterate_rows(self, colorize: bool = False):
         """Generate rows from the model tree with optional styling.
 
@@ -218,7 +325,8 @@ class SpecPrinter:
 
         Yields:
             tuple: (row_data, row_style) where row_data is a list of cell values
-                    and row_style is the color style string or None.
+                    and row_style is an RGB color string (e.g., "rgb(255,255,0)") 
+                    from LEVEL_COLORS or SPECIAL_COLORS, or None if not colorized.
 
         """
         for node in PreOrderIter(self.model.content):
@@ -232,17 +340,23 @@ class SpecPrinter:
                 continue
             row_style = None
             if colorize:
-                row_style = (
-                    "yellow"
-                    if self.model._is_include(node)
-                    else "magenta"
-                    if self.model._is_title(node)
-                    else LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
-                )
+                if self.model._is_include(node):
+                    row_style = SPECIAL_COLORS["include"]
+                elif self.model._is_title(node):
+                    row_style = SPECIAL_COLORS["title"]
+                else:
+                    row_style = LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
             
             yield row, row_style
 
     def __del__(self):
         """Close output file when the printer is deleted, if opened."""
-        if self.output and hasattr(self.console, 'file') and self.console.file:
-            self.console.file.close()
+        output = getattr(self, "output", None)
+        console = getattr(self, "console", None)
+        file_obj = getattr(console, "file", None) if console else None
+        if output and file_obj:
+            try:
+                if not file_obj.closed:
+                    file_obj.close()
+            except Exception:
+                pass
