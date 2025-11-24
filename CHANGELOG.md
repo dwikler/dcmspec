@@ -5,10 +5,15 @@ These release notes summarize key changes, improvements, and breaking updates fo
 ## [0.3.0] - 2025-11-23
 
 ### Added
+
 - CSV output mode in `SpecPrinter` via `print_csv` method
 - Optional `output` parameter in `SpecPrinter` for writing to files
 - `--print-mode` option in `modattributes` CLI for CSV output
 - `--output` option in `modattributes` CLI for directing output to files
+
+### Changed
+
+- Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates.
 
 ### Fixed
 
