@@ -2,22 +2,26 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.3.0] - 2025-11-23
+## [0.3.0] - 2025-11-25
 
 ### Added
 
 - CSV output mode in `SpecPrinter` via `print_csv` method
+- Excel OOXML output mode in `SpecPrinter` via `print_xlsx` method
 - Optional `output` parameter in `SpecPrinter` for writing to files
-- `--print-mode` option in `modattributes` CLI for CSV output
+- Optional `column_width` parameter in `print_table` and `print_xlsx`
+- `--print-mode` option in `modattributes` CLI for CSV and OOXML output
 - `--output` option in `modattributes` CLI for directing output to files
 
 ### Changed
 
 - Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates
+- Update modattributes CLI example for CSV and XLSX output
 
 ### Fixed
 
-- Correct handling of `include_table` names in DOM table spec parser
+- Correct handling of `include_table` names in `DOMTableSpecParser`
+- Correct handling of empty node attributes in `SpecPrinter`
 
 ## [0.2.3] - 2025-09-29
 

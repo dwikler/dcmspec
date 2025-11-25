@@ -2,9 +2,86 @@
 import gc
 import logging
 import pytest
+
 from anytree import Node
+from openpyxl import load_workbook
+
 from dcmspec.spec_model import SpecModel
-from dcmspec.spec_printer import SpecPrinter
+from dcmspec.spec_printer import SpecPrinter, SPECIAL_COLORS, LEVEL_COLORS
+
+# Mock functions for testing
+def mock_console_print_no_op(*args, **kwargs):
+    """Mock console.print that does nothing.
+    
+    Args:
+        *args: Positional arguments
+        **kwargs: Keyword arguments 
+
+    Returns:
+        None
+
+    """
+    pass
+
+def mock_table_add_row_capture_styles(styles_list):
+    """Create a mock Table.add_row that captures styles.
+    
+    Args:
+        styles_list: List to capture style values
+
+    Returns:
+        Mock function that captures styles
+
+    """
+    def _mock(*args, style=None, **kwargs):
+        styles_list.append(style)
+    return _mock
+
+def mock_table_add_column_capture_widths(widths_list):
+    """Create a mock Table.add_column that captures width arguments.
+    
+    Args:
+        widths_list: List to capture width values
+        
+    Returns:
+        Mock function that captures widths and calls original add_column
+
+    """
+    from rich.table import Table
+    original_add_column = Table.add_column
+    
+    def _mock(self, header, width=None, **kwargs):
+        widths_list.append(width)
+        return original_add_column(self, header, width=width, **kwargs)
+    return _mock
+
+def mock_console_print_capture_text(outputs_list):
+    """Create a mock console.print that captures text output.
+    
+    Args:
+        outputs_list: List to capture text output
+        
+    Returns:
+        Mock function that captures text output
+
+    """
+    def _mock(text, *args, **kwargs):
+        outputs_list.append(text)
+    return _mock
+
+def mock_console_print_capture_styles(styles_list):
+    """Create a mock console.print that captures style kwargs.
+    
+    Args:
+        styles_list: List to capture style values
+        
+    Returns:
+        Mock function that captures styles and calls original add_column
+
+    """
+    def _mock(text, *args, **kwargs):
+        styles_list.append(kwargs.get('style'))
+    return _mock
 
 @pytest.fixture
 def minimal_spec_model():
@@ -43,7 +120,7 @@ def test_print_tree_does_not_crash(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_tree()
 
 def test_print_tree_node_missing_attribute(monkeypatch, minimal_spec_model):
@@ -51,7 +128,7 @@ def test_print_tree_node_missing_attribute(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     add_standard_node(model, with_elem_tag=False)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     # Should not raise, should print empty string for missing attribute
     printer.print_tree(attr_names=["elem_name", "elem_tag"])
 
@@ -60,7 +137,7 @@ def test_print_tree_attr_names_string_and_list(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     # attr_names as string
     printer.print_tree(attr_names="elem_name")
     # attr_names as list
@@ -71,7 +148,7 @@ def test_print_tree_attr_widths(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     # attr_widths: elem_name padded to 5, elem_tag padded to 2
     printer.print_tree(attr_names=["elem_name", "elem_tag"], attr_widths=[5, 2])
 
@@ -98,7 +175,7 @@ def test_print_table_does_not_crash(monkeypatch, minimal_spec_model):
     model = minimal_spec_model
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_table()
 
 def test_print_table_empty_header(monkeypatch, minimal_spec_model):
@@ -108,7 +185,7 @@ def test_print_table_empty_header(monkeypatch, minimal_spec_model):
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_table()
 
 def test_print_table_node_missing_attribute(monkeypatch, minimal_spec_model):
@@ -118,7 +195,7 @@ def test_print_table_node_missing_attribute(monkeypatch, minimal_spec_model):
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     add_standard_node(model, with_elem_tag=False)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     # Should not raise, should print empty string for missing attribute
     printer.print_table()
 
@@ -147,26 +224,16 @@ def test_print_table_row_style(monkeypatch, minimal_spec_model):
     styles = []
 
     # Patch Table.add_row
-    monkeypatch.setattr("rich.table.Table.add_row", lambda *args, style=None, **kwargs: styles.append(style))
+    monkeypatch.setattr("rich.table.Table.add_row", mock_table_add_row_capture_styles(styles))
     # Patch console.print to avoid output
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
 
     printer.print_table(colorize=True)
 
-    # The order is: include_node, title_node, default_node (since PreOrderIter)
-    assert "yellow" in styles
-    assert "magenta" in styles
-    assert any(
-        s in styles
-        for s in [
-            "rgb(255,255,255)",
-            "rgb(173,216,230)",
-            "rgb(135,206,250)",
-            "rgb(0,191,255)",
-            "rgb(30,144,255)",
-            "rgb(0,0,255)",
-        ]
-    )
+    # The order is: include_node, title_node, default_node
+    assert SPECIAL_COLORS["include"] in styles
+    assert SPECIAL_COLORS["title"] in styles
+    assert any(s in LEVEL_COLORS for s in styles)
 
 def test_print_table_no_color(monkeypatch, minimal_spec_model):
     """Test that print_table sets style=None for all rows when colorize=False."""
@@ -181,17 +248,83 @@ def test_print_table_no_color(monkeypatch, minimal_spec_model):
     printer = SpecPrinter(model)
     # Patch Table.add_row to track calls
     styles = []
-    monkeypatch.setattr("rich.table.Table.add_row", lambda *args, style=None, **kwargs: styles.append(style))
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr("rich.table.Table.add_row", mock_table_add_row_capture_styles(styles))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_table(colorize=False)
     # All add_row calls should have style=None
     assert all(s is None for s in styles)
 
+def test_print_table_column_widths(monkeypatch, minimal_spec_model):
+    """Test that print_table applies column_widths for column sizing."""
+    model = minimal_spec_model
+    node = add_standard_node(model)
+    # Set headers AFTER add_standard_node to avoid them being overwritten
+    model.metadata.header = ["Name", "Tag", "Type"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type"}
+    setattr(node, "elem_type", "1")
+    
+    printer = SpecPrinter(model)
+    
+    # Capture column widths
+    column_widths_used = []
+    from rich.table import Table
+    monkeypatch.setattr(Table, "add_column", mock_table_add_column_capture_widths(column_widths_used))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
+    
+    printer.print_table(column_widths=[30, 15, 5])
+    
+    # Verify the widths were applied correctly
+    assert column_widths_used == [30, 15, 5]
+
+def test_print_table_column_widths_default(monkeypatch, minimal_spec_model):
+    """Test that print_table uses default width 20 when column_widths is None."""
+    model = minimal_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    add_standard_node(model)
+    
+    printer = SpecPrinter(model)
+    
+    # Capture column widths
+    column_widths_used = []
+    from rich.table import Table
+    monkeypatch.setattr(Table, "add_column", mock_table_add_column_capture_widths(column_widths_used))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
+    
+    printer.print_table()  # No column_widths specified
+    
+    # All columns should use default width of 20
+    assert column_widths_used == [20, 20]
+
+def test_print_table_column_widths_partial(monkeypatch, minimal_spec_model):
+    """Test that print_table falls back to default width for unspecified columns."""
+    model = minimal_spec_model
+    node = add_standard_node(model)
+    # Set headers AFTER add_standard_node to avoid them being overwritten
+    model.metadata.header = ["Name", "Tag", "Type"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type"}
+    setattr(node, "elem_type", "1")
+    
+    printer = SpecPrinter(model)
+    
+    # Capture column widths
+    column_widths_used = []
+    from rich.table import Table
+    monkeypatch.setattr(Table, "add_column", mock_table_add_column_capture_widths(column_widths_used))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
+    
+    # Only specify width for first two columns
+    printer.print_table(column_widths=[25, 10])
+    
+    # First two columns use specified widths, third falls back to default
+    assert column_widths_used == [25, 10, 20]
+
 def test_print_csv_does_not_crash(monkeypatch, minimal_spec_model):
+    """Test that print_csv can be called without error."""
     model = minimal_spec_model
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_csv()
 
 def test_print_csv_nominal(monkeypatch, minimal_spec_model):
@@ -200,7 +333,7 @@ def test_print_csv_nominal(monkeypatch, minimal_spec_model):
     add_standard_node(model)  # sets header and column_to_attr
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     assert len(outputs) == 2, f"Unexpected output lines: {outputs}"
     assert outputs[0] == '"Name","Tag"'
@@ -213,41 +346,44 @@ def test_print_csv_multiline_field(monkeypatch, minimal_spec_model):
     setattr(node, "elem_name", "Element1 line1\nline2")
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     assert outputs[0] == '"Name","Tag"'
     # Newline remains inside the quoted field
     assert outputs[1] == '"Element1 line1\nline2","(0101,0010)"'
 
 def test_print_csv_empty_header(monkeypatch, minimal_spec_model):
+    """Test that print_csv works when metadata.header is empty."""
     model = minimal_spec_model
     model.metadata.header = []
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     add_standard_node(model)
     printer = SpecPrinter(model)
-    monkeypatch.setattr(printer.console, "print", lambda *args, **kwargs: None)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
     printer.print_csv()
 
 def test_print_csv_empty_column_to_attr(monkeypatch, minimal_spec_model):
+    """Test that print_csv handles empty column_to_attr correctly."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     add_standard_node(model)  # Adds a node and sets column_to_attr
     model.metadata.column_to_attr = {}  # Clear columns after adding the node
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     # Only header expected (rows have no columns -> empty row skipped)
     assert len(outputs) == 1
 
 def test_print_csv_node_missing_attribute(monkeypatch, minimal_spec_model):
+    """Test that print_csv handles nodes missing an attribute."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     add_standard_node(model, with_elem_tag=False)
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     # Header + one row
     assert len(outputs) == 2
@@ -255,10 +391,12 @@ def test_print_csv_node_missing_attribute(monkeypatch, minimal_spec_model):
     assert outputs[1].endswith(',""') or ',""' in outputs[1]
 
 def test_print_csv_row_style(monkeypatch, minimal_spec_model):
+    """Test that print_csv sets the correct row style for different node types."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
 
+    # sourcery skip: extract-duplicate-method
     include_node = Node("include_table_macro", parent=model.content)
     setattr(include_node, "elem_name", "Include Item")
     setattr(include_node, "elem_tag", "(0101,1001)")
@@ -268,50 +406,35 @@ def test_print_csv_row_style(monkeypatch, minimal_spec_model):
     setattr(title_node, "elem_tag", "(0101,1002)")
     model._is_title = lambda n: n is title_node  # Patch title logic
 
-    standard = add_standard_node(model)
+    add_standard_node(model)
 
     printer = SpecPrinter(model)
     styles = []
 
-    def capture(text, *a, **k):
-        styles.append(k.get("style"))
-    monkeypatch.setattr(printer.console, "print", capture)
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_styles(styles))
 
     printer.print_csv(colorize=True)
 
-    # First style corresponds to header (None), following to rows
     row_styles = [s for s in styles[1:] if s is not None]
-    assert "yellow" in row_styles
-    assert "magenta" in row_styles
-    assert any(
-        s in [
-            "rgb(255,255,255)",
-            "rgb(173,216,230)",
-            "rgb(135,206,250)",
-            "rgb(0,191,255)",
-            "rgb(30,144,255)",
-            "rgb(0,0,255)",
-        ]
-        for s in row_styles
-    )
+    assert SPECIAL_COLORS["include"] in row_styles
+    assert SPECIAL_COLORS["title"] in row_styles
+    assert any(s in LEVEL_COLORS for s in row_styles)
 
 def test_print_csv_no_color(monkeypatch, minimal_spec_model):
+    """Test that print_csv sets style=None for all rows when colorize=False."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
     add_standard_node(model)
-    printer = SpecPrinter(model)  # FIX: instantiate printer before monkeypatch
+    printer = SpecPrinter(model)
     styles = []
-    monkeypatch.setattr(
-        printer.console,
-        "print",
-        lambda text, *a, **k: styles.append(k.get("style")),
-    )
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_styles(styles))
     printer.print_csv(colorize=False)
     # Header + data rows all should have style None
     assert all(s is None for s in styles), f"Unexpected non-None styles: {styles}"
 
 def test_print_csv_quote_escaping(monkeypatch, minimal_spec_model):
+    """Test that print_csv properly escapes quotes in CSV output."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
@@ -319,13 +442,14 @@ def test_print_csv_quote_escaping(monkeypatch, minimal_spec_model):
     setattr(node, "elem_name", 'Element "Quoted" Name')
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     # Row should have doubled internal quotes
     data_rows = outputs[1:]
     assert any('Element ""Quoted"" Name' in r for r in data_rows)
 
 def test_print_csv_skips_empty_rows(monkeypatch, minimal_spec_model):
+    """Test that print_csv skips rows with only whitespace."""
     model = minimal_spec_model
     model.metadata.header = ["Name", "Tag"]
     model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
@@ -334,7 +458,7 @@ def test_print_csv_skips_empty_rows(monkeypatch, minimal_spec_model):
     setattr(node, "elem_tag", " ")
     printer = SpecPrinter(model)
     outputs = []
-    monkeypatch.setattr(printer.console, "print", lambda text, *a, **k: outputs.append(text))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_text(outputs))
     printer.print_csv()
     # Only header printed because row is empty (whitespace)
     assert len(outputs) == 1
@@ -400,9 +524,101 @@ def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
     gc.collect()  # Force garbage collection so __del__ runs
     assert file_obj.closed
 
+def test_print_xlsx_basic(minimal_spec_model, tmp_path):
+    """Test that XLSX export writes header and one data row."""
+    add_standard_node(minimal_spec_model)
+    output_file = tmp_path / "out.xlsx"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=False)
 
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+    # Header values
+    assert ws.cell(row=1, column=1).value == "Name"
+    assert ws.cell(row=1, column=2).value == "Tag"
+    # Data row values
+    assert ws.cell(row=2, column=1).value == "Element1"
+    assert ws.cell(row=2, column=2).value == "(0101,0010)"
+    # No fill when colorize=False
+    assert ws.cell(row=2, column=1).fill.patternType in (None, "solid")  # may default to solid without color
 
+def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
+    """Test that XLSX export applies color fill and column widths."""
+    node = add_standard_node(minimal_spec_model)
+    # Add a third column
+    minimal_spec_model.metadata.header = ["Name", "Tag", "Type"]
+    minimal_spec_model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type"}
+    setattr(node, "elem_type", "1")
+    output_file = tmp_path / "styled.xlsx"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=True, column_widths=[25, 15, 8])
 
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+
+    # Verify column widths (rounded by Excel; allow tolerance)
+    assert abs(ws.column_dimensions['A'].width - 25) < 0.5
+    assert abs(ws.column_dimensions['B'].width - 15) < 0.5
+    assert abs(ws.column_dimensions['C'].width - 8) < 0.5
+
+    # Color fill applied: depth 1 → LEVEL_COLORS[0] rgb(176,224,230) → hex B0E0E6 (openpyxl stores ARGB)
+    fill_rgb = ws.cell(row=2, column=1).fill.start_color.rgb
+    assert fill_rgb is not None
+    assert fill_rgb.endswith("B0E0E6")
+
+def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
+    """Test that XLSX export uses SPECIAL_COLORS for include and title rows when colorized."""
+    # Setup: header and column mapping
+    minimal_spec_model.metadata.header = ["Name", "Tag"]
+    minimal_spec_model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+
+    # Include node: elem_name contains "Include Table", node name starts with "include_table"
+    include_node = Node("include_table_macro", parent=minimal_spec_model.content)
+    setattr(include_node, "elem_name", "Include Table MACRO")
+    setattr(include_node, "elem_tag", "")
+
+    # Title node: all other attributes than elem_name must be either absent or None, node name can be anything
+    title_node = Node("title_node", parent=minimal_spec_model.content)
+    setattr(title_node, "elem_name", "Module Title")
+    # Do NOT set elem_tag
+
+    # Patch _is_title to return True for title_node only
+    minimal_spec_model._is_title = lambda node: node is title_node
+
+    # Add a standard node for control
+    standard_node = Node("element1", parent=minimal_spec_model.content)
+    setattr(standard_node, "elem_name", "Element1")
+    setattr(standard_node, "elem_tag", "(0101,0010)")
+
+    output_file = tmp_path / "styled_include_title.xlsx"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=True)
+
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+
+    # Row 2: include node, Row 3: title node, Row 4: standard node
+    include_fill = ws.cell(row=2, column=1).fill
+    title_fill = ws.cell(row=3, column=1).fill
+    standard_fill = ws.cell(row=4, column=1).fill
+
+    def rgb_to_hex(rgb_str):
+        rgb = rgb_str.replace("rgb(", "").replace(")", "").split(",")
+        return "FF{:02X}{:02X}{:02X}".format(*map(int, rgb))
+
+    # openpyxl stores colors in ARGB format (e.g., "FFRRGGBB") either in fgColor or start_color
+    include_color = (include_fill.fgColor.rgb or include_fill.start_color.rgb or "").lower()
+    title_color = (title_fill.fgColor.rgb or title_fill.start_color.rgb or "").lower()
+    standard_color = (standard_fill.fgColor.rgb or standard_fill.start_color.rgb or "").lower()
+
+    expected_include_rgb = rgb_to_hex(SPECIAL_COLORS["include"]).lower()
+    expected_title_rgb = rgb_to_hex(SPECIAL_COLORS["title"]).lower()
+    expected_level_rgb = rgb_to_hex(LEVEL_COLORS[0]).lower()
+
+    # Assert that the applied colors end with the expected RGB hex (ignoring the ARGB alpha prefix)
+    assert include_color.endswith(expected_include_rgb)
+    assert title_color.endswith(expected_title_rgb)
+    assert standard_color.endswith(expected_level_rgb)
 
 
 
