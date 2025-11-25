@@ -38,6 +38,9 @@ For more information on configuration and caching location see the [Configuratio
 - When writing to a file, colorization is automatically disabled and plain text is used.
 - **Mandatory when `--print-mode xlsx` is used.**
 
+`--no-color`  
+: Disable colorized output (default: color enabled for terminal, disabled for file output).
+
 `-h`, `--help`  
 : Show this help message and exit.
 

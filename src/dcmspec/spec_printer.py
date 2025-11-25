@@ -16,13 +16,14 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 LEVEL_COLORS = [
-    "rgb(176,224,230)",  # Root: Powder Blue
-    "rgb(135,206,250)",  # Level 1: Sky Blue
-    "rgb(0,191,255)",    # Level 2: Deep Sky Blue
-    "rgb(30,144,255)",   # Level 3: Dodger Blue
-    "rgb(0,0,255)",      # Level 4: Blue
-    "rgb(0,0,205)",      # Level 5: Medium Blue
-    "rgb(0,0,139)",      # Level 6: Dark Blue
+    "rgb(176,224,230)",   # Root: Powder Blue
+    "rgb(135,206,250)",   # Level 1: Sky Blue
+    "rgb(0,191,255)",     # Level 2: Deep Sky Blue
+    "rgb(30,144,255)",    # Level 3: Dodger Blue
+    "rgb(65,105,225)",    # Level 4: Royal Blue
+    "rgb(106,90,205)",    # Level 5: Slate Blue
+    "rgb(123,104,238)",   # Level 7: Medium Slate Blue
+    "rgb(147,112,219)",   # Level 8: Medium Purple
 ]
 
 SPECIAL_COLORS = {

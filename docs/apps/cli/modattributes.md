@@ -50,6 +50,9 @@ poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 - When writing to a file, colorization is automatically disabled and plain text is used.
 - **Mandatory when `--print-mode xlsx` is used.**
 
+`--no-color`  
+: Disable colorized output (default: color enabled for terminal, disabled for file output).
+
 `--include-depth <int>`  
 : Depth to which included tables should be parsed (default: unlimited, 0: none).
 
