@@ -90,7 +90,7 @@ To print the specification model as a tree:
 poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode tree
 ```
 
-To save the specification model as a ASCII table to a text file:
+To save the specification model as an ASCII table to a text file:
 
 ```bash
 poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --output patient_module.txt

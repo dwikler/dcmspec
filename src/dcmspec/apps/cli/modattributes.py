@@ -273,7 +273,7 @@ def main():
     elif args.print_mode == "csv":
         printer.print_csv(colorize=True)
     elif args.print_mode == "xlsx":
-        printer.print_xlsx(output=args.output, column_widths=[60, 16, 10, 100], colorize=True)
+        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=True)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":

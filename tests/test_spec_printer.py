@@ -525,11 +525,11 @@ def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
     assert file_obj.closed
 
 def test_print_xlsx_basic(minimal_spec_model, tmp_path):
-    """Basic XLSX export: header and one data row written."""
+    """Test that XLSX export writes header and one data row."""
     add_standard_node(minimal_spec_model)
     output_file = tmp_path / "out.xlsx"
-    printer = SpecPrinter(minimal_spec_model)
-    printer.print_xlsx(output=str(output_file), colorize=False)
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=False)
 
     wb = load_workbook(str(output_file))
     ws = wb.active
@@ -543,15 +543,15 @@ def test_print_xlsx_basic(minimal_spec_model, tmp_path):
     assert ws.cell(row=2, column=1).fill.patternType in (None, "solid")  # may default to solid without color
 
 def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
-    """XLSX export applies color fill and column widths."""
+    """Test that XLSX export applies color fill and column widths."""
     node = add_standard_node(minimal_spec_model)
     # Add a third column
     minimal_spec_model.metadata.header = ["Name", "Tag", "Type"]
     minimal_spec_model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type"}
     setattr(node, "elem_type", "1")
     output_file = tmp_path / "styled.xlsx"
-    printer = SpecPrinter(minimal_spec_model)
-    printer.print_xlsx(output=str(output_file), colorize=True, column_widths=[25, 15, 8])
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=True, column_widths=[25, 15, 8])
 
     wb = load_workbook(str(output_file))
     ws = wb.active
@@ -566,7 +566,59 @@ def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
     assert fill_rgb is not None
     assert fill_rgb.endswith("B0E0E6")
 
+def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
+    """Test that XLSX export uses SPECIAL_COLORS for include and title rows when colorized."""
+    # Setup: header and column mapping
+    minimal_spec_model.metadata.header = ["Name", "Tag"]
+    minimal_spec_model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
 
+    # Include node: elem_name contains "Include Table", node name starts with "include_table"
+    include_node = Node("include_table_macro", parent=minimal_spec_model.content)
+    setattr(include_node, "elem_name", "Include Table MACRO")
+    setattr(include_node, "elem_tag", "")
+
+    # Title node: all other attributes than elem_name must be either absent or None, node name can be anything
+    title_node = Node("title_node", parent=minimal_spec_model.content)
+    setattr(title_node, "elem_name", "Module Title")
+    # Do NOT set elem_tag
+
+    # Patch _is_title to return True for title_node only
+    minimal_spec_model._is_title = lambda node: node is title_node
+
+    # Add a standard node for control
+    standard_node = Node("element1", parent=minimal_spec_model.content)
+    setattr(standard_node, "elem_name", "Element1")
+    setattr(standard_node, "elem_tag", "(0101,0010)")
+
+    output_file = tmp_path / "styled_include_title.xlsx"
+    printer = SpecPrinter(minimal_spec_model, output=str(output_file))
+    printer.print_xlsx(colorize=True)
+
+    wb = load_workbook(str(output_file))
+    ws = wb.active
+
+    # Row 2: include node, Row 3: title node, Row 4: standard node
+    include_fill = ws.cell(row=2, column=1).fill
+    title_fill = ws.cell(row=3, column=1).fill
+    standard_fill = ws.cell(row=4, column=1).fill
+
+    def rgb_to_hex(rgb_str):
+        rgb = rgb_str.replace("rgb(", "").replace(")", "").split(",")
+        return "FF{:02X}{:02X}{:02X}".format(*map(int, rgb))
+
+    # openpyxl stores colors in ARGB format (e.g., "FFRRGGBB") either in fgColor or start_color
+    include_color = (include_fill.fgColor.rgb or include_fill.start_color.rgb or "").lower()
+    title_color = (title_fill.fgColor.rgb or title_fill.start_color.rgb or "").lower()
+    standard_color = (standard_fill.fgColor.rgb or standard_fill.start_color.rgb or "").lower()
+
+    expected_include_rgb = rgb_to_hex(SPECIAL_COLORS["include"]).lower()
+    expected_title_rgb = rgb_to_hex(SPECIAL_COLORS["title"]).lower()
+    expected_level_rgb = rgb_to_hex(LEVEL_COLORS[0]).lower()
+
+    # Assert that the applied colors end with the expected RGB hex (ignoring the ARGB alpha prefix)
+    assert include_color.endswith(expected_include_rgb)
+    assert title_color.endswith(expected_title_rgb)
+    assert standard_color.endswith(expected_level_rgb)
 
 
 

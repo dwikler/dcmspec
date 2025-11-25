@@ -221,7 +221,7 @@ class SpecPrinter:
         if self.console.file:
             self.console.file.flush()  # Ensure data is written immediately
 
-    def print_xlsx(self, output:str, column_widths: Optional[List[int]] = None, colorize: bool = False) -> None:
+    def print_xlsx(self, column_widths: Optional[List[int]] = None, colorize: bool = False) -> None:
         """Print the specification model to an OOXML format Excel (.xlsx) file.
 
         Traverses the content tree and writes each node's attributes into an Excel sheet,
@@ -229,7 +229,6 @@ class SpecPrinter:
         colorization using the same color scheme as console output (LEVEL_COLORS).
 
         Args:
-            output (str): Path to the Excel file to write. Required.
             column_widths (list): Optional list of column widths for Excel columns.
             colorize (bool): Whether to apply color styling to cell backgrounds.
 
@@ -245,6 +244,9 @@ class SpecPrinter:
             - On macOS: Excel → Preferences → Error Checking → Uncheck "Numbers formatted as text".
 
         """
+        if not self.output:
+            raise ValueError("Output file path must be specified when constructing SpecPrinter for print_xlsx).")
+
         header_style, data_style = self._create_styles()
         wb, ws = self._setup_workbook("Specification")
 
@@ -253,7 +255,7 @@ class SpecPrinter:
             self._set_column_widths(ws, column_widths)
 
         self._write_data_rows(ws, self._iterate_rows(colorize=colorize), data_style, colorize)
-        wb.save(output)
+        wb.save(self.output)
 
     def _create_styles(self):
         border = Border(
@@ -313,9 +315,10 @@ class SpecPrinter:
 
     @staticmethod
     def _rgb_to_hex(rgb_str: str) -> str:
-        """Convert an RGB string like 'rgb(255,255,0)' to HEX format."""
+        """Convert an RGB string like 'rgb(255,255,0)' to ARGB hex format (e.g., 'FFFF00FF')."""
         rgb = rgb_str.replace("rgb(", "").replace(")", "").split(",")
-        return "{:02X}{:02X}{:02X}".format(*map(int, rgb))
+        # Prepend 'FF' for opaque alpha channel as openpyxl expects ARGB
+        return "FF{:02X}{:02X}{:02X}".format(*map(int, rgb))
 
     def _iterate_rows(self, colorize: bool = False):
         """Generate rows from the model tree with optional styling.
