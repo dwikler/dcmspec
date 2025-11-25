@@ -129,8 +129,8 @@ def main():
     # Print the model
     printer = IODSpecPrinter(model, output=getattr(args, "output", None))
 
-    # Determine use_color: disable if --no-color, or if outputting to file and --no-color not set
-    use_color = False if args.no_color else args.output is None
+    # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
+    use_color = not args.no_color
 
     if args.print_mode == "tree":
         printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color)

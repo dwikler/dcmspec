@@ -39,7 +39,7 @@ For more information on configuration and caching location see the [Configuratio
 - **Mandatory when `--print-mode xlsx` is used.**
 
 `--no-color`  
-: Disable colorized output (default: color enabled for terminal, disabled for file output).
+: Disable colorized output (default: color enabled).
 
 `-h`, `--help`  
 : Show this help message and exit.

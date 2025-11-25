@@ -51,7 +51,7 @@ poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
 - **Mandatory when `--print-mode xlsx` is used.**
 
 `--no-color`  
-: Disable colorized output (default: color enabled for terminal, disabled for file output).
+: Disable colorized output (default: color enabled).
 
 `--include-depth <int>`  
 : Depth to which included tables should be parsed (default: unlimited, 0: none).
