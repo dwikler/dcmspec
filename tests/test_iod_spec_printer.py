@@ -309,3 +309,8 @@ def test_print_xlsx_multiple_modules(iod_spec_model, tmp_path):
     assert ws_series.cell(row=2, column=1).value == "Series1"
     assert ws_patient_1.cell(row=2, column=1).value == "PatientX"
 
+def test_print_xlsx_raises_without_output_path(iod_spec_model):
+    """Test that print_xlsx raises ValueError if output path is not specified."""
+    printer = IODSpecPrinter(iod_spec_model)
+    with pytest.raises(ValueError):
+        printer.print_xlsx()

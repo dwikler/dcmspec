@@ -81,5 +81,5 @@ To save the specification model as a CSV file:
 To save the specification model as an Excel (OOXML) file:
 
 ```bash
-    poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1 --print-mode xlsx --output [iod.xlsx](VALID_FILE)
+    poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1 --print-mode xlsx --output iod.xlsx
 ```

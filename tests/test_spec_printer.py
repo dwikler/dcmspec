@@ -693,5 +693,9 @@ def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
     assert title_color.endswith(expected_title_rgb)
     assert standard_color.endswith(expected_level_rgb)
 
-
+def test_print_xlsx_raises_without_output_path(minimal_spec_model):
+    """Test that print_xlsx raises ValueError if output path is not specified."""
+    printer = SpecPrinter(minimal_spec_model)
+    with pytest.raises(ValueError):
+        printer.print_xlsx()
 
