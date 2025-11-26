@@ -93,6 +93,32 @@ def test_print_table_no_color_styles(iod_spec_model, monkeypatch):
     # All styles should be None or default
     assert all(s in (None, "default", "") for s in styles)
 
+def test_print_table_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_path):
+    """Test that print_table sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = iod_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    
+    # Add two nodes
+    node2 = Node("element2", parent=model.content)
+    setattr(node2, "elem_name", "Element2")
+    setattr(node2, "elem_tag", "(0101,0020)")
+    
+    # Simulate output being set
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(model, output=str(output_file))
+    
+    # Capture styles passed to Table.add_row
+    styles = []
+    monkeypatch.setattr(printer.console, "print", _capture_style(styles, printer.console.print))
+    
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_table(colorize=True)
+    
+    # Assert that all styles are None (no color applied)
+    assert all(s is None for s in styles), f"Expected no color styles, got {styles}"
+
 def test_print_tree_prints_module_title_and_attr(iod_spec_model):
     """Test that print_tree outputs the module title and attribute values."""
     printer = IODSpecPrinter(iod_spec_model)
@@ -125,6 +151,29 @@ def test_print_tree_no_color_styles(iod_spec_model, monkeypatch):
     printer.print_tree(colorize=False)
     assert all(s in ("default", None, "") for s in styles)
 
+def test_print_tree_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_path):
+    """Test that print_tree does not apply color styles when output is set (writing to file)."""
+    model = iod_spec_model
+    
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(model, output=str(output_file))
+    
+    styles = []
+    
+    # Patch printer.console.print to capture the style attribute
+    monkeypatch.setattr(
+        printer.console,
+        "print",
+        lambda text, *args, **kwargs: styles.append(getattr(text, "style", None)),
+    )
+    
+    printer.print_tree(colorize=True)  # Even if colorize=True, output disables it
+    
+    # Assert that no style was applied
+    assert all(style in (None, '') for style in styles), f"Expected no color styles, got {styles}"
+
+
 def test_print_csv_prints_module_title_and_attr(iod_spec_model, monkeypatch):
     """Test that print_csv outputs the module title and attribute values as CSV."""
     printer = IODSpecPrinter(iod_spec_model)
@@ -156,6 +205,25 @@ def test_print_csv_no_color_styles(iod_spec_model, monkeypatch):
     printer.print_csv(colorize=False)
     # All styles should be None
     assert all(s is None for s in styles)
+
+def test_print_csv_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_path):
+    """Test that print_csv sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = iod_spec_model
+
+    # Simulate output being set
+    output_file = tmp_path / "output.csv"
+    printer = IODSpecPrinter(model, output=str(output_file))
+
+    # Capture styles from console.print
+    styles = []
+    monkeypatch.setattr(printer.console, "print", _capture_style(styles, printer.console.print))
+
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_csv(colorize=True)
+
+    # Header + data rows should all have style=None
+    assert all(s in (None, '') for s in styles), f"Unexpected non-None styles: {styles}"
 
 def test_print_xlsx_basic(iod_spec_model, tmp_path):
     """Test that print_xlsx writes header and one data row to a worksheet named after the module."""

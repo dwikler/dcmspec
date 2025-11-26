@@ -107,14 +107,13 @@ class SpecPrinter:
             ```
 
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
 
         for pre, fill, node in RenderTree(self.model.content):
             pre_text = Text(pre)
             attr_text = self._format_tree_row(node, attr_names, attr_widths)
-            row_style = self._get_tree_row_style(node, colorize)
+            row_style = self._get_tree_row_style(node, use_color)
             node_text = Text(attr_text, style=row_style)
             self.console.print(pre_text + node_text)
 
@@ -141,9 +140,8 @@ class SpecPrinter:
             None
             
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
             
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
@@ -153,7 +151,7 @@ class SpecPrinter:
             table.add_column(header, width=width)
 
         # Add rows to the table
-        for row, row_style in self._iterate_rows(colorize):
+        for row, row_style in self._iterate_rows(colorize=use_color):
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
@@ -174,16 +172,15 @@ class SpecPrinter:
             None
             
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
             
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
         self.console.print(header_row)
 
         # Add data rows
-        for row, row_style in self._iterate_rows(colorize):
+        for row, row_style in self._iterate_rows(colorize=use_color):
             # Escape quotes inside each field by doubling them 
             # (e.g., Include Table 10.29-1 "UDI Macro Attributes"→ Include Table 10.29-1 ""UDI Macro Attributes""),
             # then wrap the entire field in quotes for proper CSV formatting
@@ -250,6 +247,11 @@ class SpecPrinter:
             "border": border
         }
         return header_style, data_style
+
+
+    def _should_colorize(self, colorize: bool) -> bool:
+        """Determine whether colorization should be applied."""
+        return colorize and not self.output
 
     def _setup_workbook(self) -> Workbook:
         wb = Workbook()

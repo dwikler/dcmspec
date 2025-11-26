@@ -170,6 +170,29 @@ def test_print_tree_no_color(monkeypatch, minimal_spec_model):
     # All styles should be "default" or None (Rich may use None for no style)
     assert all(s in ("default", None, "") for s in styles), f"Unexpected styles: {styles}"
     
+def test_print_tree_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_tree does not apply color styles when output is set (writing to file)."""
+    model = minimal_spec_model
+    add_standard_node(model)
+    
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+    
+    styles = []
+    
+    # Patch printer.console.print to capture the style attribute
+    monkeypatch.setattr(
+        printer.console,
+        "print",
+        lambda text, *args, **kwargs: styles.append(getattr(text, "style", None)),
+    )
+    
+    printer.print_tree(colorize=True)  # Even if colorize=True, output disables it
+    
+    # Assert that no style was applied
+    assert all(style in (None, '') for style in styles), f"Expected no color styles, got {styles}"
+
 def test_print_table_does_not_crash(monkeypatch, minimal_spec_model):
     """Test that print_table can be called without error."""
     model = minimal_spec_model
@@ -253,6 +276,34 @@ def test_print_table_no_color(monkeypatch, minimal_spec_model):
     printer.print_table(colorize=False)
     # All add_row calls should have style=None
     assert all(s is None for s in styles)
+
+def test_print_table_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_table sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = minimal_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    
+    # Add two nodes
+    add_standard_node(model)
+    node2 = Node("element2", parent=model.content)
+    setattr(node2, "elem_name", "Element2")
+    setattr(node2, "elem_tag", "(0101,0020)")
+    
+    # Simulate output being set
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+    
+    # Capture styles passed to Table.add_row
+    styles = []
+    monkeypatch.setattr("rich.table.Table.add_row", mock_table_add_row_capture_styles(styles))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
+    
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_table(colorize=True)
+    
+    # Assert that all styles are None (no color applied)
+    assert all(s is None for s in styles), f"Expected no color styles, got {styles}"
 
 def test_print_table_column_widths(monkeypatch, minimal_spec_model):
     """Test that print_table applies column_widths for column sizing."""
@@ -432,6 +483,28 @@ def test_print_csv_no_color(monkeypatch, minimal_spec_model):
     printer.print_csv(colorize=False)
     # Header + data rows all should have style None
     assert all(s is None for s in styles), f"Unexpected non-None styles: {styles}"
+
+def test_print_csv_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_csv sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = minimal_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    add_standard_node(model)
+
+    # Simulate output being set
+    output_file = tmp_path / "output.csv"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    # Capture styles from console.print
+    styles = []
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_styles(styles))
+
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_csv(colorize=True)
+
+    # Header + data rows should all have style=None
+    assert all(s in (None, '') for s in styles), f"Unexpected non-None styles: {styles}"
 
 def test_print_csv_quote_escaping(monkeypatch, minimal_spec_model):
     """Test that print_csv properly escapes quotes in CSV output."""
