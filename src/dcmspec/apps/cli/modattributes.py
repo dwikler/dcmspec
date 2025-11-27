@@ -172,6 +172,11 @@ def main():
         help="Print as 'table' (default), 'tree', 'csv', 'xlsx' (requires --output), or 'none' to skip printing"
     )
     parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable colorized output (default: color enabled for terminal, disabled for file output)"
+    )
+    parser.add_argument(
         "--output",
         type=str,
         help="Path to output file. If not specified (and not xlsx), prints to stdout."
@@ -197,7 +202,7 @@ def main():
         action="store_true",
         help="Enable verbose (info-level) logging to the console"
     )
-    
+
     args = parser.parse_args()
 
     if args.print_mode == "xlsx" and not args.output:
@@ -266,14 +271,17 @@ def main():
 
     logger.debug("Model ready for printing/output")
     printer = SpecPrinter(model, output=args.output)
+
+    # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
+    use_color = not args.no_color
     if args.print_mode == "tree":
-        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=True)
+        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color)
     elif args.print_mode == "table":
-        printer.print_table(colorize=True, column_widths=[30, 11, 4, 60])
+        printer.print_table(colorize=use_color, column_widths=[30, 11, 4, 60])
     elif args.print_mode == "csv":
-        printer.print_csv(colorize=True)
+        printer.print_csv(colorize=use_color)
     elif args.print_mode == "xlsx":
-        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=True)
+        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=use_color)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":

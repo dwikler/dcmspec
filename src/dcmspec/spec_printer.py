@@ -4,24 +4,26 @@ Provides the SpecPrinter class for printing DICOM specification models (SpecMode
 to a file or standard output.
 """
 
-from typing import Optional, List, Union
+from typing import Generator, Optional, List, Tuple, Union
 import logging
 
 from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
-from anytree import RenderTree, PreOrderIter
+from anytree import Node, RenderTree, PreOrderIter
 from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 LEVEL_COLORS = [
-    "rgb(176,224,230)",  # Root: Powder Blue
-    "rgb(135,206,250)",  # Level 1: Sky Blue
-    "rgb(0,191,255)",    # Level 2: Deep Sky Blue
-    "rgb(30,144,255)",   # Level 3: Dodger Blue
-    "rgb(0,0,255)",      # Level 4: Blue
-    "rgb(0,0,205)",      # Level 5: Medium Blue
-    "rgb(0,0,139)",      # Level 6: Dark Blue
+    "rgb(176,224,230)",   # Nesting Level 0: Powder Blue        (hex #B0E0E6)
+    "rgb(135,206,250)",   # Nesting Level 1: Sky Blue           (hex #87CEFA)
+    "rgb(0,191,255)",     # Nesting Level 2: Deep Sky Blue      (hex #00BFFF)
+    "rgb(30,144,255)",    # Nesting Level 3: Dodger Blue        (hex #1E90FF)
+    "rgb(65,105,225)",    # Nesting Level 4: Royal Blue         (hex #4169E1)
+    "rgb(106,90,205)",    # Nesting Level 5: Slate Blue         (hex #6A5ACD)
+    "rgb(123,104,238)",   # Nesting Level 6: Medium Slate Blue  (hex #7B68EE)
+    "rgb(147,112,219)",   # Nesting Level 7: Medium Purple      (hex #9370DB)
 ]
 
 SPECIAL_COLORS = {
@@ -98,52 +100,21 @@ class SpecPrinter:
         Returns:
             None
 
-        
         Example:
             ```python
             # This will nicely align the tag, type, and name values in the tree output:
             printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64])
             ```
-            
+
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
-            
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
+
         for pre, fill, node in RenderTree(self.model.content):
-            color_style = LEVEL_COLORS[node.depth % len(LEVEL_COLORS)] if colorize else "default"
             pre_text = Text(pre)
-
-            if attr_names is None:
-                # Just show the node name, safely handle missing name attribute
-                node_text = Text(str(node.name), style=color_style)
-            else:
-                # Ensure attr_names is a list
-                if isinstance(attr_names, str):
-                    attr_names = [attr_names]
-
-                # Collect attribute values, replacing None with empty string
-                raw_values = []
-                for attr in attr_names:
-                    value = getattr(node, attr, None)
-                    raw_values.append("" if value is None else str(value))
-
-                # Apply padding/truncation if attr_widths is provided
-                if attr_widths:
-                    padded_values = []
-                    for v, w in zip(raw_values, attr_widths):
-                        if w is not None:
-                            padded_values.append(v.ljust(w)[:w])
-                        else:
-                            padded_values.append(v)
-                    values = padded_values
-                else:
-                    values = raw_values
-
-                # Join values into a single string and remove leading spaces
-                attr_text = " ".join(values).lstrip()
-                node_text = Text(attr_text, style=color_style)
-
+            attr_text = self._format_tree_row(node, attr_names, attr_widths)
+            row_style = self._get_tree_row_style(node, use_color)
+            node_text = Text(attr_text, style=row_style)
             self.console.print(pre_text + node_text)
 
         if self.console.file:
@@ -169,9 +140,8 @@ class SpecPrinter:
             None
             
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
             
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
@@ -181,7 +151,7 @@ class SpecPrinter:
             table.add_column(header, width=width)
 
         # Add rows to the table
-        for row, row_style in self._iterate_rows(colorize):
+        for row, row_style in self._iterate_rows(colorize=use_color):
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
@@ -202,16 +172,15 @@ class SpecPrinter:
             None
             
         """
-        # Disable colorization if writing to file
-        if self.output:
-            colorize = False
+        # Disable colorization if outputting to a file
+        use_color = self._should_colorize(colorize)
             
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
         self.console.print(header_row)
 
         # Add data rows
-        for row, row_style in self._iterate_rows(colorize):
+        for row, row_style in self._iterate_rows(colorize=use_color):
             # Escape quotes inside each field by doubling them 
             # (e.g., Include Table 10.29-1 "UDI Macro Attributes"→ Include Table 10.29-1 ""UDI Macro Attributes""),
             # then wrap the entire field in quotes for proper CSV formatting
@@ -248,7 +217,8 @@ class SpecPrinter:
             raise ValueError("Output file path must be specified when constructing SpecPrinter for print_xlsx).")
 
         header_style, data_style = self._create_styles()
-        wb, ws = self._setup_workbook("Specification")
+        wb = self._setup_workbook()
+        ws = self._setup_worksheet(wb, "Specification")    
 
         self._write_headers(ws, self.model.metadata.header, header_style)
         if column_widths:
@@ -257,7 +227,7 @@ class SpecPrinter:
         self._write_data_rows(ws, self._iterate_rows(colorize=colorize), data_style, colorize)
         wb.save(self.output)
 
-    def _create_styles(self):
+    def _create_styles(self) -> Tuple[dict, dict]:
         border = Border(
             left=Side(style="thin", color="B3B3B3"),
             right=Side(style="thin", color="B3B3B3"),
@@ -278,23 +248,38 @@ class SpecPrinter:
         }
         return header_style, data_style
 
-    def _setup_workbook(self, title: str):
-        wb = Workbook()
-        ws = wb.active
-        ws.title = title
-        return wb, ws
 
-    def _write_headers(self, ws, headers, style):
+    def _should_colorize(self, colorize: bool) -> bool:
+        """Determine whether colorization should be applied."""
+        return colorize and not self.output
+
+    def _setup_workbook(self) -> Workbook:
+        wb = Workbook()
+        # Remove the default sheet if it exists
+        if "Sheet" in wb.sheetnames:
+            wb.remove(wb["Sheet"])
+        return wb
+    
+    def _setup_worksheet(self, wb: Workbook, title: str) -> Worksheet:
+        return wb.create_sheet(title=title)
+
+    def _write_headers(self, ws: Worksheet, headers: List[str], style: dict) -> None:
         ws.append(headers)
         for cell in ws[1]:
             self._apply_style(cell, style)
 
-    def _set_column_widths(self, ws, widths):
+    def _set_column_widths(self, ws: Worksheet, widths: List[int]) -> None:
         from openpyxl.utils import get_column_letter
         for idx, width in enumerate(widths, start=1):
             ws.column_dimensions[get_column_letter(idx)].width = width
 
-    def _write_data_rows(self, ws, rows, style, colorize):
+    def _write_data_rows(
+            self, 
+            ws: Worksheet, 
+            rows: Generator[Tuple[List[str], Optional[str]], None, None], 
+            style: dict, 
+            colorize: bool
+            ) -> None:
         for row, row_style in rows:
             current_row = ws.max_row + 1
             for col_idx, value in enumerate(row, start=1):
@@ -308,7 +293,7 @@ class SpecPrinter:
                                             fill_type="solid")
                     
     @staticmethod
-    def _apply_style(cell, style_dict):
+    def _apply_style(cell, style_dict) -> None:
         """Apply a style dictionary (font, alignment, fill, border) to a cell."""
         for attr, value in style_dict.items():
             setattr(cell, attr, value)
@@ -320,7 +305,7 @@ class SpecPrinter:
         # Prepend 'FF' for opaque alpha channel as openpyxl expects ARGB
         return "FF{:02X}{:02X}{:02X}".format(*map(int, rgb))
 
-    def _iterate_rows(self, colorize: bool = False):
+    def _iterate_rows(self, colorize: bool = False) -> Generator[Tuple[List[str], Optional[str]], None, None]:
         """Generate rows from the model tree with optional styling.
 
         Args:
@@ -348,11 +333,75 @@ class SpecPrinter:
                 elif self.model._is_title(node):
                     row_style = SPECIAL_COLORS["title"]
                 else:
+                    # use (node.depth - 1) since attributes are direct children of the content (root) node       
                     row_style = LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
             
             yield row, row_style
 
-    def __del__(self):
+    def _format_tree_row(
+            self, 
+            node: Node, 
+            attr_names: Optional[Union[str, List[str]]] = None, 
+            attr_widths: Optional[List[int]] = None
+            ) -> str:
+        """Format the text for a node in tree output.
+
+        Args:
+            node: The node to display.
+            attr_names (Optional[Union[str, list[str]]]): Attribute name(s) to display for each node.
+            attr_widths (Optional[list[int]]): List of widths for each attribute in attr_names.
+
+        Returns:
+            str: The formatted text for the node.
+
+        """
+        if attr_names is None:
+            # Just show the node name, safely handle missing name attribute
+            return str(node.name)
+        # Ensure attr_names is a list
+        attr_names_list = [attr_names] if isinstance(attr_names, str) else attr_names
+        # Collect attribute values, replacing None with empty string
+        raw_values = []
+        for attr in attr_names_list:
+            value = getattr(node, attr, None)
+            raw_values.append("" if value is None else str(value))
+
+        if attr_widths:
+            # Apply padding/truncation
+            padded_values = []
+            for v, w in zip(raw_values, attr_widths):
+                if w is None:
+                    padded_values.append(v)
+                else:
+                    padded_values.append(v.ljust(w)[:w])
+            values = padded_values
+        else:
+            values = raw_values
+
+        # Join values into a single string and remove leading spaces
+        return " ".join(values).lstrip()
+
+    def _get_tree_row_style(self, node: Node, colorize: bool = False) -> Optional[str]:
+        """Determine the style for a node in tree output.
+
+        Args:
+            node: The node to display.
+            colorize (bool): Whether to colorize the output by node depth.
+
+        Returns:
+            str or None: The style string for the node, or None if not colorized.
+            
+        """
+        if not colorize:
+            return None
+        if hasattr(self.model, "_is_include") and self.model._is_include(node):
+            return SPECIAL_COLORS["include"]
+        elif hasattr(self.model, "_is_title") and self.model._is_title(node):
+            return SPECIAL_COLORS["title"]
+        else:
+            return LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
+
+    def __del__(self) -> None:
         """Close output file when the printer is deleted, if opened."""
         output = getattr(self, "output", None)
         console = getattr(self, "console", None)

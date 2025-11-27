@@ -170,6 +170,29 @@ def test_print_tree_no_color(monkeypatch, minimal_spec_model):
     # All styles should be "default" or None (Rich may use None for no style)
     assert all(s in ("default", None, "") for s in styles), f"Unexpected styles: {styles}"
     
+def test_print_tree_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_tree does not apply color styles when output is set (writing to file)."""
+    model = minimal_spec_model
+    add_standard_node(model)
+    
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+    
+    styles = []
+    
+    # Patch printer.console.print to capture the style attribute
+    monkeypatch.setattr(
+        printer.console,
+        "print",
+        lambda text, *args, **kwargs: styles.append(getattr(text, "style", None)),
+    )
+    
+    printer.print_tree(colorize=True)  # Even if colorize=True, output disables it
+    
+    # Assert that no style was applied
+    assert all(style in (None, '') for style in styles), f"Expected no color styles, got {styles}"
+
 def test_print_table_does_not_crash(monkeypatch, minimal_spec_model):
     """Test that print_table can be called without error."""
     model = minimal_spec_model
@@ -253,6 +276,34 @@ def test_print_table_no_color(monkeypatch, minimal_spec_model):
     printer.print_table(colorize=False)
     # All add_row calls should have style=None
     assert all(s is None for s in styles)
+
+def test_print_table_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_table sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = minimal_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    
+    # Add two nodes
+    add_standard_node(model)
+    node2 = Node("element2", parent=model.content)
+    setattr(node2, "elem_name", "Element2")
+    setattr(node2, "elem_tag", "(0101,0020)")
+    
+    # Simulate output being set
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+    
+    # Capture styles passed to Table.add_row
+    styles = []
+    monkeypatch.setattr("rich.table.Table.add_row", mock_table_add_row_capture_styles(styles))
+    monkeypatch.setattr(printer.console, "print", mock_console_print_no_op)
+    
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_table(colorize=True)
+    
+    # Assert that all styles are None (no color applied)
+    assert all(s is None for s in styles), f"Expected no color styles, got {styles}"
 
 def test_print_table_column_widths(monkeypatch, minimal_spec_model):
     """Test that print_table applies column_widths for column sizing."""
@@ -433,6 +484,28 @@ def test_print_csv_no_color(monkeypatch, minimal_spec_model):
     # Header + data rows all should have style None
     assert all(s is None for s in styles), f"Unexpected non-None styles: {styles}"
 
+def test_print_csv_no_color_when_output_set(monkeypatch, minimal_spec_model, tmp_path):
+    """Test that print_csv sets style=None for all rows when output is set (writing to file)."""
+    # Prepare model
+    model = minimal_spec_model
+    model.metadata.header = ["Name", "Tag"]
+    model.metadata.column_to_attr = {0: "elem_name", 1: "elem_tag"}
+    add_standard_node(model)
+
+    # Simulate output being set
+    output_file = tmp_path / "output.csv"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    # Capture styles from console.print
+    styles = []
+    monkeypatch.setattr(printer.console, "print", mock_console_print_capture_styles(styles))
+
+    # Call method with colorize=True (should be ignored because output is set)
+    printer.print_csv(colorize=True)
+
+    # Header + data rows should all have style=None
+    assert all(s in (None, '') for s in styles), f"Unexpected non-None styles: {styles}"
+
 def test_print_csv_quote_escaping(monkeypatch, minimal_spec_model):
     """Test that print_csv properly escapes quotes in CSV output."""
     model = minimal_spec_model
@@ -561,10 +634,10 @@ def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
     assert abs(ws.column_dimensions['B'].width - 15) < 0.5
     assert abs(ws.column_dimensions['C'].width - 8) < 0.5
 
-    # Color fill applied: depth 1 → LEVEL_COLORS[0] rgb(176,224,230) → hex B0E0E6 (openpyxl stores ARGB)
+    # Fill color should correspond Nesting Level 0: Powder Blue (hex #B0E0E6)
     fill_rgb = ws.cell(row=2, column=1).fill.start_color.rgb
     assert fill_rgb is not None
-    assert fill_rgb.endswith("B0E0E6")
+    assert fill_rgb == "FFB0E0E6"  # openpyxl uses ARGB with 'FF' alpha channel
 
 def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
     """Test that XLSX export uses SPECIAL_COLORS for include and title rows when colorized."""
@@ -620,5 +693,9 @@ def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
     assert title_color.endswith(expected_title_rgb)
     assert standard_color.endswith(expected_level_rgb)
 
-
+def test_print_xlsx_raises_without_output_path(minimal_spec_model):
+    """Test that print_xlsx raises ValueError if output path is not specified."""
+    printer = SpecPrinter(minimal_spec_model)
+    with pytest.raises(ValueError):
+        printer.print_xlsx()
 
