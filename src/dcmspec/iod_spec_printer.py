@@ -37,8 +37,8 @@ class IODSpecPrinter(SpecPrinter):
             None
 
         """
-        # Disable colorization if outputting to a file
-        use_color = self._should_colorize(colorize)
+        if self.output:
+            colorize = False
 
         for pre, fill, node in RenderTree(self.model.content):
             if node.name == "content":
@@ -49,10 +49,10 @@ class IODSpecPrinter(SpecPrinter):
                 iod_title = getattr(node, "module", getattr(node, "name", ""))
                 iod_usage = getattr(node, "usage", "")
                 iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else iod_title
-                node_text = Text(iod_title_text, style=SPECIAL_COLORS["title"] if use_color else None)
+                node_text = Text(iod_title_text, style=SPECIAL_COLORS["title"] if colorize else None)
             else:
                 attr_text = self._format_tree_row(node, attr_names, attr_widths)
-                row_style = self._get_tree_row_style(node, colorize=use_color)
+                row_style = self._get_tree_row_style(node, colorize)
                 node_text = Text(attr_text, style=row_style)
             self.console.print(Text(pre) + node_text)
 
@@ -72,8 +72,9 @@ class IODSpecPrinter(SpecPrinter):
             colorize (bool): Whether to colorize the output by node depth.
 
         """
-        # Disable colorization if outputting to a file
-        use_color = self._should_colorize(colorize)
+        # Disable colorization if writing to file
+        if self.output:
+            colorize = False
 
         table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
@@ -82,7 +83,7 @@ class IODSpecPrinter(SpecPrinter):
             width = column_widths[i] if column_widths and i < len(column_widths) else 20
             table.add_column(header, width=width)
 
-        for row, row_style, _ in self._iterate_rows_iod(colorize=use_color):
+        for row, row_style, _ in self._iterate_rows_iod(colorize):
             table.add_row(*row, style=row_style)
 
         self.console.print(table)
@@ -103,15 +104,16 @@ class IODSpecPrinter(SpecPrinter):
             None
 
         """
-        # Disable colorization if outputting to a file
-        use_color = self._should_colorize(colorize)
+        # Disable colorization if writing to file
+        if self.output:
+            colorize = False
 
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
         self.console.print(header_row)
 
         # Add data rows (including module title rows)
-        for row, row_style, _ in self._iterate_rows_iod(colorize=use_color):
+        for row, row_style, _ in self._iterate_rows_iod(colorize):
             # Escape quotes inside each field by doubling them, then wrap in quotes
             csv_row = ",".join(
                 f'"{("" if cell is None else str(cell)).replace(chr(34), chr(34) + chr(34))}"'
@@ -246,5 +248,7 @@ class IODSpecPrinter(SpecPrinter):
                     elif self.model._is_title(node):
                         row_style = SPECIAL_COLORS["title"]
                     else:
-                        row_style = LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
+                        # use (node.depth - 2) since attributes are children of module nodes,
+                        # which are themselves children of content (root) node
+                        row_style = LEVEL_COLORS[(node.depth - 2) % len(LEVEL_COLORS)]
                 yield row, row_style, current_module or "Other"

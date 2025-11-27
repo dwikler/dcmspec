@@ -16,14 +16,14 @@ from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
 LEVEL_COLORS = [
-    "rgb(176,224,230)",   # Root: Powder Blue
-    "rgb(135,206,250)",   # Level 1: Sky Blue
-    "rgb(0,191,255)",     # Level 2: Deep Sky Blue
-    "rgb(30,144,255)",    # Level 3: Dodger Blue
-    "rgb(65,105,225)",    # Level 4: Royal Blue
-    "rgb(106,90,205)",    # Level 5: Slate Blue
-    "rgb(123,104,238)",   # Level 7: Medium Slate Blue
-    "rgb(147,112,219)",   # Level 8: Medium Purple
+    "rgb(176,224,230)",   # Nesting Level 0: Powder Blue        (hex #B0E0E6)
+    "rgb(135,206,250)",   # Nesting Level 1: Sky Blue           (hex #87CEFA)
+    "rgb(0,191,255)",     # Nesting Level 2: Deep Sky Blue      (hex #00BFFF)
+    "rgb(30,144,255)",    # Nesting Level 3: Dodger Blue        (hex #1E90FF)
+    "rgb(65,105,225)",    # Nesting Level 4: Royal Blue         (hex #4169E1)
+    "rgb(106,90,205)",    # Nesting Level 5: Slate Blue         (hex #6A5ACD)
+    "rgb(123,104,238)",   # Nesting Level 6: Medium Slate Blue  (hex #7B68EE)
+    "rgb(147,112,219)",   # Nesting Level 7: Medium Purple      (hex #9370DB)
 ]
 
 SPECIAL_COLORS = {
@@ -333,6 +333,7 @@ class SpecPrinter:
                 elif self.model._is_title(node):
                     row_style = SPECIAL_COLORS["title"]
                 else:
+                    # use (node.depth - 1) since attributes are direct children of the content (root) node       
                     row_style = LEVEL_COLORS[(node.depth - 1) % len(LEVEL_COLORS)]
             
             yield row, row_style
@@ -392,7 +393,7 @@ class SpecPrinter:
             
         """
         if not colorize:
-            return "default"
+            return None
         if hasattr(self.model, "_is_include") and self.model._is_include(node):
             return SPECIAL_COLORS["include"]
         elif hasattr(self.model, "_is_title") and self.model._is_title(node):

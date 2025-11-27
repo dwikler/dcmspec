@@ -634,10 +634,10 @@ def test_print_xlsx_colorize_and_column_widths(minimal_spec_model, tmp_path):
     assert abs(ws.column_dimensions['B'].width - 15) < 0.5
     assert abs(ws.column_dimensions['C'].width - 8) < 0.5
 
-    # Color fill applied: depth 1 → LEVEL_COLORS[0] rgb(176,224,230) → hex B0E0E6 (openpyxl stores ARGB)
+    # Fill color should correspond Nesting Level 0: Powder Blue (hex #B0E0E6)
     fill_rgb = ws.cell(row=2, column=1).fill.start_color.rgb
     assert fill_rgb is not None
-    assert fill_rgb.endswith("B0E0E6")
+    assert fill_rgb == "FFB0E0E6"  # openpyxl uses ARGB with 'FF' alpha channel
 
 def test_print_xlsx_include_and_title_colors(minimal_spec_model, tmp_path):
     """Test that XLSX export uses SPECIAL_COLORS for include and title rows when colorized."""

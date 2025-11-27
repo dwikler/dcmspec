@@ -264,11 +264,11 @@ def test_print_xlsx_colorize(iod_spec_model, tmp_path):
 
     wb = load_workbook(str(output_file))
     ws = wb["Patient"]
-    # Data row should have a fill color (LEVEL_COLORS[0])
+    # Data row should have a fill color
     fill_rgb = ws.cell(row=2, column=1).fill.start_color.rgb
     assert fill_rgb is not None
-    # LEVEL_COLORS[0] is "rgb(176,224,230)" → hex "B0E0E6"
-    assert fill_rgb == "FF87CEFA"
+    # Fill color should correspond Nesting Level 0: Powder Blue (hex #B0E0E6)
+    assert fill_rgb == "FFB0E0E6"  # openpyxl uses ARGB with 'FF' alpha channel
 
 def test_print_xlsx_multiple_modules(iod_spec_model, tmp_path):
     """Test that print_xlsx creates a worksheet for each module, including duplicates."""
