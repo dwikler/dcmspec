@@ -2911,9 +2911,7 @@ Inherits logging from SpecParser.</p>
 <span class="normal">860</span>
 <span class="normal">861</span>
 <span class="normal">862</span>
-<span class="normal">863</span>
-<span class="normal">864</span>
-<span class="normal">865</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">863</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -3412,7 +3410,6 @@ Inherits logging from SpecParser.</p>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract and clean the value from a cell as unformatted text or HTML.&quot;&quot;&quot;</span>
-
         <span class="n">use_unformatted</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">unformatted_list</span><span class="p">[</span><span class="n">logical_col_idx</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">and</span> <span class="n">logical_col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">unformatted_list</span><span class="p">)</span>
@@ -3720,8 +3717,7 @@ Inherits logging from SpecParser.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sanitize a string to make it safe for use as a node attribute name.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sanitize a string to make it safe for use as a node attribute name.</span>
 
 <span class="sd">        Transformations applied:</span>
 <span class="sd">        - Convert to lowercase.</span>
@@ -3738,13 +3734,16 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: A sanitized version of the input string, suitable for use as an identifier.</span>
-<span class="sd">                 Returns &quot;unnamed_node&quot; if sanitization results in an empty string.</span>
+<span class="sd">                    or &quot;unnamed_node&quot; if sanitization results in an empty string.</span>
 
 <span class="sd">        Example:</span>
-<span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string(&#39;&gt;&gt;Include\\nTable C.36.2.2.19-1 &quot;RT Beam Limiting Device Definition Macro Attributes&quot;\\n.&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string(</span>
+<span class="sd">            &#39;&gt;&gt;Include\\nTable C.36.2.2.19-1 &quot;RT Beam Limiting Device Definition Macro Attributes&quot;\\n.&#39;</span>
+<span class="sd">            )</span>
 <span class="sd">            &#39;include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes&#39;</span>
 <span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string(&#39;...&#39;)</span>
 <span class="sd">            &#39;unnamed_node&#39;</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">normalized_str</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">input_string</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
         <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ /\n</span><span class="se">\\</span><span class="s2">.]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">normalized_str</span><span class="p">)</span>  <span class="c1"># spaces, slashes, newlines, dots → _</span>
@@ -3754,10 +3753,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">sanitized</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>                       <span class="c1"># remove leading/trailing underscores</span>
 
         <span class="c1"># Fallback to default name if sanitization resulted in empty string</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">sanitized</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;unnamed_node&quot;</span>
-
-        <span class="k">return</span> <span class="n">sanitized</span>
+        <span class="k">return</span> <span class="n">sanitized</span> <span class="ow">or</span> <span class="s2">&quot;unnamed_node&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
