@@ -2,7 +2,7 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.3.0] - 2025-11-25
+## [0.3.0] - 2025-11-27
 
 ### Added
 
@@ -17,6 +17,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 - Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates
 - Update modattributes CLI example for CSV and XLSX output
+- Improved nesting level color schemes for consistency and better contrast and readability.
 
 ### Fixed
 
