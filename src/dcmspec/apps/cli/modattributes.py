@@ -4,7 +4,7 @@ Features:
 - Download and parse DICOM Module Attributes tables from Part 3 of the DICOM standard.
 - Optionally merge additional information (VR, VM, Keyword, Status) from Part 6.
 - Cache the resulting model as a JSON file for future runs and as a structured representation of the standard.
-- Print the resulting model as a table or tree.
+- Print the resulting model as a table, tree, csv, or xlsx.
 - Supports caching, configuration files, and command-line options for flexible workflows.
 
 Usage:
@@ -113,12 +113,12 @@ def main():
 
     The tool parses the specified Module Attributes table to extract all attributes, tags, types,
     and descriptions for the module. Optionally, it can merge in VR, VM, Keyword, or Status information
-    from Part 6. The output can be printed as a table or tree.
+    from Part 6. The output can be printed as a table, tree, csv, or xlsx (xlsx requires --output).
 
     The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide
-    a structured, machine-readable representation of the module's attributes, which can be used for further processing
-    or integration in other tools. As a secondary benefit, the cache file is also used to speed up subsequent runs
-    of the CLI scripts.
+    a structured, machine-readable representation of the module's attributes, which can be used for
+    further processing or integration in other tools. As a secondary benefit, the cache file is also used
+    to speed up subsequent runs of the CLI scripts.
 
     Usage:
         poetry run python -m src.dcmspec.apps.cli.modattributes <table_id> [options]
@@ -129,14 +129,17 @@ def main():
         --include-depth (int): Depth to which included tables should be parsed (default: unlimited).
         --force-parse: Force reparsing of the DOM and regeneration of the JSON model.
         --force-download: Force download of the input file and regeneration of the model.
-        --print-mode (str): Print as 'table' (default), 'tree', or 'none' to skip printing.
+        --print-mode (str): Print as 'table' (default), 'tree', 'csv', 'xlsx', or 'none' to skip printing.
+                            'xlsx' requires --output.
+        --output (str): Path to output file. If not specified (and not xlsx), prints to stdout.
         --add-part6 (list): Specification(s) to merge from Part 6 (e.g., --add-part6 VR VM).
         --force-update: Force update of the specifications merged from part 6, even if cached.
         -d, --debug: Enable debug logging to the console.
         -v, --verbose: Enable verbose (info-level) logging to the console.
 
-    Example:
+    Examples:
         poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --add-part6 VR VM
+        poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode xlsx --output module.xlsx
 
     """
     # Parse command-line arguments
@@ -164,9 +167,19 @@ def main():
     )
     parser.add_argument(
         "--print-mode", 
-        choices=["table", "tree", "none"],
+        choices=["table", "tree", "csv", "xlsx", "none"],
         default="table",
-        help="Print as 'table' (default), 'tree', or 'none' to skip printing"
+        help="Print as 'table' (default), 'tree', 'csv', 'xlsx' (requires --output), or 'none' to skip printing"
+    )
+    parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable colorized output (default: color enabled for terminal, disabled for file output)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to output file. If not specified (and not xlsx), prints to stdout."
     )
     parser.add_argument(
         "--add-part6",
@@ -189,8 +202,11 @@ def main():
         action="store_true",
         help="Enable verbose (info-level) logging to the console"
     )
-    
+
     args = parser.parse_args()
+
+    if args.print_mode == "xlsx" and not args.output:
+        parser.error("--output is required when --print-mode xlsx")
 
     # Set up logger
     logger = logging.getLogger("modattributes")
@@ -254,11 +270,18 @@ def main():
         model = module_model
 
     logger.debug("Model ready for printing/output")
-    printer = SpecPrinter(model)
+    printer = SpecPrinter(model, output=args.output)
+
+    # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
+    use_color = not args.no_color
     if args.print_mode == "tree":
-        printer.print_tree(colorize=True)
+        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color)
     elif args.print_mode == "table":
-        printer.print_table(colorize=True)
+        printer.print_table(colorize=use_color, column_widths=[30, 11, 4, 60])
+    elif args.print_mode == "csv":
+        printer.print_csv(colorize=use_color)
+    elif args.print_mode == "xlsx":
+        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=use_color)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":

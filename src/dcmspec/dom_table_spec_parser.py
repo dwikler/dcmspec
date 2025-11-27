@@ -3,15 +3,18 @@
 Provides the DOMSpecParser class for parsing DICOM specification tables from XHTML documents,
 converting them into structured in-memory representations using anytree.
 """
+
 from contextlib import contextmanager
 import re
 import unicodedata
+from typing import Any, Dict, Optional, Union
+
 from unidecode import unidecode
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
-from typing import Any, Dict, Optional, Union
-from dcmspec.spec_parser import SpecParser
+import html2text
 
+from dcmspec.spec_parser import SpecParser
 from dcmspec.dom_utils import DOMUtils
 from dcmspec.progress import Progress, ProgressObserver, ProgressStatus, calculate_percent
 
@@ -506,6 +509,7 @@ class DOMTableSpecParser(SpecParser):
 
         return logical_cells, logical_col_idx, physical_col_idx
 
+
     def _extract_cell_value(
         self,
         cell: Tag,
@@ -513,15 +517,32 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool]
     ) -> str:
         """Extract and clean the value from a cell as unformatted text or HTML."""
+        
         use_unformatted = (
             unformatted_list[logical_col_idx]
             if unformatted_list and logical_col_idx < len(unformatted_list)
             else True
         )
-        if use_unformatted:
-            return self._clean_extracted_text(cell.get_text(separator="\n", strip=True))
-        else:
+
+        # Guard clause: if formatted HTML is required, return content as-is
+        if not use_unformatted:
+            # Keep original HTML content
             return self._clean_extracted_text(cell.decode_contents())
+
+        # Use html2text for better readability of unformatted text extraction
+        converter = self._create_html2text_converter()
+        raw_text = converter.handle(str(cell))
+        return self._clean_extracted_text(raw_text)
+
+
+    def _create_html2text_converter(self) -> html2text.HTML2Text:
+        """Create and configure an html2text converter for consistent text extraction."""
+        converter = html2text.HTML2Text()
+        converter.ignore_links = True       # Remove URLs
+        converter.ignore_images = True      # Remove image references
+        converter.ignore_emphasis = True    # Remove Markdown emphasis
+        converter.body_width = 0            # Disable word wrapping
+        return converter
 
     def _update_rowspan_trackers(
         self,
@@ -781,15 +802,7 @@ class DOMTableSpecParser(SpecParser):
         return header
 
     def _clean_extracted_text(self, text: str) -> str:
-        """Clean extracted text using Unicode normalization and regex.
-
-        Args:
-            text (str): The text to be cleaned.
-
-        Returns:
-            str: The cleaned text.
-
-        """
+        """Clean extracted text using Unicode normalization and regex."""
         # Normalize unicode characters to compatibility form
         cleaned = unicodedata.normalize('NFKC', text)
 
@@ -805,27 +818,49 @@ class DOMTableSpecParser(SpecParser):
         # Remove stray Â character
         cleaned = cleaned.replace('\u00c2', '')
 
+        # Collapse multiple newlines (including those separated by spaces/tabs) into a single newline
+        cleaned = re.sub(r'(\n\s*){2,}', '\n', cleaned)
+
         return cleaned.strip()
 
-    def _sanitize_string(self, input_string: str) -> str:
-        """Sanitize string to use it as a node attribute name.
+    @staticmethod
+    def _sanitize_string(input_string: str) -> str:
+        """
+        Sanitize a string to make it safe for use as a node attribute name.
 
-        - Convert non-ASCII characters to closest ASCII equivalents
-        - Replace space characters and slashes with underscores
-        - Replace parentheses characters with dashes
+        Transformations applied:
+        - Convert to lowercase.
+        - Transliterate non-ASCII characters to ASCII.
+        - Replace spaces, slashes, newlines, and dots with underscores ("_").
+        - Replace parentheses with dashes ("-").
+        - Remove all characters except letters, digits, underscores, and dashes.
+        - Collapse multiple consecutive underscores into a single underscore.
+        - Remove leading and trailing underscores for cleanliness.
+        - Return a default name if the result is empty after sanitization.
 
         Args:
-            input_string (str): The string to be sanitized.
+            input_string (str): The original string to sanitize.
 
         Returns:
-            str: The sanitized string.
+            str: A sanitized version of the input string, suitable for use as an identifier.
+                 Returns "unnamed_node" if sanitization results in an empty string.
 
+        Example:
+            >>> DOMTableSpecParser._sanitize_string('>>Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.')
+            'include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes'
+            >>> DOMTableSpecParser._sanitize_string('...')
+            'unnamed_node'
         """
-        # Normalize the string to NFC form and transliterate to ASCII
         normalized_str = unidecode(input_string.lower())
-        # Replace spaces and slashes with underscores, parentheses with dashes, and single quotes with underscores
-        return re.sub(
-            r"[ /\-()']",
-            lambda match: "-" if match.group(0) in "()" else "_",
-            normalized_str,
-        )
+        sanitized = re.sub(r"[ /\n\\.]", "_", normalized_str)  # spaces, slashes, newlines, dots → _
+        sanitized = re.sub(r"[()]", "-", sanitized)            # parentheses → -
+        sanitized = re.sub(r"[^a-z0-9_-]", "", sanitized)      # remove other chars
+        sanitized = re.sub(r"_+", "_", sanitized)              # collapse multiple underscores
+        sanitized = sanitized.strip("_")                       # remove leading/trailing underscores
+        
+        # Fallback to default name if sanitization resulted in empty string
+        if not sanitized:
+            return "unnamed_node"
+        
+        return sanitized
+
