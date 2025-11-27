@@ -517,7 +517,6 @@ class DOMTableSpecParser(SpecParser):
         unformatted_list: list[bool]
     ) -> str:
         """Extract and clean the value from a cell as unformatted text or HTML."""
-        
         use_unformatted = (
             unformatted_list[logical_col_idx]
             if unformatted_list and logical_col_idx < len(unformatted_list)
@@ -825,8 +824,7 @@ class DOMTableSpecParser(SpecParser):
 
     @staticmethod
     def _sanitize_string(input_string: str) -> str:
-        """
-        Sanitize a string to make it safe for use as a node attribute name.
+        r"""Sanitize a string to make it safe for use as a node attribute name.
 
         Transformations applied:
         - Convert to lowercase.
@@ -843,13 +841,16 @@ class DOMTableSpecParser(SpecParser):
 
         Returns:
             str: A sanitized version of the input string, suitable for use as an identifier.
-                 Returns "unnamed_node" if sanitization results in an empty string.
+                    or "unnamed_node" if sanitization results in an empty string.
 
         Example:
-            >>> DOMTableSpecParser._sanitize_string('>>Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.')
+            >>> DOMTableSpecParser._sanitize_string(
+            '>>Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.'
+            )
             'include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes'
             >>> DOMTableSpecParser._sanitize_string('...')
             'unnamed_node'
+
         """
         normalized_str = unidecode(input_string.lower())
         sanitized = re.sub(r"[ /\n\\.]", "_", normalized_str)  # spaces, slashes, newlines, dots → _
@@ -857,10 +858,7 @@ class DOMTableSpecParser(SpecParser):
         sanitized = re.sub(r"[^a-z0-9_-]", "", sanitized)      # remove other chars
         sanitized = re.sub(r"_+", "_", sanitized)              # collapse multiple underscores
         sanitized = sanitized.strip("_")                       # remove leading/trailing underscores
-        
+
         # Fallback to default name if sanitization resulted in empty string
-        if not sanitized:
-            return "unnamed_node"
-        
-        return sanitized
+        return sanitized or "unnamed_node"
 
