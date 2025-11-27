@@ -56,14 +56,14 @@ class SpecPrinter:
 
     """
 
-    def __init__(self, model: object, output: Optional[str] = None, logger: Optional[logging.Logger] = None) -> None:
+    def __init__(self, model: object, logger: Optional[logging.Logger] = None, output: Optional[str] = None) -> None:
         """Initialize the printer with a specification model and optional output destination.
 
         Args:
             model (object): An instance of SpecModel to render.
-            output (Optional[str]): Path to an output file. If None, defaults to stdout.
             logger (Optional[logging.Logger]): Logger instance for debug/info messages.
-            
+            output (Optional[str]): Path to an output file. If None, defaults to stdout.
+
         """
         self.model = model
         self.output = output
