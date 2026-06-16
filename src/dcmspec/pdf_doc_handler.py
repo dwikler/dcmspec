@@ -7,7 +7,7 @@ from IHE Technical Frameworks or Supplements, returning CSV data from tables in 
 import os
 import re
 import logging
-from typing import Optional, List
+from typing import Optional, List, Dict
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from dcmspec.progress import handle_legacy_callback
 from typing import Callable
@@ -26,6 +26,14 @@ from dcmspec.progress import ProgressObserver
 # select_tables uses this to fail loudly rather than silently drop the row, which
 # is unacceptable for conformance tooling.
 _DICOM_TAG_RE = re.compile(r"\(\s*[0-9A-Fa-f]{4}\s*,\s*[0-9A-Fa-f]{4}\s*\)")
+
+# pdfplumber's line-snapping tolerance for table extraction. The default of 8
+# works for most IHE-RO supplement tables, but a few pages have a header rule
+# that falls within 8pt of the first data row's rule, fusing the sub-header into
+# that data row (a page-seam "continuation header" artifact). A per-page override
+# (see ``snap_tolerance_overrides``) can lower the tolerance for just those pages
+# so the two rules are kept distinct, without disturbing extraction elsewhere.
+_DEFAULT_SNAP_TOLERANCE = 8
 
 
 def _assert_no_dicom_tag_in_header(header_: List, page: int, idx: int) -> None:
@@ -222,6 +230,7 @@ class PDFDocHandler(DocHandler):
         table_indices: Optional[list] = None,
         table_header_rowspan: Optional[dict] = None,
         table_id: Optional[str] = None,
+        snap_tolerance_overrides: Optional[dict] = None,
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
 
@@ -237,6 +246,9 @@ class PDFDocHandler(DocHandler):
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
             table_id (str, optional): An identifier for the concatenated table.
+            snap_tolerance_overrides (dict, optional): Per-page pdfplumber ``snap_tolerance`` overrides, keyed by
+                1-indexed page number. Pages not listed use the default (8). Lower the value for a page whose
+                header rule fuses into the first data row. Only applies to the ``pdfplumber`` extractor.
 
         Returns:
             dict: The specification table dict with keys 'header', 'data', and optionally 'table_id'.
@@ -280,7 +292,7 @@ class PDFDocHandler(DocHandler):
         self.logger.debug(f"Extracting tables from pages: {page_numbers}")
         if self.extractor == "pdfplumber":
             pdf = pdfplumber.open(cache_file_path)
-            all_tables = self.extract_tables_pdfplumber(pdf, page_numbers)
+            all_tables = self.extract_tables_pdfplumber(pdf, page_numbers, snap_tolerance_overrides)
             self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using pdfplumber.")
             pdf.close()
         elif self.extractor == "camelot":
@@ -335,7 +347,12 @@ class PDFDocHandler(DocHandler):
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         return super().download(url, file_path, binary=True, progress_observer=progress_observer)
 
-    def extract_tables_pdfplumber(self, pdf: pdfplumber.PDF, page_numbers: List[int]) -> List[dict]:
+    def extract_tables_pdfplumber(
+        self,
+        pdf: pdfplumber.PDF,
+        page_numbers: List[int],
+        snap_tolerance_overrides: Optional[Dict[int, int]] = None,
+    ) -> List[dict]:
         """Extract and return all tables from the specified PDF pages using pdfplumber.
 
         Uses pdfplumber to extract tables from the PDF by analyzing lines and whitespace in the PDF's vector content.
@@ -343,6 +360,10 @@ class PDFDocHandler(DocHandler):
         Args:
             pdf (pdfplumber.PDF): The PDF object.
             page_numbers (List[int]): List of page numbers (1-indexed) to extract tables from.
+            snap_tolerance_overrides (Optional[Dict[int, int]]): Per-page pdfplumber ``snap_tolerance`` overrides,
+                keyed by 1-indexed page number. Pages not present use ``_DEFAULT_SNAP_TOLERANCE`` (8). Use a lower
+                value for a page whose header rule fuses into the first data row (a continuation-header artifact);
+                see the module-level note on ``_DEFAULT_SNAP_TOLERANCE``.
 
         Returns:
             List[dict]: List of dicts, each with keys 'page', 'index', and 'data' (table as list of rows).
@@ -351,6 +372,7 @@ class PDFDocHandler(DocHandler):
             IndexError: If a page number is out of range for the PDF.
 
         """
+        overrides = snap_tolerance_overrides or {}
         all_tables = []
         num_pages = len(pdf.pages)
         for page_num in page_numbers:
@@ -359,11 +381,17 @@ class PDFDocHandler(DocHandler):
                     f"Page number {page_num} is out of range for this PDF (valid range: 1 to {num_pages})"
                 )
             page = pdf.pages[page_num - 1]
+            snap_tolerance = overrides.get(page_num, _DEFAULT_SNAP_TOLERANCE)
+            if page_num in overrides:
+                self.logger.debug(
+                    f"Page {page_num}: using snap_tolerance override {snap_tolerance} "
+                    f"(default {_DEFAULT_SNAP_TOLERANCE})"
+                )
             tables = page.extract_tables(
                 table_settings={
-                    "vertical_strategy": "lines", 
+                    "vertical_strategy": "lines",
                     "horizontal_strategy": "lines",
-                    "snap_tolerance": 8,
+                    "snap_tolerance": snap_tolerance,
                 }
             )
 
