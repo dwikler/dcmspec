@@ -4,6 +4,10 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ## [0.4.0] - unreleased
 
+### Added
+
+- `PDFDocHandler.select_tables` now raises `ValueError` when a header cell contains a DICOM tag pattern (e.g. `(300A,0230)`), indicating that a data row was absorbed into the header — typically a `table_header_rowspan` over-count. This fails loudly instead of silently dropping an attribute row. Opt out with `strict_header_check=False` to restore the prior warn-and-continue behavior.
+
 ### Changed
 
 - Switch PyPI version badge in README from badge.fury.io to shields.io for faster updates.
