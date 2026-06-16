@@ -28,6 +28,36 @@ from dcmspec.progress import ProgressObserver
 _DICOM_TAG_RE = re.compile(r"\(\s*[0-9A-Fa-f]{4}\s*,\s*[0-9A-Fa-f]{4}\s*\)")
 
 
+def _assert_no_dicom_tag_in_header(header_: List, page: int, idx: int) -> None:
+    """Raise if a header cell contains a DICOM tag pattern (data row absorbed into the header).
+
+    Uses a substring search, not a whole-cell match: when ``table_header_rowspan`` over-counts
+    and fuses an absorbed attribute row into the header, the tag ends up embedded in a larger
+    cell (e.g. ``"Tag (300A,0230)"``), so anchoring the pattern to the whole cell would miss the
+    very corruption this guards against. Header cells in DICOM spec tables are short column
+    titles, so a legitimate cell carrying a parenthesized hex pattern is not expected; if one
+    ever does, pass ``strict_header_check=False``.
+
+    Args:
+        header_ (List): The merged header row (list of cell values).
+        page (int): Page number of the table (for the error message).
+        idx (int): Index of the table on the page (for the error message).
+
+    Raises:
+        ValueError: If any header cell contains a DICOM tag pattern.
+
+    """
+    for cell in header_:
+        if cell and _DICOM_TAG_RE.search(str(cell)):
+            raise ValueError(
+                f"Header for table (page {page}, index {idx}) contains a "
+                f"DICOM tag pattern in cell {cell!r}; a data row was likely "
+                f"absorbed into the header. Check table_header_rowspan for "
+                f"(page {page}, index {idx}) — it may exceed the actual "
+                f"number of header rows."
+            )
+
+
 class PDFDocHandler(DocHandler):
     """Handler class for extracting tables from PDF documents.
 
@@ -344,15 +374,7 @@ class PDFDocHandler(DocHandler):
                     # otherwise silently drop a real attribute row from the spec.
                     # Opt out with strict_header_check=False to keep the prior behavior.
                     if strict_header_check:
-                        for cell in header_:
-                            if cell and _DICOM_TAG_RE.search(str(cell)):
-                                raise ValueError(
-                                    f"Header for table (page {page}, index {idx}) contains a "
-                                    f"DICOM tag pattern in cell {cell!r}; a data row was likely "
-                                    f"absorbed into the header. Check table_header_rowspan for "
-                                    f"(page {page}, index {idx}) — it may exceed the actual "
-                                    f"number of header rows."
-                                )
+                        _assert_no_dicom_tag_in_header(header_, page, idx)
                     selected_tables.append({
                         "page": page,
                         "index": idx,

@@ -329,12 +329,20 @@ def test_select_tables_raises_on_tag_in_header():
     tables = [{"page": 35, "index": 0, "data": rows}]
 
     # Act / Assert
-    with pytest.raises(ValueError, match=r"DICOM tag pattern"):
+    with pytest.raises(ValueError) as excinfo:
         handler.select_tables(
             tables,
             table_indices=[(35, 0)],
             table_header_rowspan={(35, 0): 2},
         )
+    # The failure must stay ACTIONABLE: it names the table (page/index) and the
+    # offending cell, not just a generic "DICOM tag pattern". Pin that context so a
+    # regression toward a less actionable message is caught.
+    msg = str(excinfo.value)
+    assert "DICOM tag pattern" in msg
+    assert "page 35" in msg
+    assert "index 0" in msg
+    assert "(300A,0230)" in msg
 
 def test_select_tables_skips_guard_when_not_strict():
     """strict_header_check=False opts out of the tag-in-header guard.
