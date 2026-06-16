@@ -669,7 +669,28 @@ def test_concat_tables_fragment_as_first_row_left_in_place(caplog):
 
     # Row must survive (not silently vanish)
     assert len(result["data"]) == 1
-    assert "warning" in caplog.text.lower() or "Warning" in caplog.text or "Untagged continuation" in caplog.text
+    # Assert on the specific warning via caplog.records (not brittle full-text scanning).
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert any("Untagged continuation row" in r.getMessage() for r in warnings), (
+        "Expected a WARNING naming the untagged continuation row"
+    )
+
+
+def test_concat_tables_whitespace_only_name_and_tag_merges_like_empty():
+    """Contract: a fragment whose name/tag are whitespace-only (not "") still merges.
+
+    The continuation discriminator uses ``str.strip()``, so spaces emitted by pdfplumber in
+    place of empty strings must still be treated as empty and merged into the owning row.
+    """
+    handler = make_handler()
+    owning_row = [">>Contour Geometric Type", "(3006,0042)", "1", "Geometric type of contour."]
+    fragment_row = ["   ", "  ", "", "Shall be POINT, CLOSED_PLANAR, or CLOSEDPLANAR_XOR."]
+
+    tables = _make_ihe_tables([owning_row, fragment_row])
+    result = handler.concat_tables(tables, table_id="t")
+
+    assert len(result["data"]) == 1, "Whitespace-only fragment must merge, same as an empty fragment"
+    assert "CLOSEDPLANAR_XOR" in result["data"][0][3]
 
 
 def test_concat_tables_continuation_merge_preserves_existing_empty_string_fix():
