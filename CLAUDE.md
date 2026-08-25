@@ -41,7 +41,7 @@ poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.3-1 --print-mode
 Build/preview docs:
 
 ```bash
-mkdocs serve
+poetry run mkdocs serve
 ```
 
 ## Architecture
@@ -51,8 +51,9 @@ stages rather than by adding special cases to one of them:
 
 1. **`DocHandler`** (`doc_handler.py`) — downloads/caches the raw specification document and parses it into an
    in-memory representation. Format-specific subclasses: `XHTMLDocHandler`, `UPSXHTMLDocHandler`, `PDFDocHandler`.
-   The base class handles download-with-progress and text/binary streaming; subclasses only need to implement
-   `load_document` and, optionally, `clean_text`.
+   The base class handles download-with-progress and text/binary streaming; subclasses implement `load_document`
+   and, when format-specific caching, encoding, or extraction requires it, override `download` and/or
+   `clean_text` (e.g. `XHTMLDocHandler`/`PDFDocHandler` both override `download`).
 2. **`SpecParser`** (`spec_parser.py`) — turns the handler's parsed document object into a `(metadata, content)`
    pair of `anytree.Node` trees. Subclasses: `DOMTableSpecParser` (XHTML/DOM tables, including `<include>`
    resolution and row/colspan handling — the largest and most complex module in the codebase),
@@ -104,8 +105,9 @@ not production-grade — don't over-engineer changes to them.
 
 See [RELEASE.md](RELEASE.md) for the full workflow; the essentials:
 
-- No direct commits/pushes to `main` or `release/*` — all changes go through PRs from `feat/`, `fix/`, `change/`,
-  or `hotfix/` branches.
+- No direct commits/pushes to `main` or `release/*` — all changes go through PRs from branches such as `feat/`,
+  `fix/`, `change/`, `hotfix/`, `docs/`, or `chore/` (see `RELEASE.md`'s release checklist for the
+  `docs/update-release-x.y.z` pattern).
 - `feat/`, `fix/`, `change/` branches are created from (and PR'd back into) the target `release/x.y.z` branch.
   `hotfix/` branches are created from (and PR'd back into) `main`, then propagated into active release branches.
 - CI (`.github/workflows/test.yml`) runs the pytest suite on pushes/PRs to `main` and `release/*` across
