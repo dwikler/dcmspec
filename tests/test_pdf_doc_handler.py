@@ -310,6 +310,67 @@ def test_select_tables_multirow_header_simple():
     assert selected[0]["data"][0] == ["1", "2", "3", "4", "5"]
     assert selected[0]["data"][1] == ["6", "7", "8", "9", "10"]
 
+def test_select_tables_raises_on_tag_in_header():
+    """Fail loudly when a data row is absorbed into the header.
+
+    Mirrors the real IHE-RO TPPC-Brachy page-35 failure: table_header_rowspan=2
+    over-counts the header, so the "Application Setup Sequence" attribute row
+    (tag 300A,0230) is merged into the header and silently dropped. select_tables
+    must raise rather than warn-and-drop — silent attribute loss is unacceptable
+    for conformance tooling.
+    """
+    # Arrange
+    handler = make_handler()
+    rows = [
+        ["Attribute", "Tag", "Type", "Presence", "Specific Rules"],
+        ["Application Setup Sequence", "(300A,0230)", "1", "R+*", "Number of items shall be 1."],
+        [">Application Setup Type", "(300A,0232)", "1", "-*", ""],
+    ]
+    tables = [{"page": 35, "index": 0, "data": rows}]
+
+    # Act / Assert
+    with pytest.raises(ValueError) as excinfo:
+        handler.select_tables(
+            tables,
+            table_indices=[(35, 0)],
+            table_header_rowspan={(35, 0): 2},
+        )
+    # The failure must stay ACTIONABLE: it names the table (page/index) and the
+    # offending cell, not just a generic "DICOM tag pattern". Pin that context so a
+    # regression toward a less actionable message is caught.
+    msg = str(excinfo.value)
+    assert "DICOM tag pattern" in msg
+    assert "page 35" in msg
+    assert "index 0" in msg
+    assert "(300A,0230)" in msg
+
+def test_select_tables_skips_guard_when_not_strict():
+    """strict_header_check=False opts out of the tag-in-header guard.
+
+    Same absorbed-header input as the strict test, but the consumer has opted out:
+    select_tables returns normally (the prior warn-and-continue behavior) instead of raising.
+    """
+    # Arrange
+    handler = make_handler()
+    rows = [
+        ["Attribute", "Tag", "Type", "Presence", "Specific Rules"],
+        ["Application Setup Sequence", "(300A,0230)", "1", "R+*", "Number of items shall be 1."],
+        [">Application Setup Type", "(300A,0232)", "1", "-*", ""],
+    ]
+    tables = [{"page": 35, "index": 0, "data": rows}]
+
+    # Act — opted out, so no raise
+    selected = handler.select_tables(
+        tables,
+        table_indices=[(35, 0)],
+        table_header_rowspan={(35, 0): 2},
+        strict_header_check=False,
+    )
+
+    # Assert
+    assert len(selected) == 1
+    assert selected[0]["page"] == 35
+
 def test_concat_tables_basic(monkeypatch, patch_dirs):
     """Test concat_tables concatenates tables with matching headers."""
     # Arrange

@@ -5,6 +5,7 @@ from IHE Technical Frameworks or Supplements, returning CSV data from tables in 
 """
 
 import os
+import re
 import logging
 from typing import Optional, List
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
@@ -18,6 +19,44 @@ import camelot
 from dcmspec.config import Config
 from dcmspec.doc_handler import DocHandler
 from dcmspec.progress import ProgressObserver
+
+# A DICOM tag pattern like "(300A,0230)" appearing in a *header* cell is a strong
+# signal that a data (attribute) row was absorbed into the header — typically
+# because table_header_rowspan over-counts the header rows for a table.
+# select_tables uses this to fail loudly rather than silently drop the row, which
+# is unacceptable for conformance tooling.
+_DICOM_TAG_RE = re.compile(r"\(\s*[0-9A-Fa-f]{4}\s*,\s*[0-9A-Fa-f]{4}\s*\)")
+
+
+def _assert_no_dicom_tag_in_header(header_: List, page: int, idx: int) -> None:
+    """Raise if a header cell contains a DICOM tag pattern (data row absorbed into the header).
+
+    Uses a substring search, not a whole-cell match: when ``table_header_rowspan`` over-counts
+    and fuses an absorbed attribute row into the header, the tag ends up embedded in a larger
+    cell (e.g. ``"Tag (300A,0230)"``), so anchoring the pattern to the whole cell would miss the
+    very corruption this guards against. Header cells in DICOM spec tables are short column
+    titles, so a legitimate cell carrying a parenthesized hex pattern is not expected; if one
+    ever does, pass ``strict_header_check=False``.
+
+    Args:
+        header_ (List): The merged header row (list of cell values).
+        page (int): Page number of the table (for the error message).
+        idx (int): Index of the table on the page (for the error message).
+
+    Raises:
+        ValueError: If any header cell contains a DICOM tag pattern.
+
+    """
+    for cell in header_:
+        if cell and _DICOM_TAG_RE.search(str(cell)):
+            raise ValueError(
+                f"Header for table (page {page}, index {idx}) contains a "
+                f"DICOM tag pattern in cell {cell!r}; a data row was likely "
+                f"absorbed into the header. Check table_header_rowspan for "
+                f"(page {page}, index {idx}) — it may exceed the actual "
+                f"number of header rows."
+            )
+
 
 class PDFDocHandler(DocHandler):
     """Handler class for extracting tables from PDF documents.
@@ -258,6 +297,7 @@ class PDFDocHandler(DocHandler):
         tables: List[dict],
         table_indices: List[tuple],
         table_header_rowspan: Optional[dict] = None,
+        strict_header_check: bool = True,
     ) -> List[dict]:
         """Select tables referenced by table_indices and split each table into header and data.
 
@@ -271,6 +311,10 @@ class PDFDocHandler(DocHandler):
             table_indices (List[tuple]): List of (page, index) tuples specifying which tables to select and process.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices,
                 keyed by (page, index). If not specified, defaults to 1 header row per table.
+            strict_header_check (bool): If True (default), raise ValueError when a header cell
+                contains a DICOM tag pattern — a sign that a data row was absorbed into the header
+                (usually a table_header_rowspan that over-counts the header rows). Set False to skip
+                the check for consumers that prefer the prior warn-and-continue behavior.
 
         Returns:
             List[dict]: List of dicts, each with keys:
@@ -278,6 +322,13 @@ class PDFDocHandler(DocHandler):
                 - 'index': index of the table on the page
                 - 'header': merged header row (list of column names)
                 - 'data': list of data rows (list of cell values)
+
+        Raises:
+            ValueError: If strict_header_check is True (default) and a header cell contains a DICOM
+                tag pattern (e.g. "(300A,0230)"),
+                indicating that a data row was absorbed into the header — typically because
+                table_header_rowspan over-counts the header rows for that table. Failing loudly
+                here prevents silently dropping a real attribute row from the specification.
 
         Example:
             ```python
@@ -317,6 +368,13 @@ class PDFDocHandler(DocHandler):
                         header_ = header_rows[0]
                     else:
                         header_ = merge_multirow_header(header_rows)
+                    # Fail loudly if a data row was absorbed into the header: a
+                    # DICOM tag pattern in a header cell means table_header_rowspan
+                    # likely over-counts the header rows for this table, which would
+                    # otherwise silently drop a real attribute row from the spec.
+                    # Opt out with strict_header_check=False to keep the prior behavior.
+                    if strict_header_check:
+                        _assert_no_dicom_tag_in_header(header_, page, idx)
                     selected_tables.append({
                         "page": page,
                         "index": idx,
