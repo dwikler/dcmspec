@@ -78,8 +78,10 @@ On top of that pipeline:
   UPS IOD+DIMSE attributes.
 - **`SpecPrinter`** / **`IODSpecPrinter`** (`spec_printer.py`, `iod_spec_printer.py`) render a `SpecModel` as a
   table, tree, CSV, or XLSX, optionally colorized or written to a file.
-- **`Config`** (`config.py`) resolves the cache/config directories (via `platformdirs`, `--config` CLI flag, or
-  `DCMSPEC_CONFIG` env var) and is threaded through handlers and factories.
+- **`Config`** (`config.py`) resolves the cache/config directory via `platformdirs` when no explicit `config_file`
+  is given, and is threaded through handlers and factories. Each CLI app independently resolves `config_file`
+  before constructing `Config`, preferring the `--config` flag, then the `DCMSPEC_CONFIG` env var, then the
+  `platformdirs` default.
 - **`Progress`/`ProgressObserver`** (`progress.py`) is the observer-pattern progress-reporting mechanism used
   across downloading, parsing, and saving. Code paths guarded by `# BEGIN/END LEGACY SUPPORT` comments exist to
   keep the older integer `progress_callback` API working during its deprecation — preserve that pattern rather
