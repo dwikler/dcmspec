@@ -7,7 +7,7 @@ from IHE Technical Frameworks or Supplements, returning CSV data from tables in 
 import os
 import re
 import logging
-from typing import Optional, List
+from typing import Optional, List, Dict
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from dcmspec.progress import handle_legacy_callback
 from typing import Callable
@@ -26,6 +26,14 @@ from dcmspec.progress import ProgressObserver
 # select_tables uses this to fail loudly rather than silently drop the row, which
 # is unacceptable for conformance tooling.
 _DICOM_TAG_RE = re.compile(r"\(\s*[0-9A-Fa-f]{4}\s*,\s*[0-9A-Fa-f]{4}\s*\)")
+
+# pdfplumber's line-snapping tolerance for table extraction. The default of 8
+# works for most IHE-RO supplement tables, but a few pages have a header rule
+# that falls within 8pt of the first data row's rule, fusing the sub-header into
+# that data row (a page-seam "continuation header" artifact). A per-page override
+# (see ``snap_tolerance_overrides``) can lower the tolerance for just those pages
+# so the two rules are kept distinct, without disturbing extraction elsewhere.
+_DEFAULT_SNAP_TOLERANCE = 8
 
 
 def _assert_no_dicom_tag_in_header(header_: List, page: int, idx: int) -> None:
@@ -56,6 +64,124 @@ def _assert_no_dicom_tag_in_header(header_: List, page: int, idx: int) -> None:
                 f"(page {page}, index {idx}) — it may exceed the actual "
                 f"number of header rows."
             )
+
+
+def _split_fused_rows(grouped_table: List, header: List, logger: logging.Logger) -> List:
+    r"""Split fused "frankenrow" rows back into their constituent attribute rows.
+
+    pdfplumber's line-snapping (``snap_tolerance``) can merge two adjacent table rows whose
+    separating rule falls within tolerance into a SINGLE row: every column's text becomes
+    newline-joined across the source rows (e.g. tag ``"(300A,0214)\n(300A,0216)"``, type
+    ``"1\n3"``). A legitimate attribute row carries exactly ONE DICOM tag, so a tag cell
+    holding N>=2 DICOM-tag patterns can ONLY be a fusion of N rows — the mirror of the
+    untagged-continuation discriminator in :func:`_merge_continuations`.
+
+    The split is applied ONLY when unambiguous: every structured column (every column except
+    the description) must yield exactly N newline-parts, so part i of each column belongs to
+    attribute i; the description must be blank or also yield exactly N parts. If any structured
+    column does not align to N, splitting would risk mis-assigning a value across attributes, so
+    the row is left intact and logged (the tag-in-header guard and downstream review still
+    surface it). This never splits a legitimate single-tag row, because such a row has no
+    multi-tag cell. The tag is found at column 1 by the spec-table convention; a non-conforming
+    layout simply never matches the all-DICOM-tag signal, so it is not mis-processed.
+
+    Args:
+        grouped_table (List): The concatenated rows (each already padded to ``len(header)``).
+        header (List): The merged header row (col 0 name, col 1 tag, last col description).
+        logger (logging.Logger): Logger for the leave-intact warning.
+
+    Returns:
+        List: The rows with cleanly-aligned fusions split into their constituent rows.
+
+    """
+    if len(header) < 2:
+        return grouped_table
+    tag_col = 1
+    desc_col = len(header) - 1
+    split_table = []
+    for row in grouped_table:
+        tag_cell = row[tag_col] if len(row) > tag_col else ""
+        tag_parts = str(tag_cell).split("\n") if tag_cell else []
+        # Fusion signal: 2+ newline-parts in the tag cell, EVERY part a DICOM tag.
+        n_tags = sum(1 for p in tag_parts if _DICOM_TAG_RE.fullmatch(p.strip()))
+        if len(tag_parts) >= 2 and n_tags == len(tag_parts):
+            n = len(tag_parts)
+            column_parts = []
+            aligned = True
+            for col_idx in range(len(row)):
+                cell = row[col_idx]
+                if col_idx == desc_col and (cell is None or not str(cell).strip()):
+                    # Blank description: replicate the blank for every split row.
+                    column_parts.append([cell if cell is not None else ""] * n)
+                    continue
+                parts = str(cell).split("\n") if cell is not None else [""]
+                if len(parts) != n:
+                    aligned = False
+                    break
+                column_parts.append(parts)
+            if aligned:
+                for i in range(n):
+                    split_table.append([column_parts[c][i] for c in range(len(row))])
+                continue
+            logger.warning(
+                f"Fused multi-tag row could not be cleanly split "
+                f"(columns not aligned to {n} parts); leaving intact: {row!r}"
+            )
+        split_table.append(row)
+    return split_table
+
+
+def _merge_continuations(grouped_table: List, header: List, logger: logging.Logger) -> List:
+    """Merge untagged continuation rows into their owning (tagged) row.
+
+    pdfplumber emits a description-only row when a cell wraps across a page boundary: the name
+    column (col 0) and tag column (col 1) are empty/whitespace, but the last column
+    (description) carries the continuation text. These orphan rows must be appended to the
+    immediately preceding tagged row's description and then dropped; otherwise enum values and
+    required descriptions are silently lost.
+
+    Discriminator: empty name AND empty tag AND non-empty description. This is safe because new
+    attributes carry a tag, "Include Table" rows carry a name, and a new section always begins
+    with a tagged row, so (empty-name, empty-tag) can ONLY be a continuation fragment, never the
+    start of a distinct entry. Empty is tested with ``str.strip()`` so whitespace-only cells
+    count as empty.
+
+    Args:
+        grouped_table (List): The concatenated rows (each already padded to ``len(header)``).
+        header (List): The merged header row (col 0 name, col 1 tag, last col description).
+        logger (logging.Logger): Logger for the orphaned-fragment warning.
+
+    Returns:
+        List: The rows with continuation fragments merged into their owning row.
+
+    """
+    if len(header) < 2:  # need at least name and tag columns to apply the discriminator
+        return grouped_table
+    desc_col = len(header) - 1  # description is always the last column
+    merged_table = []
+    for row in grouped_table:
+        name_cell = row[0] if row else ""
+        tag_cell = row[1] if len(row) > 1 else ""
+        desc_cell = row[desc_col] if len(row) > desc_col else ""
+        name_empty = not (name_cell and str(name_cell).strip())
+        tag_empty = not (tag_cell and str(tag_cell).strip())
+        desc_nonempty = bool(desc_cell and str(desc_cell).strip())
+        if name_empty and tag_empty and desc_nonempty:
+            # Continuation fragment: append its description onto the owning row.
+            if merged_table:
+                owner = merged_table[-1]
+                owner_desc = owner[desc_col] if len(owner) > desc_col else ""
+                separator = "\n" if owner_desc and not owner_desc.endswith("\n") else ""
+                owner[desc_col] = owner_desc + separator + str(desc_cell)
+            else:
+                # No preceding tagged row: anomalous; leave in place and log.
+                logger.warning(
+                    f"Untagged continuation row found with no preceding tagged row; leaving in place: {row!r}"
+                )
+                merged_table.append(row)
+        else:
+            merged_table.append(row)
+    return merged_table
 
 
 class PDFDocHandler(DocHandler):
@@ -104,6 +230,7 @@ class PDFDocHandler(DocHandler):
         table_indices: Optional[list] = None,
         table_header_rowspan: Optional[dict] = None,
         table_id: Optional[str] = None,
+        snap_tolerance_overrides: Optional[dict] = None,
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
 
@@ -119,6 +246,9 @@ class PDFDocHandler(DocHandler):
             table_indices (list, optional): List of (page, index) tuples specifying which tables to concatenate.
             table_header_rowspan (dict, optional): Number of header rows (rowspan) for each table in table_indices.
             table_id (str, optional): An identifier for the concatenated table.
+            snap_tolerance_overrides (dict, optional): Per-page pdfplumber ``snap_tolerance`` overrides, keyed by
+                1-indexed page number. Pages not listed use the default (8). Lower the value for a page whose
+                header rule fuses into the first data row. Only applies to the ``pdfplumber`` extractor.
 
         Returns:
             dict: The specification table dict with keys 'header', 'data', and optionally 'table_id'.
@@ -162,7 +292,7 @@ class PDFDocHandler(DocHandler):
         self.logger.debug(f"Extracting tables from pages: {page_numbers}")
         if self.extractor == "pdfplumber":
             pdf = pdfplumber.open(cache_file_path)
-            all_tables = self.extract_tables_pdfplumber(pdf, page_numbers)
+            all_tables = self.extract_tables_pdfplumber(pdf, page_numbers, snap_tolerance_overrides)
             self.logger.debug(f"Extracted {len(all_tables)} tables from PDF using pdfplumber.")
             pdf.close()
         elif self.extractor == "camelot":
@@ -217,7 +347,12 @@ class PDFDocHandler(DocHandler):
         file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
         return super().download(url, file_path, binary=True, progress_observer=progress_observer)
 
-    def extract_tables_pdfplumber(self, pdf: pdfplumber.PDF, page_numbers: List[int]) -> List[dict]:
+    def extract_tables_pdfplumber(
+        self,
+        pdf: pdfplumber.PDF,
+        page_numbers: List[int],
+        snap_tolerance_overrides: Optional[Dict[int, int]] = None,
+    ) -> List[dict]:
         """Extract and return all tables from the specified PDF pages using pdfplumber.
 
         Uses pdfplumber to extract tables from the PDF by analyzing lines and whitespace in the PDF's vector content.
@@ -225,6 +360,10 @@ class PDFDocHandler(DocHandler):
         Args:
             pdf (pdfplumber.PDF): The PDF object.
             page_numbers (List[int]): List of page numbers (1-indexed) to extract tables from.
+            snap_tolerance_overrides (Optional[Dict[int, int]]): Per-page pdfplumber ``snap_tolerance`` overrides,
+                keyed by 1-indexed page number. Pages not present use ``_DEFAULT_SNAP_TOLERANCE`` (8). Use a lower
+                value for a page whose header rule fuses into the first data row (a continuation-header artifact);
+                see the module-level note on ``_DEFAULT_SNAP_TOLERANCE``.
 
         Returns:
             List[dict]: List of dicts, each with keys 'page', 'index', and 'data' (table as list of rows).
@@ -233,6 +372,7 @@ class PDFDocHandler(DocHandler):
             IndexError: If a page number is out of range for the PDF.
 
         """
+        overrides = snap_tolerance_overrides or {}
         all_tables = []
         num_pages = len(pdf.pages)
         for page_num in page_numbers:
@@ -241,11 +381,17 @@ class PDFDocHandler(DocHandler):
                     f"Page number {page_num} is out of range for this PDF (valid range: 1 to {num_pages})"
                 )
             page = pdf.pages[page_num - 1]
+            snap_tolerance = overrides.get(page_num, _DEFAULT_SNAP_TOLERANCE)
+            if page_num in overrides:
+                self.logger.debug(
+                    f"Page {page_num}: using snap_tolerance override {snap_tolerance} "
+                    f"(default {_DEFAULT_SNAP_TOLERANCE})"
+                )
             tables = page.extract_tables(
                 table_settings={
-                    "vertical_strategy": "lines", 
+                    "vertical_strategy": "lines",
                     "horizontal_strategy": "lines",
-                    "snap_tolerance": 8,
+                    "snap_tolerance": snap_tolerance,
                 }
             )
 
@@ -418,9 +564,22 @@ class PDFDocHandler(DocHandler):
                 row = (row + [""] * (n_columns - len(row)))[:n_columns]
                 grouped_table.append(row)
                 
-        # Realign columns: shift non-empty header cells and data cells left to fill gaps ---
+        # Reconstruct page-seam extraction artifacts before realignment: split fused
+        # ("frankenrow") rows first, then merge untagged continuation fragments — so a
+        # continuation following a fusion attaches to the correct (last) split row. These
+        # are mirror-image discriminators; see the helper docstrings.
+        grouped_table = _split_fused_rows(grouped_table, header, self.logger)
+        grouped_table = _merge_continuations(grouped_table, header, self.logger)
+
+        # Realign columns: drop only structural gaps (None) so non-empty cells slide left
+        # to fill them. A cell that is the empty STRING ("") is a blank-but-present column
+        # (e.g. an attribute with no DCM Type) and MUST be preserved as a positional holder.
+        # Removing "" here shifts every subsequent cell left by one, silently moving a value
+        # (e.g. an IHE-RO requirement code) into the wrong column — unacceptable for
+        # conformance tooling. pdfplumber emits None for merged/absent cells and "" for a
+        # present-but-empty cell, so keying realignment on None alone is the correct distinction.
         def shift_row_left(row):
-            new_row = [cell for cell in row if cell not in (None, "")]
+            new_row = [cell for cell in row if cell is not None]
             new_row += [""] * (len(row) - len(new_row))
             return new_row
 
