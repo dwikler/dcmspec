@@ -176,9 +176,9 @@ class IODSpecBuilder:
             cache_file_name=cache_file_name,
             force_download=force_download,
             progress_observer=step1_progress_observer,
-            # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
-            progress_callback=progress_observer,
-            # END LEGACY SUPPORT
+            # NOTE: do not pass `progress_observer` as `progress_callback`.
+            # Legacy `progress_callback` is deprecated and should only be used
+            # when an integer callback is explicitly provided by callers.
         )
 
         # --- Step 2: Build the IOD model from the DOM ---
