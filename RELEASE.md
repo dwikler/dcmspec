@@ -53,8 +53,17 @@ gitGraph
 > **Note:** This checklist is intended for project maintainers and developers.
 > It is not required for users of the dcmspec library.
 
-1. [ ] Update `pyproject.toml` with the new version number.
-2. [ ] Add a new section to `CHANGELOG.md` for the release:
+1. [ ] Create a new branch from the target release branch (e.g., `release/x.y.z`) for making changes:
+
+   ```bash
+   git checkout release/x.y.z
+   git pull origin release/x.y.z
+   git checkout -b docs/update-release-x.y.z
+   ```
+
+2. [ ] Update `pyproject.toml` with the new version number.
+
+3. [ ] Add a new section to `CHANGELOG.md` for the release:
 
    - Use the format:
 
@@ -73,53 +82,76 @@ gitGraph
 
 - Use **"Added"** for new features, **"Changed"** for enhancements or improvements, and **"Fixed"** for bug fixes.
 
-3. [ ] Commit the changes:
+4. [ ] Commit the changes in the branch:
 
    ```bash
-   git add pyproject.toml CHANGELOG.md docs/changelog.md
+   git add pyproject.toml CHANGELOG.md
    git commit -m "Bump version to x.y.z and update CHANGELOG"
+   git push origin docs/update-release-x.y.z
    ```
 
-4. [ ] Tag the release:
+5. [ ] Open a Pull Request to merge the branch into `release/x.y.z`.
 
-   Choose the appropriate command below based on the main type of change in this release.
+6. [ ] After merging, open a Pull Request to merge `release/x.y.z` into `main`.
+
+7. [ ] Tag the release **in GitHub after the merge to `main`** (do not use `git tag` locally to ensure the tag is verified):
+
+   - Choose the appropriate title based on the main type of change in this release.
 
    For a new feature:
 
-   ```bash
-   git tag -a vX.Y.Z -m "Add support for ... (#NN)"
+   ```
+   vX.Y.Z - Add support for ... (#NN)
    ```
 
    For an enhancement:
 
-   ```bash
-   git tag -a vX.Y.Z -m "Improve ... (#NN)"
+   ```
+   vX.Y.Z - Improve ... (#NN)
    ```
 
    For a bug fix:
 
-   ```bash
-   git tag -a vX.Y.Z -m "Corrected ... (#NN)"
+   ```
+   vX.Y.Z - Corrected ... (#NN)
    ```
 
-5. [ ] Push commits and tags:
-
-   ```bash
-   git push
-   git push --tags
-   ```
-
-6. [ ] Create a GitHub Release for the new tag:
+8. [ ] Create a GitHub Release for the new tag:
 
    - Copy the changelog entry into the release notes.
 
-7. [ ] [Build and test the distribution locally before publishing](#how-to-test-the-distribution-before-publishing)
+9. [ ] Update Zenodo badge:
 
-8. [ ] Publish to PyPI:
+   - Go to Zenodo and copy the new DOI for the release. Check the DOI link resolves to Zenodo by clicking the badge.
+     - **Tip:** Zenodo shows the next version-specific DOI next to the “Create new release” button.
+       This is the DOI that will be assigned when Zenodo archives your GitHub release.
+       You can use it in advance and wait until the new badge is active before publishing to PyPI.
+     - **Alternative:** Use the concept DOI instead of the version DOI if you want a badge that never needs updating and always points to the latest version.
+   - Create a new branch from `main` (e.g., `docs/update-zenodo-badge`).
+   - Update the badge number in `README`.
+   - Commit and push:
+     ```bash
+     git add README.md
+     git commit -m "Update Zenodo badge for vX.Y.Z"
+     git push origin docs/update-zenodo-badge
+     ```
+   - Open a Pull Request to merge into `main`.
 
-   ```bash
-   poetry publish --build
-   ```
+10. [ ] Switch to `main` and pull the latest commits and tags:
+
+```bash
+git checkout main
+git pull origin main --tags
+git describe --tags  # Verify you are on the correct tag
+```
+
+11. [ ] [Build and test the distribution locally before publishing](#how-to-test-the-distribution-before-publishing)
+
+12. [ ] Publish to PyPI:
+
+```bash
+poetry publish --build
+```
 
 ---
 

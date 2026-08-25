@@ -2,22 +2,33 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.4.0] - unreleased
+## [0.3.1] - unreleased
 
-### Added
+### Fixed
 
 - `PDFDocHandler.select_tables` now raises `ValueError` when a header cell contains a DICOM tag pattern (e.g. `(300A,0230)`), indicating that a data row was absorbed into the header — typically a `table_header_rowspan` over-count. This fails loudly instead of silently dropping an attribute row. Opt out with `strict_header_check=False` to restore the prior warn-and-continue behavior.
 
+## [0.3.0] - 2025-11-27
+
+### Added
+
+- CSV output mode in `SpecPrinter` via `print_csv` method
+- Excel OOXML output mode in `SpecPrinter` via `print_xlsx` method
+- Optional `output` parameter in `SpecPrinter` for writing to files
+- Optional `column_width` parameter in `print_table` and `print_xlsx`
+- `--print-mode` option in `modattributes` CLI for CSV and OOXML output
+- `--output` option in `modattributes` CLI for directing output to files
+
 ### Changed
 
-- Switch PyPI version badge in README from badge.fury.io to shields.io for faster updates.
-- (upcoming) Major refactor and new features. See milestone for details.
+- Switch PyPI version badge in `README` from `badge.fury.io` to `shields.io` for faster updates
+- Update modattributes CLI example for CSV and XLSX output
+- Improved nesting level color schemes for consistency and better contrast and readability.
 
-## [0.3.0] - unreleased
+### Fixed
 
-### Changed
-
-- Some new features.
+- Correct handling of `include_table` names in `DOMTableSpecParser`
+- Correct handling of empty node attributes in `SpecPrinter`
 
 ## [0.2.3] - 2025-09-29
 
