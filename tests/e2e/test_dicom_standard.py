@@ -5,7 +5,7 @@ dicom.nema.org and assert only on structural shape (non-empty, expected columns/
 present) rather than pinned values, since standard content changes between releases and that
 isn't what this suite protects against. It's a canary for NEMA changing table markup between
 releases, one representative table per distinct pipeline path. Not run by default; see
-CLAUDE.md for how to run it.
+CONTRIBUTING.md for how to run it.
 """
 
 from dcmspec.config import Config

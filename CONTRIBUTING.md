@@ -38,14 +38,14 @@ We welcome bug reports, feature requests, documentation improvements, and code c
   Then run commands like:
 
   ```bash
-  pytest
+  pytest tests/unit tests/integration
   iod-explorer
   ```
 
   **Alternatively,** you can use `poetry run` for each command without activating the environment:
 
   ```bash
-  poetry run pytest
+  poetry run pytest tests/unit tests/integration
   poetry run iod-explorer
   ```
 
@@ -53,17 +53,21 @@ We welcome bug reports, feature requests, documentation improvements, and code c
 
    - Add or update code in `src/dcmspec/`
    - Add or update documentation in `docs/`
-   - Add or update tests in `src/dcmspec/tests/`
+   - Add or update tests in `tests/unit/` (or `tests/integration/`, `tests/e2e/` as appropriate)
 
 6. **Run tests and check code style**:
 
    ```bash
-   pytest
+   pytest tests/unit tests/integration
    poetry run ruff check src/
    ```
 
    > **Note:**  
    > The project's Ruff configuration is defined in `pyproject.toml` and will be used automatically.
+   >
+   > `tests/e2e` is an opt-in canary suite that hits the live DICOM standard site; it's excluded
+   > from the command above and not required for a PR. Run it with `pytest tests/e2e` if you want
+   > to check it separately.
 
 7. **Build and check documentation** (if applicable):
 
