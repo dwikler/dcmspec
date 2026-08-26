@@ -1,6 +1,9 @@
 name: e2e
 
 on:
+  push:
+    branches:
+      - test/add-e2e-suite   # temporary, for CI validation before merge — remove before PR
   schedule:
     - cron: "17 6 1 * *"
   workflow_dispatch: {}
