@@ -51,4 +51,4 @@ jobs:
           poetry run pip install ".[gui,pdf]"
       - name: Run pytest
         shell: bash
-        run: poetry run python -m pytest -v tests
+        run: poetry run python -m pytest -v tests/unit tests/integration

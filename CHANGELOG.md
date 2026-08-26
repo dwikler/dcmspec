@@ -4,6 +4,14 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ## [0.3.1] - unreleased
 
+### Added
+
+- Reorganized `tests/` into `tests/unit`, `tests/integration`, and `tests/e2e` tiers, and added an opt-in `tests/e2e`
+  canary suite that downloads and parses real, current DICOM standard tables (Part 3 IOD+modules, Part 6 data
+  dictionary, Part 4 UPS DIMSE attributes, and a Part 3/Part 6 merge) to catch upstream markup changes between
+  standard releases. Excluded from the default test run; also runs on a monthly schedule via
+  `.github/workflows/e2e.yml`.
+
 ### Fixed
 
 - `PDFDocHandler.select_tables` now raises `ValueError` when a header cell contains a DICOM tag pattern (e.g. `(300A,0230)`), indicating that a data row was absorbed into the header — typically a `table_header_rowspan` over-count. This fails loudly instead of silently dropping an attribute row. Opt out with `strict_header_check=False` to restore the prior warn-and-continue behavior.

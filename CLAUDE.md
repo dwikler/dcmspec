@@ -20,10 +20,11 @@ poetry run pip install ".[gui,pdf]"
 Run the test suite:
 
 ```bash
-poetry run pytest tests
-poetry run pytest tests/test_spec_model.py            # single file
-poetry run pytest tests/test_spec_model.py::test_name  # single test
-poetry run pytest --cov=dcmspec tests                  # with coverage
+poetry run pytest tests/unit tests/integration                    # default suite (mocked, fast)
+poetry run pytest tests/unit/test_spec_model.py                   # single file
+poetry run pytest tests/unit/test_spec_model.py::test_name        # single test
+poetry run pytest --cov=dcmspec tests/unit tests/integration      # with coverage
+poetry run pytest tests/e2e                                       # e2e canary suite (real network, run separately)
 ```
 
 Lint:
@@ -95,18 +96,32 @@ not production-grade — don't over-engineer changes to them.
 
 ## Testing conventions
 
-- Tests live in the top-level `tests/` directory (flat, one `test_*.py` per source module), **not** under
-  `src/dcmspec/tests/` — despite what `pyproject.toml`'s packaging `exclude` and `CONTRIBUTING.md` say.
-- `tests/conftest.py` provides an autouse fixture that redirects `platformdirs` cache/config dirs into a per-test
-  tmp path, plus shared `SpecModel`/merge fixtures and a `DummyResponse` for mocking `requests`.
-- Network access is not used in tests; HTTP is mocked via `DummyResponse`/monkeypatching `requests`.
+Tests live under the top-level `tests/` directory, **not** under `src/dcmspec/tests/` — despite what
+`pyproject.toml`'s packaging `exclude` and `CONTRIBUTING.md` say — split into three tiers:
+
+- `tests/unit/` — flat, one `test_*.py` per source module, all collaborators faked/mocked, no network. This is
+  the bulk of the suite and runs on every push/PR. `tests/unit/conftest.py` provides an autouse fixture that
+  redirects `platformdirs` cache/config dirs into a per-test tmp path, plus shared `SpecModel`/merge fixtures and
+  a `DummyResponse` for mocking `requests`.
+- `tests/integration/` — reserved for tests that wire multiple real `dcmspec` classes together (e.g. a real
+  `SpecFactory` + `DocHandler` + parser cooperating end to end) with `requests` still mocked. Currently empty —
+  no existing test does this yet (every current test fakes its collaborators), so this is a placeholder
+  convention for when one is written, not an active suite.
+- `tests/e2e/` — a small canary suite that performs real network requests against the live, current DICOM
+  standard site, one representative table per distinct pipeline path (Part 3 IOD+modules, Part 6 data
+  dictionary, Part 4 UPS DIMSE attributes, a Part 3/Part 6 merge). Assertions are structural only (non-empty,
+  expected columns present), never pinned to specific standard content, since it exists to catch NEMA changing
+  table markup between releases, not to verify the standard's content. Excluded from the default test run;
+  scheduled monthly via `.github/workflows/e2e.yml` and runnable on demand.
+- Network access is not used in `tests/unit`/`tests/integration`; HTTP is mocked via `DummyResponse`/monkeypatching
+  `requests`. `tests/e2e` is the deliberate exception.
 
 ## Branching and releases
 
 See [RELEASE.md](RELEASE.md) for the full workflow; the essentials:
 
 - No direct commits/pushes to `main` or `release/*` — all changes go through PRs from branches such as `feat/`,
-  `fix/`, `change/`, `hotfix/`, `docs/`, or `chore/` (see `RELEASE.md`'s release checklist for the
+  `fix/`, `change/`, `test/`, `hotfix/`, `docs/`, or `chore/` (see `RELEASE.md`'s release checklist for the
   `docs/update-release-x.y.z` pattern).
 - `feat/`, `fix/`, `change/` branches are created from (and PR'd back into) the target `release/x.y.z` branch.
   `hotfix/` branches are created from (and PR'd back into) `main`, then propagated into active release branches.
