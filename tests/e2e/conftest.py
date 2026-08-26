@@ -18,11 +18,26 @@ def e2e_cache_dirs(tmp_path_factory):
     real Part 3 and Part 6 documents are each downloaded once and shared across the tests in
     this suite, instead of once per test.
     """
-    cache_dir = tmp_path_factory.mktemp("e2e") / "cache"
-    config_dir = tmp_path_factory.mktemp("e2e") / "config"
+    base = tmp_path_factory.mktemp("e2e")
+    cache_dir = base / "cache"
+    config_dir = base / "config"
     print(f"\ne2e cache dir: {cache_dir}")  # visible with pytest -s
     mp = pytest.MonkeyPatch()
     mp.setattr("dcmspec.config.user_cache_dir", lambda app_name: str(cache_dir))
     mp.setattr("dcmspec.config.user_config_dir", lambda app_name: str(config_dir))
-    yield
+    yield base
     mp.undo()
+
+
+@pytest.fixture(scope="session")
+def e2e_output_dir(e2e_cache_dirs):
+    """Directory for tests to write their full printed output to, instead of flooding stdout.
+
+    Alongside e2e_cache_dirs' cache/config dirs, so it's easy to find: a full tree of a large
+    model (e.g. the IOD test's ~27 modules) can run to thousands of lines, impractical to print
+    directly even with pytest -s. Tests write there via SpecPrinter(model, output=path) and print
+    just the file path, keeping -s output short while the full detail stays available on disk.
+    """
+    output_dir = e2e_cache_dirs / "output"
+    output_dir.mkdir()
+    return output_dir

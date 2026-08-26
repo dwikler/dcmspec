@@ -56,8 +56,9 @@ We welcome bug reports, feature requests, documentation improvements, and code c
    >
    > `tests/e2e` is an opt-in canary suite that hits the live DICOM standard site; it's excluded
    > from the command above and not required for a PR. Run it with `poetry run pytest tests/e2e` if you want
-   > to check it separately. Add `-s` to see where it downloaded the standard to, or
-   > `--basetemp=<dir>` to control that location yourself, e.g.
+   > to check it separately. Add `-s` to see where it downloaded the standard to and where each
+   > test wrote its full parsed output (too large to print directly), or `--basetemp=<dir>` to
+   > control that location yourself, e.g.
    > `mkdir -p tmp/dcmspec-e2e && poetry run pytest tests/e2e -s --basetemp=tmp/dcmspec-e2e` (`tmp/` is
    > gitignored; `--basetemp` needs it to already exist). Unlike the default location, pytest does
    > not auto-clean a directory you pass via `--basetemp` — it's wiped and recreated on the next

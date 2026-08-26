@@ -10,10 +10,12 @@ CONTRIBUTING.md for how to run it.
 
 from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
+from dcmspec.iod_spec_printer import IODSpecPrinter
 from dcmspec.service_attribute_defaults import UPS_COLUMNS_MAPPING, UPS_DIMSE_MAPPING, UPS_NAME_ATTR
 from dcmspec.service_attribute_model import ServiceAttributeModel
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_merger import SpecMerger
+from dcmspec.spec_printer import SpecPrinter
 from dcmspec.ups_xhtml_doc_handler import UPSXHTMLDocHandler
 
 PART3_URL = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
@@ -21,7 +23,7 @@ PART6_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part06/ch
 PART4_UPS_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_CC.2.5.html"
 
 
-def test_e2e_iod_composite_attributes_via_iod_spec_builder():
+def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
     """Part 3 Composite IOD + referenced modules, via IODSpecBuilder.build_from_url."""
     config = Config(app_name="dcmspec")
     iod_factory = SpecFactory(
@@ -60,8 +62,14 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder():
     ]
     assert not incomplete_attr_nodes, f"attribute nodes missing elem_name/elem_tag/elem_type: {incomplete_attr_nodes}"
 
+    output_path = e2e_output_dir / "iod_composite.txt"
+    IODSpecPrinter(model, output=str(output_path)).print_tree(
+        attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
+    )
+    print(f"\nIOD tree written to: {output_path}")
 
-def test_e2e_data_elements_dictionary_via_spec_factory():
+
+def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
     """Part 6 Data Elements dictionary, via plain SpecFactory.create_model."""
     config = Config(app_name="dcmspec")
     factory = SpecFactory(
@@ -94,8 +102,12 @@ def test_e2e_data_elements_dictionary_via_spec_factory():
     # Weak canary against a near-empty parse (e.g. only the header row parsing).
     assert len(model.content.children) > 1000
 
+    output_path = e2e_output_dir / "data_elements.txt"
+    SpecPrinter(model, output=str(output_path)).print_table()
+    print(f"\n{len(model.content.children)} data elements written to: {output_path}")
 
-def test_e2e_ups_dimse_attributes_via_service_attribute_model():
+
+def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
     """Part 4 UPS DIMSE service attributes, via SpecFactory + UPSXHTMLDocHandler + ServiceAttributeModel."""
     config = Config(app_name="dcmspec")
     factory = SpecFactory(
@@ -130,8 +142,12 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model():
     model.select_dimse("N-CREATE")
     assert model.content.children
 
+    output_path = e2e_output_dir / "ups_dimse.txt"
+    SpecPrinter(model, output=str(output_path)).print_tree(attr_names=["elem_tag", "elem_name"], attr_widths=[11, 64])
+    print(f"\nUPS DIMSE tree written to: {output_path}")
 
-def test_e2e_module_part6_merge_via_spec_merger():
+
+def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
     """Part 3 module (Patient Module) merged with Part 6 dictionary, via SpecMerger.merge_node."""
     config = Config(app_name="dcmspec")
     module_factory = SpecFactory(
@@ -180,3 +196,9 @@ def test_e2e_module_part6_merge_via_spec_merger():
     assert merged.content.children, "merged Patient Module model has no children"
     matched_with_vr = [n for n in merged.content.children if getattr(n, "elem_vr", None)]
     assert matched_with_vr, "no Patient Module attribute was enriched with a VR from Part 6"
+
+    output_path = e2e_output_dir / "module_part6_merge.txt"
+    SpecPrinter(merged, output=str(output_path)).print_tree(
+        attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
+    )
+    print(f"\nmerged module tree written to: {output_path}")
