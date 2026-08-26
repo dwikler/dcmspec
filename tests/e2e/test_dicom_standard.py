@@ -45,13 +45,20 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder():
     )
 
     assert model.content.children, "IOD model has no top-level module nodes"
-    for iod_node in model.content.children:
-        assert hasattr(iod_node, "module")
-        assert iod_node.children, f"module node {iod_node.name!r} has no attribute children"
-        for attr_node in iod_node.children:
-            assert hasattr(attr_node, "elem_name")
-            assert hasattr(attr_node, "elem_tag")
-            assert hasattr(attr_node, "elem_type")
+
+    missing_module_attr = [n.name for n in model.content.children if not hasattr(n, "module")]
+    assert not missing_module_attr, f"module nodes missing 'module' attribute: {missing_module_attr}"
+
+    empty_module_nodes = [n.name for n in model.content.children if not n.children]
+    assert not empty_module_nodes, f"module nodes with no attribute children: {empty_module_nodes}"
+
+    incomplete_attr_nodes = [
+        (iod_node.name, attr_node.name)
+        for iod_node in model.content.children
+        for attr_node in iod_node.children
+        if not (hasattr(attr_node, "elem_name") and hasattr(attr_node, "elem_tag") and hasattr(attr_node, "elem_type"))
+    ]
+    assert not incomplete_attr_nodes, f"attribute nodes missing elem_name/elem_tag/elem_type: {incomplete_attr_nodes}"
 
 
 def test_e2e_data_elements_dictionary_via_spec_factory():
@@ -79,8 +86,11 @@ def test_e2e_data_elements_dictionary_via_spec_factory():
     assert model.metadata.header
     assert model.content.children, "Data Elements model has no children"
     sample = model.content.children[0]
-    for attr in ("elem_tag", "elem_name", "elem_keyword", "elem_vr", "elem_vm", "elem_status"):
-        assert hasattr(sample, attr)
+    missing_attrs = [
+        a for a in ("elem_tag", "elem_name", "elem_keyword", "elem_vr", "elem_vm", "elem_status")
+        if not hasattr(sample, a)
+    ]
+    assert not missing_attrs, f"sample data element missing attributes: {missing_attrs}"
     # Weak canary against a near-empty parse (e.g. only the header row parsing).
     assert len(model.content.children) > 1000
 
@@ -106,10 +116,14 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model():
 
     assert model.content.children, "UPS attribute model has no children"
     sample = model.content.children[0]
-    assert hasattr(sample, "elem_name")
-    assert hasattr(sample, "elem_tag")
-    for attr in ("dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget", "key_matching", "key_return"):
-        assert hasattr(sample, attr)
+    missing_attrs = [
+        a for a in (
+            "elem_name", "elem_tag", "dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget",
+            "key_matching", "key_return",
+        )
+        if not hasattr(sample, a)
+    ]
+    assert not missing_attrs, f"sample UPS attribute missing attributes: {missing_attrs}"
 
     # Exercise the ServiceAttributeModel-specific filtering, which relies on UPSXHTMLDocHandler's
     # table patching having produced parseable requirement-type cells.
