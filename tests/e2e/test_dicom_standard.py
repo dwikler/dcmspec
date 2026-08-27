@@ -23,6 +23,14 @@ PART6_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part06/ch
 PART4_UPS_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part04/sect_CC.2.5.html"
 
 
+def _write_e2e_output(model, status, print_result):
+    """Print via print_result() if a model was built, else report that it never was."""
+    if model is None:
+        print(f"\n[{status}] no output: model was never built")
+        return
+    print(f"\n[{status}] {print_result()}")
+
+
 def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
     """Part 3 Composite IOD + referenced modules, via IODSpecBuilder.build_from_url.
 
@@ -75,13 +83,14 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "iod_cr-image.txt"
-        if model is not None:
+
+        def _print():
             IODSpecPrinter(model, output=str(output_path)).print_tree(
                 attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
             )
-            print(f"\n[{status}] IOD tree written to: {output_path}")
-        else:
-            print(f"\n[{status}] no output: model was never built")
+            return f"IOD tree written to: {output_path}"
+
+        _write_e2e_output(model, status, _print)
 
 
 def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
@@ -126,11 +135,12 @@ def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "data_elements.txt"
-        if model is not None:
+
+        def _print():
             SpecPrinter(model, output=str(output_path)).print_table()
-            print(f"\n[{status}] {len(model.content.children)} data elements written to: {output_path}")
-        else:
-            print(f"\n[{status}] no output: model was never built")
+            return f"{len(model.content.children)} data elements written to: {output_path}"
+
+        _write_e2e_output(model, status, _print)
 
 
 def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
@@ -177,13 +187,14 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "ups_ncreate.txt"
-        if model is not None:
+
+        def _print():
             SpecPrinter(model, output=str(output_path)).print_tree(
                 attr_names=["elem_tag", "dimse_ncreate", "elem_name"], attr_widths=[11, 16, 64]
             )
-            print(f"\n[{status}] UPS DIMSE tree written to: {output_path}")
-        else:
-            print(f"\n[{status}] no output: model was never built")
+            return f"UPS DIMSE tree written to: {output_path}"
+
+        _write_e2e_output(model, status, _print)
 
 
 def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
@@ -246,10 +257,11 @@ def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "module_patient_merged_vr.txt"
-        if merged is not None:
+
+        def _print():
             SpecPrinter(merged, output=str(output_path)).print_tree(
                 attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
             )
-            print(f"\n[{status}] merged module tree written to: {output_path}")
-        else:
-            print(f"\n[{status}] no output: model was never built")
+            return f"merged module tree written to: {output_path}"
+
+        _write_e2e_output(merged, status, _print)
