@@ -4,8 +4,8 @@ Unlike tests/unit and tests/integration, these tests perform real network reques
 dicom.nema.org and assert only on structural shape (non-empty, expected columns/attributes
 present) rather than pinned values, since standard content changes between releases and that
 isn't what this suite protects against. Each test is a canary for one distinct pipeline path
-continuing to work against the live standard; see each test's docstring for what specifically
-it guards against. Not run by default; see CONTRIBUTING.md for how to run it.
+continuing to work against the live standard.
+Not run by default; see CONTRIBUTING.md for how to run it.
 """
 
 from dcmspec.config import Config
@@ -42,16 +42,17 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
     )
     builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory)
 
-    model, _ = builder.build_from_url(
-        url=PART3_URL,
-        cache_file_name="Part3.xhtml",
-        json_file_name="e2e_Part3_table_A.3-1_expanded.json",
-        table_id="table_A.3-1",
-        force_download=False,
-    )
-
+    model = None
     status = "FAILED"
     try:
+        model, _ = builder.build_from_url(
+            url=PART3_URL,
+            cache_file_name="Part3.xhtml",
+            json_file_name="e2e_Part3_table_A.3-1_expanded.json",
+            table_id="table_A.3-1",
+            force_download=False,
+        )
+
         assert model.content.children, "IOD model has no top-level module nodes"
 
         missing_module_attr = [n.name for n in model.content.children if not hasattr(n, "module")]
@@ -74,10 +75,13 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "iod_cr-image.txt"
-        IODSpecPrinter(model, output=str(output_path)).print_tree(
-            attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
-        )
-        print(f"\n[{status}] IOD tree written to: {output_path}")
+        if model is not None:
+            IODSpecPrinter(model, output=str(output_path)).print_tree(
+                attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
+            )
+            print(f"\n[{status}] IOD tree written to: {output_path}")
+        else:
+            print(f"\n[{status}] no output: model was never built")
 
 
 def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
@@ -98,16 +102,17 @@ def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
         },
         config=config,
     )
-    model = factory.create_model(
-        url=PART6_URL,
-        cache_file_name="DataElements.xhtml",
-        table_id="table_6-1",
-        force_download=False,
-        json_file_name="e2e_DataElements.json",
-    )
-
+    model = None
     status = "FAILED"
     try:
+        model = factory.create_model(
+            url=PART6_URL,
+            cache_file_name="DataElements.xhtml",
+            table_id="table_6-1",
+            force_download=False,
+            json_file_name="e2e_DataElements.json",
+        )
+
         assert model.metadata.header
         assert model.content.children, "Data Elements model has no children"
         sample = model.content.children[0]
@@ -121,8 +126,11 @@ def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "data_elements.txt"
-        SpecPrinter(model, output=str(output_path)).print_table()
-        print(f"\n[{status}] {len(model.content.children)} data elements written to: {output_path}")
+        if model is not None:
+            SpecPrinter(model, output=str(output_path)).print_table()
+            print(f"\n[{status}] {len(model.content.children)} data elements written to: {output_path}")
+        else:
+            print(f"\n[{status}] no output: model was never built")
 
 
 def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
@@ -139,17 +147,18 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
         name_attr=UPS_NAME_ATTR,
         config=config,
     )
-    model = factory.create_model(
-        url=PART4_UPS_URL,
-        cache_file_name="UPSattributes.xhtml",
-        table_id="table_CC.2.5-3",
-        force_download=False,
-        json_file_name="e2e_UPSattributes.json",
-        model_kwargs={"dimse_mapping": UPS_DIMSE_MAPPING},
-    )
-
+    model = None
     status = "FAILED"
     try:
+        model = factory.create_model(
+            url=PART4_UPS_URL,
+            cache_file_name="UPSattributes.xhtml",
+            table_id="table_CC.2.5-3",
+            force_download=False,
+            json_file_name="e2e_UPSattributes.json",
+            model_kwargs={"dimse_mapping": UPS_DIMSE_MAPPING},
+        )
+
         assert model.content.children, "UPS attribute model has no children"
         sample = model.content.children[0]
         missing_attrs = [
@@ -168,10 +177,13 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "ups_ncreate.txt"
-        SpecPrinter(model, output=str(output_path)).print_tree(
-            attr_names=["elem_tag", "dimse_ncreate", "elem_name"], attr_widths=[11, 16, 64]
-        )
-        print(f"\n[{status}] UPS DIMSE tree written to: {output_path}")
+        if model is not None:
+            SpecPrinter(model, output=str(output_path)).print_tree(
+                attr_names=["elem_tag", "dimse_ncreate", "elem_name"], attr_widths=[11, 16, 64]
+            )
+            print(f"\n[{status}] UPS DIMSE tree written to: {output_path}")
+        else:
+            print(f"\n[{status}] no output: model was never built")
 
 
 def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
@@ -188,14 +200,6 @@ def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
         name_attr="elem_name",
         config=config,
     )
-    module_model = module_factory.create_model(
-        url=PART3_URL,
-        cache_file_name="Part3.xhtml",
-        json_file_name="e2e_Part3_table_C.7-1.json",
-        table_id="table_C.7-1",
-        force_download=False,
-    )
-
     part6_factory = SpecFactory(
         column_to_attr={
             0: "elem_tag",
@@ -207,34 +211,45 @@ def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
         },
         config=config,
     )
-    part6_model = part6_factory.create_model(
-        url=PART6_URL,
-        cache_file_name="DataElements.xhtml",
-        table_id="table_6-1",
-        force_download=False,
-        json_file_name="e2e_DataElements.json",
-    )
-
     merger = SpecMerger(config=config)
-    merged = merger.merge_node(
-        module_model,
-        part6_model,
-        match_by="attribute",
-        attribute_name="elem_tag",
-        merge_attrs=["elem_vr", "elem_vm"],
-        json_file_name="e2e_Part3_table_C.7-1_enriched.json",
-        force_update=False,
-    )
 
+    merged = None
     status = "FAILED"
     try:
+        module_model = module_factory.create_model(
+            url=PART3_URL,
+            cache_file_name="Part3.xhtml",
+            json_file_name="e2e_Part3_table_C.7-1.json",
+            table_id="table_C.7-1",
+            force_download=False,
+        )
+        part6_model = part6_factory.create_model(
+            url=PART6_URL,
+            cache_file_name="DataElements.xhtml",
+            table_id="table_6-1",
+            force_download=False,
+            json_file_name="e2e_DataElements.json",
+        )
+        merged = merger.merge_node(
+            module_model,
+            part6_model,
+            match_by="attribute",
+            attribute_name="elem_tag",
+            merge_attrs=["elem_vr", "elem_vm"],
+            json_file_name="e2e_Part3_table_C.7-1_enriched.json",
+            force_update=False,
+        )
+
         assert merged.content.children, "merged Patient Module model has no children"
         matched_with_vr = [n for n in merged.content.children if getattr(n, "elem_vr", None)]
         assert matched_with_vr, "no Patient Module attribute was enriched with a VR from Part 6"
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "module_patient_merged_vr.txt"
-        SpecPrinter(merged, output=str(output_path)).print_tree(
-            attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
-        )
-        print(f"\n[{status}] merged module tree written to: {output_path}")
+        if merged is not None:
+            SpecPrinter(merged, output=str(output_path)).print_tree(
+                attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
+            )
+            print(f"\n[{status}] merged module tree written to: {output_path}")
+        else:
+            print(f"\n[{status}] no output: model was never built")
