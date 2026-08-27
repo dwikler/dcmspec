@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "release/*"
+      - test/add-e2e-suite   # temporary, for CI validation before merge — remove before PR
   pull_request:
     branches:
       - main
@@ -38,7 +39,7 @@ jobs:
           echo "Python version is $python_version"
 
       - name: Setup Poetry
-        uses: pronovic/setup-poetry@v2
+        uses: pronovic/setup-poetry@v3
         with:
           version: "2.1.1"
           cache-venv: "true"

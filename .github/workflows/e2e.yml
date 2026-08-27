@@ -1,6 +1,9 @@
 name: e2e
 
 on:
+  push:
+    branches:
+      - test/add-e2e-suite   # temporary, for CI validation before merge — remove before PR
   schedule:
     - cron: "17 6 1 * *"
   workflow_dispatch: {}
@@ -21,7 +24,7 @@ jobs:
           python-version: "3.12"
 
       - name: Setup Poetry
-        uses: pronovic/setup-poetry@v2
+        uses: pronovic/setup-poetry@v3
         with:
           version: "2.1.1"
           cache-venv: "true"
