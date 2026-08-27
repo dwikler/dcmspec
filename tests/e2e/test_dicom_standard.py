@@ -3,9 +3,9 @@
 Unlike tests/unit and tests/integration, these tests perform real network requests against
 dicom.nema.org and assert only on structural shape (non-empty, expected columns/attributes
 present) rather than pinned values, since standard content changes between releases and that
-isn't what this suite protects against. It's a canary for NEMA changing table markup between
-releases, one representative table per distinct pipeline path. Not run by default; see
-CONTRIBUTING.md for how to run it.
+isn't what this suite protects against. Each test is a canary for one distinct pipeline path
+continuing to work against the live standard; see each test's docstring for what specifically
+it guards against. Not run by default; see CONTRIBUTING.md for how to run it.
 """
 
 from dcmspec.config import Config
@@ -24,7 +24,11 @@ PART4_UPS_URL = "https://dicom.nema.org/medical/dicom/current/output/chtml/part0
 
 
 def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
-    """Part 3 Composite IOD + referenced modules, via IODSpecBuilder.build_from_url."""
+    """Part 3 Composite IOD + referenced modules, via IODSpecBuilder.build_from_url.
+
+    Canary for NEMA changing the IOD table's or a module table's column layout, which would
+    break IODSpecBuilder's assumption of where the module/attribute fields live.
+    """
     config = Config(app_name="dcmspec")
     iod_factory = SpecFactory(
         column_to_attr={0: "ie", 1: "module", 2: "ref", 3: "usage"},
@@ -46,31 +50,42 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         force_download=False,
     )
 
-    assert model.content.children, "IOD model has no top-level module nodes"
+    status = "FAILED"
+    try:
+        assert model.content.children, "IOD model has no top-level module nodes"
 
-    missing_module_attr = [n.name for n in model.content.children if not hasattr(n, "module")]
-    assert not missing_module_attr, f"module nodes missing 'module' attribute: {missing_module_attr}"
+        missing_module_attr = [n.name for n in model.content.children if not hasattr(n, "module")]
+        assert not missing_module_attr, f"module nodes missing 'module' attribute: {missing_module_attr}"
 
-    empty_module_nodes = [n.name for n in model.content.children if not n.children]
-    assert not empty_module_nodes, f"module nodes with no attribute children: {empty_module_nodes}"
+        empty_module_nodes = [n.name for n in model.content.children if not n.children]
+        assert not empty_module_nodes, f"module nodes with no attribute children: {empty_module_nodes}"
 
-    incomplete_attr_nodes = [
-        (iod_node.name, attr_node.name)
-        for iod_node in model.content.children
-        for attr_node in iod_node.children
-        if not (hasattr(attr_node, "elem_name") and hasattr(attr_node, "elem_tag") and hasattr(attr_node, "elem_type"))
-    ]
-    assert not incomplete_attr_nodes, f"attribute nodes missing elem_name/elem_tag/elem_type: {incomplete_attr_nodes}"
-
-    output_path = e2e_output_dir / "iod_composite.txt"
-    IODSpecPrinter(model, output=str(output_path)).print_tree(
-        attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
-    )
-    print(f"\nIOD tree written to: {output_path}")
+        incomplete_attr_nodes = [
+            (iod_node.name, attr_node.name)
+            for iod_node in model.content.children
+            for attr_node in iod_node.children
+            if not (
+                hasattr(attr_node, "elem_name") and hasattr(attr_node, "elem_tag") and hasattr(attr_node, "elem_type")
+            )
+        ]
+        assert not incomplete_attr_nodes, (
+            f"attribute nodes missing elem_name/elem_tag/elem_type: {incomplete_attr_nodes}"
+        )
+        status = "PASSED"
+    finally:
+        output_path = e2e_output_dir / "iod_cr-image.txt"
+        IODSpecPrinter(model, output=str(output_path)).print_tree(
+            attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
+        )
+        print(f"\n[{status}] IOD tree written to: {output_path}")
 
 
 def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
-    """Part 6 Data Elements dictionary, via plain SpecFactory.create_model."""
+    """Part 6 Data Elements dictionary, via plain SpecFactory.create_model.
+
+    Canary for NEMA changing the Data Elements table's column layout or shrinking it drastically,
+    which would silently produce a near-empty or misaligned dictionary.
+    """
     config = Config(app_name="dcmspec")
     factory = SpecFactory(
         column_to_attr={
@@ -91,24 +106,31 @@ def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
         json_file_name="e2e_DataElements.json",
     )
 
-    assert model.metadata.header
-    assert model.content.children, "Data Elements model has no children"
-    sample = model.content.children[0]
-    missing_attrs = [
-        a for a in ("elem_tag", "elem_name", "elem_keyword", "elem_vr", "elem_vm", "elem_status")
-        if not hasattr(sample, a)
-    ]
-    assert not missing_attrs, f"sample data element missing attributes: {missing_attrs}"
-    # Weak canary against a near-empty parse (e.g. only the header row parsing).
-    assert len(model.content.children) > 1000
-
-    output_path = e2e_output_dir / "data_elements.txt"
-    SpecPrinter(model, output=str(output_path)).print_table()
-    print(f"\n{len(model.content.children)} data elements written to: {output_path}")
+    status = "FAILED"
+    try:
+        assert model.metadata.header
+        assert model.content.children, "Data Elements model has no children"
+        sample = model.content.children[0]
+        missing_attrs = [
+            a for a in ("elem_tag", "elem_name", "elem_keyword", "elem_vr", "elem_vm", "elem_status")
+            if not hasattr(sample, a)
+        ]
+        assert not missing_attrs, f"sample data element missing attributes: {missing_attrs}"
+        # Weak canary against a near-empty parse (e.g. only the header row parsing).
+        assert len(model.content.children) > 1000
+        status = "PASSED"
+    finally:
+        output_path = e2e_output_dir / "data_elements.txt"
+        SpecPrinter(model, output=str(output_path)).print_table()
+        print(f"\n[{status}] {len(model.content.children)} data elements written to: {output_path}")
 
 
 def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
-    """Part 4 UPS DIMSE service attributes, via SpecFactory + UPSXHTMLDocHandler + ServiceAttributeModel."""
+    """Part 4 UPS DIMSE service attributes, via SpecFactory + UPSXHTMLDocHandler + ServiceAttributeModel.
+
+    Canary for NEMA changing the combined-DIMSE table's cell markup, which UPSXHTMLDocHandler
+    patches before parsing; also exercises ServiceAttributeModel's DIMSE selection on real data.
+    """
     config = Config(app_name="dcmspec")
     factory = SpecFactory(
         model_class=ServiceAttributeModel,
@@ -126,29 +148,40 @@ def test_e2e_ups_dimse_attributes_via_service_attribute_model(e2e_output_dir):
         model_kwargs={"dimse_mapping": UPS_DIMSE_MAPPING},
     )
 
-    assert model.content.children, "UPS attribute model has no children"
-    sample = model.content.children[0]
-    missing_attrs = [
-        a for a in (
-            "elem_name", "elem_tag", "dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget",
-            "key_matching", "key_return",
+    status = "FAILED"
+    try:
+        assert model.content.children, "UPS attribute model has no children"
+        sample = model.content.children[0]
+        missing_attrs = [
+            a for a in (
+                "elem_name", "elem_tag", "dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget",
+                "key_matching", "key_return",
+            )
+            if not hasattr(sample, a)
+        ]
+        assert not missing_attrs, f"sample UPS attribute missing attributes: {missing_attrs}"
+
+        # Exercise the ServiceAttributeModel-specific filtering, which relies on UPSXHTMLDocHandler's
+        # table patching having produced parseable requirement-type cells.
+        model.select_dimse("N-CREATE")
+        assert model.content.children
+        status = "PASSED"
+    finally:
+        output_path = e2e_output_dir / "ups_ncreate.txt"
+        SpecPrinter(model, output=str(output_path)).print_tree(
+            attr_names=["elem_tag", "dimse_ncreate", "elem_name"], attr_widths=[11, 16, 64]
         )
-        if not hasattr(sample, a)
-    ]
-    assert not missing_attrs, f"sample UPS attribute missing attributes: {missing_attrs}"
-
-    # Exercise the ServiceAttributeModel-specific filtering, which relies on UPSXHTMLDocHandler's
-    # table patching having produced parseable requirement-type cells.
-    model.select_dimse("N-CREATE")
-    assert model.content.children
-
-    output_path = e2e_output_dir / "ups_dimse.txt"
-    SpecPrinter(model, output=str(output_path)).print_tree(attr_names=["elem_tag", "elem_name"], attr_widths=[11, 64])
-    print(f"\nUPS DIMSE tree written to: {output_path}")
+        print(f"\n[{status}] UPS DIMSE tree written to: {output_path}")
 
 
 def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
-    """Part 3 module (Patient Module) merged with Part 6 dictionary, via SpecMerger.merge_node."""
+    """Part 3 module (Patient Module) merged with Part 6 dictionary, via SpecMerger.merge_node.
+
+    SpecMerger itself is a local, in-memory operation already covered by synthetic fixtures in
+    tests/unit; what this canaries is whether tag-value formatting (e.g. "(0010,0010)") still
+    lines up between Part 3 and Part 6 — two independently evolving live documents that a
+    hand-crafted fixture can't meaningfully catch drifting apart.
+    """
     config = Config(app_name="dcmspec")
     module_factory = SpecFactory(
         column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
@@ -193,12 +226,15 @@ def test_e2e_module_part6_merge_via_spec_merger(e2e_output_dir):
         force_update=False,
     )
 
-    assert merged.content.children, "merged Patient Module model has no children"
-    matched_with_vr = [n for n in merged.content.children if getattr(n, "elem_vr", None)]
-    assert matched_with_vr, "no Patient Module attribute was enriched with a VR from Part 6"
-
-    output_path = e2e_output_dir / "module_part6_merge.txt"
-    SpecPrinter(merged, output=str(output_path)).print_tree(
-        attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
-    )
-    print(f"\nmerged module tree written to: {output_path}")
+    status = "FAILED"
+    try:
+        assert merged.content.children, "merged Patient Module model has no children"
+        matched_with_vr = [n for n in merged.content.children if getattr(n, "elem_vr", None)]
+        assert matched_with_vr, "no Patient Module attribute was enriched with a VR from Part 6"
+        status = "PASSED"
+    finally:
+        output_path = e2e_output_dir / "module_patient_merged_vr.txt"
+        SpecPrinter(merged, output=str(output_path)).print_tree(
+            attr_names=["elem_tag", "elem_type", "elem_vr", "elem_name"], attr_widths=[11, 2, 4, 64]
+        )
+        print(f"\n[{status}] merged module tree written to: {output_path}")
