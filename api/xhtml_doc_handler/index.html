@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2232,7 +2232,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">XHTMLDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handler class for DICOM specifications documents in XHTML format.</span>
+<span class="w">    </span><span class="sd">"""Handler class for DICOM specifications documents in XHTML format.</span>
 
 <span class="sd">    Provides methods to download, cache, and parse XHTML documents, returning a BeautifulSoup DOM object.</span>
 <span class="sd">    Inherits configuration and logging from DocHandler.</span>
@@ -2241,10 +2241,10 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">    Progress reporting via progress_observer covers both downloading and caching (writing to disk).</span>
 <span class="sd">    Parsing and cache loading are typically fast and do not emit progress updates.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the XHTML document handler and set cache_file_name to None.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the XHTML document handler and set cache_file_name to None."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2252,13 +2252,13 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
             <span class="bp">self</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-            <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="c1"># END LEGACY SUPPORT</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
         <span class="c1"># sourcery skip: merge-else-if-into-elif, reintroduce-else, swap-if-else-branches</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
+<span class="w">        </span><span class="sd">"""Open and parse an XHTML file, downloading it if needed.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cache_file_name (str): Path to the local cached XHTML file.</span>
@@ -2272,7 +2272,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">        Returns:</span>
 <span class="sd">            BeautifulSoup: Parsed DOM.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
         <span class="c1"># END LEGACY SUPPORT</span>
@@ -2280,11 +2280,11 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
         <span class="c1"># Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
-        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
+        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
         <span class="n">need_download</span> <span class="o">=</span> <span class="n">force_download</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_file_path</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">need_download</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must be provided to download the file.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
             <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)</span>
@@ -2300,12 +2300,12 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># END LEGACY SUPPORT</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and cache an XHTML file from a URL.</span>
+<span class="w">        </span><span class="sd">"""Download and cache an XHTML file from a URL.</span>
 
 <span class="sd">        Uses the base class download method, saving as UTF-8 text and cleaning ZWSP/NBSP.</span>
 
@@ -2323,15 +2323,15 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: If the download or save fails.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
         <span class="c1"># END LEGACY SUPPORT</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
+<span class="w">        </span><span class="sd">"""Clean text content before saving.</span>
 
 <span class="sd">        Removes zero-width space (ZWSP) and non-breaking space (NBSP) characters.</span>
 
@@ -2341,13 +2341,13 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The cleaned text.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\u200b&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-        <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\u00a0&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">cleaned_content</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\u200b"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\u00a0"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">cleaned_content</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cleaned_content</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
+<span class="w">        </span><span class="sd">"""Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file_path (str): Path to the cached XHTML file to parse.</span>
@@ -2358,28 +2358,28 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: If the file cannot be read or parsed.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading XHTML DOM from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Reading XHTML DOM from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="c1"># Use the built-in &#39;xml&#39; parser since DICOM files and cell values are well-formed XHTML.</span>
-            <span class="c1"># &quot;html.parser&quot; is fine for XHTML but unreliable for strict XML.</span>
-            <span class="c1"># &quot;lxml&quot; defaults to HTML mode and generates a warning for XML.</span>
-            <span class="c1"># &quot;lxml-xml&quot; forces XML parsing but adds the lxml dependency.</span>
-            <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XHTML DOM read successfully&quot;</span><span class="p">)</span>
+            <span class="c1"># Use the built-in 'xml' parser since DICOM files and cell values are well-formed XHTML.</span>
+            <span class="c1"># "html.parser" is fine for XHTML but unreliable for strict XML.</span>
+            <span class="c1"># "lxml" defaults to HTML mode and generates a warning for XML.</span>
+            <span class="c1"># "lxml-xml" forces XML parsing but adds the lxml dependency.</span>
+            <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">"xml"</span><span class="p">)</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"XHTML DOM read successfully"</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">dom</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_patch_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Patch an XHTML table to fix potential errors.</span>
+<span class="w">        </span><span class="sd">"""Patch an XHTML table to fix potential errors.</span>
 
 <span class="sd">        This method does nothing and may be overridden in derived classes if patching is needed.</span>
 
@@ -2390,7 +2390,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -2427,7 +2427,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the XHTML document handler and set cache_file_name to None.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Initialize the XHTML document handler and set cache_file_name to None."""</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -2524,7 +2524,7 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean text content before saving.</span>
+<span class="w">    </span><span class="sd">"""Clean text content before saving.</span>
 
 <span class="sd">    Removes zero-width space (ZWSP) and non-breaking space (NBSP) characters.</span>
 
@@ -2534,9 +2534,9 @@ Parsing and cache loading are typically fast and do not emit progress updates.</
 <span class="sd">    Returns:</span>
 <span class="sd">        str: The cleaned text.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\u200b&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-    <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\u00a0&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">cleaned_content</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\u200b"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">cleaned_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\u00a0"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">,</span> <span class="n">cleaned_content</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cleaned_content</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2731,12 +2731,12 @@ instead. Will be removed in a future release.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-    <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># END LEGACY SUPPORT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and cache an XHTML file from a URL.</span>
+<span class="w">    </span><span class="sd">"""Download and cache an XHTML file from a URL.</span>
 
 <span class="sd">    Uses the base class download method, saving as UTF-8 text and cleaning ZWSP/NBSP.</span>
 
@@ -2754,11 +2754,11 @@ instead. Will be removed in a future release.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: If the download or save fails.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
     <span class="c1"># END LEGACY SUPPORT</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2970,13 +2970,13 @@ instead. Will be removed in a future release.</p>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="c1"># END LEGACY SUPPORT</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
     <span class="c1"># sourcery skip: merge-else-if-into-elif, reintroduce-else, swap-if-else-branches</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Open and parse an XHTML file, downloading it if needed.</span>
+<span class="w">    </span><span class="sd">"""Open and parse an XHTML file, downloading it if needed.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cache_file_name (str): Path to the local cached XHTML file.</span>
@@ -2990,7 +2990,7 @@ instead. Will be removed in a future release.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        BeautifulSoup: Parsed DOM.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
     <span class="c1"># END LEGACY SUPPORT</span>
@@ -2998,11 +2998,11 @@ instead. Will be removed in a future release.</p>
     <span class="c1"># Set cache_file_name as an attribute for downstream use (e.g., in SpecFactory)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache_file_name</span> <span class="o">=</span> <span class="n">cache_file_name</span>
 
-    <span class="n">cache_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
+    <span class="n">cache_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
     <span class="n">need_download</span> <span class="o">=</span> <span class="n">force_download</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cache_file_path</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">need_download</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">url</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must be provided to download the file.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
         <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)</span>
@@ -3146,7 +3146,7 @@ instead. Will be removed in a future release.</p>
 <span class="normal">165</span>
 <span class="normal">166</span>
 <span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
+<span class="w">    </span><span class="sd">"""Parse a cached XHTML file into a BeautifulSoup DOM object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_path (str): Path to the cached XHTML file to parse.</span>
@@ -3157,25 +3157,25 @@ instead. Will be removed in a future release.</p>
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: If the file cannot be read or parsed.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading XHTML DOM from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Reading XHTML DOM from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="c1"># Use the built-in &#39;xml&#39; parser since DICOM files and cell values are well-formed XHTML.</span>
-        <span class="c1"># &quot;html.parser&quot; is fine for XHTML but unreliable for strict XML.</span>
-        <span class="c1"># &quot;lxml&quot; defaults to HTML mode and generates a warning for XML.</span>
-        <span class="c1"># &quot;lxml-xml&quot; forces XML parsing but adds the lxml dependency.</span>
-        <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;xml&quot;</span><span class="p">)</span> 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;XHTML DOM read successfully&quot;</span><span class="p">)</span>
+        <span class="c1"># Use the built-in 'xml' parser since DICOM files and cell values are well-formed XHTML.</span>
+        <span class="c1"># "html.parser" is fine for XHTML but unreliable for strict XML.</span>
+        <span class="c1"># "lxml" defaults to HTML mode and generates a warning for XML.</span>
+        <span class="c1"># "lxml-xml" forces XML parsing but adds the lxml dependency.</span>
+        <span class="n">dom</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">"xml"</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"XHTML DOM read successfully"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">dom</span>
     <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to read file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to parse XHTML file </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3238,10 +3238,10 @@ instead. Will be removed in a future release.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

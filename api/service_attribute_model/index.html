@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2243,13 +2243,13 @@ DIMSE Services and Roles are combined.</p>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ServiceAttributeModel</span><span class="p">(</span><span class="n">SpecModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A model for DICOM Services with mixed DIMSE and role requirements.</span>
+<span class="w">    </span><span class="sd">"""A model for DICOM Services with mixed DIMSE and role requirements.</span>
 
 <span class="sd">    ServiceAttributeModel extends SpecModel to support selection and filtering of attributes</span>
 <span class="sd">    and columns based on DIMSE service and role, using a provided mapping. It enables</span>
 <span class="sd">    extraction of service- and role-specific attribute sets from tables where multiple</span>
 <span class="sd">    DIMSE Services and Roles are combined.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2258,7 +2258,7 @@ DIMSE Services and Roles are combined.</p>
         <span class="n">dimse_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ServiceAttributeModel.</span>
+<span class="w">        </span><span class="sd">"""Initialize the ServiceAttributeModel.</span>
 
 <span class="sd">        Sets up the model with metadata, content, and a DIMSE mapping for filtering.</span>
 <span class="sd">        Initializes the DIMSE and role selection to None.</span>
@@ -2273,13 +2273,13 @@ DIMSE Services and Roles are combined.</p>
 <span class="sd">            The `dimse_mapping` argument should be a dictionary with the following structure:</span>
 <span class="sd">            ```python</span>
 <span class="sd">            {</span>
-<span class="sd">                &quot;ALL_DIMSE&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&lt;attribute_name&gt;, ...]</span>
+<span class="sd">                "ALL_DIMSE": {</span>
+<span class="sd">                    "attributes": [&lt;attribute_name&gt;, ...]</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;&lt;DIMSE&gt;&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&lt;attribute_name&gt;, ...],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&lt;attribute_name&gt;, ...],  # optional, for role-based requirements</span>
-<span class="sd">                    &quot;req_separator&quot;: &quot;&lt;separator&gt;&quot;,             # optional, e.g. &quot;/&quot;</span>
+<span class="sd">                "&lt;DIMSE&gt;": {</span>
+<span class="sd">                    "attributes": [&lt;attribute_name&gt;, ...],</span>
+<span class="sd">                    "req_attributes": [&lt;attribute_name&gt;, ...],  # optional, for role-based requirements</span>
+<span class="sd">                    "req_separator": "&lt;separator&gt;",             # optional, e.g. "/"</span>
 <span class="sd">                },</span>
 <span class="sd">                ...</span>
 <span class="sd">            }</span>
@@ -2288,40 +2288,40 @@ DIMSE Services and Roles are combined.</p>
 <span class="sd">        Example:</span>
 <span class="sd">            ```python</span>
 <span class="sd">            UPS_DIMSE_MAPPING = {</span>
-<span class="sd">                &quot;ALL_DIMSE&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [</span>
-<span class="sd">                        &quot;dimse_ncreate&quot;, &quot;dimse_nset&quot;, &quot;dimse_final&quot;, &quot;dimse_nget&quot;,</span>
-<span class="sd">                        &quot;key_matching&quot;, &quot;key_return&quot;, &quot;type_remark&quot;</span>
+<span class="sd">                "ALL_DIMSE": {</span>
+<span class="sd">                    "attributes": [</span>
+<span class="sd">                        "dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget",</span>
+<span class="sd">                        "key_matching", "key_return", "type_remark"</span>
 <span class="sd">                    ]</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;N-CREATE&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&quot;dimse_ncreate&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&quot;dimse_ncreate&quot;],</span>
-<span class="sd">                    &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">                "N-CREATE": {</span>
+<span class="sd">                    "attributes": ["dimse_ncreate", "type_remark"],</span>
+<span class="sd">                    "req_attributes": ["dimse_ncreate"],</span>
+<span class="sd">                    "req_separator": "/"</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;N-SET&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&quot;dimse_nset&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&quot;dimse_nset&quot;],</span>
-<span class="sd">                    &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">                "N-SET": {</span>
+<span class="sd">                    "attributes": ["dimse_nset", "type_remark"],</span>
+<span class="sd">                    "req_attributes": ["dimse_nset"],</span>
+<span class="sd">                    "req_separator": "/"</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;N-GET&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&quot;dimse_nget&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&quot;dimse_nget&quot;],</span>
-<span class="sd">                    &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">                "N-GET": {</span>
+<span class="sd">                    "attributes": ["dimse_nget", "type_remark"],</span>
+<span class="sd">                    "req_attributes": ["dimse_nget"],</span>
+<span class="sd">                    "req_separator": "/"</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;C-FIND&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&quot;key_matching&quot;, &quot;key_return&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&quot;key_matching&quot;, &quot;key_return&quot;]</span>
+<span class="sd">                "C-FIND": {</span>
+<span class="sd">                    "attributes": ["key_matching", "key_return", "type_remark"],</span>
+<span class="sd">                    "req_attributes": ["key_matching", "key_return"]</span>
 <span class="sd">                },</span>
-<span class="sd">                &quot;FINAL&quot;: {</span>
-<span class="sd">                    &quot;attributes&quot;: [&quot;dimse_final&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                    &quot;req_attributes&quot;: [&quot;dimse_final&quot;]</span>
+<span class="sd">                "FINAL": {</span>
+<span class="sd">                    "attributes": ["dimse_final", "type_remark"],</span>
+<span class="sd">                    "req_attributes": ["dimse_final"]</span>
 <span class="sd">                },</span>
 <span class="sd">            }</span>
 <span class="sd">            model = ServiceAttributeModel(metadata, content, UPS_DIMSE_MAPPING)</span>
 <span class="sd">            ```</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span> <span class="o">=</span> <span class="n">dimse_mapping</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2329,36 +2329,36 @@ DIMSE Services and Roles are combined.</p>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_dimse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimse</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the model to only retain attributes relevant to the specified DIMSE SOP Class.</span>
+<span class="w">        </span><span class="sd">"""Filter the model to only retain attributes relevant to the specified DIMSE SOP Class.</span>
 
 <span class="sd">        This method updates the model so that only the attributes required for the selected</span>
 <span class="sd">        DIMSE are kept. All other DIMSE-specific attributes are removed from the model,</span>
 <span class="sd">        while other attributes not listed in ALL_DIMSE are retained. This enables extraction</span>
-<span class="sd">        of a DIMSE-specific attribute set from a combined table. The model&#39;s metadata is also</span>
+<span class="sd">        of a DIMSE-specific attribute set from a combined table. The model's metadata is also</span>
 <span class="sd">        updated to reflect the retained attributes.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dimse (str): The key of DIMSE_MAPPING to select.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">dimse</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DIMSE &#39;</span><span class="si">{</span><span class="n">dimse</span><span class="si">}</span><span class="s2">&#39; not found in DIMSE_MAPPING&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DIMSE '</span><span class="si">{</span><span class="n">dimse</span><span class="si">}</span><span class="s2">' not found in DIMSE_MAPPING"</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">dimse</span>
 
         <span class="n">dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="n">dimse</span><span class="p">]</span>
-        <span class="n">all_dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">]</span>
+        <span class="n">all_dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="s2">"ALL_DIMSE"</span><span class="p">]</span>
 
         <span class="c1"># Determine which columns/attributes to keep for this DIMSE</span>
-        <span class="n">dimse_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">all_attributes</span> <span class="o">=</span> <span class="n">all_dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">dimse_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"attributes"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">all_attributes</span> <span class="o">=</span> <span class="n">all_dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"attributes"</span><span class="p">,</span> <span class="p">[])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_filter_node_attributes</span><span class="p">(</span><span class="n">dimse_attributes</span><span class="p">,</span> <span class="n">all_attributes</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata_for_dimse</span><span class="p">(</span><span class="n">dimse_attributes</span><span class="p">,</span> <span class="n">all_attributes</span><span class="p">)</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_filter_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimse_attributes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">all_attributes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove DIMSE attributes that are not belonging to the selected DIMSE.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Remove DIMSE attributes that are not belonging to the selected DIMSE."""</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                 <span class="c1"># Retaining non-DIMSE attributes (not in ALL_DIMSE)</span>
@@ -2366,7 +2366,7 @@ DIMSE Services and Roles are combined.</p>
                     <span class="nb">delattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_metadata_for_dimse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimse_attributes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">all_attributes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">):</span>
             <span class="c1"># Build new header and mapping, keeping original indices for column_to_attr</span>
             <span class="n">new_header</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">new_column_to_attr</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2379,7 +2379,7 @@ DIMSE Services and Roles are combined.</p>
                         <span class="n">new_column_to_attr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">new_header</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">new_column_to_attr</span>
-        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">):</span>
             <span class="c1"># Only update column_to_attr if no header in metadata</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">key</span><span class="p">:</span> <span class="n">value</span>
@@ -2388,43 +2388,43 @@ DIMSE Services and Roles are combined.</p>
             <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">select_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the model to only retain requirements for a specific role (SCU or SCP) of the selected DIMSE.</span>
+<span class="w">        </span><span class="sd">"""Filter the model to only retain requirements for a specific role (SCU or SCP) of the selected DIMSE.</span>
 
-<span class="sd">        This method updates the model so that, for attributes with role-specific requirements (e.g., &quot;SCU/SCP&quot;),</span>
+<span class="sd">        This method updates the model so that, for attributes with role-specific requirements (e.g., "SCU/SCP"),</span>
 <span class="sd">        only the requirements relevant to the selected role are retained. For example, if a attribute contains</span>
-<span class="sd">        &quot;1/2&quot;, selecting &quot;SCU&quot; will keep &quot;1&quot; and selecting &quot;SCP&quot; will keep &quot;2&quot;. Any additional comments</span>
-<span class="sd">        after a newline are preserved in a separate &quot;comment&quot; attribute. The model&#39;s metadata is also</span>
+<span class="sd">        "1/2", selecting "SCU" will keep "1" and selecting "SCP" will keep "2". Any additional comments</span>
+<span class="sd">        after a newline are preserved in a separate "comment" attribute. The model's metadata is also</span>
 <span class="sd">        updated to reflect the changes in attributes.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            role (str): The role to filter for (&quot;SCU&quot; or &quot;SCP&quot;).</span>
+<span class="sd">            role (str): The role to filter for ("SCU" or "SCP").</span>
 
 <span class="sd">        Note:</span>
 <span class="sd">            You must call select_dimse() before calling select_role(), or a RuntimeError will be raised.</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            For DIMSEs that do not have explicit SCU and SCP requirements (i.e., no &quot;req_separator&quot; specified</span>
+<span class="sd">            For DIMSEs that do not have explicit SCU and SCP requirements (i.e., no "req_separator" specified</span>
 <span class="sd">            in the mapping), this function may have no effect and will not modify the model.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: If select_dimse was not called before select_role.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">==</span> <span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;select_dimse must be called before select_role.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">==</span> <span class="s2">"ALL_DIMSE"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"select_dimse must be called before select_role."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="n">role</span>
 
         <span class="n">dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="p">]</span>
-        <span class="n">req_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;req_attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">req_separator</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;req_separator&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">req_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"req_attributes"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">req_separator</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"req_separator"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="n">comment_needed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_role_attributes</span><span class="p">(</span><span class="n">req_attributes</span><span class="p">,</span> <span class="n">req_separator</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata_for_role</span><span class="p">(</span><span class="n">comment_needed</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_filter_role_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req_attributes</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">req_separator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter node attributes for the selected role, handle comments, and return if comment column is needed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Filter node attributes for the selected role, handle comments, and return if comment column is needed."""</span>
         <span class="n">comment_needed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">req_attr</span> <span class="ow">in</span> <span class="n">req_attributes</span><span class="p">:</span>
             <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">req_attr</span>
@@ -2434,31 +2434,31 @@ DIMSE Services and Roles are combined.</p>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                         <span class="k">continue</span>
                     <span class="c1"># Split SCU/SCP optionality requirements and any additional comment</span>
-                    <span class="n">parts</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">parts</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="n">optionality</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">optionality</span><span class="p">)</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"comment"</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                         <span class="n">comment_needed</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="c1"># Split SCU/SCP optionality requirements</span>
                     <span class="k">if</span> <span class="n">req_separator</span> <span class="ow">and</span> <span class="n">req_separator</span> <span class="ow">in</span> <span class="n">optionality</span><span class="p">:</span>
                         <span class="n">sub_parts</span> <span class="o">=</span> <span class="n">optionality</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">req_separator</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                        <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">sub_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s2">&quot;SCU&quot;</span> <span class="k">else</span> <span class="n">sub_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">sub_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="s2">"SCU"</span> <span class="k">else</span> <span class="n">sub_parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">comment_needed</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_metadata_for_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment_needed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update metadata (header and column_to_attr) for role-specific requirements and comments.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update metadata (header and column_to_attr) for role-specific requirements and comments."""</span>
         <span class="k">if</span> <span class="n">comment_needed</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;comment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"comment"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">next_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">default</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">next_key</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;comment&quot;</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;Comment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Comment&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">next_key</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"comment"</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"Comment"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"Comment"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">header</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">):</span>
-                <span class="k">if</span> <span class="s2">&quot;SCU/SCP&quot;</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;SCU/SCP&quot;</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">"SCU/SCP"</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"SCU/SCP"</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2574,13 +2574,13 @@ Initializes the DIMSE and role selection to None.</p>
   <summary>Note</summary>
   <p>The <code>dimse_mapping</code> argument should be a dictionary with the following structure:
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-    <span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="s2">"ALL_DIMSE"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;&lt;DIMSE&gt;&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># optional, for role-based requirements</span>
-        <span class="s2">&quot;req_separator&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;separator&gt;&quot;</span><span class="p">,</span>             <span class="c1"># optional, e.g. &quot;/&quot;</span>
+    <span class="s2">"&lt;DIMSE&gt;"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="n">attribute_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># optional, for role-based requirements</span>
+        <span class="s2">"req_separator"</span><span class="p">:</span> <span class="s2">"&lt;separator&gt;"</span><span class="p">,</span>             <span class="c1"># optional, e.g. "/"</span>
     <span class="p">},</span>
     <span class="o">...</span>
 <span class="p">}</span>
@@ -2590,34 +2590,34 @@ Initializes the DIMSE and role selection to None.</p>
 <details class="example" open>
   <summary>Example</summary>
   <div class="highlight"><pre><span></span><code><span class="n">UPS_DIMSE_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="s2">&quot;dimse_ncreate&quot;</span><span class="p">,</span> <span class="s2">&quot;dimse_nset&quot;</span><span class="p">,</span> <span class="s2">&quot;dimse_final&quot;</span><span class="p">,</span> <span class="s2">&quot;dimse_nget&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;key_matching&quot;</span><span class="p">,</span> <span class="s2">&quot;key_return&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span>
+    <span class="s2">"ALL_DIMSE"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"dimse_ncreate"</span><span class="p">,</span> <span class="s2">"dimse_nset"</span><span class="p">,</span> <span class="s2">"dimse_final"</span><span class="p">,</span> <span class="s2">"dimse_nget"</span><span class="p">,</span>
+            <span class="s2">"key_matching"</span><span class="p">,</span> <span class="s2">"key_return"</span><span class="p">,</span> <span class="s2">"type_remark"</span>
         <span class="p">]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;N-CREATE&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_ncreate&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_ncreate&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_separator&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span>
+    <span class="s2">"N-CREATE"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_ncreate"</span><span class="p">,</span> <span class="s2">"type_remark"</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_ncreate"</span><span class="p">],</span>
+        <span class="s2">"req_separator"</span><span class="p">:</span> <span class="s2">"/"</span>
     <span class="p">},</span>
-    <span class="s2">&quot;N-SET&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_nset&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_nset&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_separator&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span>
+    <span class="s2">"N-SET"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_nset"</span><span class="p">,</span> <span class="s2">"type_remark"</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_nset"</span><span class="p">],</span>
+        <span class="s2">"req_separator"</span><span class="p">:</span> <span class="s2">"/"</span>
     <span class="p">},</span>
-    <span class="s2">&quot;N-GET&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_nget&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_nget&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_separator&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span>
+    <span class="s2">"N-GET"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_nget"</span><span class="p">,</span> <span class="s2">"type_remark"</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_nget"</span><span class="p">],</span>
+        <span class="s2">"req_separator"</span><span class="p">:</span> <span class="s2">"/"</span>
     <span class="p">},</span>
-    <span class="s2">&quot;C-FIND&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key_matching&quot;</span><span class="p">,</span> <span class="s2">&quot;key_return&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key_matching&quot;</span><span class="p">,</span> <span class="s2">&quot;key_return&quot;</span><span class="p">]</span>
+    <span class="s2">"C-FIND"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"key_matching"</span><span class="p">,</span> <span class="s2">"key_return"</span><span class="p">,</span> <span class="s2">"type_remark"</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"key_matching"</span><span class="p">,</span> <span class="s2">"key_return"</span><span class="p">]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;FINAL&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_final&quot;</span><span class="p">,</span> <span class="s2">&quot;type_remark&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;req_attributes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;dimse_final&quot;</span><span class="p">]</span>
+    <span class="s2">"FINAL"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_final"</span><span class="p">,</span> <span class="s2">"type_remark"</span><span class="p">],</span>
+        <span class="s2">"req_attributes"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"dimse_final"</span><span class="p">]</span>
     <span class="p">},</span>
 <span class="p">}</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">ServiceAttributeModel</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">UPS_DIMSE_MAPPING</span><span class="p">)</span>
@@ -2707,7 +2707,7 @@ Initializes the DIMSE and role selection to None.</p>
     <span class="n">dimse_mapping</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the ServiceAttributeModel.</span>
+<span class="w">    </span><span class="sd">"""Initialize the ServiceAttributeModel.</span>
 
 <span class="sd">    Sets up the model with metadata, content, and a DIMSE mapping for filtering.</span>
 <span class="sd">    Initializes the DIMSE and role selection to None.</span>
@@ -2722,13 +2722,13 @@ Initializes the DIMSE and role selection to None.</p>
 <span class="sd">        The `dimse_mapping` argument should be a dictionary with the following structure:</span>
 <span class="sd">        ```python</span>
 <span class="sd">        {</span>
-<span class="sd">            &quot;ALL_DIMSE&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&lt;attribute_name&gt;, ...]</span>
+<span class="sd">            "ALL_DIMSE": {</span>
+<span class="sd">                "attributes": [&lt;attribute_name&gt;, ...]</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;&lt;DIMSE&gt;&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&lt;attribute_name&gt;, ...],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&lt;attribute_name&gt;, ...],  # optional, for role-based requirements</span>
-<span class="sd">                &quot;req_separator&quot;: &quot;&lt;separator&gt;&quot;,             # optional, e.g. &quot;/&quot;</span>
+<span class="sd">            "&lt;DIMSE&gt;": {</span>
+<span class="sd">                "attributes": [&lt;attribute_name&gt;, ...],</span>
+<span class="sd">                "req_attributes": [&lt;attribute_name&gt;, ...],  # optional, for role-based requirements</span>
+<span class="sd">                "req_separator": "&lt;separator&gt;",             # optional, e.g. "/"</span>
 <span class="sd">            },</span>
 <span class="sd">            ...</span>
 <span class="sd">        }</span>
@@ -2737,40 +2737,40 @@ Initializes the DIMSE and role selection to None.</p>
 <span class="sd">    Example:</span>
 <span class="sd">        ```python</span>
 <span class="sd">        UPS_DIMSE_MAPPING = {</span>
-<span class="sd">            &quot;ALL_DIMSE&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [</span>
-<span class="sd">                    &quot;dimse_ncreate&quot;, &quot;dimse_nset&quot;, &quot;dimse_final&quot;, &quot;dimse_nget&quot;,</span>
-<span class="sd">                    &quot;key_matching&quot;, &quot;key_return&quot;, &quot;type_remark&quot;</span>
+<span class="sd">            "ALL_DIMSE": {</span>
+<span class="sd">                "attributes": [</span>
+<span class="sd">                    "dimse_ncreate", "dimse_nset", "dimse_final", "dimse_nget",</span>
+<span class="sd">                    "key_matching", "key_return", "type_remark"</span>
 <span class="sd">                ]</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;N-CREATE&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&quot;dimse_ncreate&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&quot;dimse_ncreate&quot;],</span>
-<span class="sd">                &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">            "N-CREATE": {</span>
+<span class="sd">                "attributes": ["dimse_ncreate", "type_remark"],</span>
+<span class="sd">                "req_attributes": ["dimse_ncreate"],</span>
+<span class="sd">                "req_separator": "/"</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;N-SET&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&quot;dimse_nset&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&quot;dimse_nset&quot;],</span>
-<span class="sd">                &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">            "N-SET": {</span>
+<span class="sd">                "attributes": ["dimse_nset", "type_remark"],</span>
+<span class="sd">                "req_attributes": ["dimse_nset"],</span>
+<span class="sd">                "req_separator": "/"</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;N-GET&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&quot;dimse_nget&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&quot;dimse_nget&quot;],</span>
-<span class="sd">                &quot;req_separator&quot;: &quot;/&quot;</span>
+<span class="sd">            "N-GET": {</span>
+<span class="sd">                "attributes": ["dimse_nget", "type_remark"],</span>
+<span class="sd">                "req_attributes": ["dimse_nget"],</span>
+<span class="sd">                "req_separator": "/"</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;C-FIND&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&quot;key_matching&quot;, &quot;key_return&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&quot;key_matching&quot;, &quot;key_return&quot;]</span>
+<span class="sd">            "C-FIND": {</span>
+<span class="sd">                "attributes": ["key_matching", "key_return", "type_remark"],</span>
+<span class="sd">                "req_attributes": ["key_matching", "key_return"]</span>
 <span class="sd">            },</span>
-<span class="sd">            &quot;FINAL&quot;: {</span>
-<span class="sd">                &quot;attributes&quot;: [&quot;dimse_final&quot;, &quot;type_remark&quot;],</span>
-<span class="sd">                &quot;req_attributes&quot;: [&quot;dimse_final&quot;]</span>
+<span class="sd">            "FINAL": {</span>
+<span class="sd">                "attributes": ["dimse_final", "type_remark"],</span>
+<span class="sd">                "req_attributes": ["dimse_final"]</span>
 <span class="sd">            },</span>
 <span class="sd">        }</span>
 <span class="sd">        model = ServiceAttributeModel(metadata, content, UPS_DIMSE_MAPPING)</span>
 <span class="sd">        ```</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span> <span class="o">=</span> <span class="n">dimse_mapping</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2857,29 +2857,29 @@ updated to reflect the retained attributes.</p>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">select_dimse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimse</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the model to only retain attributes relevant to the specified DIMSE SOP Class.</span>
+<span class="w">    </span><span class="sd">"""Filter the model to only retain attributes relevant to the specified DIMSE SOP Class.</span>
 
 <span class="sd">    This method updates the model so that only the attributes required for the selected</span>
 <span class="sd">    DIMSE are kept. All other DIMSE-specific attributes are removed from the model,</span>
 <span class="sd">    while other attributes not listed in ALL_DIMSE are retained. This enables extraction</span>
-<span class="sd">    of a DIMSE-specific attribute set from a combined table. The model&#39;s metadata is also</span>
+<span class="sd">    of a DIMSE-specific attribute set from a combined table. The model's metadata is also</span>
 <span class="sd">    updated to reflect the retained attributes.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dimse (str): The key of DIMSE_MAPPING to select.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">dimse</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DIMSE &#39;</span><span class="si">{</span><span class="n">dimse</span><span class="si">}</span><span class="s2">&#39; not found in DIMSE_MAPPING&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DIMSE '</span><span class="si">{</span><span class="n">dimse</span><span class="si">}</span><span class="s2">' not found in DIMSE_MAPPING"</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">=</span> <span class="n">dimse</span>
 
     <span class="n">dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="n">dimse</span><span class="p">]</span>
-    <span class="n">all_dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">]</span>
+    <span class="n">all_dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="s2">"ALL_DIMSE"</span><span class="p">]</span>
 
     <span class="c1"># Determine which columns/attributes to keep for this DIMSE</span>
-    <span class="n">dimse_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">all_attributes</span> <span class="o">=</span> <span class="n">all_dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">dimse_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"attributes"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">all_attributes</span> <span class="o">=</span> <span class="n">all_dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"attributes"</span><span class="p">,</span> <span class="p">[])</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_filter_node_attributes</span><span class="p">(</span><span class="n">dimse_attributes</span><span class="p">,</span> <span class="n">all_attributes</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata_for_dimse</span><span class="p">(</span><span class="n">dimse_attributes</span><span class="p">,</span> <span class="n">all_attributes</span><span class="p">)</span>
@@ -3008,37 +3008,37 @@ in the mapping), this function may have no effect and will not modify the model.
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">select_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter the model to only retain requirements for a specific role (SCU or SCP) of the selected DIMSE.</span>
+<span class="w">    </span><span class="sd">"""Filter the model to only retain requirements for a specific role (SCU or SCP) of the selected DIMSE.</span>
 
-<span class="sd">    This method updates the model so that, for attributes with role-specific requirements (e.g., &quot;SCU/SCP&quot;),</span>
+<span class="sd">    This method updates the model so that, for attributes with role-specific requirements (e.g., "SCU/SCP"),</span>
 <span class="sd">    only the requirements relevant to the selected role are retained. For example, if a attribute contains</span>
-<span class="sd">    &quot;1/2&quot;, selecting &quot;SCU&quot; will keep &quot;1&quot; and selecting &quot;SCP&quot; will keep &quot;2&quot;. Any additional comments</span>
-<span class="sd">    after a newline are preserved in a separate &quot;comment&quot; attribute. The model&#39;s metadata is also</span>
+<span class="sd">    "1/2", selecting "SCU" will keep "1" and selecting "SCP" will keep "2". Any additional comments</span>
+<span class="sd">    after a newline are preserved in a separate "comment" attribute. The model's metadata is also</span>
 <span class="sd">    updated to reflect the changes in attributes.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        role (str): The role to filter for (&quot;SCU&quot; or &quot;SCP&quot;).</span>
+<span class="sd">        role (str): The role to filter for ("SCU" or "SCP").</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        You must call select_dimse() before calling select_role(), or a RuntimeError will be raised.</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        For DIMSEs that do not have explicit SCU and SCP requirements (i.e., no &quot;req_separator&quot; specified</span>
+<span class="sd">        For DIMSEs that do not have explicit SCU and SCP requirements (i.e., no "req_separator" specified</span>
 <span class="sd">        in the mapping), this function may have no effect and will not modify the model.</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        RuntimeError: If select_dimse was not called before select_role.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">role</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">==</span> <span class="s2">&quot;ALL_DIMSE&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;select_dimse must be called before select_role.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimse</span> <span class="o">==</span> <span class="s2">"ALL_DIMSE"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"select_dimse must be called before select_role."</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">role</span> <span class="o">=</span> <span class="n">role</span>
 
     <span class="n">dimse_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIMSE_MAPPING</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dimse</span><span class="p">]</span>
-    <span class="n">req_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;req_attributes&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">req_separator</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;req_separator&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">req_attributes</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"req_attributes"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">req_separator</span> <span class="o">=</span> <span class="n">dimse_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"req_separator"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="n">comment_needed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_role_attributes</span><span class="p">(</span><span class="n">req_attributes</span><span class="p">,</span> <span class="n">req_separator</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_update_metadata_for_role</span><span class="p">(</span><span class="n">comment_needed</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
@@ -3104,10 +3104,10 @@ in the mapping), this function may have no effect and will not modify the model.
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

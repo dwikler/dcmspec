@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2912,22 +2912,22 @@ Inherits logging from SpecParser.</p>
 <span class="normal">861</span>
 <span class="normal">862</span>
 <span class="normal">863</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parser for DICOM specification tables in XHTML DOM format.</span>
+<span class="w">    </span><span class="sd">"""Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
 <span class="sd">    returning anytree Node objects as structured in-memory representations.</span>
 <span class="sd">    Inherits logging from SpecParser.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the DOMTableSpecParser.</span>
+<span class="w">        </span><span class="sd">"""Initialize the DOMTableSpecParser.</span>
 
 <span class="sd">        Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -2943,7 +2943,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
+<span class="w">        </span><span class="sd">"""Parse specification metadata and content from tables in the DOM.</span>
 
 <span class="sd">        Parses tables within the DOM of a DICOM document and returns a tuple containing</span>
 <span class="sd">        the metadata node and the table content node as structured in-memory representations.</span>
@@ -2966,7 +2966,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[Node, Node]: The metadata node and the table content node.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Build a list of booleans indicating, for each column, whether to extract its cells as unformatted text.</span>
@@ -3004,7 +3004,7 @@ Inherits logging from SpecParser.</p>
 
     <span class="nd">@contextmanager</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_visit_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Context manager to temporarily add a table_id to the visited_tables set during recursion.</span>
+<span class="w">        </span><span class="sd">"""Context manager to temporarily add a table_id to the visited_tables set during recursion.</span>
 
 <span class="sd">        Ensures that table_id is added to visited_tables when entering the context,</span>
 <span class="sd">        and always removed when exiting, even if an exception occurs.</span>
@@ -3013,7 +3013,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            table_id: The ID of the table being visited.</span>
 <span class="sd">            visited_tables: The set of table IDs currently being visited in the recursion stack.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">visited_tables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span>
@@ -3033,10 +3033,10 @@ Inherits logging from SpecParser.</p>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
+<span class="w">        </span><span class="sd">"""Parse specification content from tables within the DOM of a DICOM document.</span>
 
 <span class="sd">        This method extracts data from each row of the table, handles nested</span>
-<span class="sd">        tables indicated by &quot;Include&quot; links, and builds a tree-like structure</span>
+<span class="sd">        tables indicated by "Include" links, and builds a tree-like structure</span>
 <span class="sd">        of the DICOM attributes which root node is assigned to the attribute</span>
 <span class="sd">        model.</span>
 
@@ -3056,8 +3056,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            root: The root node of the tree representation of the specification table.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
@@ -3073,19 +3073,19 @@ Inherits logging from SpecParser.</p>
         <span class="c1"># visited_tables, even if an exception occurs.</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visit_table</span><span class="p">(</span><span class="n">table_id</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">):</span>
             <span class="c1"># Maps column indices in the DICOM standard table to corresponding node attribute names</span>
-            <span class="c1"># for constructing a tree-like representation of the table&#39;s data.</span>
-            <span class="c1"># self.column_to_attr = {**{0: &quot;elem_name&quot;, 1: &quot;elem_tag&quot;}, **(column_to_attr or {})}</span>
+            <span class="c1"># for constructing a tree-like representation of the table's data.</span>
+            <span class="c1"># self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}</span>
 
             <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table with id &#39;</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table with id '</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">column_to_attr</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Columns to node attributes missing.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Columns to node attributes missing."</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
 
-            <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"content"</span><span class="p">)</span>
             <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
 
@@ -3104,7 +3104,7 @@ Inherits logging from SpecParser.</p>
                 <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully"</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">root</span>
 
@@ -3114,7 +3114,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata from the document and the table within the DOM of a DICOM document.</span>
+<span class="w">        </span><span class="sd">"""Parse specification metadata from the document and the table within the DOM of a DICOM document.</span>
 
 <span class="sd">        This method extracts the version of the DICOM standard and the headers of the tables.</span>
 
@@ -3126,12 +3126,12 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            metadata_node: The root node of the tree representation of the specification metadata.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table with id &#39;</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table with id '</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
 
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">)</span>
         <span class="c1"># Parse the DICOM Standard document information</span>
         <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_version</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
@@ -3142,7 +3142,7 @@ Inherits logging from SpecParser.</p>
         <span class="k">return</span> <span class="n">metadata</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the DICOM Standard version from the DOM.</span>
+<span class="w">        </span><span class="sd">"""Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dom: The BeautifulSoup DOM object.</span>
@@ -3151,23 +3151,23 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            info_node: The info tree node.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_book</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
-            <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DICOM Standard version not found&quot;</span><span class="p">)</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="s2">""</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DICOM Standard version not found"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">version</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_version_from_book</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract version of DICOM books in HTML format.&quot;&quot;&quot;</span>
-        <span class="n">titlepage</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;titlepage&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Extract version of DICOM books in HTML format."""</span>
+        <span class="n">titlepage</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"titlepage"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">titlepage</span><span class="p">:</span>
-            <span class="n">subtitle</span> <span class="o">=</span> <span class="n">titlepage</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;h2&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;subtitle&quot;</span><span class="p">)</span>
+            <span class="n">subtitle</span> <span class="o">=</span> <span class="n">titlepage</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"h2"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"subtitle"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">subtitle</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">subtitle</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_version_from_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract version of DICOM sections in the CHTML format.&quot;&quot;&quot;</span>
-        <span class="n">document_release</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;documentreleaseinformation&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Extract version of DICOM sections in the CHTML format."""</span>
+        <span class="n">document_release</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"span"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"documentreleaseinformation"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">document_release</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">document_release</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_table_rows</span><span class="p">(</span>
@@ -3185,21 +3185,21 @@ Inherits logging from SpecParser.</p>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process all rows in the table, handling recursion, nesting, and node creation.&quot;&quot;&quot;</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="w">        </span><span class="sd">"""Process all rows in the table, handling recursion, nesting, and node creation."""</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"tr"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="n">total_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
             <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
-            <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span>
+            <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span>
 
             <span class="c1"># Add nesting level symbols to included table element names except if row is a title</span>
             <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
-                <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&gt;&quot;</span> <span class="o">*</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
+                <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"&gt;"</span> <span class="o">*</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
 
             <span class="c1"># Process Include statement unless include_depth is defined and not reached</span>
-            <span class="k">if</span> <span class="s2">&quot;Include&quot;</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">include_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">"Include"</span> <span class="ow">in</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">include_depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
                 <span class="n">next_depth</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">include_depth</span> <span class="o">-</span> <span class="mi">1</span>
 
                 <span class="n">should_include</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_circular_reference</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="p">)</span>
@@ -3229,7 +3229,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract data from a table row.</span>
+<span class="w">        </span><span class="sd">"""Extract data from a table row.</span>
 
 <span class="sd">        Processes each cell in the row, accounting for colspans and rowspans and extract formatted (HTML)</span>
 <span class="sd">        or unformatted value from paragraphs within the cells.</span>
@@ -3251,14 +3251,14 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            Dict[str, Any]: A dictionary mapping attribute names to cell values of the logical columns for the row.</span>
 
 <span class="sd">            - The **key** is the attribute name as defined in `self.column_to_attr` </span>
-<span class="sd">                (e.g., &quot;ie&quot;, &quot;module&quot;, &quot;ref&quot;, &quot;usage&quot;).</span>
+<span class="sd">                (e.g., "ie", "module", "ref", "usage").</span>
 <span class="sd">            - The **value** is the cell value for that column in this row, which may be:</span>
 <span class="sd">                - The value physically present in the current row,</span>
 <span class="sd">                - Or a value carried over from a previous row due to rowspan.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Initialize rowspan trackers if not present</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_rowspan_trackers&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_rowspan_trackers"</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">num_logical_columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">)</span>  <span class="c1"># Number of logical columns, hence expected number of cells</span>
@@ -3267,8 +3267,8 @@ Inherits logging from SpecParser.</p>
         <span class="n">physical_col_idx</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Physical column index in the DOM, index of the &lt;td&gt; cell in the &lt;tr&gt;, 0-based</span>
 
         <span class="c1"># Iterator for the &lt;td&gt; elements in the current row</span>
-        <span class="n">cell_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">))</span>
-        <span class="n">num_physical_cells</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">))</span>
+        <span class="n">cell_iter</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"td"</span><span class="p">))</span>
+        <span class="n">num_physical_cells</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"td"</span><span class="p">))</span>
 
         <span class="c1"># Only apply skip_columns if the row is missing exactly that many columns</span>
         <span class="n">apply_skip</span> <span class="o">=</span> <span class="p">(</span>
@@ -3313,7 +3313,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">physical_col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">num_logical_columns</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle carried-forward cells from rowspans for the current row.</span>
+<span class="w">        </span><span class="sd">"""Handle carried-forward cells from rowspans for the current row.</span>
 
 <span class="sd">        For each logical column, if a rowspan tracker is active for the current physical column,</span>
 <span class="sd">        use its carried-forward value for this logical column.</span>
@@ -3325,20 +3325,20 @@ Inherits logging from SpecParser.</p>
 <span class="sd">                - logical_col_idx: The next logical column index to process.</span>
 <span class="sd">                - physical_col_idx: The next physical column index to process.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">while</span> <span class="p">(</span>
             <span class="n">physical_col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">)</span>
             <span class="ow">and</span> <span class="n">logical_col_idx</span> <span class="o">&lt;</span> <span class="n">num_logical_columns</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">]</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">&quot;rows_left&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">"rows_left"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="p">):</span>
             <span class="c1"># Use carried-forward value for this logical column</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span>
             <span class="n">logical_cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">&quot;rows_left&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">"rows_left"</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
 
         <span class="c1"># Advance to next logical column and past all physical columns spanned by the carried-forward cell</span>
-            <span class="n">physical_col_idx</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">&quot;colspan&quot;</span><span class="p">]</span>
+            <span class="n">physical_col_idx</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span><span class="p">][</span><span class="s2">"colspan"</span><span class="p">]</span>
             <span class="n">logical_col_idx</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">return</span> <span class="n">logical_cells</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">physical_col_idx</span>
@@ -3353,7 +3353,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a single logical column in the row.</span>
+<span class="w">        </span><span class="sd">"""Process a single logical column in the row.</span>
 
 <span class="sd">        Extract the value from the corresponding physical &lt;td&gt; cell (if present),</span>
 <span class="sd">        handle colspans and rowspans, and update logical and physical indices.</span>
@@ -3364,7 +3364,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">                - logical_col_idx: The next logical column index to process.</span>
 <span class="sd">                - physical_col_idx: The next physical column index to process.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Ensure _rowspan_trackers has an entry for this physical column</span>
         <span class="k">if</span> <span class="n">physical_col_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -3381,8 +3381,8 @@ Inherits logging from SpecParser.</p>
         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_cell_value</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
 
         <span class="c1"># Determine colspan and rowspan</span>
-        <span class="n">colspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;colspan&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">rowspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rowspan&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">colspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"colspan"</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">rowspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"rowspan"</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
         <span class="c1"># Add the value for the first logical column spanned by this cell</span>
         <span class="n">logical_cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -3409,7 +3409,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">logical_col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract and clean the value from a cell as unformatted text or HTML.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Extract and clean the value from a cell as unformatted text or HTML."""</span>
         <span class="n">use_unformatted</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">unformatted_list</span><span class="p">[</span><span class="n">logical_col_idx</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">and</span> <span class="n">logical_col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">unformatted_list</span><span class="p">)</span>
@@ -3428,7 +3428,7 @@ Inherits logging from SpecParser.</p>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_html2text_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html2text</span><span class="o">.</span><span class="n">HTML2Text</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create and configure an html2text converter for consistent text extraction.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create and configure an html2text converter for consistent text extraction."""</span>
         <span class="n">converter</span> <span class="o">=</span> <span class="n">html2text</span><span class="o">.</span><span class="n">HTML2Text</span><span class="p">()</span>
         <span class="n">converter</span><span class="o">.</span><span class="n">ignore_links</span> <span class="o">=</span> <span class="kc">True</span>       <span class="c1"># Remove URLs</span>
         <span class="n">converter</span><span class="o">.</span><span class="n">ignore_images</span> <span class="o">=</span> <span class="kc">True</span>      <span class="c1"># Remove image references</span>
@@ -3443,16 +3443,16 @@ Inherits logging from SpecParser.</p>
         <span class="n">rowspan</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">value</span><span class="p">:</span> <span class="n">Any</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the rowspan tracker for each physical column spanned by the cell.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update the rowspan tracker for each physical column spanned by the cell."""</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">colspan</span><span class="p">):</span>
             <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">physical_col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">rowspan</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">value_for_tracker</span> <span class="o">=</span> <span class="n">value</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value_for_tracker</span><span class="p">,</span>
-                    <span class="s2">&quot;rows_left&quot;</span><span class="p">:</span> <span class="n">rowspan</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
-                    <span class="s2">&quot;colspan&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">"value"</span><span class="p">:</span> <span class="n">value_for_tracker</span><span class="p">,</span>
+                    <span class="s2">"rows_left"</span><span class="p">:</span> <span class="n">rowspan</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">"colspan"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">[</span><span class="n">physical_col_idx</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3463,7 +3463,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">attr_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map the list of extracted cell values to the attribute names for this row in presence of skipped columns.</span>
+<span class="w">        </span><span class="sd">"""Map the list of extracted cell values to the attribute names for this row in presence of skipped columns.</span>
 
 <span class="sd">        This method is used when skip_columns is set and the number of logical cells</span>
 <span class="sd">        matches the expected number of non-skipped columns. It ensures that only the</span>
@@ -3477,7 +3477,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: Dictionary mapping attribute names to cell values (excluding skipped columns).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">attr_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">attr_indices</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_columns</span><span class="p">]</span>
 
         <span class="c1"># Flag if the skipped_columns were actually skipped</span>
@@ -3495,7 +3495,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">attr_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Map the list of extracted cell values to the attribute names for this row.</span>
+<span class="w">        </span><span class="sd">"""Map the list of extracted cell values to the attribute names for this row.</span>
 
 <span class="sd">        This method builds a dictionary mapping each attribute name (from column_to_attr)</span>
 <span class="sd">        to the corresponding value in the `cells` list. If there are fewer cells than attributes,</span>
@@ -3508,7 +3508,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: Dictionary mapping attribute names to cell values (or None if missing).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">attr_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
@@ -3517,11 +3517,11 @@ Inherits logging from SpecParser.</p>
         <span class="k">return</span> <span class="n">row_data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pending_rowspans</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle cells that are carried forward from previous rows due to rowspan.</span>
+<span class="w">        </span><span class="sd">"""Handle cells that are carried forward from previous rows due to rowspan.</span>
 
 <span class="sd">        This method checks the internal _rowspan_trackers for any cells that are being</span>
 <span class="sd">        carried forward from previous rows (i.e., have rows_left &gt; 0). For each such cell,</span>
-<span class="sd">        it appends the carried-forward value to the current row&#39;s cell list, and updates</span>
+<span class="sd">        it appends the carried-forward value to the current row's cell list, and updates</span>
 <span class="sd">        the physical and logical column indices accordingly.</span>
 
 <span class="sd">        Returns:</span>
@@ -3536,7 +3536,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            - physical_col_idx tracks the actual position in the HTML table, including colspans.</span>
 <span class="sd">            - logical_col_idx tracks the logical data model column, incremented by 1 per cell.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">cells</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">colspans</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">rowspans</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3544,12 +3544,12 @@ Inherits logging from SpecParser.</p>
         <span class="n">logical_col_idx</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">tracker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rowspan_trackers</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">tracker</span> <span class="ow">and</span> <span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;rows_left&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
-                <span class="n">colspans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;colspan&quot;</span><span class="p">])</span>
-                <span class="n">rowspans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;rows_left&quot;</span><span class="p">])</span>
-                <span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;rows_left&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">physical_col_idx</span> <span class="o">+=</span> <span class="n">tracker</span><span class="p">[</span><span class="s2">&quot;colspan&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">tracker</span> <span class="ow">and</span> <span class="n">tracker</span><span class="p">[</span><span class="s2">"rows_left"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">cells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">"value"</span><span class="p">])</span>
+                <span class="n">colspans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">"colspan"</span><span class="p">])</span>
+                <span class="n">rowspans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tracker</span><span class="p">[</span><span class="s2">"rows_left"</span><span class="p">])</span>
+                <span class="n">tracker</span><span class="p">[</span><span class="s2">"rows_left"</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">physical_col_idx</span> <span class="o">+=</span> <span class="n">tracker</span><span class="p">[</span><span class="s2">"colspan"</span><span class="p">]</span>
                 <span class="n">logical_col_idx</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">return</span> <span class="n">cells</span><span class="p">,</span> <span class="n">colspans</span><span class="p">,</span> <span class="n">rowspans</span><span class="p">,</span> <span class="n">physical_col_idx</span><span class="p">,</span> <span class="n">logical_col_idx</span>
@@ -3560,14 +3560,14 @@ Inherits logging from SpecParser.</p>
         <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enforce unformatted=True for the name_attr column if it is not already set.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Enforce unformatted=True for the name_attr column if it is not already set."""</span>
         <span class="n">name_attr_col</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">col_idx</span> <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="n">name_attr</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name_attr_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">unformatted_list</span><span class="p">[</span><span class="n">name_attr_col</span><span class="p">]:</span>
             <span class="n">unformatted_list</span><span class="p">[</span><span class="n">name_attr_col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;unformatted=False for name_attr column &#39;</span><span class="si">{</span><span class="n">name_attr</span><span class="si">}</span><span class="s2">&#39; (index </span><span class="si">{</span><span class="n">name_attr_col</span><span class="si">}</span><span class="s2">) is not allowed. &quot;</span>
-                    <span class="s2">&quot;Forcing unformatted=True for this column to ensure correct parsing.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"unformatted=False for name_attr column '</span><span class="si">{</span><span class="n">name_attr</span><span class="si">}</span><span class="s2">' (index </span><span class="si">{</span><span class="n">name_attr_col</span><span class="si">}</span><span class="s2">) is not allowed. "</span>
+                    <span class="s2">"Forcing unformatted=True for this column to ensure correct parsing."</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_circular_reference</span><span class="p">(</span>
@@ -3576,19 +3576,19 @@ Inherits logging from SpecParser.</p>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
         <span class="n">table_nesting_level</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for circular reference before attempting to parse an included table.</span>
+<span class="w">        </span><span class="sd">"""Check for circular reference before attempting to parse an included table.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            bool: True if the table should be included (no circular reference), False otherwise.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
+<span class="sd">        """</span>
+        <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"class"</span><span class="p">:</span> <span class="s2">"xref"</span><span class="p">})</span>
         <span class="k">if</span> <span class="n">include_anchor</span><span class="p">:</span>
-            <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">"href"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">include_table_id</span> <span class="ow">in</span> <span class="n">visited_tables</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Circular reference detected for &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;table </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">, creating node instead of recursing&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Circular reference detected for "</span>
+                    <span class="sa">f</span><span class="s2">"table </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">, creating node instead of recursing"</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -3606,14 +3606,14 @@ Inherits logging from SpecParser.</p>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively parse Included Table.&quot;&quot;&quot;</span>
-        <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;xref&quot;</span><span class="p">})</span>
+<span class="w">        </span><span class="sd">"""Recursively parse Included Table."""</span>
+        <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"class"</span><span class="p">:</span> <span class="s2">"xref"</span><span class="p">})</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">include_anchor</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Include Table Id not found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Include Table Id not found"</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">&quot;href&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Include Table Id: </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">include_table_id</span> <span class="o">=</span> <span class="n">include_anchor</span><span class="p">[</span><span class="s2">"href"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Include Table Id: </span><span class="si">{</span><span class="n">include_table_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">included_table_tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
             <span class="n">dom</span><span class="p">,</span>
@@ -3637,7 +3637,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">row_nesting_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Nest the included table tree under the appropriate parent node.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Nest the included table tree under the appropriate parent node."""</span>
         <span class="n">parent_node</span> <span class="o">=</span> <span class="n">level_nodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row_nesting_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">included_table_tree</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
             <span class="n">child</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent_node</span>
@@ -3650,11 +3650,11 @@ Inherits logging from SpecParser.</p>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new node and attach it to the appropriate parent.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a new node and attach it to the appropriate parent."""</span>
         <span class="n">parent_node</span> <span class="o">=</span> <span class="n">level_nodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">row_nesting_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">row_nesting_level</span><span class="si">}</span><span class="s2">, Name: </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Parent: </span><span class="si">{</span><span class="n">parent_node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">parent_node</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;None&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">row_nesting_level</span><span class="si">}</span><span class="s2">, Name: </span><span class="si">{</span><span class="n">node_name</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"Parent: </span><span class="si">{</span><span class="n">parent_node</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">parent_node</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'None'</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent_node</span><span class="p">,</span> <span class="o">**</span><span class="n">row_data</span><span class="p">)</span>
         <span class="n">level_nodes</span><span class="p">[</span><span class="n">row_nesting_level</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
@@ -3664,7 +3664,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">table</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract headers from the table and saves them in the headers attribute.</span>
+<span class="w">        </span><span class="sd">"""Extract headers from the table and saves them in the headers attribute.</span>
 
 <span class="sd">        Realign the keys in column_to_attr to consecutive indices if the number of columns in the table</span>
 <span class="sd">        is less than the maximum key in column_to_attr, to handle cases where the mapping is out of sync</span>
@@ -3674,8 +3674,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            table: The table element from which to extract headers.</span>
 <span class="sd">            column_to_attr: Mapping between index of columns to parse and attributes name. </span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">cells</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;th&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"th"</span><span class="p">)</span>
         <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
         <span class="c1"># If the mapping has non-consecutive keys and the table has fewer columns, realign</span>
         <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">num_columns</span><span class="p">:</span>
@@ -3690,40 +3690,40 @@ Inherits logging from SpecParser.</p>
             <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="n">column_to_attr</span>
             <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted Header: </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracted Header: </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">header</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_clean_extracted_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clean extracted text using Unicode normalization and regex.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Clean extracted text using Unicode normalization and regex."""</span>
         <span class="c1"># Normalize unicode characters to compatibility form</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">&#39;NFKC&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">'NFKC'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
 
         <span class="c1"># Replace non-breaking spaces and zero-width spaces with regular space</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\u00a0\u200b]&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u00a0\u200b]'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
 
         <span class="c1"># Replace typographic single quotes with ASCII single quote</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\u2018\u2019]&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u2018\u2019]'</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
         <span class="c1"># Replace typographic double quotes with ASCII double quote</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\u201c\u201d\u00e2\u0080\u009c\u00e2\u0080\u009d]&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u201c\u201d\u00e2\u0080\u009c\u00e2\u0080\u009d]'</span><span class="p">,</span> <span class="s1">'"'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
         <span class="c1"># Replace em dash and en dash with hyphen</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\u2013\u2014]&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u2013\u2014]'</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
         <span class="c1"># Remove stray Â character</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\u00c2</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'</span><span class="se">\u00c2</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
 
         <span class="c1"># Collapse multiple newlines (including those separated by spaces/tabs) into a single newline</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\n\s*){2,}&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
+        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\n\s*){2,}'</span><span class="p">,</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Sanitize a string to make it safe for use as a node attribute name.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Sanitize a string to make it safe for use as a node attribute name.</span>
 
 <span class="sd">        Transformations applied:</span>
 <span class="sd">        - Convert to lowercase.</span>
 <span class="sd">        - Transliterate non-ASCII characters to ASCII.</span>
-<span class="sd">        - Replace spaces, slashes, newlines, and dots with underscores (&quot;_&quot;).</span>
-<span class="sd">        - Replace parentheses with dashes (&quot;-&quot;).</span>
+<span class="sd">        - Replace spaces, slashes, newlines, and dots with underscores ("_").</span>
+<span class="sd">        - Replace parentheses with dashes ("-").</span>
 <span class="sd">        - Remove all characters except letters, digits, underscores, and dashes.</span>
 <span class="sd">        - Collapse multiple consecutive underscores into a single underscore.</span>
 <span class="sd">        - Remove leading and trailing underscores for cleanliness.</span>
@@ -3734,26 +3734,26 @@ Inherits logging from SpecParser.</p>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: A sanitized version of the input string, suitable for use as an identifier.</span>
-<span class="sd">                    or &quot;unnamed_node&quot; if sanitization results in an empty string.</span>
+<span class="sd">                    or "unnamed_node" if sanitization results in an empty string.</span>
 
 <span class="sd">        Example:</span>
 <span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string(</span>
-<span class="sd">            &#39;&gt;&gt;Include\\nTable C.36.2.2.19-1 &quot;RT Beam Limiting Device Definition Macro Attributes&quot;\\n.&#39;</span>
+<span class="sd">            '&gt;&gt;Include\\nTable C.36.2.2.19-1 "RT Beam Limiting Device Definition Macro Attributes"\\n.'</span>
 <span class="sd">            )</span>
-<span class="sd">            &#39;include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes&#39;</span>
-<span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string(&#39;...&#39;)</span>
-<span class="sd">            &#39;unnamed_node&#39;</span>
+<span class="sd">            'include_table_c_36_2_2_19-1_rt_beam_limiting_device_definition_macro_attributes'</span>
+<span class="sd">            &gt;&gt;&gt; DOMTableSpecParser._sanitize_string('...')</span>
+<span class="sd">            'unnamed_node'</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">normalized_str</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">input_string</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ /\n</span><span class="se">\\</span><span class="s2">.]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">normalized_str</span><span class="p">)</span>  <span class="c1"># spaces, slashes, newlines, dots → _</span>
-        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[()]&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>            <span class="c1"># parentheses → -</span>
-        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-z0-9_-]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>      <span class="c1"># remove other chars</span>
-        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>              <span class="c1"># collapse multiple underscores</span>
-        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>                       <span class="c1"># remove leading/trailing underscores</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[ /\n</span><span class="se">\\</span><span class="s2">.]"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">normalized_str</span><span class="p">)</span>  <span class="c1"># spaces, slashes, newlines, dots → _</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[()]"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>            <span class="c1"># parentheses → -</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-z0-9_-]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>      <span class="c1"># remove other chars</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"_+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">sanitized</span><span class="p">)</span>              <span class="c1"># collapse multiple underscores</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="n">sanitized</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>                       <span class="c1"># remove leading/trailing underscores</span>
 
         <span class="c1"># Fallback to default name if sanitization resulted in empty string</span>
-        <span class="k">return</span> <span class="n">sanitized</span> <span class="ow">or</span> <span class="s2">&quot;unnamed_node&quot;</span>
+        <span class="k">return</span> <span class="n">sanitized</span> <span class="ow">or</span> <span class="s2">"unnamed_node"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3830,14 +3830,14 @@ Inherits logging from SpecParser.</p>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the DOMTableSpecParser.</span>
+<span class="w">    </span><span class="sd">"""Initialize the DOMTableSpecParser.</span>
 
 <span class="sd">    Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -3951,7 +3951,7 @@ Inherits logging from SpecParser.</p>
 <span class="normal">264</span>
 <span class="normal">265</span>
 <span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the DICOM Standard version from the DOM.</span>
+<span class="w">    </span><span class="sd">"""Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dom: The BeautifulSoup DOM object.</span>
@@ -3960,11 +3960,11 @@ Inherits logging from SpecParser.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        info_node: The info tree node.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_book</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
-        <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;DICOM Standard version not found&quot;</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DICOM Standard version not found"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">version</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4253,7 +4253,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from tables in the DOM.</span>
+<span class="w">    </span><span class="sd">"""Parse specification metadata and content from tables in the DOM.</span>
 
 <span class="sd">    Parses tables within the DOM of a DICOM document and returns a tuple containing</span>
 <span class="sd">    the metadata node and the table content node as structured in-memory representations.</span>
@@ -4276,7 +4276,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[Node, Node]: The metadata node and the table content node.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="c1"># Build a list of booleans indicating, for each column, whether to extract its cells as unformatted text.</span>
@@ -4459,7 +4459,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata from the document and the table within the DOM of a DICOM document.</span>
+<span class="w">    </span><span class="sd">"""Parse specification metadata from the document and the table within the DOM of a DICOM document.</span>
 
 <span class="sd">    This method extracts the version of the DICOM standard and the headers of the tables.</span>
 
@@ -4471,12 +4471,12 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="sd">    Returns:</span>
 <span class="sd">        metadata_node: The root node of the tree representation of the specification metadata.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table with id &#39;</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table with id '</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
 
-    <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">)</span>
     <span class="c1"># Parse the DICOM Standard document information</span>
     <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_version</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
@@ -4835,10 +4835,10 @@ unformatted text.</p>
     <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification content from tables within the DOM of a DICOM document.</span>
+<span class="w">    </span><span class="sd">"""Parse specification content from tables within the DOM of a DICOM document.</span>
 
 <span class="sd">    This method extracts data from each row of the table, handles nested</span>
-<span class="sd">    tables indicated by &quot;Include&quot; links, and builds a tree-like structure</span>
+<span class="sd">    tables indicated by "Include" links, and builds a tree-like structure</span>
 <span class="sd">    of the DICOM attributes which root node is assigned to the attribute</span>
 <span class="sd">    model.</span>
 
@@ -4858,8 +4858,8 @@ unformatted text.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        root: The root node of the tree representation of the specification table.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Parsing table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
@@ -4875,19 +4875,19 @@ unformatted text.</p>
     <span class="c1"># visited_tables, even if an exception occurs.</span>
     <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_visit_table</span><span class="p">(</span><span class="n">table_id</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">):</span>
         <span class="c1"># Maps column indices in the DICOM standard table to corresponding node attribute names</span>
-        <span class="c1"># for constructing a tree-like representation of the table&#39;s data.</span>
-        <span class="c1"># self.column_to_attr = {**{0: &quot;elem_name&quot;, 1: &quot;elem_tag&quot;}, **(column_to_attr or {})}</span>
+        <span class="c1"># for constructing a tree-like representation of the table's data.</span>
+        <span class="c1"># self.column_to_attr = {**{0: "elem_name", 1: "elem_tag"}, **(column_to_attr or {})}</span>
 
         <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table with id &#39;</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">&#39; not found.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table with id '</span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">column_to_attr</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Columns to node attributes missing.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Columns to node attributes missing."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
 
-        <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"content"</span><span class="p">)</span>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
 
 
@@ -4906,7 +4906,7 @@ unformatted text.</p>
             <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Nesting Level: </span><span class="si">{</span><span class="n">table_nesting_level</span><span class="si">}</span><span class="s2">, Table parsed successfully"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">root</span>
 </code></pre></div></td></tr></table></div>
@@ -4971,10 +4971,10 @@ unformatted text.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2114,19 +2114,19 @@ sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequen
 <span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">UPSXHTMLDocHandler</span><span class="p">(</span><span class="n">XHTMLDocHandler</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Subclass of XHTMLDocHandler that applies UPS-specific table patching.</span>
+<span class="w">    </span><span class="sd">"""Subclass of XHTMLDocHandler that applies UPS-specific table patching.</span>
 
 <span class="sd">    This handler applies UPS-specific patching to DICOM XHTML tables after parsing.</span>
-<span class="sd">    It corrects known issues in Table CC.2.5-3 of DICOM PS3.4, where &#39;Include&#39; rows under certain</span>
-<span class="sd">    sequence attribute rows are missing a &#39;&gt;&#39; nesting symbol. The affected sequences are:</span>
+<span class="sd">    It corrects known issues in Table CC.2.5-3 of DICOM PS3.4, where 'Include' rows under certain</span>
+<span class="sd">    sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequences are:</span>
 <span class="sd">        - Output Information Sequence</span>
 <span class="sd">        - Gender Identity Code Sequence</span>
 <span class="sd">        - Sex Parameters for Clinical Use Category Code Sequence</span>
 <span class="sd">        - Pronoun Code Sequence</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the UPSXHTMLDocHandler.</span>
+<span class="w">        </span><span class="sd">"""Initialize the UPSXHTMLDocHandler.</span>
 
 <span class="sd">        Sets up the handler with the given configuration and logger, and creates a DOMUtils</span>
 <span class="sd">        instance for DOM navigation.</span>
@@ -2135,14 +2135,14 @@ sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequen
 <span class="sd">            config (optional): Configuration object for the handler.</span>
 <span class="sd">            logger (optional): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file and apply UPS-specific table patching.</span>
+<span class="w">        </span><span class="sd">"""Parse a cached XHTML file and apply UPS-specific table patching.</span>
 
-<span class="sd">        Calls the base class&#39;s parse_dom, then patches the Output Information Sequence Include nesting level.</span>
+<span class="sd">        Calls the base class's parse_dom, then patches the Output Information Sequence Include nesting level.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file_path (str): Path to the cached XHTML file to parse.</span>
@@ -2150,42 +2150,42 @@ sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequen
 <span class="sd">        Returns:</span>
 <span class="sd">            BeautifulSoup: The patched DOM object.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">dom</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_dom</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
         <span class="c1"># Patch the table after parsing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_patch_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="s2">&quot;table_CC.2.5-3&quot;</span><span class="p">)</span>  <span class="c1"># or pass table_id dynamically if needed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_patch_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="s2">"table_CC.2.5-3"</span><span class="p">)</span>  <span class="c1"># or pass table_id dynamically if needed</span>
         <span class="k">return</span> <span class="n">dom</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_patch_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Patch the specified XHTML table to fix Include nesting level errors.</span>
+<span class="w">        </span><span class="sd">"""Patch the specified XHTML table to fix Include nesting level errors.</span>
 
-<span class="sd">        In the UPS, the &#39;Include&#39; row under some sequence attribute rows are missing one &#39;&gt;&#39; nesting symbol.</span>
+<span class="sd">        In the UPS, the 'Include' row under some sequence attribute rows are missing one '&gt;' nesting symbol.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dom: The BeautifulSoup DOM object representing the XHTML document.</span>
 <span class="sd">            table_id: The ID of the table to patch.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">patch_labels</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;&gt;Output Information Sequence&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&gt;Gender Identity Code Sequence&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&gt;Sex Parameters for Clinical Use Category Code Sequence&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;&gt;Pronoun Code Sequence&quot;</span><span class="p">,</span>
+            <span class="s2">"&gt;Output Information Sequence"</span><span class="p">,</span>
+            <span class="s2">"&gt;Gender Identity Code Sequence"</span><span class="p">,</span>
+            <span class="s2">"&gt;Sex Parameters for Clinical Use Category Code Sequence"</span><span class="p">,</span>
+            <span class="s2">"&gt;Pronoun Code Sequence"</span><span class="p">,</span>
         <span class="p">]</span>
         <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">patch_labels</span><span class="p">:</span>
             <span class="n">target_element_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_element_id</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">target_element_id</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> Include Row element ID not found&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> Include Row element ID not found"</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="n">element</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">target_element_id</span><span class="p">)</span><span class="o">.</span><span class="n">find_parent</span><span class="p">()</span>
-            <span class="n">span_element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;span&quot;</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">&quot;italic&quot;</span><span class="p">)</span>
+            <span class="n">span_element</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"span"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"italic"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">span_element</span><span class="p">:</span>
                 <span class="n">children_to_modify</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">child</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">span_element</span><span class="o">.</span><span class="n">children</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;&gt;Include&quot;</span> <span class="ow">in</span> <span class="n">child</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"&gt;Include"</span> <span class="ow">in</span> <span class="n">child</span>
                 <span class="p">]</span>
                 <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children_to_modify</span><span class="p">:</span>
-                    <span class="n">new_text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;&gt;Include&quot;</span><span class="p">)</span>
+                    <span class="n">new_text</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"&gt;Include"</span><span class="p">,</span> <span class="s2">"&gt;&gt;Include"</span><span class="p">)</span>
                     <span class="n">child</span><span class="o">.</span><span class="n">replace_with</span><span class="p">(</span><span class="n">new_text</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_search_element_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">sequence_label</span><span class="p">):</span>
@@ -2193,31 +2193,31 @@ sequence attribute rows are missing a '&gt;' nesting symbol. The affected sequen
         <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2"> found&quot;</span><span class="p">)</span>
-        <span class="n">tr_elements</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Table with id </span><span class="si">{</span><span class="n">table_id</span><span class="si">}</span><span class="s2"> found"</span><span class="p">)</span>
+        <span class="n">tr_elements</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"tr"</span><span class="p">)</span>
         <span class="n">include_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_sequence_include_id</span><span class="p">(</span><span class="n">tr_elements</span><span class="p">,</span> <span class="n">sequence_label</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">include_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No &lt;tr&gt; matching criteria found&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"No &lt;tr&gt; matching criteria found"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">include_id</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_search_sequence_include_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tr_elements</span><span class="p">,</span> <span class="n">sequence_label</span><span class="p">):</span>
         <span class="n">target_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">tr_elements</span><span class="p">:</span>
-            <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)</span>
+            <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"td"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">first_td</span> <span class="ow">and</span> <span class="n">first_td</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">sequence_label</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sequence_label</span><span class="si">}</span><span class="s2"> row found&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">sequence_label</span><span class="si">}</span><span class="s2"> row found"</span><span class="p">)</span>
                 <span class="n">target_found</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">target_found</span><span class="p">:</span>
-            <span class="n">tr</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">&quot;tr&quot;</span><span class="p">)</span>
+            <span class="n">tr</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s2">"tr"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">tr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;td&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">first_td</span> <span class="ow">and</span> <span class="n">first_td</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;&gt;Include&quot;</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Include &lt;tr&gt; found&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="n">first_td</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">first_td</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"td"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">first_td</span> <span class="ow">and</span> <span class="n">first_td</span><span class="o">.</span><span class="n">get_text</span><span class="p">(</span><span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"&gt;Include"</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Include &lt;tr&gt; found"</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">first_td</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)[</span><span class="s2">"id"</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -2318,7 +2318,7 @@ instance for DOM navigation.</p>
 <span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the UPSXHTMLDocHandler.</span>
+<span class="w">    </span><span class="sd">"""Initialize the UPSXHTMLDocHandler.</span>
 
 <span class="sd">    Sets up the handler with the given configuration and logger, and creates a DOMUtils</span>
 <span class="sd">    instance for DOM navigation.</span>
@@ -2327,7 +2327,7 @@ instance for DOM navigation.</p>
 <span class="sd">        config (optional): Configuration object for the handler.</span>
 <span class="sd">        logger (optional): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dom_utils</span> <span class="o">=</span> <span class="n">DOMUtils</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2425,9 +2425,9 @@ instance for DOM navigation.</p>
 <span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_dom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BeautifulSoup</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse a cached XHTML file and apply UPS-specific table patching.</span>
+<span class="w">    </span><span class="sd">"""Parse a cached XHTML file and apply UPS-specific table patching.</span>
 
-<span class="sd">    Calls the base class&#39;s parse_dom, then patches the Output Information Sequence Include nesting level.</span>
+<span class="sd">    Calls the base class's parse_dom, then patches the Output Information Sequence Include nesting level.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_path (str): Path to the cached XHTML file to parse.</span>
@@ -2435,10 +2435,10 @@ instance for DOM navigation.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        BeautifulSoup: The patched DOM object.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dom</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">parse_dom</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="c1"># Patch the table after parsing</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_patch_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="s2">&quot;table_CC.2.5-3&quot;</span><span class="p">)</span>  <span class="c1"># or pass table_id dynamically if needed</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_patch_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="s2">"table_CC.2.5-3"</span><span class="p">)</span>  <span class="c1"># or pass table_id dynamically if needed</span>
     <span class="k">return</span> <span class="n">dom</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2502,10 +2502,10 @@ instance for DOM navigation.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

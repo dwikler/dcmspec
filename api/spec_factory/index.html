@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2506,7 +2506,7 @@ Supports flexible configuration and caching strategies.</p>
 <span class="normal">449</span>
 <span class="normal">450</span>
 <span class="normal">451</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecFactory</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for DICOM specification models.</span>
+<span class="w">    </span><span class="sd">"""Factory for DICOM specification models.</span>
 
 <span class="sd">    Orchestrates the end-to-end process of producing structured SpecModel objects from DICOM specification sources.</span>
 <span class="sd">    This includes coordinating input handlers for downloading and caching files, table parsers for extracting</span>
@@ -2519,7 +2519,7 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">        model = factory.create_model(...)</span>
 <span class="sd">        ```</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2533,7 +2533,7 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the SpecFactory.</span>
+<span class="w">        </span><span class="sd">"""Initialize the SpecFactory.</span>
 
 <span class="sd">        The default values for `column_to_attr` and `name_attr` are designed for parsing</span>
 <span class="sd">        DICOM PS3.3 module attribute tables, where columns typically represent element name,</span>
@@ -2551,11 +2551,11 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            column_to_attr (Optional[Dict[int, str]]): Mapping from column indices to names of attributes</span>
 <span class="sd">                of model nodes. If None, a default mapping is used.</span>
 <span class="sd">            name_attr (Optional[str]): Attribute name to use for node names in the model.</span>
-<span class="sd">                If None, defaults to &quot;elem_name&quot;.</span>
+<span class="sd">                If None, defaults to "elem_name".</span>
 <span class="sd">            config (Optional[Config]): Configuration object. If None, a default Config is created.</span>
 <span class="sd">            logger (Optional[logging.Logger]): Logger instance to use.</span>
 <span class="sd">                If None, a default logger is created.</span>
-<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser's</span>
 <span class="sd">                `parse` method. Use this to supply parser-specific options such as `skip_columns` or `unformatted`.</span>
 
 <span class="sd">        Raises:</span>
@@ -2565,10 +2565,10 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            `column_to_attr` and related flags (such as `unformatted`) are dicts to support non-sequential</span>
 <span class="sd">            column mappings.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Config</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;config must be an instance of Config or None&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"config must be an instance of Config or None"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -2577,20 +2577,20 @@ Supports flexible configuration and caching strategies.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">input_handler</span> <span class="ow">or</span> <span class="n">XHTMLDocHandler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">table_parser</span> <span class="o">=</span> <span class="n">table_parser</span> <span class="ow">or</span> <span class="n">DOMTableSpecParser</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span> <span class="ow">or</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;elem_type&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;elem_description&quot;</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="n">name_attr</span> <span class="ow">or</span> <span class="s2">&quot;elem_name&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span> <span class="ow">or</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"elem_name"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"elem_tag"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"elem_type"</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">"elem_description"</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="n">name_attr</span> <span class="ow">or</span> <span class="s2">"elem_name"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">load_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
                     <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                     <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                     <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-                    <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="c1"># END LEGACY SUPPORT</span>
                     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
+<span class="w">        </span><span class="sd">"""Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url (str): The URL to download the input file from.</span>
@@ -2608,7 +2608,7 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            PDFDocHandler) and typically covers only downloading and caching (writing to disk).</span>
 <span class="sd">            Parsing and model building do not emit progress updates.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
         <span class="c1"># END LEGACY SUPPORT</span>
@@ -2626,13 +2626,13 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
         <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for and load a model from cache if available and not force_parse.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check for and load a model from cache if available and not force_parse."""</span>
         <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">"cache_file_name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
-            <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
-        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"input_handler.cache_file_name not set"</span><span class="p">)</span>
+            <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json"</span>
+        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2651,7 +2651,7 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build and cache a DICOM specification model from a parsed document object.</span>
+<span class="w">        </span><span class="sd">"""Build and cache a DICOM specification model from a parsed document object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            doc_object (Any): The parsed document object to be parsed into a model.</span>
@@ -2668,8 +2668,8 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
-<span class="sd">                `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
-<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">                `model_kwargs={"foo": foo_value, "bar": bar_value}`.</span>
+<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's</span>
 <span class="sd">                `parse` method. Use this to supply parser-specific options such as `skip_columns`.</span>
 
 <span class="sd">        If `json_file_name` is not provided, the factory will attempt to use</span>
@@ -2696,7 +2696,7 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            For example usage in a client application,</span>
 <span class="sd">            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Try to load from cache first</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2724,7 +2724,7 @@ Supports flexible configuration and caching strategies.</p>
 
         <span class="c1"># Cache the newly built model if requested</span>
         <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
-            <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+            <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
                     <span class="c1"># Report start of saving</span>
@@ -2735,7 +2735,7 @@ Supports flexible configuration and caching strategies.</p>
                     <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">model</span>
 
@@ -2756,7 +2756,7 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
+<span class="w">        </span><span class="sd">"""Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url (str): The URL to download the input file from.</span>
@@ -2772,12 +2772,12 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
 <span class="sd">                report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
 <span class="sd">                instead. Will be removed in a future release.</span>
-<span class="sd">            handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler&#39;s methods.</span>
+<span class="sd">            handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler's methods.</span>
 <span class="sd">            model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">                Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">                For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
-<span class="sd">                `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
-<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">                `model_kwargs={"foo": foo_value, "bar": bar_value}`.</span>
+<span class="sd">            parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's</span>
 <span class="sd">                `parse` method. Use this to supply parser-specific options such as `skip_columns`.</span>
 
 <span class="sd">        Returns:</span>
@@ -2797,7 +2797,7 @@ Supports flexible configuration and caching strategies.</p>
 <span class="sd">            For example usage in a client application,</span>
 <span class="sd">            see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
         <span class="c1"># END LEGACY SUPPORT</span>
@@ -2860,14 +2860,14 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load model from cache file if include depth is valid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Load model from cache file if include depth is valid."""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Load the model from cache</span>
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded model from cache </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded model from cache </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-            <span class="c1"># Do not use cache if include_depth does not match the cached model&#39;s metadata</span>
-            <span class="n">cached_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;include_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># Do not use cache if include_depth does not match the cached model's metadata</span>
+            <span class="n">cached_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"include_depth"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cached_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">cached_depth</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">))</span>
                 <span class="ow">or</span> <span class="p">(</span><span class="n">include_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cached_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
@@ -2875,8 +2875,8 @@ Supports flexible configuration and caching strategies.</p>
             <span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Cached model include_depth (</span><span class="si">{</span><span class="n">cached_depth</span><span class="si">}</span><span class="s2">) &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;does not match requested (</span><span class="si">{</span><span class="n">include_depth</span><span class="si">}</span><span class="s2">), reparsing.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Cached model include_depth (</span><span class="si">{</span><span class="n">cached_depth</span><span class="si">}</span><span class="s2">) "</span>
+                        <span class="sa">f</span><span class="s2">"does not match requested (</span><span class="si">{</span><span class="n">include_depth</span><span class="si">}</span><span class="s2">), reparsing."</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="kc">None</span>
@@ -2893,7 +2893,7 @@ Supports flexible configuration and caching strategies.</p>
             <span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load model from cache </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to load model from cache </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_and_build_model</span><span class="p">(</span>
@@ -2906,7 +2906,7 @@ Supports flexible configuration and caching strategies.</p>
         <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse and Build model from provided parsed document object.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Parse and Build model from provided parsed document object."""</span>
         <span class="c1"># Parse content and some metadata from the parsed document object</span>
         <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span>
             <span class="n">doc_object</span><span class="p">,</span>
@@ -3267,7 +3267,7 @@ column mappings.</p>
     <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the SpecFactory.</span>
+<span class="w">    </span><span class="sd">"""Initialize the SpecFactory.</span>
 
 <span class="sd">    The default values for `column_to_attr` and `name_attr` are designed for parsing</span>
 <span class="sd">    DICOM PS3.3 module attribute tables, where columns typically represent element name,</span>
@@ -3285,11 +3285,11 @@ column mappings.</p>
 <span class="sd">        column_to_attr (Optional[Dict[int, str]]): Mapping from column indices to names of attributes</span>
 <span class="sd">            of model nodes. If None, a default mapping is used.</span>
 <span class="sd">        name_attr (Optional[str]): Attribute name to use for node names in the model.</span>
-<span class="sd">            If None, defaults to &quot;elem_name&quot;.</span>
+<span class="sd">            If None, defaults to "elem_name".</span>
 <span class="sd">        config (Optional[Config]): Configuration object. If None, a default Config is created.</span>
 <span class="sd">        logger (Optional[logging.Logger]): Logger instance to use.</span>
 <span class="sd">            If None, a default logger is created.</span>
-<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Default keyword arguments to pass to the parser's</span>
 <span class="sd">            `parse` method. Use this to supply parser-specific options such as `skip_columns` or `unformatted`.</span>
 
 <span class="sd">    Raises:</span>
@@ -3299,10 +3299,10 @@ column mappings.</p>
 <span class="sd">        `column_to_attr` and related flags (such as `unformatted`) are dicts to support non-sequential</span>
 <span class="sd">        column mappings.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Config</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;config must be an instance of Config or None&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"config must be an instance of Config or None"</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -3311,8 +3311,8 @@ column mappings.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span> <span class="o">=</span> <span class="n">input_handler</span> <span class="ow">or</span> <span class="n">XHTMLDocHandler</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">table_parser</span> <span class="o">=</span> <span class="n">table_parser</span> <span class="ow">or</span> <span class="n">DOMTableSpecParser</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span> <span class="ow">or</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;elem_type&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;elem_description&quot;</span><span class="p">}</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="n">name_attr</span> <span class="ow">or</span> <span class="s2">&quot;elem_name&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span> <span class="ow">or</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"elem_name"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"elem_tag"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"elem_type"</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">"elem_description"</span><span class="p">}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name_attr</span> <span class="o">=</span> <span class="n">name_attr</span> <span class="ow">or</span> <span class="s2">"elem_name"</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">parser_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3694,7 +3694,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
     <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build and cache a DICOM specification model from a parsed document object.</span>
+<span class="w">    </span><span class="sd">"""Build and cache a DICOM specification model from a parsed document object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        doc_object (Any): The parsed document object to be parsed into a model.</span>
@@ -3711,8 +3711,8 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 <span class="sd">        model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
-<span class="sd">            `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
-<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">            `model_kwargs={"foo": foo_value, "bar": bar_value}`.</span>
+<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's</span>
 <span class="sd">            `parse` method. Use this to supply parser-specific options such as `skip_columns`.</span>
 
 <span class="sd">    If `json_file_name` is not provided, the factory will attempt to use</span>
@@ -3739,7 +3739,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 <span class="sd">        For example usage in a client application,</span>
 <span class="sd">        see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Try to load from cache first</span>
     <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">try_load_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">,</span> <span class="n">force_parse</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3767,7 +3767,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 
     <span class="c1"># Cache the newly built model if requested</span>
     <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
-        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+        <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">progress_observer</span><span class="p">:</span>
                 <span class="c1"># Report start of saving</span>
@@ -3778,7 +3778,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
                 <span class="n">progress_observer</span><span class="p">(</span><span class="n">Progress</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">ProgressStatus</span><span class="o">.</span><span class="n">SAVING_MODEL</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">total_steps</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to cache model to </span><span class="si">{</span><span class="n">json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">model</span>
 </code></pre></div></td></tr></table></div>
@@ -4227,7 +4227,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
     <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
+<span class="w">    </span><span class="sd">"""Integrated, one-step method to fetch, parse, and build a DICOM specification model from a URL.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        url (str): The URL to download the input file from.</span>
@@ -4243,12 +4243,12 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 <span class="sd">        progress_callback (Optional[Callable[[int], None]]): [LEGACY, Deprecated] Optional callback to</span>
 <span class="sd">            report progress as an integer percent (0-100, or -1 if indeterminate). Use progress_observer</span>
 <span class="sd">            instead. Will be removed in a future release.</span>
-<span class="sd">        handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler&#39;s methods.</span>
+<span class="sd">        handler_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for the input handler's methods.</span>
 <span class="sd">        model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.</span>
 <span class="sd">            Use this to supply extra parameters required by custom SpecModel subclasses.</span>
 <span class="sd">            For example, if your model class is `MyModel(metadata, content, foo, bar)`, pass</span>
-<span class="sd">            `model_kwargs={&quot;foo&quot;: foo_value, &quot;bar&quot;: bar_value}`.</span>
-<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser&#39;s</span>
+<span class="sd">            `model_kwargs={"foo": foo_value, "bar": bar_value}`.</span>
+<span class="sd">        parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's</span>
 <span class="sd">            `parse` method. Use this to supply parser-specific options such as `skip_columns`.</span>
 
 <span class="sd">    Returns:</span>
@@ -4268,7 +4268,7 @@ see <a href="../progress/#dcmspec.progress.ProgressStatus"><code>ProgressStatus<
 <span class="sd">        For example usage in a client application,</span>
 <span class="sd">        see [`ProgressStatus`](progress.md#dcmspec.progress.ProgressStatus).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
     <span class="c1"># END LEGACY SUPPORT</span>
@@ -4525,12 +4525,12 @@ Parsing and model building do not emit progress updates.</p>
                 <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                 <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
                 <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
-                <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">&#39;Optional[ProgressObserver]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
-                <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">&#39;Optional[Callable[[int], None]]&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="c1"># END LEGACY SUPPORT</span>
                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download, cache, and parse the specification file from a URL, returning the document object.</span>
+<span class="w">    </span><span class="sd">"""Download, cache, and parse the specification file from a URL, returning the document object.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        url (str): The URL to download the input file from.</span>
@@ -4548,7 +4548,7 @@ Parsing and model building do not emit progress updates.</p>
 <span class="sd">        PDFDocHandler) and typically covers only downloading and caching (writing to disk).</span>
 <span class="sd">        Parsing and model building do not emit progress updates.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
     <span class="c1"># END LEGACY SUPPORT</span>
@@ -4605,13 +4605,13 @@ Parsing and model building do not emit progress updates.</p>
     <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
     <span class="n">force_parse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check for and load a model from cache if available and not force_parse.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check for and load a model from cache if available and not force_parse."""</span>
     <span class="k">if</span> <span class="n">json_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">&quot;cache_file_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">cache_file_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_handler</span><span class="p">,</span> <span class="s2">"cache_file_name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cache_file_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;input_handler.cache_file_name not set&quot;</span><span class="p">)</span>
-        <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json&quot;</span>
-    <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"input_handler.cache_file_name not set"</span><span class="p">)</span>
+        <span class="n">json_file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">cache_file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.json"</span>
+    <span class="n">json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_parse</span><span class="p">:</span>
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_model_from_cache</span><span class="p">(</span><span class="n">json_file_path</span><span class="p">,</span> <span class="n">include_depth</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -4679,10 +4679,10 @@ Parsing and model building do not emit progress updates.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

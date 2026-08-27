@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2590,7 +2590,7 @@ IHE profile specification.</p>
 <span class="normal">534</span>
 <span class="normal">535</span>
 <span class="normal">536</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecMerger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges multiple DICOM specification models.</span>
+<span class="w">    </span><span class="sd">"""Merges multiple DICOM specification models.</span>
 
 <span class="sd">    The SpecMerger class provides methods to combine and enrich DICOM SpecModel objects,</span>
 <span class="sd">    supporting both path-based and node-based merging strategies. This is useful for</span>
@@ -2598,10 +2598,10 @@ IHE profile specification.</p>
 <span class="sd">    PS3.3 module attributes models with definitions from the PS3.6 data elements dictionary,</span>
 <span class="sd">    or combining a PS3.3 specification with a PS3.4 SOP class and then enriching with an </span>
 <span class="sd">    IHE profile specification.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_store</span><span class="p">:</span> <span class="n">SpecStore</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the SpecMerger.</span>
+<span class="w">        </span><span class="sd">"""Initialize the SpecMerger.</span>
 
 <span class="sd">        Sets up the logger for the merger. If no logger is provided, a default logger is created.</span>
 <span class="sd">        If no model_store is provided, defaults to JSONSpecStore.</span>
@@ -2611,7 +2611,7 @@ IHE profile specification.</p>
 <span class="sd">            model_store (Optional[SpecStore]): Store for loading and saving models. Defaults to JSONSpecStore.</span>
 <span class="sd">            logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -2620,32 +2620,32 @@ IHE profile specification.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
         <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"name"</span><span class="p">,</span>
         <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects using the node merge method, with optional caching.</span>
+<span class="w">        </span><span class="sd">"""Merge two DICOM SpecModel objects using the node merge method, with optional caching.</span>
 
 <span class="sd">        This is a convenience method that calls merge_many with two models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model1 (SpecModel): The first model.</span>
 <span class="sd">            model2 (SpecModel): The second model to merge with the first.</span>
-<span class="sd">            match_by (str, optional): &quot;name&quot; to match by node name, &quot;attribute&quot; to match by a specific attribute.</span>
+<span class="sd">            match_by (str, optional): "name" to match by node name, "attribute" to match by a specific attribute.</span>
 <span class="sd">            attribute_name (str, optional): The attribute name to use for matching.</span>
-<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
 <span class="sd">            json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
 <span class="sd">            force_update (bool, optional): If True, always perform the merge and overwrite the cache.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            SpecModel: The merged SpecModel instance.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_many</span><span class="p">(</span>
             <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">],</span>
-            <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;matching_node&quot;</span><span class="p">,</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s2">"matching_node"</span><span class="p">,</span>
             <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
             <span class="n">attribute_names</span><span class="o">=</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">],</span>
             <span class="n">merge_attrs_list</span><span class="o">=</span><span class="p">[</span><span class="n">merge_attrs</span><span class="p">],</span>
@@ -2657,28 +2657,28 @@ IHE profile specification.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
         <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;attribute&quot;</span><span class="p">,</span>
-        <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span>
+        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"attribute"</span><span class="p">,</span>
+        <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_tag"</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects using the path merge method, with optional caching.</span>
+<span class="w">        </span><span class="sd">"""Merge two DICOM SpecModel objects using the path merge method, with optional caching.</span>
 
 <span class="sd">        This is a convenience method that calls merge_many with two models.</span>
 
-<span class="sd">        By default, this method matches nodes by their DICOM tag (attribute_name=&quot;elem_tag&quot;) using</span>
-<span class="sd">        path-based merging (match_by=&quot;attribute&quot;). This is the recommended and robust approach for</span>
+<span class="sd">        By default, this method matches nodes by their DICOM tag (attribute_name="elem_tag") using</span>
+<span class="sd">        path-based merging (match_by="attribute"). This is the recommended and robust approach for</span>
 <span class="sd">        DICOM attribute-level merging, as DICOM tags are unique and consistent identifiers.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model1 (SpecModel): The first model.</span>
 <span class="sd">            model2 (SpecModel): The second model to merge with the first.</span>
-<span class="sd">            match_by (str, optional): &quot;attribute&quot; (default, recommended) to match by a specific attribute (DICOM tag),</span>
-<span class="sd">                or &quot;name&quot; to match by node name.</span>
-<span class="sd">            attribute_name (str, optional): The attribute name to use for matching (default: &quot;elem_tag&quot;).</span>
-<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">            match_by (str, optional): "attribute" (default, recommended) to match by a specific attribute (DICOM tag),</span>
+<span class="sd">                or "name" to match by node name.</span>
+<span class="sd">            attribute_name (str, optional): The attribute name to use for matching (default: "elem_tag").</span>
+<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
 <span class="sd">            json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
 <span class="sd">            force_update (bool, optional): If True, always perform the merge and overwrite the cache.</span>
 <span class="sd">            ignore_module_level (bool, optional): If True, skip the module level when matching paths.</span>
@@ -2687,14 +2687,14 @@ IHE profile specification.</p>
 <span class="sd">            SpecModel: The merged SpecModel instance.</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            For DICOM attribute-level merging, the default (match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot;)</span>
-<span class="sd">            is strongly recommended. Only use match_by=&quot;name&quot; for special cases where tag-based matching is</span>
+<span class="sd">            For DICOM attribute-level merging, the default (match_by="attribute", attribute_name="elem_tag")</span>
+<span class="sd">            is strongly recommended. Only use match_by="name" for special cases where tag-based matching is</span>
 <span class="sd">            not possible.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_many</span><span class="p">(</span>
             <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">],</span>
-            <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;matching_path&quot;</span><span class="p">,</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="s2">"matching_path"</span><span class="p">,</span>
             <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
             <span class="n">attribute_names</span><span class="o">=</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">],</span>
             <span class="n">merge_attrs_list</span><span class="o">=</span><span class="p">[</span><span class="n">merge_attrs</span><span class="p">],</span>
@@ -2707,21 +2707,21 @@ IHE profile specification.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
         <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"name"</span><span class="p">,</span>
         <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_type&quot;</span><span class="p">,</span>
-        <span class="n">default_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+        <span class="n">default_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_type"</span><span class="p">,</span>
+        <span class="n">default_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"3"</span><span class="p">,</span>
         <span class="n">default_value_func</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.</span>
+<span class="w">        </span><span class="sd">"""Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.</span>
 
 <span class="sd">        This method merges two models using the path-based merge strategy (matching nodes by their</span>
-<span class="sd">        hierarchical path and by DICOM tag, i.e., match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot; by default),</span>
+<span class="sd">        hierarchical path and by DICOM tag, i.e., match_by="attribute", attribute_name="elem_tag" by default),</span>
 <span class="sd">        and then sets `default_attr` to `default_value` for any node in the merged model that does not already</span>
 <span class="sd">        have that attribute.</span>
 
@@ -2734,19 +2734,19 @@ IHE profile specification.</p>
 <span class="sd">            - Merging a DICOM PS3.3 normalized IOD attributes specification (e.g., built with IODSpecBuilder)</span>
 <span class="sd">              with a DICOM PS3.4 DIMSE SCU or SCP attributes specification (e.g., built with ServiceAttributeModel</span>
 <span class="sd">              and select_dimse/select_role). After merging, any node present in the normalized IOD model but</span>
-<span class="sd">              missing from the service attribute model will have its &quot;Type&quot; (or other specified attribute)</span>
-<span class="sd">              set to the default value (e.g., &quot;3&quot;), ensuring the merged model is complete and ready for</span>
+<span class="sd">              missing from the service attribute model will have its "Type" (or other specified attribute)</span>
+<span class="sd">              set to the default value (e.g., "3"), ensuring the merged model is complete and ready for</span>
 <span class="sd">              further processing or export.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model1 (SpecModel): The first model (e.g., normalized IOD).</span>
 <span class="sd">            model2 (SpecModel): The second model (e.g., service attribute model).</span>
-<span class="sd">            match_by (str, optional): &quot;attribute&quot; (default, recommended) to match by a specific attribute (DICOM tag),</span>
-<span class="sd">                or &quot;name&quot; to match by node name.</span>
-<span class="sd">            attribute_name (str, optional): The attribute name to use for matching (default: &quot;elem_tag&quot;).</span>
-<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
-<span class="sd">            default_attr (str, optional): The attribute to set if missing (default: &quot;elem_type&quot;).</span>
-<span class="sd">            default_value (str, optional): The value to set for missing attributes (default: &quot;3&quot;).</span>
+<span class="sd">            match_by (str, optional): "attribute" (default, recommended) to match by a specific attribute (DICOM tag),</span>
+<span class="sd">                or "name" to match by node name.</span>
+<span class="sd">            attribute_name (str, optional): The attribute name to use for matching (default: "elem_tag").</span>
+<span class="sd">            merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
+<span class="sd">            default_attr (str, optional): The attribute to set if missing (default: "elem_type").</span>
+<span class="sd">            default_value (str, optional): The value to set for missing attributes (default: "3").</span>
 <span class="sd">            default_value_func (callable, optional): A function to determine the default value for missing attributes.</span>
 <span class="sd">                If provided, it will be called as</span>
 <span class="sd">                `default_value_func(node, merged_model, service_model, default_attr, default_value)`</span>
@@ -2759,11 +2759,11 @@ IHE profile specification.</p>
 <span class="sd">            SpecModel: The merged SpecModel instance with default values set for missing attributes.</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            For DICOM attribute-level merging, the default (match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot;)</span>
-<span class="sd">            is strongly recommended. Only use match_by=&quot;name&quot; for special cases where tag-based matching is</span>
+<span class="sd">            For DICOM attribute-level merging, the default (match_by="attribute", attribute_name="elem_tag")</span>
+<span class="sd">            is strongly recommended. Only use match_by="name" for special cases where tag-based matching is</span>
 <span class="sd">            not possible.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_path</span><span class="p">(</span>
             <span class="n">model1</span><span class="p">,</span>
             <span class="n">model2</span><span class="p">,</span>
@@ -2800,7 +2800,7 @@ IHE profile specification.</p>
         <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge a sequence of DICOM SpecModel objects using the specified merge method, with optional caching.</span>
+<span class="w">        </span><span class="sd">"""Merge a sequence of DICOM SpecModel objects using the specified merge method, with optional caching.</span>
 
 <span class="sd">        This method merges a list of models in order, applying either path-based or node-based</span>
 <span class="sd">        merging at each step. You can specify different attribute names and lists of attributes</span>
@@ -2810,11 +2810,11 @@ IHE profile specification.</p>
 
 <span class="sd">        Args:</span>
 <span class="sd">            models (list of SpecModel): The models to merge, in order.</span>
-<span class="sd">            method (str): Merge method to use (&quot;matching_path&quot; or &quot;matching_node&quot;).</span>
-<span class="sd">            match_by (str): &quot;name&quot; to match by node name, &quot;attribute&quot; to match by a specific attribute.</span>
+<span class="sd">            method (str): Merge method to use ("matching_path" or "matching_node").</span>
+<span class="sd">            match_by (str): "name" to match by node name, "attribute" to match by a specific attribute.</span>
 <span class="sd">            attribute_names (list, optional): List of attribute names to use for each merge step.</span>
 <span class="sd">                Each entry corresponds to a merge operation between two models.</span>
-<span class="sd">                Required if match_by=&quot;attribute&quot;. If match_by=&quot;name&quot;, can be None.</span>
+<span class="sd">                Required if match_by="attribute". If match_by="name", can be None.</span>
 <span class="sd">            merge_attrs_list (list, optional): List of lists of attribute names to merge for each merge step.</span>
 <span class="sd">                Each entry corresponds to a merge operation between two models.</span>
 <span class="sd">            json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
@@ -2827,25 +2827,25 @@ IHE profile specification.</p>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If models is empty, method is unknown, or attribute_names/merge_attrs_list</span>
-<span class="sd">                have incorrect length, or if attribute_names is not set when match_by=&quot;attribute&quot;.</span>
+<span class="sd">                have incorrect length, or if attribute_names is not set when match_by="attribute".</span>
 
 <span class="sd">        Note:</span>
-<span class="sd">            - For path-based merging of DICOM attributes, it is recommended to use match_by=&quot;attribute&quot;</span>
-<span class="sd">              and attribute_names=[&quot;elem_tag&quot;, ...] for robust, tag-based matching.</span>
-<span class="sd">            - For node-based merging or special cases, match_by=&quot;name&quot; can be used and attribute_names may be None.</span>
+<span class="sd">            - For path-based merging of DICOM attributes, it is recommended to use match_by="attribute"</span>
+<span class="sd">              and attribute_names=["elem_tag", ...] for robust, tag-based matching.</span>
+<span class="sd">            - For node-based merging or special cases, match_by="name" can be used and attribute_names may be None.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Check that required arguments are set</span>
         <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">match_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;merge_many requires method and match_by to be set explicitly by the caller.&quot;</span>
+                <span class="s2">"merge_many requires method and match_by to be set explicitly by the caller."</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">attribute_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">"attribute"</span> <span class="ow">and</span> <span class="p">(</span><span class="n">attribute_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;merge_many requires attribute_names to be set when match_by=&#39;attribute&#39;.&quot;</span>
+                <span class="s2">"merge_many requires attribute_names to be set when match_by='attribute'."</span>
             <span class="p">)</span>
         <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">models</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">models</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">):</span>
             <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span>
         <span class="n">cached_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_merged_model_from_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">force_update</span><span class="p">,</span> <span class="n">merge_attrs_list</span><span class="p">,</span> <span class="n">orig_col2attr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cached_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2870,7 +2870,7 @@ IHE profile specification.</p>
         <span class="n">attribute_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">merge_attrs_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate and normalize merge arguments for merging models.</span>
+<span class="w">        </span><span class="sd">"""Validate and normalize merge arguments for merging models.</span>
 
 <span class="sd">        This function ensures that the lists of attribute names and merge attribute lists</span>
 <span class="sd">        are the correct length and format for the number of merges to be performed.</span>
@@ -2882,19 +2882,19 @@ IHE profile specification.</p>
 
 <span class="sd">        This normalization allows the merge logic to always use attribute_names[i] and merge_attrs_list[i]</span>
 <span class="sd">        for each merge step, regardless of how the arguments were originally provided.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">models</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No models to merge&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No models to merge"</span><span class="p">)</span>
         <span class="n">n_merges</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
-        <span class="c1"># Normalize attribute_names: ensure it&#39;s a list of length n_merges</span>
+        <span class="c1"># Normalize attribute_names: ensure it's a list of length n_merges</span>
         <span class="k">if</span> <span class="n">attribute_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">attribute_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_merges</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribute_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="c1"># If a single value is provided, expand it to a list</span>
             <span class="n">attribute_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">attribute_names</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_merges</span>
 
-        <span class="c1"># Normalize merge_attrs_list: ensure it&#39;s a list of lists of length n_merges</span>
+        <span class="c1"># Normalize merge_attrs_list: ensure it's a list of lists of length n_merges</span>
         <span class="k">if</span> <span class="n">merge_attrs_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">merge_attrs_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_merges</span>
         <span class="k">elif</span> <span class="p">(</span>
@@ -2910,45 +2910,45 @@ IHE profile specification.</p>
         <span class="c1"># Validate lengths</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">attribute_names</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_merges</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Length of attribute_names (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">attribute_names</span><span class="p">)</span><span class="si">}</span><span class="s2">) &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;does not match number of merges (</span><span class="si">{</span><span class="n">n_merges</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Length of attribute_names (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">attribute_names</span><span class="p">)</span><span class="si">}</span><span class="s2">) "</span>
+                <span class="sa">f</span><span class="s2">"does not match number of merges (</span><span class="si">{</span><span class="n">n_merges</span><span class="si">}</span><span class="s2">)"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">merge_attrs_list</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_merges</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Length of merge_attrs_list (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">merge_attrs_list</span><span class="p">)</span><span class="si">}</span><span class="s2">) &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;does not match number of merges (</span><span class="si">{</span><span class="n">n_merges</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"Length of merge_attrs_list (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">merge_attrs_list</span><span class="p">)</span><span class="si">}</span><span class="s2">) "</span>
+                <span class="sa">f</span><span class="s2">"does not match number of merges (</span><span class="si">{</span><span class="n">n_merges</span><span class="si">}</span><span class="s2">)"</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_merge_models</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">],</span>
-        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;matching_path&quot;</span><span class="p">,</span>
-        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"matching_path"</span><span class="p">,</span>
+        <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"name"</span><span class="p">,</span>
         <span class="n">attribute_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">merge_attrs_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform the actual merging of models using the specified method.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Perform the actual merging of models using the specified method."""</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;matching_path&quot;</span><span class="p">,</span> <span class="s2">&quot;matching_node&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown merge method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"matching_path"</span><span class="p">,</span> <span class="s2">"matching_node"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown merge method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
             <span class="n">attribute_name</span> <span class="o">=</span> <span class="n">attribute_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">merge_attrs</span> <span class="o">=</span> <span class="n">merge_attrs_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;matching_node&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"matching_node"</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Merging model </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> by node with match_by=</span><span class="si">{</span><span class="n">match_by</span><span class="si">}</span><span class="s2">, &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;attribute_name=</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">, merge_attrs=</span><span class="si">{</span><span class="n">merge_attrs</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Merging model </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> by node with match_by=</span><span class="si">{</span><span class="n">match_by</span><span class="si">}</span><span class="s2">, "</span>
+                    <span class="sa">f</span><span class="s2">"attribute_name=</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">, merge_attrs=</span><span class="si">{</span><span class="n">merge_attrs</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="n">merged</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">merge_matching_node</span><span class="p">(</span>
                     <span class="n">model</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="n">attribute_name</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="n">merge_attrs</span>
                     <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;matching_path&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">"matching_path"</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Merging model </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> by path with match_by=</span><span class="si">{</span><span class="n">match_by</span><span class="si">}</span><span class="s2">, &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;attribute_name=</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">, merge_attrs=</span><span class="si">{</span><span class="n">merge_attrs</span><span class="si">}</span><span class="s2">, &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;ignore_module_level=</span><span class="si">{</span><span class="n">ignore_module_level</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Merging model </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> by path with match_by=</span><span class="si">{</span><span class="n">match_by</span><span class="si">}</span><span class="s2">, "</span>
+                    <span class="sa">f</span><span class="s2">"attribute_name=</span><span class="si">{</span><span class="n">attribute_name</span><span class="si">}</span><span class="s2">, merge_attrs=</span><span class="si">{</span><span class="n">merge_attrs</span><span class="si">}</span><span class="s2">, "</span>
+                    <span class="sa">f</span><span class="s2">"ignore_module_level=</span><span class="si">{</span><span class="n">ignore_module_level</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="n">merged</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">merge_matching_path</span><span class="p">(</span>
                     <span class="n">model</span><span class="p">,</span>
@@ -2966,21 +2966,21 @@ IHE profile specification.</p>
         <span class="n">models</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SpecModel</span><span class="p">],</span>
         <span class="n">merge_attrs_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the metadata of the merged model to reflect merged attributes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Update the metadata of the merged model to reflect merged attributes."""</span>
         <span class="c1"># Start with the original metadata</span>
         <span class="n">meta</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">metadata</span>
-        <span class="n">orig_header</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[]))</span>
-        <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="n">orig_header</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">,</span> <span class="p">{}))</span>
 
         <span class="c1"># Find the next available column index</span>
         <span class="n">next_col</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">orig_col2attr</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">orig_col2attr</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="c1"># For each merged-in model, add new merged attributes if not already present</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
             <span class="n">merge_attrs</span> <span class="o">=</span> <span class="n">merge_attrs_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">other_meta</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">other_meta</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">other_meta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">merge_attrs</span><span class="p">:</span>
-                <span class="n">other_header</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_meta</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="n">other_col2attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_meta</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">other_header</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_meta</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">other_col2attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other_meta</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">other_header</span> <span class="ow">and</span> <span class="n">other_col2attr</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">other_col2attr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">merge_attrs</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">orig_col2attr</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -2992,9 +2992,9 @@ IHE profile specification.</p>
                             <span class="n">orig_col2attr</span><span class="p">[</span><span class="n">next_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">attr</span>
                             <span class="n">next_col</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;header&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"header"</span><span class="p">):</span>
             <span class="n">meta</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">orig_header</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">):</span>
             <span class="n">meta</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">orig_col2attr</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_cache</span><span class="p">(</span>
@@ -3002,17 +3002,17 @@ IHE profile specification.</p>
         <span class="n">merged</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
         <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the merged model to cache if a json_file_name is provided.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Save the merged model to cache if a json_file_name is provided."""</span>
         <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
             <span class="n">merged_json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span>
             <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span> <span class="n">merged_json_file_path</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to cache merged model to </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to cache merged model to </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No json_file_name specified; merged model not cached.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"No json_file_name specified; merged model not cached."</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_merged_model_from_cache</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3021,28 +3021,28 @@ IHE profile specification.</p>
         <span class="n">merge_attrs_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">orig_col2attr</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the cached merged model if available, valid, and not force_update, else None.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the cached merged model if available, valid, and not force_update, else None."""</span>
         <span class="n">merged_json_file_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">json_file_name</span><span class="p">:</span>
             <span class="n">merged_json_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">&quot;cache_dir&quot;</span><span class="p">),</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">json_file_name</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"model"</span><span class="p">,</span> <span class="n">json_file_name</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">merged_json_file_path</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">merged_json_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force_update</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">merged_json_file_path</span><span class="p">)</span>
-                <span class="c1"># Check that all requested merge attributes are present in the cached model&#39;s metadata</span>
+                <span class="c1"># Check that all requested merge attributes are present in the cached model's metadata</span>
                 <span class="k">if</span> <span class="n">merge_attrs_list</span><span class="p">:</span>
                     <span class="n">all_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
                     <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">merge_attrs_list</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
                             <span class="n">all_attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
-                    <span class="n">col2attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="n">col2attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">,</span> <span class="p">{})</span>
                     <span class="n">orig_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">orig_col2attr</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="n">orig_col2attr</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
                     <span class="c1"># All requested attributes must be present</span>
                     <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col2attr</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">all_attrs</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Cached model at </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2"> missing required merged attributes </span><span class="si">{</span><span class="n">all_attrs</span><span class="si">}</span><span class="s2">; &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;ignoring cache.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Cached model at </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2"> missing required merged attributes </span><span class="si">{</span><span class="n">all_attrs</span><span class="si">}</span><span class="s2">; "</span>
+                            <span class="sa">f</span><span class="s2">"ignoring cache."</span>
                         <span class="p">)</span>
                         <span class="k">return</span> <span class="kc">None</span>
                     <span class="c1"># No extra attributes except those in the original model</span>
@@ -3050,40 +3050,40 @@ IHE profile specification.</p>
                     <span class="n">extra_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">col2attr</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">-</span> <span class="n">allowed_attrs</span>
                     <span class="k">if</span> <span class="n">extra_attrs</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Cached model at </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2"> contains extra attributes </span><span class="si">{</span><span class="n">extra_attrs</span><span class="si">}</span><span class="s2"> &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;not requested; ignoring cache.&quot;</span>
+                            <span class="sa">f</span><span class="s2">"Cached model at </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2"> contains extra attributes </span><span class="si">{</span><span class="n">extra_attrs</span><span class="si">}</span><span class="s2"> "</span>
+                            <span class="sa">f</span><span class="s2">"not requested; ignoring cache."</span>
                         <span class="p">)</span>
                         <span class="k">return</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Loaded model from cache </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Loaded model from cache </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">model</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to load merged model from cache </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Failed to load merged model from cache </span><span class="si">{</span><span class="n">merged_json_file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_missing_nodes_from_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merged</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add nodes from model that are not present in merged (by path).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Add nodes from model that are not present in merged (by path)."""</span>
 
         <span class="c1"># Use elem_tag path normalized to uppercase for missing node detection</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">tag_path</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">"elem_tag"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">path</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">"elem_tag"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="s2">"elem_tag"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="n">merged_tag_paths</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag_path</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
+        <span class="n">merged_tag_paths</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag_path</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"elem_tag"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
         <span class="n">added_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">node2</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
             <span class="n">node2_tag_path</span> <span class="o">=</span> <span class="n">tag_path</span><span class="p">(</span><span class="n">node2</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="n">node2_tag_path</span>
                 <span class="ow">and</span> <span class="n">node2_tag_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged_tag_paths</span>
-                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">"elem_name"</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">"elem_tag"</span><span class="p">)</span>
             <span class="p">):</span>
                 <span class="c1"># Find parent by tag path</span>
                 <span class="n">parent_tag_path</span> <span class="o">=</span> <span class="n">node2_tag_path</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -3092,11 +3092,11 @@ IHE profile specification.</p>
                     <span class="k">if</span> <span class="n">tag_path</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">==</span> <span class="n">parent_tag_path</span><span class="p">:</span>
                         <span class="n">parent</span> <span class="o">=</span> <span class="n">n</span>
                         <span class="k">break</span>
-                <span class="n">elem_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">elem_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node2</span><span class="p">,</span> <span class="s2">"elem_name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                     <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span>
-                        <span class="n">elem_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;All other Attributes&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">elem_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;All Attributes&quot;</span><span class="p">)</span>
+                        <span class="n">elem_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"All other Attributes"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">elem_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"All Attributes"</span><span class="p">)</span>
                     <span class="p">)</span>
                 <span class="p">):</span>
                     <span class="n">new_node</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">node2</span><span class="p">)</span>
@@ -3104,11 +3104,11 @@ IHE profile specification.</p>
                     <span class="n">merged_tag_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node2_tag_path</span><span class="p">)</span>
                     <span class="n">added_count</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Added missing node from model: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">new_node</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;at tag_path </span><span class="si">{</span><span class="n">node2_tag_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Added missing node from model: </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">new_node</span><span class="p">,</span><span class="w"> </span><span class="s1">'name'</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+                        <span class="sa">f</span><span class="s2">"at tag_path </span><span class="si">{</span><span class="n">node2_tag_path</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total missing nodes added from model: </span><span class="si">{</span><span class="n">added_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total missing nodes added from model: </span><span class="si">{</span><span class="n">added_count</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3229,7 +3229,7 @@ If no model_store is provided, defaults to JSONSpecStore.</p>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_store</span><span class="p">:</span> <span class="n">SpecStore</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the SpecMerger.</span>
+<span class="w">    </span><span class="sd">"""Initialize the SpecMerger.</span>
 
 <span class="sd">    Sets up the logger for the merger. If no logger is provided, a default logger is created.</span>
 <span class="sd">    If no model_store is provided, defaults to JSONSpecStore.</span>
@@ -3239,7 +3239,7 @@ If no model_store is provided, defaults to JSONSpecStore.</p>
 <span class="sd">        model_store (Optional[SpecStore]): Store for loading and saving models. Defaults to JSONSpecStore.</span>
 <span class="sd">        logger (Optional[logging.Logger]): Logger instance to use. If None, a default logger is created.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">Config</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">model_store</span> <span class="o">=</span> <span class="n">model_store</span> <span class="ow">or</span> <span class="n">JSONSpecStore</span><span class="p">(</span><span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
@@ -3580,7 +3580,7 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
     <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge a sequence of DICOM SpecModel objects using the specified merge method, with optional caching.</span>
+<span class="w">    </span><span class="sd">"""Merge a sequence of DICOM SpecModel objects using the specified merge method, with optional caching.</span>
 
 <span class="sd">    This method merges a list of models in order, applying either path-based or node-based</span>
 <span class="sd">    merging at each step. You can specify different attribute names and lists of attributes</span>
@@ -3590,11 +3590,11 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
 
 <span class="sd">    Args:</span>
 <span class="sd">        models (list of SpecModel): The models to merge, in order.</span>
-<span class="sd">        method (str): Merge method to use (&quot;matching_path&quot; or &quot;matching_node&quot;).</span>
-<span class="sd">        match_by (str): &quot;name&quot; to match by node name, &quot;attribute&quot; to match by a specific attribute.</span>
+<span class="sd">        method (str): Merge method to use ("matching_path" or "matching_node").</span>
+<span class="sd">        match_by (str): "name" to match by node name, "attribute" to match by a specific attribute.</span>
 <span class="sd">        attribute_names (list, optional): List of attribute names to use for each merge step.</span>
 <span class="sd">            Each entry corresponds to a merge operation between two models.</span>
-<span class="sd">            Required if match_by=&quot;attribute&quot;. If match_by=&quot;name&quot;, can be None.</span>
+<span class="sd">            Required if match_by="attribute". If match_by="name", can be None.</span>
 <span class="sd">        merge_attrs_list (list, optional): List of lists of attribute names to merge for each merge step.</span>
 <span class="sd">            Each entry corresponds to a merge operation between two models.</span>
 <span class="sd">        json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
@@ -3607,25 +3607,25 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If models is empty, method is unknown, or attribute_names/merge_attrs_list</span>
-<span class="sd">            have incorrect length, or if attribute_names is not set when match_by=&quot;attribute&quot;.</span>
+<span class="sd">            have incorrect length, or if attribute_names is not set when match_by="attribute".</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        - For path-based merging of DICOM attributes, it is recommended to use match_by=&quot;attribute&quot;</span>
-<span class="sd">          and attribute_names=[&quot;elem_tag&quot;, ...] for robust, tag-based matching.</span>
-<span class="sd">        - For node-based merging or special cases, match_by=&quot;name&quot; can be used and attribute_names may be None.</span>
+<span class="sd">        - For path-based merging of DICOM attributes, it is recommended to use match_by="attribute"</span>
+<span class="sd">          and attribute_names=["elem_tag", ...] for robust, tag-based matching.</span>
+<span class="sd">        - For node-based merging or special cases, match_by="name" can be used and attribute_names may be None.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Check that required arguments are set</span>
     <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">match_by</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;merge_many requires method and match_by to be set explicitly by the caller.&quot;</span>
+            <span class="s2">"merge_many requires method and match_by to be set explicitly by the caller."</span>
         <span class="p">)</span>
-    <span class="k">if</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">&quot;attribute&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">attribute_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">match_by</span> <span class="o">==</span> <span class="s2">"attribute"</span> <span class="ow">and</span> <span class="p">(</span><span class="n">attribute_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attribute_names</span><span class="p">)):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;merge_many requires attribute_names to be set when match_by=&#39;attribute&#39;.&quot;</span>
+            <span class="s2">"merge_many requires attribute_names to be set when match_by='attribute'."</span>
         <span class="p">)</span>
     <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="n">models</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">&quot;column_to_attr&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">models</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">):</span>
         <span class="n">orig_col2attr</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span>
     <span class="n">cached_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_merged_model_from_cache</span><span class="p">(</span><span class="n">json_file_name</span><span class="p">,</span> <span class="n">force_update</span><span class="p">,</span> <span class="n">merge_attrs_list</span><span class="p">,</span> <span class="n">orig_col2attr</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cached_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3653,7 +3653,7 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
 
 
 <h3 id="dcmspec.spec_merger.SpecMerger.merge_node" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_node</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_node</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">'name'</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -3877,32 +3877,32 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
     <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"name"</span><span class="p">,</span>
     <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects using the node merge method, with optional caching.</span>
+<span class="w">    </span><span class="sd">"""Merge two DICOM SpecModel objects using the node merge method, with optional caching.</span>
 
 <span class="sd">    This is a convenience method that calls merge_many with two models.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model1 (SpecModel): The first model.</span>
 <span class="sd">        model2 (SpecModel): The second model to merge with the first.</span>
-<span class="sd">        match_by (str, optional): &quot;name&quot; to match by node name, &quot;attribute&quot; to match by a specific attribute.</span>
+<span class="sd">        match_by (str, optional): "name" to match by node name, "attribute" to match by a specific attribute.</span>
 <span class="sd">        attribute_name (str, optional): The attribute name to use for matching.</span>
-<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
 <span class="sd">        json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
 <span class="sd">        force_update (bool, optional): If True, always perform the merge and overwrite the cache.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        SpecModel: The merged SpecModel instance.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_many</span><span class="p">(</span>
         <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">],</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;matching_node&quot;</span><span class="p">,</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"matching_node"</span><span class="p">,</span>
         <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
         <span class="n">attribute_names</span><span class="o">=</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">],</span>
         <span class="n">merge_attrs_list</span><span class="o">=</span><span class="p">[</span><span class="n">merge_attrs</span><span class="p">],</span>
@@ -3919,7 +3919,7 @@ have incorrect length, or if attribute_names is not set when match_by="attribute
 
 
 <h3 id="dcmspec.spec_merger.SpecMerger.merge_path" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_path</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="s1">&#39;elem_tag&#39;</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_module_level</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_path</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">'attribute'</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="s1">'elem_tag'</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_module_level</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -4187,28 +4187,28 @@ not possible.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
     <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;attribute&quot;</span><span class="p">,</span>
-    <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_tag&quot;</span><span class="p">,</span>
+    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"attribute"</span><span class="p">,</span>
+    <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_tag"</span><span class="p">,</span>
     <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects using the path merge method, with optional caching.</span>
+<span class="w">    </span><span class="sd">"""Merge two DICOM SpecModel objects using the path merge method, with optional caching.</span>
 
 <span class="sd">    This is a convenience method that calls merge_many with two models.</span>
 
-<span class="sd">    By default, this method matches nodes by their DICOM tag (attribute_name=&quot;elem_tag&quot;) using</span>
-<span class="sd">    path-based merging (match_by=&quot;attribute&quot;). This is the recommended and robust approach for</span>
+<span class="sd">    By default, this method matches nodes by their DICOM tag (attribute_name="elem_tag") using</span>
+<span class="sd">    path-based merging (match_by="attribute"). This is the recommended and robust approach for</span>
 <span class="sd">    DICOM attribute-level merging, as DICOM tags are unique and consistent identifiers.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model1 (SpecModel): The first model.</span>
 <span class="sd">        model2 (SpecModel): The second model to merge with the first.</span>
-<span class="sd">        match_by (str, optional): &quot;attribute&quot; (default, recommended) to match by a specific attribute (DICOM tag),</span>
-<span class="sd">            or &quot;name&quot; to match by node name.</span>
-<span class="sd">        attribute_name (str, optional): The attribute name to use for matching (default: &quot;elem_tag&quot;).</span>
-<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
+<span class="sd">        match_by (str, optional): "attribute" (default, recommended) to match by a specific attribute (DICOM tag),</span>
+<span class="sd">            or "name" to match by node name.</span>
+<span class="sd">        attribute_name (str, optional): The attribute name to use for matching (default: "elem_tag").</span>
+<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
 <span class="sd">        json_file_name (str, optional): If provided, cache/load the merged model to/from this file.</span>
 <span class="sd">        force_update (bool, optional): If True, always perform the merge and overwrite the cache.</span>
 <span class="sd">        ignore_module_level (bool, optional): If True, skip the module level when matching paths.</span>
@@ -4217,14 +4217,14 @@ not possible.</p>
 <span class="sd">        SpecModel: The merged SpecModel instance.</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        For DICOM attribute-level merging, the default (match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot;)</span>
-<span class="sd">        is strongly recommended. Only use match_by=&quot;name&quot; for special cases where tag-based matching is</span>
+<span class="sd">        For DICOM attribute-level merging, the default (match_by="attribute", attribute_name="elem_tag")</span>
+<span class="sd">        is strongly recommended. Only use match_by="name" for special cases where tag-based matching is</span>
 <span class="sd">        not possible.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_many</span><span class="p">(</span>
         <span class="p">[</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">],</span>
-        <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;matching_path&quot;</span><span class="p">,</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="s2">"matching_path"</span><span class="p">,</span>
         <span class="n">match_by</span><span class="o">=</span><span class="n">match_by</span><span class="p">,</span>
         <span class="n">attribute_names</span><span class="o">=</span><span class="p">[</span><span class="n">attribute_name</span><span class="p">],</span>
         <span class="n">merge_attrs_list</span><span class="o">=</span><span class="p">[</span><span class="n">merge_attrs</span><span class="p">],</span>
@@ -4242,7 +4242,7 @@ not possible.</p>
 
 
 <h3 id="dcmspec.spec_merger.SpecMerger.merge_path_with_default" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_path_with_default</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_attr</span><span class="o">=</span><span class="s1">&#39;elem_type&#39;</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="n">default_value_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_module_level</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">merge_path_with_default</span><span class="p">(</span><span class="n">model1</span><span class="p">,</span> <span class="n">model2</span><span class="p">,</span> <span class="n">match_by</span><span class="o">=</span><span class="s1">'name'</span><span class="p">,</span> <span class="n">attribute_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">merge_attrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_attr</span><span class="o">=</span><span class="s1">'elem_type'</span><span class="p">,</span> <span class="n">default_value</span><span class="o">=</span><span class="s1">'3'</span><span class="p">,</span> <span class="n">default_value_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">json_file_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_update</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore_module_level</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -4625,21 +4625,21 @@ not possible.</p>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">model1</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
     <span class="n">model2</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span>
-    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+    <span class="n">match_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"name"</span><span class="p">,</span>
     <span class="n">attribute_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">merge_attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">default_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_type&quot;</span><span class="p">,</span>
-    <span class="n">default_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+    <span class="n">default_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_type"</span><span class="p">,</span>
+    <span class="n">default_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"3"</span><span class="p">,</span>
     <span class="n">default_value_func</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">json_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">force_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">ignore_module_level</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.</span>
+<span class="w">    </span><span class="sd">"""Merge two DICOM SpecModel objects by path, and set a default value for missing attributes.</span>
 
 <span class="sd">    This method merges two models using the path-based merge strategy (matching nodes by their</span>
-<span class="sd">    hierarchical path and by DICOM tag, i.e., match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot; by default),</span>
+<span class="sd">    hierarchical path and by DICOM tag, i.e., match_by="attribute", attribute_name="elem_tag" by default),</span>
 <span class="sd">    and then sets `default_attr` to `default_value` for any node in the merged model that does not already</span>
 <span class="sd">    have that attribute.</span>
 
@@ -4652,19 +4652,19 @@ not possible.</p>
 <span class="sd">        - Merging a DICOM PS3.3 normalized IOD attributes specification (e.g., built with IODSpecBuilder)</span>
 <span class="sd">          with a DICOM PS3.4 DIMSE SCU or SCP attributes specification (e.g., built with ServiceAttributeModel</span>
 <span class="sd">          and select_dimse/select_role). After merging, any node present in the normalized IOD model but</span>
-<span class="sd">          missing from the service attribute model will have its &quot;Type&quot; (or other specified attribute)</span>
-<span class="sd">          set to the default value (e.g., &quot;3&quot;), ensuring the merged model is complete and ready for</span>
+<span class="sd">          missing from the service attribute model will have its "Type" (or other specified attribute)</span>
+<span class="sd">          set to the default value (e.g., "3"), ensuring the merged model is complete and ready for</span>
 <span class="sd">          further processing or export.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        model1 (SpecModel): The first model (e.g., normalized IOD).</span>
 <span class="sd">        model2 (SpecModel): The second model (e.g., service attribute model).</span>
-<span class="sd">        match_by (str, optional): &quot;attribute&quot; (default, recommended) to match by a specific attribute (DICOM tag),</span>
-<span class="sd">            or &quot;name&quot; to match by node name.</span>
-<span class="sd">        attribute_name (str, optional): The attribute name to use for matching (default: &quot;elem_tag&quot;).</span>
-<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model&#39;s node.</span>
-<span class="sd">        default_attr (str, optional): The attribute to set if missing (default: &quot;elem_type&quot;).</span>
-<span class="sd">        default_value (str, optional): The value to set for missing attributes (default: &quot;3&quot;).</span>
+<span class="sd">        match_by (str, optional): "attribute" (default, recommended) to match by a specific attribute (DICOM tag),</span>
+<span class="sd">            or "name" to match by node name.</span>
+<span class="sd">        attribute_name (str, optional): The attribute name to use for matching (default: "elem_tag").</span>
+<span class="sd">        merge_attrs (list[str], optional): List of attribute names to merge from the other model's node.</span>
+<span class="sd">        default_attr (str, optional): The attribute to set if missing (default: "elem_type").</span>
+<span class="sd">        default_value (str, optional): The value to set for missing attributes (default: "3").</span>
 <span class="sd">        default_value_func (callable, optional): A function to determine the default value for missing attributes.</span>
 <span class="sd">            If provided, it will be called as</span>
 <span class="sd">            `default_value_func(node, merged_model, service_model, default_attr, default_value)`</span>
@@ -4677,11 +4677,11 @@ not possible.</p>
 <span class="sd">        SpecModel: The merged SpecModel instance with default values set for missing attributes.</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        For DICOM attribute-level merging, the default (match_by=&quot;attribute&quot;, attribute_name=&quot;elem_tag&quot;)</span>
-<span class="sd">        is strongly recommended. Only use match_by=&quot;name&quot; for special cases where tag-based matching is</span>
+<span class="sd">        For DICOM attribute-level merging, the default (match_by="attribute", attribute_name="elem_tag")</span>
+<span class="sd">        is strongly recommended. Only use match_by="name" for special cases where tag-based matching is</span>
 <span class="sd">        not possible.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_path</span><span class="p">(</span>
         <span class="n">model1</span><span class="p">,</span>
         <span class="n">model2</span><span class="p">,</span>
@@ -4768,10 +4768,10 @@ not possible.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

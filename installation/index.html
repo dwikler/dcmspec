@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2182,7 +2182,7 @@
 <ul>
 <li><strong>Install from PyPI (recommended for all sample applications, CLI and GUI)</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[gui]"</span>
 </code></pre></div>
 <blockquote>
 <p>If you get an error about <code>tkinter</code>, see <a href="#tkinter-installation">Tkinter installation</a>.</p>
@@ -2221,22 +2221,22 @@ tdwiimoddefinition<span class="w"> </span>--help
 <ul>
 <li><strong>Install with PDF/table extraction support</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[pdf]"</span>
 </code></pre></div>
 <ul>
 <li><strong>Install with GUI support</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[gui]"</span>
 </code></pre></div>
 <ul>
 <li><strong>Install with both PDF and GUI support</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui,pdf]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[gui,pdf]"</span>
 </code></pre></div>
 <ul>
 <li><strong>(Optional) To use the latest development version from GitHub</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@main&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"git+https://github.com/dwikler/dcmspec.git@main"</span>
 </code></pre></div>
 <h3 id="using-poetry">Using Poetry</h3>
 <ul>
@@ -2244,14 +2244,14 @@ tdwiimoddefinition<span class="w"> </span>--help
 </ul>
 <p>If you are using Poetry to manage your own project, add dcmspec as a dependency with the desired optional features:</p>
 <div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>dcmspec<span class="w">              </span><span class="c1"># core only</span>
-poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span><span class="w">       </span><span class="c1"># with GUI support</span>
-poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span><span class="w">       </span><span class="c1"># with PDF support</span>
-poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui,pdf]&quot;</span><span class="w">   </span><span class="c1"># with both</span>
+poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[gui]"</span><span class="w">       </span><span class="c1"># with GUI support</span>
+poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[pdf]"</span><span class="w">       </span><span class="c1"># with PDF support</span>
+poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[gui,pdf]"</span><span class="w">   </span><span class="c1"># with both</span>
 </code></pre></div>
 <ul>
 <li><strong>(Optional) To use the latest development version from GitHub</strong></li>
 </ul>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec@git+https://github.com/dwikler/dcmspec.git&quot;</span>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec@git+https://github.com/dwikler/dcmspec.git"</span>
 </code></pre></div>
 <hr />
 <h3 id="import-and-use-the-api">Import and use the API</h3>
@@ -2289,16 +2289,16 @@ See the <a href="https://lxml.de/installation.html">lxml installation docs</a> f
 <p>Some features, such as extracting tables directly from PDF files, require additional heavy dependencies. These are <strong>not installed by default</strong> and are grouped under the <code>pdf</code> optional dependency.</p>
 <p>To install with PDF/table extraction support from PyPI:</p>
 <p>Using pip:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[pdf]"</span>
 </code></pre></div>
 <p>Or, for the latest development version from GitHub:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[pdf]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"git+https://github.com/dwikler/dcmspec.git@main#egg=dcmspec[pdf]"</span>
 </code></pre></div>
 <p>Or, using Poetry:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[pdf]"</span>
 </code></pre></div>
 <p>Or, for the latest development version from GitHub:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[pdf]&quot;</span>@git+https://github.com/dwikler/dcmspec.git
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[pdf]"</span>@git+https://github.com/dwikler/dcmspec.git
 </code></pre></div>
 <p>Optional dependencies for PDF/table extraction:</p>
 <ul>
@@ -2314,13 +2314,13 @@ See the <a href="https://lxml.de/installation.html">lxml installation docs</a> f
 </ul>
 <p>If you want to use the sample GUI explorer app, you can install the <code>gui</code> extra:</p>
 <p>Using pip from PyPI:</p>
-<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"dcmspec[gui]"</span>
 </code></pre></div>
 <p>Or, with Poetry from PyPI:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[gui]"</span>
 </code></pre></div>
 <p>Or, for the latest development version from GitHub:</p>
-<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">&quot;dcmspec[gui]&quot;</span>@git+https://github.com/dwikler/dcmspec.git
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s2">"dcmspec[gui]"</span>@git+https://github.com/dwikler/dcmspec.git
 </code></pre></div>
 <p>This will install:</p>
 <ul>
@@ -2466,10 +2466,10 @@ pipx install poetry
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

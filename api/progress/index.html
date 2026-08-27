@@ -17,7 +17,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -25,7 +25,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2537,7 +2537,7 @@ Clients are responsible for mapping this code to a user-facing string or UI elem
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Progress</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represent the progress of a long-running operation.</span>
+<span class="w">    </span><span class="sd">"""Represent the progress of a long-running operation.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        percent (int): The progress percentage (0-100).</span>
@@ -2546,10 +2546,10 @@ Clients are responsible for mapping this code to a user-facing string or UI elem
 <span class="sd">        step (int, optional): The current step number in a multi-step process (1-based).</span>
 <span class="sd">        total_steps (int, optional): The total number of steps in the process.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="s1">&#39;ProgressStatus&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the progress private attributes.</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="s1">'ProgressStatus'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Initialize the progress private attributes.</span>
 
 <span class="sd">        This class is immutable: the percent value is set at initialization and should not be changed.</span>
 <span class="sd">        To report new progress, create a new Progress instance.</span>
@@ -2560,7 +2560,7 @@ Clients are responsible for mapping this code to a user-facing string or UI elem
 <span class="sd">            step (int, optional): The current step number in a multi-step process (1-based).</span>
 <span class="sd">            total_steps (int, optional): The total number of steps in the process.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_percent</span> <span class="o">=</span> <span class="n">percent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="n">step</span>
@@ -2568,28 +2568,28 @@ Clients are responsible for mapping this code to a user-facing string or UI elem
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">percent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the progress percentage.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get the progress percentage."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_percent</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;ProgressStatus&#39;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the progress status.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">'ProgressStatus'</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Get the progress status."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the current step number.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get the current step number."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">total_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the total number of steps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get the total number of steps."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_steps</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prevent modification of attributes after initialization.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Prevent modification of attributes after initialization."""</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is immutable. Cannot modify &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is immutable. Cannot modify '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -2816,8 +2816,8 @@ To report new progress, create a new Progress instance.</p>
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="s1">&#39;ProgressStatus&#39;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the progress private attributes.</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percent</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="s1">'ProgressStatus'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Initialize the progress private attributes.</span>
 
 <span class="sd">    This class is immutable: the percent value is set at initialization and should not be changed.</span>
 <span class="sd">    To report new progress, create a new Progress instance.</span>
@@ -2828,7 +2828,7 @@ To report new progress, create a new Progress instance.</p>
 <span class="sd">        step (int, optional): The current step number in a multi-step process (1-based).</span>
 <span class="sd">        total_steps (int, optional): The total number of steps in the process.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_percent</span> <span class="o">=</span> <span class="n">percent</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="n">step</span>
@@ -2860,9 +2860,9 @@ To report new progress, create a new Progress instance.</p>
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prevent modification of attributes after initialization.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Prevent modification of attributes after initialization."""</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is immutable. Cannot modify &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is immutable. Cannot modify '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2914,15 +2914,15 @@ To report new progress, create a new Progress instance.</p>
 <span class="normal">230</span>
 <span class="normal">231</span>
 <span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ProgressObserver</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Observer for monitoring progress updates.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Observer for monitoring progress updates."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle progress updates.</span>
+<span class="w">        </span><span class="sd">"""Handle progress updates.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            progress (Progress): The current progress state.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Override in client code or pass a function as observer</span>
         <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -2993,12 +2993,12 @@ To report new progress, create a new Progress instance.</p>
 <span class="normal">230</span>
 <span class="normal">231</span>
 <span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle progress updates.</span>
+<span class="w">    </span><span class="sd">"""Handle progress updates.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        progress (Progress): The current progress state.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Override in client code or pass a function as observer</span>
     <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
@@ -3088,7 +3088,7 @@ To report new progress, create a new Progress instance.</p>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">progress_observer</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ProgressStatus</span><span class="o">.</span><span class="n">DOWNLOADING_IOD</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading IOD... </span><span class="si">{</span><span class="n">progress</span><span class="o">.</span><span class="n">percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloading IOD... </span><span class="si">{</span><span class="n">progress</span><span class="o">.</span><span class="n">percent</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 
@@ -3134,7 +3134,7 @@ To report new progress, create a new Progress instance.</p>
 <span class="normal">97</span>
 <span class="normal">98</span>
 <span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ProgressStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of progress statuses.</span>
+<span class="w">    </span><span class="sd">"""Enumeration of progress statuses.</span>
 
 <span class="sd">    This enum defines the various states that a long-running operation can be in.</span>
 
@@ -3156,10 +3156,10 @@ To report new progress, create a new Progress instance.</p>
 
 <span class="sd">        def progress_observer(progress):</span>
 <span class="sd">            if progress.status == ProgressStatus.DOWNLOADING_IOD:</span>
-<span class="sd">                print(f&quot;Downloading IOD... {progress.percent}%&quot;)</span>
+<span class="sd">                print(f"Downloading IOD... {progress.percent}%")</span>
 <span class="sd">        ```</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">DOWNLOADING</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Generic download (e.g., a document)</span>
     <span class="n">DOWNLOADING_IOD</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># Downloading the IOD specification document (Part 3)</span>
@@ -3343,7 +3343,7 @@ interfering with class-based observers that expect a Progress object.</p>
 <span class="normal">217</span>
 <span class="normal">218</span>
 <span class="normal">219</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">adapt_progress_observer</span><span class="p">(</span><span class="n">observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a progress observer or callback so it can accept either a Progress object or an int percent.</span>
+<span class="w">    </span><span class="sd">"""Wrap a progress observer or callback so it can accept either a Progress object or an int percent.</span>
 
 <span class="sd">    This function provides backward compatibility for legacy progress callbacks that expect</span>
 <span class="sd">    an integer percent value. If the observer is a plain function that takes a single argument</span>
@@ -3363,13 +3363,13 @@ interfering with class-based observers that expect a Progress object.</p>
 <span class="sd">    Example:</span>
 <span class="sd">        # Legacy callback (int)</span>
 <span class="sd">        def my_callback(percent):</span>
-<span class="sd">            print(f&quot;Progress: {percent}%&quot;)</span>
+<span class="sd">            print(f"Progress: {percent}%")</span>
 
 <span class="sd">        # New-style callback (Progress)</span>
 <span class="sd">        def my_observer(progress):</span>
-<span class="sd">            print(f&quot;Progress: {progress.percent}%&quot;)</span>
+<span class="sd">            print(f"Progress: {progress.percent}%")</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observer</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">):</span>
@@ -3378,22 +3378,22 @@ interfering with class-based observers that expect a Progress object.</p>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">annotation</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">_empty</span><span class="p">):</span>
-                <span class="n">warned</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;emitted&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+                <span class="n">warned</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"emitted"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
                 <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="n">progress</span><span class="p">):</span>
-<span class="w">                    </span><span class="sd">&quot;&quot;&quot;Create a closure that adapts a legacy int progress callback to a Progress observer.</span>
+<span class="w">                    </span><span class="sd">"""Create a closure that adapts a legacy int progress callback to a Progress observer.</span>
 
 <span class="sd">                    The original observer function is captured in this closure — a nested function that remembers</span>
 <span class="sd">                    variables from the outer scope — so the returned wrapper will always call the correct callback.</span>
 <span class="sd">                    This allows us to adapt a legacy int callback to a Progress observer without using a class.</span>
-<span class="sd">                    &quot;&quot;&quot;</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">[</span><span class="s2">&quot;emitted&quot;</span><span class="p">]:</span>
+<span class="sd">                    """</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">warned</span><span class="p">[</span><span class="s2">"emitted"</span><span class="p">]:</span>
                         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                            <span class="s2">&quot;Passing a progress callback that accepts an int is deprecated. &quot;</span>
-                            <span class="s2">&quot;Update your callback to accept a Progress object.&quot;</span><span class="p">,</span>
+                            <span class="s2">"Passing a progress callback that accepts an int is deprecated. "</span>
+                            <span class="s2">"Update your callback to accept a Progress object."</span><span class="p">,</span>
                             <span class="ne">DeprecationWarning</span><span class="p">,</span>
                             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
                         <span class="p">)</span>
-                        <span class="n">warned</span><span class="p">[</span><span class="s2">&quot;emitted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">warned</span><span class="p">[</span><span class="s2">"emitted"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">return</span> <span class="n">observer</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">percent</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">wrapper</span>
     <span class="k">return</span> <span class="n">observer</span>
@@ -3437,10 +3437,10 @@ interfering with class-based observers that expect a Progress object.</p>
 <span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add_progress_step</span><span class="p">(</span>
     <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressStatus</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define a decorator to enrich progress events with step, total_steps, and optionally status.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define a decorator to enrich progress events with step, total_steps, and optionally status."""</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">observer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Wrap the observer to include step, total_steps, and optionally status in the Progress object.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">"""Wrap the observer to include step, total_steps, and optionally status in the Progress object."""</span>
             <span class="n">enriched</span> <span class="o">=</span> <span class="n">Progress</span><span class="p">(</span>
                 <span class="n">progress</span><span class="o">.</span><span class="n">percent</span><span class="p">,</span>
                 <span class="n">status</span><span class="o">=</span><span class="n">status</span> <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">progress</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
@@ -3477,7 +3477,7 @@ interfering with class-based observers that expect a Progress object.</p>
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_percent</span><span class="p">(</span><span class="n">downloaded</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate percent complete, rounded, or -1 if total is unknown/invalid.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Calculate percent complete, rounded, or -1 if total is unknown/invalid."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">total</span> <span class="ow">or</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
     <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">downloaded</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">total</span><span class="p">),</span> <span class="mi">100</span><span class="p">)</span>
@@ -3529,16 +3529,16 @@ If only progress_callback is provided, it is adapted to a progress_observer.</p>
     <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve and return a progress_observer, handling legacy progress_callback and warning if both are provided.</span>
+<span class="w">    </span><span class="sd">"""Resolve and return a progress_observer, handling legacy progress_callback and warning if both are provided.</span>
 
 <span class="sd">    If both are provided, only progress_observer is used and a warning is issued.</span>
 <span class="sd">    If only progress_callback is provided, it is adapted to a progress_observer.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">progress_callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;Both progress_observer and progress_callback were provided. &quot;</span>
-            <span class="s2">&quot;This is not supported: only progress_observer will be used and progress_callback will be ignored. &quot;</span>
-            <span class="s2">&quot;Do not pass both. progress_callback is deprecated and will be removed in a future release.&quot;</span><span class="p">,</span>
+            <span class="s2">"Both progress_observer and progress_callback were provided. "</span>
+            <span class="s2">"This is not supported: only progress_observer will be used and progress_callback will be ignored. "</span>
+            <span class="s2">"Do not pass both. progress_callback is deprecated and will be removed in a future release."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
         <span class="p">)</span>
@@ -3588,7 +3588,7 @@ If only progress_callback is provided, it is adapted to a progress_observer.</p>
 <span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">offset_progress_steps</span><span class="p">(</span>
     <span class="n">step_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_steps</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Define a decorator to offset progress steps by a fixed amount.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Define a decorator to offset progress steps by a fixed amount."""</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">observer</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Progress</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Only update step/total_steps if they are set</span>
@@ -3665,10 +3665,10 @@ If only progress_callback is provided, it is adapted to a progress_observer.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

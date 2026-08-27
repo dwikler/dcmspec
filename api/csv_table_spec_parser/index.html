@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2083,21 +2083,21 @@
 <span class="normal">92</span>
 <span class="normal">93</span>
 <span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CSVTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base parser for DICOM Specification IHE tables in CSV-like format.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base parser for DICOM Specification IHE tables in CSV-like format."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_name"</span><span class="p">,</span>
         <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from a single table dict.</span>
+<span class="w">        </span><span class="sd">"""Parse specification metadata and content from a single table dict.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            table (dict): A table dict as output by PDFDocHandler.concat_tables, with &#39;header&#39; and &#39;data&#39; keys.</span>
+<span class="sd">            table (dict): A table dict as output by PDFDocHandler.concat_tables, with 'header' and 'data' keys.</span>
 <span class="sd">            column_to_attr (dict): Mapping from column indices to node attribute names.</span>
 <span class="sd">            name_attr (str): The attribute to use for node names.</span>
 <span class="sd">            table_id (str, optional): Table identifier for model parsing.</span>
@@ -2109,16 +2109,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            tuple: (metadata_node, content_node)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">):</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"logger"</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Progress reporting is not supported yet for CSV parsing and will be ignored.&quot;</span>
+                <span class="s2">"Progress reporting is not supported yet for CSV parsing and will be ignored."</span>
             <span class="p">)</span>
         <span class="c1"># Use the header and data from the grouped table dict</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"header"</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
 
-        <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">)</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
@@ -2131,9 +2131,9 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
         <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+        <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_name"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a tree from tables using column mapping and &#39;&gt;&#39; nesting logic.</span>
+<span class="w">        </span><span class="sd">"""Build a tree from tables using column mapping and '&gt;' nesting logic.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            tables (list): List of tables, each a list of rows (list of str).</span>
@@ -2143,20 +2143,20 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Node: The root node of the tree.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"content"</span><span class="p">)</span>
         <span class="n">parent_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
                 <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
                     <span class="c1"># Clean up newlines in the cell to be used as node name</span>
                     <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="n">name_attr</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span>
                     <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
                 <span class="n">node_name</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
-                <span class="n">level</span> <span class="o">=</span> <span class="n">node_name</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">level</span> <span class="o">=</span> <span class="n">node_name</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="c1"># Ensure all parent levels exist</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_nodes</span><span class="p">:</span>
                     <span class="c1"># If a parent is missing, attach to root</span>
@@ -2184,7 +2184,7 @@
 
 
 <h3 id="dcmspec.csv_table_spec_parser.CSVTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;elem_name&#39;</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">'elem_name'</span><span class="p">,</span> <span class="n">table_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2393,15 +2393,15 @@ Included so that this method can be called with the same arguments as other tabl
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">table</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-    <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+    <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_name"</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse specification metadata and content from a single table dict.</span>
+<span class="w">    </span><span class="sd">"""Parse specification metadata and content from a single table dict.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        table (dict): A table dict as output by PDFDocHandler.concat_tables, with &#39;header&#39; and &#39;data&#39; keys.</span>
+<span class="sd">        table (dict): A table dict as output by PDFDocHandler.concat_tables, with 'header' and 'data' keys.</span>
 <span class="sd">        column_to_attr (dict): Mapping from column indices to node attribute names.</span>
 <span class="sd">        name_attr (str): The attribute to use for node names.</span>
 <span class="sd">        table_id (str, optional): Table identifier for model parsing.</span>
@@ -2413,16 +2413,16 @@ Included so that this method can be called with the same arguments as other tabl
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (metadata_node, content_node)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">):</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">progress_observer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"logger"</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;Progress reporting is not supported yet for CSV parsing and will be ignored.&quot;</span>
+            <span class="s2">"Progress reporting is not supported yet for CSV parsing and will be ignored."</span>
         <span class="p">)</span>
     <span class="c1"># Use the header and data from the grouped table dict</span>
-    <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"header"</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="p">[])</span>
 
-    <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;metadata&quot;</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"metadata"</span><span class="p">)</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span> <span class="o">=</span> <span class="n">column_to_attr</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
@@ -2440,7 +2440,7 @@ Included so that this method can be called with the same arguments as other tabl
 
 
 <h3 id="dcmspec.csv_table_spec_parser.CSVTableSpecParser.parse_table" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">&#39;elem_name&#39;</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="o">=</span><span class="s1">'elem_name'</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2585,9 +2585,9 @@ Included so that this method can be called with the same arguments as other tabl
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]],</span>  <span class="c1"># List of tables, each a list of rows (list of str)</span>
     <span class="n">column_to_attr</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;elem_name&quot;</span><span class="p">,</span>
+    <span class="n">name_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"elem_name"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a tree from tables using column mapping and &#39;&gt;&#39; nesting logic.</span>
+<span class="w">    </span><span class="sd">"""Build a tree from tables using column mapping and '&gt;' nesting logic.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        tables (list): List of tables, each a list of rows (list of str).</span>
@@ -2597,20 +2597,20 @@ Included so that this method can be called with the same arguments as other tabl
 <span class="sd">    Returns:</span>
 <span class="sd">        Node: The root node of the tree.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s2">"content"</span><span class="p">)</span>
     <span class="n">parent_nodes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">root</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="p">:</span>
             <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">column_to_attr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span>
                 <span class="c1"># Clean up newlines in the cell to be used as node name</span>
                 <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="n">name_attr</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span>
                 <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
             <span class="n">node_name</span> <span class="o">=</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span>
-            <span class="n">level</span> <span class="o">=</span> <span class="n">node_name</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="n">node_name</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="c1"># Ensure all parent levels exist</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_nodes</span><span class="p">:</span>
                 <span class="c1"># If a parent is missing, attach to root</span>
@@ -2681,10 +2681,10 @@ Included so that this method can be called with the same arguments as other tabl
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

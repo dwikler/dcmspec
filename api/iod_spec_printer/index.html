@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -2285,11 +2285,11 @@ The table columns are those of the Module Attributes nodes.</p>
 <span class="normal">252</span>
 <span class="normal">253</span>
 <span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IODSpecPrinter</span><span class="p">(</span><span class="n">SpecPrinter</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Printer for DICOM IOD specification models with mixed node types.</span>
+<span class="w">    </span><span class="sd">"""Printer for DICOM IOD specification models with mixed node types.</span>
 
 <span class="sd">    Overrides print_table to display IOD Modules nodes as a one-cell title row (spanning all columns)</span>
 <span class="sd">    The table columns are those of the Module Attributes nodes.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print_tree</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2297,7 +2297,7 @@ The table columns are those of the Module Attributes nodes.</p>
         <span class="n">attr_widths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the specification model as a hierarchical tree to the console or file.</span>
+<span class="w">        </span><span class="sd">"""Print the specification model as a hierarchical tree to the console or file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            attr_names (Optional[Union[str, list[str]]]): Attribute name(s) to display for each node.</span>
@@ -2307,20 +2307,20 @@ The table columns are those of the Module Attributes nodes.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
             <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">for</span> <span class="n">pre</span><span class="p">,</span> <span class="n">fill</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">RenderTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"content"</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">):</span>
                 <span class="c1"># Module title row: always use title color if colorize</span>
-                <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-                <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;usage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
-                <span class="n">node_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">iod_title_text</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+                <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
+                <span class="n">node_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">iod_title_text</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">attr_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_tree_row</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr_names</span><span class="p">,</span> <span class="n">attr_widths</span><span class="p">)</span>
                 <span class="n">row_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tree_row_style</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">colorize</span><span class="p">)</span>
@@ -2331,10 +2331,10 @@ The table columns are those of the Module Attributes nodes.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_widths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the specification model as a flat table with module title rows.</span>
+<span class="w">        </span><span class="sd">"""Print the specification model as a flat table with module title rows.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            column_widths (Optional[List[int]]): List of widths for each column&#39;s content.</span>
+<span class="sd">            column_widths (Optional[List[int]]): List of widths for each column's content.</span>
 <span class="sd">                These widths do not include borders or padding added by Rich.</span>
 <span class="sd">                If provided, each column will be set to the specified content width.</span>
 <span class="sd">                If None, all columns default to width 20.            </span>
@@ -2342,12 +2342,12 @@ The table columns are those of the Module Attributes nodes.</p>
 
 <span class="sd">            colorize (bool): Whether to colorize the output by node depth.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Disable colorization if writing to file</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
             <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold magenta&quot;</span><span class="p">,</span> <span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">ASCII_DOUBLE_HEAD</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">"bold magenta"</span><span class="p">,</span> <span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">ASCII_DOUBLE_HEAD</span><span class="p">)</span>
 
         <span class="n">attr_headers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">header</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_headers</span><span class="p">):</span>
@@ -2363,9 +2363,9 @@ The table columns are those of the Module Attributes nodes.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>  <span class="c1"># Ensure data is written immediately</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the specification model as CSV to the console or file, with module title rows.</span>
+<span class="w">        </span><span class="sd">"""Print the specification model as CSV to the console or file, with module title rows.</span>
 
-<span class="sd">        Traverses the content tree and prints each node&#39;s attributes in CSV format,</span>
+<span class="sd">        Traverses the content tree and prints each node's attributes in CSV format,</span>
 <span class="sd">        with column headers from the metadata node. Optionally colorizes rows.</span>
 
 <span class="sd">        Args:</span>
@@ -2374,20 +2374,20 @@ The table columns are those of the Module Attributes nodes.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Disable colorization if writing to file</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
             <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Print CSV header</span>
-        <span class="n">header_row</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+        <span class="n">header_row</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">"'</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">header_row</span><span class="p">)</span>
 
         <span class="c1"># Add data rows (including module title rows)</span>
         <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_rows_iod</span><span class="p">(</span><span class="n">colorize</span><span class="p">):</span>
             <span class="c1"># Escape quotes inside each field by doubling them, then wrap in quotes</span>
-            <span class="n">csv_row</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cell</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">),</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+            <span class="n">csv_row</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="p">(</span><span class="s2">""</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cell</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">),</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span><span class="si">}</span><span class="s1">"'</span>
                 <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">csv_row</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">row_style</span><span class="p">)</span>
@@ -2396,9 +2396,9 @@ The table columns are those of the Module Attributes nodes.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">print_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_widths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the specification model to an OOXML format Excel (.xlsx) file.</span>
+<span class="w">        </span><span class="sd">"""Print the specification model to an OOXML format Excel (.xlsx) file.</span>
 
-<span class="sd">        Traverses the content tree and writes each node&#39;s attributes into an Excel sheet,</span>
+<span class="sd">        Traverses the content tree and writes each node's attributes into an Excel sheet,</span>
 <span class="sd">        with column headers from the metadata node. Handles newlines and applies background</span>
 <span class="sd">        colorization using the same color scheme as console output (LEVEL_COLORS and SPECIAL_COLORS).</span>
 <span class="sd">        Each module in the IOD is written to a separate worksheet, named after the module, and attribute rows</span>
@@ -2411,9 +2411,9 @@ The table columns are those of the Module Attributes nodes.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Output file path must be specified when constructing SpecPrinter for print_xlsx).&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Output file path must be specified when constructing SpecPrinter for print_xlsx)."</span><span class="p">)</span>
 
         <span class="n">header_style</span><span class="p">,</span> <span class="n">data_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_styles</span><span class="p">()</span>
         <span class="n">wb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_workbook</span><span class="p">()</span>
@@ -2443,10 +2443,10 @@ The table columns are those of the Module Attributes nodes.</p>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_sheet_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">used_names</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sanitize and ensure uniqueness of a worksheet name for Excel compatibility.</span>
+<span class="w">        </span><span class="sd">"""Sanitize and ensure uniqueness of a worksheet name for Excel compatibility.</span>
 
 <span class="sd">        This function replaces invalid characters with underscores and trims the name to 31 characters.</span>
-<span class="sd">        If the name is empty or None, it uses &#39;Sheet&#39;. If the name is already used, it appends a numeric</span>
+<span class="sd">        If the name is empty or None, it uses 'Sheet'. If the name is already used, it appends a numeric</span>
 <span class="sd">        suffix to ensure uniqueness within the workbook.</span>
 
 <span class="sd">        Args:</span>
@@ -2456,15 +2456,15 @@ The table columns are those of the Module Attributes nodes.</p>
 <span class="sd">        Returns:</span>
 <span class="sd">            str: A sanitized and unique worksheet name suitable for Excel.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">orig_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\[\]\*:/</span><span class="se">\\</span><span class="s1">\?]&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;Sheet&quot;</span>
-        <span class="n">orig_name</span> <span class="o">=</span> <span class="n">orig_name</span><span class="p">[:</span><span class="mi">31</span><span class="p">]</span> <span class="k">if</span> <span class="n">orig_name</span> <span class="k">else</span> <span class="s2">&quot;Sheet&quot;</span>
+<span class="sd">        """</span>
+        <span class="n">orig_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\[\]\*:/</span><span class="se">\\</span><span class="s1">\?]'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">"Sheet"</span>
+        <span class="n">orig_name</span> <span class="o">=</span> <span class="n">orig_name</span><span class="p">[:</span><span class="mi">31</span><span class="p">]</span> <span class="k">if</span> <span class="n">orig_name</span> <span class="k">else</span> <span class="s2">"Sheet"</span>
         <span class="k">if</span> <span class="n">used_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">used_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">sheet_name</span> <span class="o">=</span> <span class="n">orig_name</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="n">sheet_name</span> <span class="ow">in</span> <span class="n">used_names</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">sheet_name</span><span class="p">:</span>
-            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
             <span class="n">sheet_name</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="p">(</span><span class="n">orig_name</span><span class="p">[:</span><span class="mi">31</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)]</span> <span class="o">+</span> <span class="n">suffix</span><span class="p">)</span> 
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_name</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">31</span> 
@@ -2479,7 +2479,7 @@ The table columns are those of the Module Attributes nodes.</p>
             <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
             <span class="n">include_module_titles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate rows for IODSpecPrinter with module title rows, module grouping, and optional styling.</span>
+<span class="w">        </span><span class="sd">"""Generate rows for IODSpecPrinter with module title rows, module grouping, and optional styling.</span>
 
 <span class="sd">        Iterates through the model content tree and yields tuples representing each row to be printed.</span>
 <span class="sd">        For module nodes, optionnaly yields a module title row with the module name and styling.</span>
@@ -2491,38 +2491,38 @@ The table columns are those of the Module Attributes nodes.</p>
 
 <span class="sd">        Yields:</span>
 <span class="sd">            tuple: (row_data, row_style, module_name) where row_data is a list of cell values,</span>
-<span class="sd">                    row_style is an RGB color string (e.g., &quot;rgb(255,255,0)&quot;) from LEVEL_COLORS or SPECIAL_COLORS,</span>
+<span class="sd">                    row_style is an RGB color string (e.g., "rgb(255,255,0)") from LEVEL_COLORS or SPECIAL_COLORS,</span>
 <span class="sd">                    or None if not colorized, and module_name is the current module for grouping.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>      
+<span class="sd">        """</span>      
         <span class="n">attr_headers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
         <span class="n">current_module</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">PreOrderIter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"content"</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">):</span>
-                <span class="n">current_module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">):</span>
+                <span class="n">current_module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">include_module_titles</span><span class="p">:</span>
-                    <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-                    <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;usage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                    <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
-                    <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span>
-                    <span class="k">yield</span> <span class="p">[</span><span class="n">iod_title_text</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_headers</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">current_module</span> <span class="ow">or</span> <span class="s2">&quot;Other&quot;</span>
+                    <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+                    <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                    <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
+                    <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="k">yield</span> <span class="p">[</span><span class="n">iod_title_text</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">""</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_headers</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">current_module</span> <span class="ow">or</span> <span class="s2">"Other"</span>
                 <span class="c1"># else: skip module title rows for xlsx</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Use the most recent current_ie for all attribute rows</span>
-                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
                 <span class="n">row_style</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">colorize</span><span class="p">:</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_is_include</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-                        <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">]</span>
+                        <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">"include"</span><span class="p">]</span>
                     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_is_title</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-                        <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+                        <span class="n">row_style</span> <span class="o">=</span> <span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># use (node.depth - 2) since attributes are children of module nodes,</span>
                         <span class="c1"># which are themselves children of content (root) node</span>
                         <span class="n">row_style</span> <span class="o">=</span> <span class="n">LEVEL_COLORS</span><span class="p">[(</span><span class="n">node</span><span class="o">.</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">LEVEL_COLORS</span><span class="p">)]</span>
-                <span class="k">yield</span> <span class="n">row</span><span class="p">,</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">current_module</span> <span class="ow">or</span> <span class="s2">&quot;Other&quot;</span>
+                <span class="k">yield</span> <span class="n">row</span><span class="p">,</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">current_module</span> <span class="ow">or</span> <span class="s2">"Other"</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2644,9 +2644,9 @@ with column headers from the metadata node. Optionally colorizes rows.</p>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the specification model as CSV to the console or file, with module title rows.</span>
+<span class="w">    </span><span class="sd">"""Print the specification model as CSV to the console or file, with module title rows.</span>
 
-<span class="sd">    Traverses the content tree and prints each node&#39;s attributes in CSV format,</span>
+<span class="sd">    Traverses the content tree and prints each node's attributes in CSV format,</span>
 <span class="sd">    with column headers from the metadata node. Optionally colorizes rows.</span>
 
 <span class="sd">    Args:</span>
@@ -2655,20 +2655,20 @@ with column headers from the metadata node. Optionally colorizes rows.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Disable colorization if writing to file</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
         <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="c1"># Print CSV header</span>
-    <span class="n">header_row</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">&quot;&#39;</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+    <span class="n">header_row</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s1">"'</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">header_row</span><span class="p">)</span>
 
     <span class="c1"># Add data rows (including module title rows)</span>
     <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">row_style</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_rows_iod</span><span class="p">(</span><span class="n">colorize</span><span class="p">):</span>
         <span class="c1"># Escape quotes inside each field by doubling them, then wrap in quotes</span>
-        <span class="n">csv_row</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cell</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">),</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="n">csv_row</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="p">(</span><span class="s2">""</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cell</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">),</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span><span class="si">}</span><span class="s1">"'</span>
             <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">csv_row</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">row_style</span><span class="p">)</span>
@@ -2784,10 +2784,10 @@ If the list is shorter than the number of columns, remaining columns default to 
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_widths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the specification model as a flat table with module title rows.</span>
+<span class="w">    </span><span class="sd">"""Print the specification model as a flat table with module title rows.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        column_widths (Optional[List[int]]): List of widths for each column&#39;s content.</span>
+<span class="sd">        column_widths (Optional[List[int]]): List of widths for each column's content.</span>
 <span class="sd">            These widths do not include borders or padding added by Rich.</span>
 <span class="sd">            If provided, each column will be set to the specified content width.</span>
 <span class="sd">            If None, all columns default to width 20.            </span>
@@ -2795,12 +2795,12 @@ If the list is shorter than the number of columns, remaining columns default to 
 
 <span class="sd">        colorize (bool): Whether to colorize the output by node depth.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Disable colorization if writing to file</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
         <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">&quot;bold magenta&quot;</span><span class="p">,</span> <span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">ASCII_DOUBLE_HEAD</span><span class="p">)</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">show_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header_style</span><span class="o">=</span><span class="s2">"bold magenta"</span><span class="p">,</span> <span class="n">show_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="n">box</span><span class="o">.</span><span class="n">ASCII_DOUBLE_HEAD</span><span class="p">)</span>
 
     <span class="n">attr_headers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">header</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_headers</span><span class="p">):</span>
@@ -2975,7 +2975,7 @@ If the list is shorter than the number of columns, remaining columns default to 
     <span class="n">attr_widths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the specification model as a hierarchical tree to the console or file.</span>
+<span class="w">    </span><span class="sd">"""Print the specification model as a hierarchical tree to the console or file.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        attr_names (Optional[Union[str, list[str]]]): Attribute name(s) to display for each node.</span>
@@ -2985,20 +2985,20 @@ If the list is shorter than the number of columns, remaining columns default to 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
         <span class="n">colorize</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">for</span> <span class="n">pre</span><span class="p">,</span> <span class="n">fill</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">RenderTree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"content"</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">):</span>
             <span class="c1"># Module title row: always use title color if colorize</span>
-            <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-            <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;usage&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
-            <span class="n">node_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">iod_title_text</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">iod_title</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"module"</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+            <span class="n">iod_usage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="n">iod_title_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">iod_title</span><span class="si">}</span><span class="s2"> Module (</span><span class="si">{</span><span class="n">iod_usage</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="n">iod_usage</span> <span class="k">else</span> <span class="n">iod_title</span>
+            <span class="n">node_text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">iod_title_text</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">SPECIAL_COLORS</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]</span> <span class="k">if</span> <span class="n">colorize</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">attr_text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_tree_row</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">attr_names</span><span class="p">,</span> <span class="n">attr_widths</span><span class="p">)</span>
             <span class="n">row_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_tree_row_style</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">colorize</span><span class="p">)</span>
@@ -3155,9 +3155,9 @@ for each module are written to their corresponding worksheet.</p>
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_widths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">colorize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the specification model to an OOXML format Excel (.xlsx) file.</span>
+<span class="w">    </span><span class="sd">"""Print the specification model to an OOXML format Excel (.xlsx) file.</span>
 
-<span class="sd">    Traverses the content tree and writes each node&#39;s attributes into an Excel sheet,</span>
+<span class="sd">    Traverses the content tree and writes each node's attributes into an Excel sheet,</span>
 <span class="sd">    with column headers from the metadata node. Handles newlines and applies background</span>
 <span class="sd">    colorization using the same color scheme as console output (LEVEL_COLORS and SPECIAL_COLORS).</span>
 <span class="sd">    Each module in the IOD is written to a separate worksheet, named after the module, and attribute rows</span>
@@ -3170,9 +3170,9 @@ for each module are written to their corresponding worksheet.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Output file path must be specified when constructing SpecPrinter for print_xlsx).&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Output file path must be specified when constructing SpecPrinter for print_xlsx)."</span><span class="p">)</span>
 
     <span class="n">header_style</span><span class="p">,</span> <span class="n">data_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_styles</span><span class="p">()</span>
     <span class="n">wb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_workbook</span><span class="p">()</span>
@@ -3261,10 +3261,10 @@ for each module are written to their corresponding worksheet.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
