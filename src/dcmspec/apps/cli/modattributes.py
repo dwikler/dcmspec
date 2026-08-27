@@ -275,7 +275,9 @@ def main():
     # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
     use_color = not args.no_color
     if args.print_mode == "tree":
-        printer.print_tree(attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color)
+        printer.print_tree(
+            attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color
+            )
     elif args.print_mode == "table":
         printer.print_table(colorize=use_color, column_widths=[30, 11, 4, 60])
     elif args.print_mode == "csv":

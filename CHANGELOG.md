@@ -2,6 +2,24 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.3.1] - 2026-08-27
+
+### Added
+
+- Reorganized `tests/` into `tests/unit`, `tests/integration`, and `tests/e2e` tiers, and added an opt-in `tests/e2e`
+  canary suite that downloads and parses real, current DICOM standard tables (Part 3 IOD+modules, Part 6 data
+  dictionary, Part 4 UPS DIMSE attributes, and a Part 3/Part 6 merge) to catch upstream markup changes between
+  standard releases. Excluded from the default test run; also runs on a monthly schedule via
+  `.github/workflows/e2e.yml`.
+
+### Fixed
+
+- `PDFDocHandler.select_tables` now raises `ValueError` when a header cell contains a DICOM tag pattern (e.g. `(300A,0230)`), indicating that a data row was absorbed into the header — typically a `table_header_rowspan` over-count. This fails loudly instead of silently dropping an attribute row. Opt out with `strict_header_check=False` to restore the prior warn-and-continue behavior.
+- `PDFDocHandler.concat_tables` now reconstructs page-straddling description cells. When an attribute's description wraps across a PDF page boundary, pdfplumber emits the continuation as an untagged row (empty name and tag, description only) atop the next page's table; this is now merged into the preceding tagged row's description instead of becoming a floating node. Recovers enum values and conditional requirements that were silently lost at page breaks (e.g. HDSS Contour Geometric Type `(3006,0042)` losing its `POINT` / `CLOSED_PLANAR` / `CLOSEDPLANAR_XOR` enumeration, where `CLOSEDPLANAR_XOR` reflects the original DICOM spelling).
+- `PDFDocHandler.load_document` / `extract_tables_pdfplumber` now accept a `snap_tolerance_overrides` dict (keyed by 1-indexed page number) to lower pdfplumber's `snap_tolerance` for individual pages. The default (8) snaps two near-coincident header rules together on a few pages, fusing a repeated continuation sub-header (e.g. `Presence | Specific Rules`) into the first data row of the next page; that row then trips the tag-in-header guard (rowspan over-count) and the page cannot be extracted. Lowering the tolerance for just that page (e.g. `{34: 6}`) keeps the two rules distinct so the sub-header is recognized as a header row, recovering the first attribute of the continuation table (e.g. TPPC-Brachy HDR/PDR Source `(0008,1040)`) without disturbing extraction of any other page. This also un-fuses line-snapped "frankenrows" at the source on the affected page; the `concat_tables` split below remains as a downstream safety net for pages that still fuse at the default tolerance.
+- `PDFDocHandler.concat_tables` now splits fused "frankenrow" rows back into their constituent attribute rows. pdfplumber's line-snapping can merge two adjacent table rows whose separating rule falls within `snap_tolerance` into one row, newline-joining every column (e.g. tag `(300A,0214)\n(300A,0216)`, type `1\n3`). A legitimate attribute row carries exactly one DICOM tag, so a tag cell holding N≥2 DICOM-tag patterns is unambiguously a fusion; the row is split into N rows **only** when every structured column yields exactly N aligned newline-parts (the description must be blank or also N parts), otherwise it is left intact and logged. Mirrors the continuation-merge discriminator and recovers attributes (e.g. TPPC-Brachy `(300A,0214)` Source Type / `(300A,0216)` Source Manufacturer) that were fused by line-snapping into a single malformed node.
+- `IODSpecBuilder.build_from_url` no longer raises a spurious `DeprecationWarning` when callers use only `progress_observer`. An internal call was incorrectly re-passing it as the legacy `progress_callback` argument as well.
+
 ## [0.3.0] - 2025-11-27
 
 ### Added
