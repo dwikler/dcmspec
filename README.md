@@ -1,4 +1,5 @@
 [![tests](https://github.com/dwikler/dcmspec/actions/workflows/test.yml/badge.svg)](https://github.com/dwikler/dcmspec/actions/workflows/test.yml)
+[![dicom](https://img.shields.io/github/actions/workflow/status/dwikler/dcmspec/e2e.yml?label=dicom&labelColor=24292e&color=28a745)](https://github.com/dwikler/dcmspec/actions/workflows/e2e.yml)
 [![PyPI version](https://img.shields.io/pypi/v/dcmspec.svg)](https://pypi.org/project/dcmspec/)
 [![Python versions](https://img.shields.io/pypi/pyversions/dcmspec.svg)](https://pypi.org/project/dcmspec/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17742287.svg)](https://doi.org/10.5281/zenodo.17742287)

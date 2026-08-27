@@ -58,6 +58,7 @@ exclude = ["src/dcmspec/tests/*", "src/dcmspec/.DS_Store"]
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.5"
 pytest-cov = "^6.1.1"
+ruff = "^0.16.4"
 mkdocs = "^1.6.1"
 mkdocstrings = { extras = ["python"], version = "^0.29.1" }
 mkdocs-material = "^9.6.14"
@@ -79,8 +80,11 @@ iod-explorer = "dcmspec.apps.ui.iod_explorer.iod_explorer:main"
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
 select = [
     "E",
     "F",
     "D",
 ] # E includes line-too-long (E501), D includes docstrings checks
+ignore = ["D203", "D213"] # conflict with D211/D212, which we keep instead
