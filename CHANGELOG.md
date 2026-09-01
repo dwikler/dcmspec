@@ -2,6 +2,19 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.0] - unreleased
+
+### Added
+
+- `DOMTableSpecParser.parse`/`parse_table` gain an opt-in `ref_columns` parameter that scans configured
+  columns for `<a class="xref" href="#sect_...">` links (e.g. "See Section C.x" references), adding a
+  companion `<attr>_section_refs` list attribute per node for those columns.
+
+### Fixed
+
+- `DOMTableSpecParser.get_version` no longer raises `UnboundLocalError` when the document has no
+  `<div class="titlepage">` at all; it now returns `""` with a warning, like other unrecognized-version cases.
+
 ## [0.3.1] - 2026-08-27
 
 ### Added

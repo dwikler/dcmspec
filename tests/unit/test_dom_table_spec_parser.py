@@ -14,6 +14,7 @@ from .fixtures_dom_tables import (
     table_rowspan_dom,  # noqa: F401
     table_colspan_rowspan_dom, # noqa: F401
     table_include_dom,  # noqa: F401
+    table_section_refs_dom,  # noqa: F401
 )
 
 def test_parse_table_returns_node(docbook_sample_dom_1):  # noqa: F811
@@ -108,6 +109,32 @@ def test_parse_metadata_returns_node(request, fixture_name, expected_version):
     assert hasattr(node, "header")
     assert node.version == expected_version
     assert node.header == ["Attr Name", "Tag"]
+
+def test_get_version_no_titlepage_or_documentreleaseinformation_returns_empty(caplog):
+    """Test that get_version returns "" and warns, instead of raising, when no version markup is present at all."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div class="section">
+                <div class="table">
+                    <a id="table_SAMPLE" shape="rect"></a>
+                    <div class="table-contents">
+                        <table>
+                            <thead><tr><th>Attr Name</th></tr></thead>
+                            <tbody><tr><td>AttrName1</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    parser = DOMTableSpecParser()
+    with caplog.at_level("WARNING"):
+        version = parser.get_version(dom, "table_SAMPLE")
+    assert version == ""
+    assert "DICOM Standard version not found" in caplog.text
 
 def test_parse_table_missing_table_raises(docbook_sample_dom_1):  # noqa: F811
     """Test that parse_table raises ValueError if table is not found."""
@@ -575,3 +602,68 @@ def test_parse_table_reports_parsing_progress(docbook_sample_dom_1):  # noqa: F8
     assert (100, ProgressStatus.PARSING_TABLE) in events
     # Optionally, check that all events are for PARSING
     assert all(status == ProgressStatus.PARSING_TABLE for _, status in events)
+
+
+def test_parse_table_default_ref_columns_adds_no_section_refs_attribute(table_section_refs_dom):  # noqa: F811
+    """Test that without ref_columns, no <attr>_section_refs attribute is added (backward compatible)."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    node = parser.parse_table(
+        dom=table_section_refs_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+    )
+    children = list(node.children)
+    assert not hasattr(children[0], "elem_desc_section_refs")
+    assert not hasattr(children[1], "elem_desc_section_refs")
+
+
+def test_parse_table_ref_columns_extracts_section_refs(table_section_refs_dom):  # noqa: F811
+    """Test that ref_columns adds a <attr>_section_refs attribute with the anchor-based section ids."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    node = parser.parse_table(
+        dom=table_section_refs_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        ref_columns={3},
+    )
+    children = list(node.children)
+    # AttrName1's description has two section refs
+    assert children[0].elem_desc_section_refs == ["sect_C.1.1", "sect_C.1.2"]
+    # AttrName2's description has none
+    assert children[1].elem_desc_section_refs == []
+    # Non-ref column is untouched
+    assert not hasattr(children[0], "elem_name_section_refs")
+
+
+def test_parse_table_ref_columns_propagates_into_included_table(table_section_refs_dom):  # noqa: F811
+    """Test that ref_columns is applied recursively when parsing an Included macro table."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    node = parser.parse_table(
+        dom=table_section_refs_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        ref_columns={3},
+    )
+    included_node = next(c for c in node.children if c.elem_name == "AttrName10")
+    assert included_node.elem_desc_section_refs == ["sect_C.2.1"]
+
+
+def test_parse_ref_columns_via_public_parse_method(table_section_refs_dom):  # noqa: F811
+    """Test that ref_columns passed to parse() reaches the same section_refs extraction as parse_table()."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
+    _, content = parser.parse(
+        dom=table_section_refs_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        ref_columns=[3],
+    )
+    children = list(content.children)
+    assert children[0].elem_desc_section_refs == ["sect_C.1.1", "sect_C.1.2"]

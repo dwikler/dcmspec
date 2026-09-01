@@ -49,6 +49,7 @@ class DOMTableSpecParser(SpecParser):
         progress_observer: Optional[ProgressObserver] = None,
         skip_columns: Optional[list[int]] = None,
         unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
+        ref_columns: Optional[list[int]] = None,
     ) -> tuple[Node, Node]:
         """Parse specification metadata and content from tables in the DOM.
 
@@ -60,15 +61,20 @@ class DOMTableSpecParser(SpecParser):
             table_id (str): The ID of the table to parse.
             column_to_attr (Dict[int, str]): Mapping from column indices to attribute names for tree nodes.
             name_attr (str): The attribute name to use for building node names.
-            include_depth (Optional[int], optional): The depth to which included tables should be parsed. 
+            include_depth (Optional[int], optional): The depth to which included tables should be parsed.
                 None means unlimited.
             progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
                 This argument is typically set via `parser_kwargs` when using SpecFactory.
-            unformatted (Optional[Union[bool, Dict[int, bool]]]): 
+            unformatted (Optional[Union[bool, Dict[int, bool]]]):
                 Whether to extract unformatted (plain text) cell content (default True).
                 Can be a bool (applies to all columns) or a dict mapping column indices to bools.
                 This argument is typically set via `parser_kwargs` when using SpecFactory.
+            ref_columns (Optional[list[int]]): List of column indices to scan for `<a class="xref"
+                href="#sect_...">` links, e.g. "See Section C.x" references. For each such column,
+                every node gets a companion `<attr>_section_refs` attribute (a list of the section ids
+                found in that cell, empty if none). Default None scans no columns, so existing callers
+                see no change. This argument is typically set via `parser_kwargs` when using SpecFactory.
 
         Returns:
             Tuple[Node, Node]: The metadata node and the table content node.
@@ -85,14 +91,15 @@ class DOMTableSpecParser(SpecParser):
             unformatted_list = [unformatted] * num_columns
 
         content = self.parse_table(
-            dom, 
-            table_id, 
-            column_to_attr, 
-            name_attr, 
-            include_depth=include_depth, 
+            dom,
+            table_id,
+            column_to_attr,
+            name_attr,
+            include_depth=include_depth,
             progress_observer=progress_observer,
-            skip_columns=skip_columns, 
-            unformatted_list=unformatted_list
+            skip_columns=skip_columns,
+            unformatted_list=unformatted_list,
+            ref_columns=set(ref_columns) if ref_columns else None,
         )
 
         # If we ever skipped columns, remove them from metadata.column_to_attr and realign keys
@@ -139,6 +146,7 @@ class DOMTableSpecParser(SpecParser):
         skip_columns: Optional[list[int]] = None,
         visited_tables: Optional[set] = None,
         unformatted_list: Optional[list[bool]] = None,
+        ref_columns: Optional[set] = None,
     ) -> Node:
         """Parse specification content from tables within the DOM of a DICOM document.
 
@@ -157,8 +165,10 @@ class DOMTableSpecParser(SpecParser):
             progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.
             visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.
-            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as 
+            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as
                 unformatted text.
+            ref_columns (Optional[set[int]]): Set of column indices to scan for `<a class="xref" href="#sect_...">`
+                links, producing a companion `<attr>_section_refs` attribute per node for those columns.
 
         Returns:
             root: The root node of the tree representation of the specification table.
@@ -169,6 +179,9 @@ class DOMTableSpecParser(SpecParser):
         if unformatted_list is None:
             num_columns = max(column_to_attr.keys()) + 1
             unformatted_list = [True] * num_columns
+
+        if ref_columns is None:
+            ref_columns = set()
 
         self._enforce_unformatted_for_name_attr(column_to_attr, name_attr, unformatted_list)
 
@@ -206,6 +219,7 @@ class DOMTableSpecParser(SpecParser):
                 skip_columns=skip_columns,
                 visited_tables=visited_tables,
                 unformatted_list=unformatted_list,
+                ref_columns=ref_columns,
                 level_nodes=level_nodes,
                 root=root,
                 progress_observer=progress_observer if table_nesting_level == 0 else None,
@@ -268,8 +282,9 @@ class DOMTableSpecParser(SpecParser):
     def _version_from_book(self, dom: BeautifulSoup) -> Optional[str]:
         """Extract version of DICOM books in HTML format."""
         titlepage = dom.find("div", class_="titlepage")
-        if titlepage:
-            subtitle = titlepage.find("h2", class_="subtitle")
+        if not titlepage:
+            return None
+        subtitle = titlepage.find("h2", class_="subtitle")
         return subtitle.text.split()[2] if subtitle else None
 
     def _version_from_section(self, dom: BeautifulSoup) -> Optional[str]:
@@ -288,6 +303,7 @@ class DOMTableSpecParser(SpecParser):
         skip_columns: Optional[list[int]],
         visited_tables: set,
         unformatted_list: list[bool],
+        ref_columns: set,
         level_nodes: Dict[int, Node],
         root: Node,
         progress_observer: Optional[ProgressObserver] = None
@@ -296,7 +312,9 @@ class DOMTableSpecParser(SpecParser):
         rows = table.find_all("tr")[1:]
         total_rows = len(rows)
         for idx, row in enumerate(rows):
-            row_data = self._extract_row_data(row, skip_columns=skip_columns, unformatted_list=unformatted_list)
+            row_data = self._extract_row_data(
+                row, skip_columns=skip_columns, unformatted_list=unformatted_list, ref_columns=ref_columns
+            )
             if row_data[name_attr] is None:
                 continue  # Skip empty rows
             row_nesting_level = table_nesting_level + row_data[name_attr].count(">")
@@ -313,7 +331,7 @@ class DOMTableSpecParser(SpecParser):
                 if should_include:
                     self._parse_included_table(
                         dom, row, column_to_attr, name_attr, row_nesting_level, next_depth,
-                        level_nodes, root, visited_tables, unformatted_list
+                        level_nodes, root, visited_tables, unformatted_list, ref_columns
                     )
                 else:
                     # Create a node to represent the circular reference instead of recursing
@@ -334,7 +352,8 @@ class DOMTableSpecParser(SpecParser):
         self,
         row: Tag,
         skip_columns: Optional[list[int]] = None,
-        unformatted_list: Optional[list[bool]] = None
+        unformatted_list: Optional[list[bool]] = None,
+        ref_columns: Optional[set] = None,
     ) -> Dict[str, Any]:
         """Extract data from a table row.
 
@@ -353,6 +372,8 @@ class DOMTableSpecParser(SpecParser):
             skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a logical column.
             unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column value as
                 unformatted (HTML) or formatted (ASCII) data.
+            ref_columns (Optional[set[int]]): Set of column indices to scan for `<a class="xref" href="#sect_...">`
+                links, producing a companion `<attr>_section_refs` entry per column.
 
         Returns:
             Dict[str, Any]: A dictionary mapping attribute names to cell values of the logical columns for the row.
@@ -362,6 +383,8 @@ class DOMTableSpecParser(SpecParser):
             - The **value** is the cell value for that column in this row, which may be:
                 - The value physically present in the current row,
                 - Or a value carried over from a previous row due to rowspan.
+            - For each column in `ref_columns`, an additional `<attr>_section_refs` key holds the list of
+                section ids found in that cell (empty if none).
 
         """
         # Initialize rowspan trackers if not present
@@ -396,7 +419,8 @@ class DOMTableSpecParser(SpecParser):
                 continue
 
             logical_cells, logical_col_idx, physical_col_idx = self._process_logical_column(
-                cell_iter, logical_cells, logical_col_idx, physical_col_idx, skip_columns, unformatted_list
+                cell_iter, logical_cells, logical_col_idx, physical_col_idx, skip_columns, unformatted_list,
+                ref_columns
             )
 
         # 3. Trim _rowspan_trackers to match the number of physical columns in this row
@@ -407,10 +431,10 @@ class DOMTableSpecParser(SpecParser):
         attr_indices = list(self.column_to_attr.keys())
         if skip_columns and len(logical_cells) == len(self.column_to_attr) - len(skip_columns):
             return self._map_cells_with_skipped_columns(
-                logical_cells, attr_indices, skip_columns
+                logical_cells, attr_indices, skip_columns, ref_columns
             )
         else:
-            return self._map_cells_to_attributes(logical_cells, attr_indices)
+            return self._map_cells_to_attributes(logical_cells, attr_indices, ref_columns)
     
 
     def _handle_rowspan_cells(
@@ -458,7 +482,8 @@ class DOMTableSpecParser(SpecParser):
         logical_col_idx: int,
         physical_col_idx: int,
         skip_columns: Optional[list[int]],
-        unformatted_list: Optional[list[bool]]
+        unformatted_list: Optional[list[bool]],
+        ref_columns: Optional[set] = None,
     ) -> tuple[list, int, int]:
         """Process a single logical column in the row.
 
@@ -485,7 +510,7 @@ class DOMTableSpecParser(SpecParser):
             return logical_cells, logical_col_idx, physical_col_idx
 
         # Extract value for the current logical column using the specified unformatted setting
-        value = self._extract_cell_value(cell, logical_col_idx, unformatted_list)
+        value = self._extract_cell_value(cell, logical_col_idx, unformatted_list, ref_columns)
 
         # Determine colspan and rowspan
         colspan = int(cell.get("colspan", 1))
@@ -514,24 +539,45 @@ class DOMTableSpecParser(SpecParser):
         self,
         cell: Tag,
         logical_col_idx: int,
-        unformatted_list: list[bool]
-    ) -> str:
-        """Extract and clean the value from a cell as unformatted text or HTML."""
+        unformatted_list: list[bool],
+        ref_columns: Optional[set] = None,
+    ) -> tuple[str, list[str]]:
+        """Extract and clean the value from a cell as unformatted text or HTML, plus its section refs.
+
+        Returns:
+            tuple[str, list[str]]: The cell's text or HTML value, and the list of section ids found via
+                `<a class="xref" href="#sect_...">` links within the cell (empty if this column is not
+                in `ref_columns`, or none are found).
+
+        """
         use_unformatted = (
             unformatted_list[logical_col_idx]
             if unformatted_list and logical_col_idx < len(unformatted_list)
             else True
         )
 
+        section_refs = (
+            self._extract_section_refs(cell) if ref_columns and logical_col_idx in ref_columns else []
+        )
+
         # Guard clause: if formatted HTML is required, return content as-is
         if not use_unformatted:
             # Keep original HTML content
-            return self._clean_extracted_text(cell.decode_contents())
+            return self._clean_extracted_text(cell.decode_contents()), section_refs
 
         # Use html2text for better readability of unformatted text extraction
         converter = self._create_html2text_converter()
         raw_text = converter.handle(str(cell))
-        return self._clean_extracted_text(raw_text)
+        return self._clean_extracted_text(raw_text), section_refs
+
+    def _extract_section_refs(self, cell: Tag) -> list[str]:
+        """Return the section ids of every `<a class="xref" href="#sect_...">` link within a cell."""
+        section_refs = []
+        for anchor in cell.find_all("a", class_="xref"):
+            target = anchor.get("href", "").split("#", 1)[-1]
+            if target.startswith("sect_"):
+                section_refs.append(target)
+        return section_refs
 
 
     def _create_html2text_converter(self) -> html2text.HTML2Text:
@@ -568,7 +614,8 @@ class DOMTableSpecParser(SpecParser):
         self,
         cells: list,
         attr_indices: list[int],
-        skip_columns: list[int]
+        skip_columns: list[int],
+        ref_columns: Optional[set] = None,
     ) -> dict:
         """Map the list of extracted cell values to the attribute names for this row in presence of skipped columns.
 
@@ -580,10 +627,12 @@ class DOMTableSpecParser(SpecParser):
             cells (list): Extracted cell values for the row, in logical column order (excluding skipped columns).
             attr_indices (list): Column indices (keys from column_to_attr) in logical order.
             skip_columns (list): Column indices to skip.
+            ref_columns (Optional[set[int]]): Column indices for which to add a companion
+                `<attr>_section_refs` entry.
 
         Returns:
             dict: Dictionary mapping attribute names to cell values (excluding skipped columns).
-            
+
         """
         attr_indices = [i for i in attr_indices if i not in skip_columns]
 
@@ -591,16 +640,18 @@ class DOMTableSpecParser(SpecParser):
         self._skipped_columns_flag = True
 
         # Map the remaining cells to the correct attributes
-        return {
-            self.column_to_attr[attr_indices[attr_index]]: cell
-            for attr_index, cell in enumerate(cells)
-            if attr_index < len(attr_indices)
-        }
+        row_data = {}
+        for attr_index, cell in enumerate(cells):
+            if attr_index < len(attr_indices):
+                col_idx = attr_indices[attr_index]
+                self._assign_cell(row_data, col_idx, cell, ref_columns)
+        return row_data
 
     def _map_cells_to_attributes(
         self,
         cells: list,
-        attr_indices: list[int]
+        attr_indices: list[int],
+        ref_columns: Optional[set] = None,
     ) -> dict:
         """Map the list of extracted cell values to the attribute names for this row.
 
@@ -611,6 +662,8 @@ class DOMTableSpecParser(SpecParser):
         Args:
             cells (list): List of extracted cell values for the row, in logical column order.
             attr_indices (list): List of column indices (keys from column_to_attr) in logical order.
+            ref_columns (Optional[set[int]]): Column indices for which to add a companion
+                `<attr>_section_refs` entry.
 
         Returns:
             dict: Dictionary mapping attribute names to cell values (or None if missing).
@@ -619,10 +672,18 @@ class DOMTableSpecParser(SpecParser):
         row_data = {}
         attr_indices = sorted(attr_indices)
         for i, attr_idx in enumerate(attr_indices):
-            attr = self.column_to_attr[attr_idx]
-            row_data[attr] = cells[i] if i < len(cells) else None
+            cell = cells[i] if i < len(cells) else None
+            self._assign_cell(row_data, attr_idx, cell, ref_columns)
         return row_data
-    
+
+    def _assign_cell(self, row_data: Dict[str, Any], col_idx: int, cell: Any, ref_columns: Optional[set]) -> None:
+        """Assign a cell's value into row_data, plus its section refs if col_idx is in ref_columns."""
+        attr = self.column_to_attr[col_idx]
+        value, section_refs = cell if isinstance(cell, tuple) else (cell, [])
+        row_data[attr] = value
+        if ref_columns and col_idx in ref_columns:
+            row_data[f"{attr}_section_refs"] = section_refs
+
     def _handle_pending_rowspans(self) -> tuple[list, list, list, int, int]:
         """Handle cells that are carried forward from previous rows due to rowspan.
 
@@ -711,7 +772,8 @@ class DOMTableSpecParser(SpecParser):
         level_nodes: Dict[int, Node],
         root: Node,
         visited_tables: set,
-        unformatted_list: Optional[list[bool]] = None
+        unformatted_list: Optional[list[bool]] = None,
+        ref_columns: Optional[set] = None,
     ) -> None:
         """Recursively parse Included Table."""
         include_anchor = row.find("a", {"class": "xref"})
@@ -730,7 +792,8 @@ class DOMTableSpecParser(SpecParser):
             table_nesting_level=table_nesting_level,
             include_depth=include_depth,
             visited_tables=visited_tables,
-            unformatted_list=unformatted_list
+            unformatted_list=unformatted_list,
+            ref_columns=ref_columns,
         )
         if not included_table_tree:
             return

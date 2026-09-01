@@ -386,6 +386,113 @@ def table_include_dom():
     return BeautifulSoup(xhtml, "lxml-xml")
 
 @pytest.fixture
+def table_section_refs_dom():
+    """Return a BeautifulSoup DOM with Description cells containing "See Section C.x" xref links.
+
+    Row 1's description has two section refs, row 2's has none, and row 3 Includes a macro
+    table whose own description cell has one section ref, to test ref detection propagates
+    into recursively parsed included tables.
+    """
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <table width="100%">
+                <tbody>
+                    <tr>
+                        <th colspan="1" align="center" rowspan="1">
+                            <span class="documentreleaseinformation">
+                                DICOM PS3.3 2025b - Information Object Definitions
+                            </span>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="section">
+                <div class="table">
+                    <a id="table_MAIN" shape="rect"></a>
+                    <p class="title"><strong>Table MAIN. Main Table</strong></p>
+                    <div class="table-contents">
+                        <table frame="box" rules="all">
+                            <thead>
+                                <tr valign="top">
+                                    <th align="center"><p>Attr Name</p></th>
+                                    <th align="center"><p>Tag</p></th>
+                                    <th align="center"><p>Type</p></th>
+                                    <th align="center"><p>Description</p></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr valign="top">
+                                    <td align="left"><p>AttrName1</p></td>
+                                    <td align="center"><p>(0101,0001)</p></td>
+                                    <td align="center"><p>1</p></td>
+                                    <td align="left">
+                                        <p>See
+                                            <a class="xref" href="#sect_C.1.1" title="C.1.1 First"
+                                               shape="rect">Section C.1.1</a>
+                                            and
+                                            <a class="xref" href="#sect_C.1.2" title="C.1.2 Second"
+                                               shape="rect">Section C.1.2</a>
+                                            for further explanation.</p>
+                                    </td>
+                                </tr>
+                                <tr valign="top">
+                                    <td align="left"><p>AttrName2</p></td>
+                                    <td align="center"><p>(0101,0002)</p></td>
+                                    <td align="center"><p>2</p></td>
+                                    <td align="left"><p>Desc2, no refs.</p></td>
+                                </tr>
+                                <tr valign="top">
+                                    <td align="left" colspan="4" rowspan="1">
+                                    <p>
+                                        <span class="italic">Include
+                                            <a class="xref" href="#table_MACRO"
+                                               title="Table MACRO. Some Macro Attributes"
+                                               shape="rect">Table MACRO "Some Macro Attributes"</a>
+                                        </span>
+                                    </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="table">
+                    <a id="table_MACRO" shape="rect"></a>
+                    <p class="title"><strong>Table MACRO. Macro Table</strong></p>
+                    <div class="table-contents">
+                        <table frame="box" rules="all">
+                            <thead>
+                                <tr valign="top">
+                                    <th align="center"><p>Attr Name</p></th>
+                                    <th align="center"><p>Tag</p></th>
+                                    <th align="center"><p>Type</p></th>
+                                    <th align="center"><p>Description</p></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr valign="top">
+                                    <td align="left"><p>AttrName10</p></td>
+                                    <td align="center"><p>(0101,0010)</p></td>
+                                    <td align="center"><p>3</p></td>
+                                    <td align="left">
+                                        <p>See
+                                            <a class="xref" href="#sect_C.2.1" title="C.2.1 Macro Ref"
+                                               shape="rect">Section C.2.1</a>
+                                            for further explanation.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    return BeautifulSoup(xhtml, "lxml-xml")
+
+@pytest.fixture
 def section_dom():
     """Return a BeautifulSoup DOM with a section and a table for get_table_id_from_section tests."""
     xhtml = """
