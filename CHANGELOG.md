@@ -2,6 +2,14 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.0] - unreleased
+
+### Added
+
+- `SectionSpecParser` for parsing DICOM Part 3 explanatory sections (referenced from attribute
+  descriptions via "See Section C.x") into a flat tree of text and image blocks.
+  `DOMUtils.get_section` locates a section's DOM node by its anchor id.
+
 ## [0.3.1] - 2026-08-27
 
 ### Added
