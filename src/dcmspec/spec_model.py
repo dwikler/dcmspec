@@ -215,6 +215,9 @@ class SpecModel:
     def _is_title(self, node: Node) -> bool:
         """Determine if a node is a title.
 
+        Title-row detection is a table concept: models with no `column_to_attr` on their metadata
+        (e.g. a section model, whose content isn't tabular) never have title nodes.
+
         Args:
             node: The node to check.
 
@@ -222,8 +225,11 @@ class SpecModel:
             True if the node is a title, False otherwise.
 
         """
+        column_to_attr = getattr(self.metadata, "column_to_attr", None)
+        if column_to_attr is None:
+            return False
         return (
-            self._has_only_key_0_attr(node, self.metadata.column_to_attr)
+            self._has_only_key_0_attr(node, column_to_attr)
             and not self._is_include(node)
             and node.name != "content"
         )

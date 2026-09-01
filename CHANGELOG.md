@@ -12,11 +12,16 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `DOMTableSpecParser.parse`/`parse_table` gain an opt-in `ref_columns` parameter that scans configured
   columns for `<a class="xref" href="#sect_...">` links (e.g. "See Section C.x" references), adding a
   companion `<attr>_section_refs` list attribute per node for those columns.
+- `ModuleSpecBuilder` builds a module attribute model and resolves the explanatory sections it
+  references (directly or transitively), downloading and caching each section's images, and sharing
+  resolved sections across modules via the new `SectionRegistry`.
 
 ### Fixed
 
 - `DOMTableSpecParser.get_version` no longer raises `UnboundLocalError` when the document has no
   `<div class="titlepage">` at all; it now returns `""` with a warning, like other unrecognized-version cases.
+- `SpecModel.exclude_titles` no longer raises `AttributeError` when a model's metadata has no
+  `column_to_attr` (e.g. a non-tabular section model); such models simply have no title rows.
 
 ## [0.3.1] - 2026-08-27
 
