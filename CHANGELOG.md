@@ -6,6 +6,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Added
 
+- `SectionSpecParser` for parsing DICOM Part 3 explanatory sections (referenced from attribute
+  descriptions via "See Section C.x") into a flat tree of text and image blocks.
+  `DOMUtils.get_section` locates a section's DOM node by its anchor id.
 - `DOMTableSpecParser.parse`/`parse_table` gain an opt-in `ref_columns` parameter that scans configured
   columns for `<a class="xref" href="#sect_...">` links (e.g. "See Section C.x" references), adding a
   companion `<attr>_section_refs` list attribute per node for those columns.

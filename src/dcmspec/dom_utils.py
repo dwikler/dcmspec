@@ -114,3 +114,37 @@ class DOMUtils:
 
         self.logger.warning(f"No table id found in <div class='table'> for section id '{section_id}'.")
         return None
+
+    def get_section(self, dom: BeautifulSoup, section_id: str) -> Optional[Tag]:
+        """Retrieve the `<div class="section">` element for a section anchor id.
+
+        DocBook XML to XHTML conversion stylesheets enclose an explanatory section in
+        a `<div class="section">` with the section identifier in an `<a id="ID"></a>`
+        inside its heading, e.g.:
+
+        ```html
+        <div class="section">
+            <div class="titlepage">
+                <h6 class="title"><a id="sect_C.7.6.16.2.2.1" shape="rect"></a>C.7.6.16.2.2.1 Title</h6>
+            </div>
+            ...
+        </div>
+        ```
+
+        Args:
+            dom (BeautifulSoup): The BeautifulSoup DOM object.
+            section_id (str): The id of the section to retrieve, e.g. "sect_C.7.6.16.2.2.1".
+
+        Returns:
+            The section's `<div class="section">` element if found, otherwise None.
+
+        """
+        anchor = dom.find("a", {"id": section_id})
+        if anchor is None:
+            self.logger.warning(f"Section with id '{section_id}' not found.")
+            return None
+        section_div = anchor.find_parent("div", class_="section")
+        if not section_div:
+            self.logger.warning(f"Parent <div class='section'> for section id '{section_id}' not found.")
+            return None
+        return section_div
