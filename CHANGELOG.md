@@ -15,6 +15,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `ModuleSpecBuilder` builds a module attribute model and resolves the explanatory sections it
   references (directly or transitively), downloading and caching each section's images, and sharing
   resolved sections across modules via the new `SectionRegistry`.
+- `IODSpecBuilder` gains an optional `module_builder` constructor param: when provided, each module
+  in an IOD is built through it, so explanatory sections are resolved the same way whether a module
+  is built standalone or as part of a full IOD. Omitting it (the default) leaves behavior unchanged.
 
 ### Fixed
 
