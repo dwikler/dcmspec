@@ -17,10 +17,12 @@ def test_parse_section_returns_flat_blocks_in_order(docbook_sample_section_dom):
     children = list(content.children)
     assert len(children) == 3
     assert children[0].name == "text_0"
-    assert children[0].text == "First paragraph of the sample section."
+    assert "First paragraph of the <strong>sample</strong> section." in children[0].html
     assert children[0].section_refs == []
     assert children[1].name == "text_1"
-    assert "for further explanation." in children[1].text
+    assert "for further explanation." in children[1].html
+    # Inline links are preserved as raw HTML, not flattened away like plain-text extraction would
+    assert '<a class="xref" href="#sect_OTHER"' in children[1].html
     assert children[1].section_refs == ["sect_OTHER"]
     assert children[2].name == "image_2"
     assert children[2].image_src == "figures/PS3.3_SAMPLE-1.svg"
@@ -32,8 +34,8 @@ def test_parse_section_excludes_nested_subsection_content(docbook_sample_section
     """Test that a nested subsection's own paragraph is not included when parsing the parent section."""
     parser = SectionSpecParser()
     content = parser.parse_section(docbook_sample_section_dom, "sect_SAMPLE")
-    all_text = " ".join(getattr(child, "text", "") for child in content.children)
-    assert "nested subsection" not in all_text
+    all_html = " ".join(getattr(child, "html", "") for child in content.children)
+    assert "nested subsection" not in all_html
 
 
 def test_parse_section_missing_section_raises(docbook_sample_section_dom):  # noqa: F811

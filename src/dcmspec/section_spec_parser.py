@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from anytree import Node
 from bs4 import BeautifulSoup, Tag
-import html2text
 
 from dcmspec.spec_parser import SpecParser
 from dcmspec.dom_utils import DOMUtils
@@ -110,8 +109,11 @@ class SectionSpecParser(SpecParser):
             section_id (str): The id of the section to parse, e.g. "sect_C.7.6.16.2.2.1".
 
         Returns:
-            Node: The root "content" node, with one child block per paragraph or figure,
-                in document order.
+            Node: The root "content" node, with one child block per paragraph or figure, in
+                document order. Each text block's `html` attribute holds the paragraph's inner
+                HTML, not plain text: inline formatting (`<strong>`, `<em>`, lists, and the
+                `<a class="xref">` links `_extract_section_refs` also scans) is preserved as-is
+                for a consumer to render, rather than flattened.
 
         Raises:
             ValueError: If the section with the given id is not found.
@@ -141,12 +143,12 @@ class SectionSpecParser(SpecParser):
         return heading.get_text(strip=True)
 
     def _add_text_block(self, cell: Tag, root: Node) -> None:
-        """Extract a paragraph's text and outgoing section references into a child text block."""
-        text = self._extract_text(cell)
-        if not text:
+        """Extract a paragraph's HTML and outgoing section references into a child text block."""
+        html = self._extract_html(cell)
+        if not html:
             return
         index = len(root.children)
-        Node(f"text_{index}", parent=root, text=text, section_refs=self._extract_section_refs(cell))
+        Node(f"text_{index}", parent=root, html=html, section_refs=self._extract_section_refs(cell))
 
     def _add_image_block(self, figure: Tag, root: Node) -> None:
         """Extract a `<div class="figure">`'s image source, alt text, and caption into a child image block."""
@@ -184,20 +186,9 @@ class SectionSpecParser(SpecParser):
         """Determine if a tag is a `<div class="figure">`."""
         return tag.name == "div" and "figure" in (tag.get("class") or [])
 
-    def _extract_text(self, cell: Tag) -> str:
-        """Extract and clean readable text from a cell, stripping links and markup."""
-        converter = self._create_html2text_converter()
-        raw_text = converter.handle(str(cell))
-        return self._clean_text(raw_text)
-
-    def _create_html2text_converter(self) -> html2text.HTML2Text:
-        """Create and configure an html2text converter for consistent text extraction."""
-        converter = html2text.HTML2Text()
-        converter.ignore_links = True       # Remove URLs
-        converter.ignore_images = True      # Remove image references
-        converter.ignore_emphasis = True    # Remove Markdown emphasis
-        converter.body_width = 0            # Disable word wrapping
-        return converter
+    def _extract_html(self, cell: Tag) -> str:
+        """Extract a paragraph's inner HTML as-is, preserving inline formatting and links."""
+        return self._clean_text(cell.decode_contents())
 
     def _clean_text(self, text: str) -> str:
         """Clean extracted text using Unicode normalization and regex."""

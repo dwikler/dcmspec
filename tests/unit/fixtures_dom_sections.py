@@ -35,7 +35,7 @@ def docbook_sample_section_dom():
                     </div>
                 </div>
                 <p>
-                    <a id="para_1" shape="rect"></a>First paragraph of the sample section.</p>
+                    <a id="para_1" shape="rect"></a>First paragraph of the <strong>sample</strong> section.</p>
                 <p>
                     <a id="para_2" shape="rect"></a>See
                     <a class="xref" href="#sect_OTHER" title="C.7.6.16.2.2.5 Other Section" shape="rect">Section
