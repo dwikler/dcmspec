@@ -12,6 +12,7 @@ from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.iod_spec_printer import IODSpecPrinter
 from dcmspec.module_spec_builder import ModuleSpecBuilder
+from dcmspec.section_registry import SectionRegistry
 from dcmspec.service_attribute_defaults import UPS_COLUMNS_MAPPING, UPS_DIMSE_MAPPING, UPS_NAME_ATTR
 from dcmspec.service_attribute_model import ServiceAttributeModel
 from dcmspec.spec_factory import SpecFactory
@@ -37,7 +38,8 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
 
     Canary for NEMA changing the IOD table's or a module table's column layout, which would
     break IODSpecBuilder's assumption of where the module/attribute fields live. Also canaries
-    the explanatory-section extraction of "See Section" references.
+    the explanatory-section extraction of "See Section" references, and section image
+    resolution (a resolved section's <img src> download).
     """
     config = Config(app_name="dcmspec")
     iod_factory = SpecFactory(
@@ -50,7 +52,10 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         name_attr="elem_name",
         config=config,
     )
-    module_builder = ModuleSpecBuilder(module_factory=module_factory, ref_columns=[3])
+    section_registry = SectionRegistry()
+    module_builder = ModuleSpecBuilder(
+        module_factory=module_factory, ref_columns=[3], section_registry=section_registry
+    )
     builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory, module_builder=module_builder)
 
     model = None
@@ -92,6 +97,16 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         ]
         assert not missing_section_refs, (
             f"attribute nodes missing elem_description_section_refs: {missing_section_refs}"
+        )
+
+        assert section_registry, "no sections were resolved from the IOD's modules"
+        resolved_image_paths = [
+            path
+            for section_model in section_registry.values()
+            for path in section_model.metadata.image_paths
+        ]
+        assert any(path is not None for path in resolved_image_paths), (
+            "no resolved section had an image successfully downloaded"
         )
         status = "PASSED"
     finally:
