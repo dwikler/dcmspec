@@ -140,6 +140,32 @@ class DocHandler:
             return file_path
         return self.download(url, file_path, binary=binary, progress_observer=progress_observer)
 
+    def download_to_cache(
+        self,
+        url: str,
+        cache_file_name: str,
+        binary: bool = False,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+    ) -> str:
+        """Download a file from a URL, caching it under "<cache_dir>/standard/<cache_file_name>".
+
+        Args:
+            url (str): The URL to download the file from.
+            cache_file_name (str): The filename to cache the file under, resolved against
+                "<cache_dir>/standard/".
+            binary (bool): If True, save as binary. If False, save as UTF-8 text.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+
+        Returns:
+            str: The file path where the document was saved.
+
+        Raises:
+            RuntimeError: If the download or save fails.
+
+        """
+        file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
+        return self.download(url, file_path, binary=binary, progress_observer=progress_observer)
+
     def _set_response_encoding(self, response):
         """Set response.encoding to UTF-8 only if the Content-Type header does not specify a charset.
         

@@ -17,8 +17,8 @@ def _standard_file_path(handler, file_name):
     cache_dir = handler.config.get_param("cache_dir")
     return os.path.join(cache_dir, "standard", file_name)
 
-def test_download_cleans_xhtml(monkeypatch, caplog, dummy_response):
-    """Test that download cleans ZWSP/NBSP and logs info, and returns the correct file path."""
+def test_download_to_cache_cleans_xhtml(monkeypatch, caplog, dummy_response):
+    """Test that download_to_cache cleans ZWSP/NBSP and logs info, and returns the correct file path."""
     handler = XHTMLDocHandler()
     file_name = "test.xhtml"
     file_path = _standard_file_path(handler, file_name)
@@ -27,8 +27,8 @@ def test_download_cleans_xhtml(monkeypatch, caplog, dummy_response):
     monkeypatch.setattr("requests.get", lambda url, timeout, **kwargs: dummy_response(text="A\u200bB\u00a0C"))
 
     with caplog.at_level("INFO"):
-        # Call the download method
-        result_path = handler.download("http://example.com", file_name, progress_observer=None)
+        # Call the download_to_cache method
+        result_path = handler.download_to_cache("http://example.com", file_name, progress_observer=None)
 
     # Assert the file was created and contains the expected content
     assert result_path == file_path
@@ -98,12 +98,12 @@ def test_load_document_force_download(monkeypatch):
     file_name = "file.xhtml"
     file_path = _standard_file_path(handler, file_name)
     call_log = []
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name, **kwargs: call_log.append("download") or file_path)
+    monkeypatch.setattr(handler, "download_to_cache", lambda url, cache_file_name, **kwargs: call_log.append("download_to_cache") or file_path)
     monkeypatch.setattr(handler, "parse_dom", lambda path: call_log.append("parse_dom") or "DOM_OBJECT")
     monkeypatch.setattr("os.path.exists", lambda path: False)
     result = handler.load_document(file_name, url="http://example.com", force_download=True)
     assert result == "DOM_OBJECT"
-    assert call_log == ["download", "parse_dom"]
+    assert call_log == ["download_to_cache", "parse_dom"]
 
 def test_load_document_progress_callback(monkeypatch):
     """Test that load_document adapts a legacy int progress callback to work with the observer API."""
@@ -119,7 +119,7 @@ def test_load_document_progress_callback(monkeypatch):
             percent = 88
         progress_observer(DummyProgress())
         return file_path
-    monkeypatch.setattr(handler, "download", fake_download)
+    monkeypatch.setattr(handler, "download_to_cache", fake_download)
     monkeypatch.setattr(handler, "parse_dom", lambda path: "DOM_OBJECT")
     monkeypatch.setattr("os.path.exists", lambda path: False)
     handler.load_document(file_name, url="http://example.com", force_download=True, progress_callback=progress_callback)
@@ -141,7 +141,7 @@ def test_load_document_progress_observer_class(monkeypatch):
             percent = 55
         progress_observer(DummyProgress())
         return file_path
-    monkeypatch.setattr(handler, "download", fake_download)
+    monkeypatch.setattr(handler, "download_to_cache", fake_download)
     monkeypatch.setattr(handler, "parse_dom", lambda path: "DOM_OBJECT")
     monkeypatch.setattr("os.path.exists", lambda path: False)
     handler.load_document(file_name, url="http://example.com", force_download=True, progress_observer=observer)
@@ -153,12 +153,12 @@ def test_load_document_file_missing(monkeypatch):
     file_name = "file.xhtml"
     file_path = _standard_file_path(handler, file_name)
     call_log = []
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name, **kwargs: call_log.append("download") or file_path)
+    monkeypatch.setattr(handler, "download_to_cache", lambda url, cache_file_name, **kwargs: call_log.append("download_to_cache") or file_path)
     monkeypatch.setattr(handler, "parse_dom", lambda path: call_log.append("parse_dom") or "DOM_OBJECT")
     monkeypatch.setattr("os.path.exists", lambda path: False)
     result = handler.load_document(file_name, url="http://example.com", force_download=False)
     assert result == "DOM_OBJECT"
-    assert call_log == ["download", "parse_dom"]
+    assert call_log == ["download_to_cache", "parse_dom"]
 
 def test_load_document_file_exists(monkeypatch):
     """Test that load_document only parses when file exists and force_download is False."""
@@ -166,7 +166,7 @@ def test_load_document_file_exists(monkeypatch):
     file_name = "file.xhtml"
     file_path = _standard_file_path(handler, file_name)
     call_log = []
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name, **kwargs: call_log.append("download") or file_path)
+    monkeypatch.setattr(handler, "download_to_cache", lambda url, cache_file_name, **kwargs: call_log.append("download_to_cache") or file_path)
     monkeypatch.setattr(handler, "parse_dom", lambda path: call_log.append("parse_dom") or "DOM_OBJECT")
     monkeypatch.setattr("os.path.exists", lambda path: True)
     result = handler.load_document(file_name, url="http://example.com", force_download=False)
@@ -177,7 +177,7 @@ def test_load_document_force_download_missing_url(monkeypatch):
     """Test that load_document raises ValueError when force_download is True and url is missing."""
     handler = XHTMLDocHandler()
     file_name = "file.xhtml"
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name: None)
+    monkeypatch.setattr(handler, "download_to_cache", lambda url, cache_file_name: None)
     monkeypatch.setattr(handler, "parse_dom", lambda path: None)
     monkeypatch.setattr("os.path.exists", lambda path: False)
     with pytest.raises(ValueError):
@@ -187,7 +187,7 @@ def test_load_document_no_file_missing_url(monkeypatch):
     """Test that load_document raises ValueError when file does not exist and url is missing."""
     handler = XHTMLDocHandler()
     file_name = "file.xhtml"
-    monkeypatch.setattr(handler, "download", lambda url, cache_file_name: None)
+    monkeypatch.setattr(handler, "download_to_cache", lambda url, cache_file_name: None)
     monkeypatch.setattr(handler, "parse_dom", lambda path: None)
     monkeypatch.setattr("os.path.exists", lambda path: False)
     with pytest.raises(ValueError):

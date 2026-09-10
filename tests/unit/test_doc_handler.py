@@ -124,6 +124,31 @@ def test_download_if_needed_force_redownloads_existing_file(tmp_path, monkeypatc
     handler.download_if_needed("http://example.com", str(file_path), force=True)
     assert called
 
+def test_download_to_cache_resolves_path_and_delegates(patch_dirs, monkeypatch):
+    """Test that download_to_cache resolves cache_file_name against cache_dir/standard and calls download."""
+    handler = DummyDocHandler()
+    expected_path = str(patch_dirs / "cache" / "standard" / "test.txt")
+
+    called = []
+    monkeypatch.setattr(handler, "download", lambda *a, **k: called.append((a, k)) or expected_path)
+
+    result = handler.download_to_cache("http://example.com", "test.txt")
+    assert result == expected_path
+    assert called == [
+        (("http://example.com", expected_path), {"binary": False, "progress_observer": None})
+    ]
+
+def test_download_to_cache_passes_binary_flag(patch_dirs, monkeypatch):
+    """Test that download_to_cache passes binary=True through to download."""
+    handler = DummyDocHandler()
+    expected_path = str(patch_dirs / "cache" / "standard" / "test.pdf")
+
+    called = []
+    monkeypatch.setattr(handler, "download", lambda *a, **k: called.append((a, k)) or expected_path)
+
+    handler.download_to_cache("http://example.com", "test.pdf", binary=True)
+    assert called[0][1]["binary"] is True
+
 def test_download_if_needed_propagates_download_failure(tmp_path, monkeypatch, dummy_response):
     """Test that download_if_needed lets a RuntimeError from download propagate."""
     handler = DummyDocHandler()

@@ -281,7 +281,7 @@ class PDFDocHandler(DocHandler):
                 self.logger.error("URL must be provided to download the file.")
                 raise ValueError("URL must be provided to download the file.")
             self.logger.info(f"Downloading PDF from {url} to {cache_file_path}")
-            cache_file_path = self.download(url, cache_file_name, progress_observer=progress_observer)
+            cache_file_path = self.download_to_cache(url, cache_file_name, progress_observer=progress_observer)
         else:
             self.logger.info(f"Loading PDF from cache file {cache_file_path}")
 
@@ -316,7 +316,7 @@ class PDFDocHandler(DocHandler):
 
         return spec_table
 
-    def download(self,
+    def download_to_cache(self,
                 url: str,
                 cache_file_name: str,
                 progress_observer: 'Optional[ProgressObserver]' = None,
@@ -324,7 +324,9 @@ class PDFDocHandler(DocHandler):
                 progress_callback: 'Optional[Callable[[int], None]]' = None
                 # END LEGACY SUPPORT
                 ) -> str:
-        """Download and cache a PDF file from a URL using the base class download method.
+        """Download and cache a PDF file from a URL, given its cache filename.
+
+        Uses the base class's download_to_cache, saving as binary.
 
         Args:
             url: The URL of the PDF document to download.
@@ -344,8 +346,7 @@ class PDFDocHandler(DocHandler):
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
         progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
-        file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
-        return super().download(url, file_path, binary=True, progress_observer=progress_observer)
+        return super().download_to_cache(url, cache_file_name, binary=True, progress_observer=progress_observer)
 
     def extract_tables_pdfplumber(
         self,

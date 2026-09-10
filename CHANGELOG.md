@@ -10,6 +10,11 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `ModuleSpecBuilder` builds a module attribute model and resolves the sections it
   directly references, caching each one separately and downloading their images.
 
+### Changed
+
+- **Breaking change:** `XHTMLDocHandler.download`/`PDFDocHandler.download` renamed to
+  `download_to_cache`. Callers using `load_document` are unaffected.
+
 ### Fixed
 
 - `DOMTableSpecParser.get_version` no longer raises `UnboundLocalError` when the document has no
