@@ -1105,6 +1105,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../module_spec_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModuleSpecBuilder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../module_registry/" class="md-nav__link">
         
   
@@ -1113,6 +1141,62 @@
     
   
     ModuleRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_image_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionImageResolver
   
 
     
@@ -1224,6 +1308,34 @@
     
   
     DOMTableSpecParser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_section_spec_parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOMSectionSpecParser
   
 
     
@@ -1825,6 +1937,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dcmspec.dom_utils.DOMUtils.get_section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_section
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dcmspec.dom_utils.DOMUtils.get_table" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1944,6 +2067,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dcmspec.dom_utils.DOMUtils.get_section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_section
       
     </span>
   </a>
@@ -2130,7 +2264,41 @@ with optional logging for warnings and debug information.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMUtils</span><span class="p">:</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMUtils</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Utility class for DOM navigation and extraction in DICOM XHTML documents.</span>
 
 <span class="sd">    Provides methods for locating tables and table IDs within a parsed BeautifulSoup DOM,</span>
@@ -2231,6 +2399,40 @@ with optional logging for warnings and debug information.</p>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No table id found in &lt;div class='table'&gt; for section id '</span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">section_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tag</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Retrieve the `&lt;div class="section"&gt;` element for a section anchor id.</span>
+
+<span class="sd">        DocBook XML to XHTML conversion stylesheets enclose an explanatory section in</span>
+<span class="sd">        a `&lt;div class="section"&gt;` with the section identifier in an `&lt;a id="ID"&gt;&lt;/a&gt;`</span>
+<span class="sd">        inside its heading, e.g.:</span>
+
+<span class="sd">        ```html</span>
+<span class="sd">        &lt;div class="section"&gt;</span>
+<span class="sd">            &lt;div class="titlepage"&gt;</span>
+<span class="sd">                &lt;h6 class="title"&gt;&lt;a id="sect_C.7.6.16.2.2.1" shape="rect"&gt;&lt;/a&gt;C.7.6.16.2.2.1 Title&lt;/h6&gt;</span>
+<span class="sd">            &lt;/div&gt;</span>
+<span class="sd">            ...</span>
+<span class="sd">        &lt;/div&gt;</span>
+<span class="sd">        ```</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dom (BeautifulSoup): The BeautifulSoup DOM object.</span>
+<span class="sd">            section_id (str): The id of the section to retrieve, e.g. "sect_C.7.6.16.2.2.1".</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The section's `&lt;div class="section"&gt;` element if found, otherwise None.</span>
+
+<span class="sd">        """</span>
+        <span class="n">anchor</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">section_id</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Section with id '</span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">section_div</span> <span class="o">=</span> <span class="n">anchor</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"section"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">section_div</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parent &lt;div class='section'&gt; for section id '</span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">section_div</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2316,6 +2518,171 @@ If None, a default logger is created.</p>
     <span class="k">if</span> <span class="n">logger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"logger must be an instance of logging.Logger or None"</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="dcmspec.dom_utils.DOMUtils.get_section" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">get_section</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">section_id</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Retrieve the <code>&lt;div class="section"&gt;</code> element for a section anchor id.</p>
+<p>DocBook XML to XHTML conversion stylesheets enclose an explanatory section in
+a <code>&lt;div class="section"&gt;</code> with the section identifier in an <code>&lt;a id="ID"&gt;&lt;/a&gt;</code>
+inside its heading, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">"section"</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">"titlepage"</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h6</span> <span class="na">class</span><span class="o">=</span><span class="s">"title"</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">id</span><span class="o">=</span><span class="s">"sect_C.7.6.16.2.2.1"</span> <span class="na">shape</span><span class="o">=</span><span class="s">"rect"</span><span class="p">&gt;&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>C.7.6.16.2.2.1 Title<span class="p">&lt;/</span><span class="nt">h6</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+    ...
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dom</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The BeautifulSoup DOM object.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="bs4.BeautifulSoup">BeautifulSoup</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>section_id</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>The id of the section to retrieve, e.g. "sect_C.7.6.16.2.2.1".</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="str">str</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">RETURNS</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <span class="doc-returns-annotation">
+                    <code><span title="typing.Optional">Optional</span>[<span title="bs4.Tag">Tag</span>]</code>
+                </span>
+            </td>
+            <td class="doc-returns-details">
+              <div class="doc-md-description">
+                <p>The section's <code>&lt;div class="section"&gt;</code> element if found, otherwise None.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="quote">
+              <summary>Source code in <code>src/dcmspec/dom_utils.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">section_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tag</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Retrieve the `&lt;div class="section"&gt;` element for a section anchor id.</span>
+
+<span class="sd">    DocBook XML to XHTML conversion stylesheets enclose an explanatory section in</span>
+<span class="sd">    a `&lt;div class="section"&gt;` with the section identifier in an `&lt;a id="ID"&gt;&lt;/a&gt;`</span>
+<span class="sd">    inside its heading, e.g.:</span>
+
+<span class="sd">    ```html</span>
+<span class="sd">    &lt;div class="section"&gt;</span>
+<span class="sd">        &lt;div class="titlepage"&gt;</span>
+<span class="sd">            &lt;h6 class="title"&gt;&lt;a id="sect_C.7.6.16.2.2.1" shape="rect"&gt;&lt;/a&gt;C.7.6.16.2.2.1 Title&lt;/h6&gt;</span>
+<span class="sd">        &lt;/div&gt;</span>
+<span class="sd">        ...</span>
+<span class="sd">    &lt;/div&gt;</span>
+<span class="sd">    ```</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dom (BeautifulSoup): The BeautifulSoup DOM object.</span>
+<span class="sd">        section_id (str): The id of the section to retrieve, e.g. "sect_C.7.6.16.2.2.1".</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The section's `&lt;div class="section"&gt;` element if found, otherwise None.</span>
+
+<span class="sd">    """</span>
+    <span class="n">anchor</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">section_id</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Section with id '</span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">section_div</span> <span class="o">=</span> <span class="n">anchor</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"section"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">section_div</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Parent &lt;div class='section'&gt; for section id '</span><span class="si">{</span><span class="n">section_id</span><span class="si">}</span><span class="s2">' not found."</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">section_div</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

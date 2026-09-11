@@ -12,7 +12,7 @@
         <link rel="prev" href="../spec_parser/">
       
       
-        <link rel="next" href="../csv_table_spec_parser/">
+        <link rel="next" href="../dom_section_spec_parser/">
       
       
         
@@ -1105,6 +1105,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../module_spec_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModuleSpecBuilder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../module_registry/" class="md-nav__link">
         
   
@@ -1113,6 +1141,62 @@
     
   
     ModuleRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_image_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionImageResolver
   
 
     
@@ -1349,6 +1433,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_section_spec_parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOMSectionSpecParser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2069,7 +2181,8 @@ Inherits logging from SpecParser.</p>
 
               <details class="quote">
                 <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 21</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 20</span>
+<span class="normal"> 21</span>
 <span class="normal"> 22</span>
 <span class="normal"> 23</span>
 <span class="normal"> 24</span>
@@ -2911,7 +3024,35 @@ Inherits logging from SpecParser.</p>
 <span class="normal">860</span>
 <span class="normal">861</span>
 <span class="normal">862</span>
-<span class="normal">863</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
+<span class="normal">863</span>
+<span class="normal">864</span>
+<span class="normal">865</span>
+<span class="normal">866</span>
+<span class="normal">867</span>
+<span class="normal">868</span>
+<span class="normal">869</span>
+<span class="normal">870</span>
+<span class="normal">871</span>
+<span class="normal">872</span>
+<span class="normal">873</span>
+<span class="normal">874</span>
+<span class="normal">875</span>
+<span class="normal">876</span>
+<span class="normal">877</span>
+<span class="normal">878</span>
+<span class="normal">879</span>
+<span class="normal">880</span>
+<span class="normal">881</span>
+<span class="normal">882</span>
+<span class="normal">883</span>
+<span class="normal">884</span>
+<span class="normal">885</span>
+<span class="normal">886</span>
+<span class="normal">887</span>
+<span class="normal">888</span>
+<span class="normal">889</span>
+<span class="normal">890</span>
+<span class="normal">891</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DOMTableSpecParser</span><span class="p">(</span><span class="n">SpecParser</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Parser for DICOM specification tables in XHTML DOM format.</span>
 
 <span class="sd">    Provides methods to extract, parse, and structure DICOM specification tables from XHTML documents,</span>
@@ -2942,6 +3083,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Parse specification metadata and content from tables in the DOM.</span>
 
@@ -2953,15 +3095,20 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            table_id (str): The ID of the table to parse.</span>
 <span class="sd">            column_to_attr (Dict[int, str]): Mapping from column indices to attribute names for tree nodes.</span>
 <span class="sd">            name_attr (str): The attribute name to use for building node names.</span>
-<span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
+<span class="sd">            include_depth (Optional[int], optional): The depth to which included tables should be parsed.</span>
 <span class="sd">                None means unlimited.</span>
 <span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
-<span class="sd">            unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
+<span class="sd">            unformatted (Optional[Union[bool, Dict[int, bool]]]):</span>
 <span class="sd">                Whether to extract unformatted (plain text) cell content (default True).</span>
 <span class="sd">                Can be a bool (applies to all columns) or a dict mapping column indices to bools.</span>
 <span class="sd">                This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
+<span class="sd">            ref_columns (Optional[list[int]]): List of column indices to scan for `&lt;a class="xref"</span>
+<span class="sd">                href="#sect_..."&gt;` links, e.g. "See Section C.x" references. For each such column,</span>
+<span class="sd">                every node gets a companion `&lt;attr&gt;_section_refs` attribute (a list of the section ids</span>
+<span class="sd">                found in that cell, empty if none). Default None scans no columns, so existing callers</span>
+<span class="sd">                see no change. This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple[Node, Node]: The metadata node and the table content node.</span>
@@ -2978,14 +3125,15 @@ Inherits logging from SpecParser.</p>
             <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
 
         <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
-            <span class="n">dom</span><span class="p">,</span> 
-            <span class="n">table_id</span><span class="p">,</span> 
-            <span class="n">column_to_attr</span><span class="p">,</span> 
-            <span class="n">name_attr</span><span class="p">,</span> 
-            <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+            <span class="n">dom</span><span class="p">,</span>
+            <span class="n">table_id</span><span class="p">,</span>
+            <span class="n">column_to_attr</span><span class="p">,</span>
+            <span class="n">name_attr</span><span class="p">,</span>
+            <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
             <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
-            <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
-            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
+            <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
+            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+            <span class="n">ref_columns</span><span class="o">=</span><span class="nb">set</span><span class="p">(</span><span class="n">ref_columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_columns</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
@@ -3000,6 +3148,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
         <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
+        <span class="n">metadata</span><span class="o">.</span><span class="n">ref_columns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ref_columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_columns</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 
     <span class="nd">@contextmanager</span>
@@ -3032,6 +3181,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -3050,8 +3200,10 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
-<span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
+<span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as</span>
 <span class="sd">                unformatted text.</span>
+<span class="sd">            ref_columns (Optional[set[int]]): Set of column indices to scan for `&lt;a class="xref" href="#sect_..."&gt;`</span>
+<span class="sd">                links, producing a companion `&lt;attr&gt;_section_refs` attribute per node for those columns.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            root: The root node of the tree representation of the specification table.</span>
@@ -3062,6 +3214,9 @@ Inherits logging from SpecParser.</p>
         <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
+        <span class="k">if</span> <span class="n">ref_columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ref_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_unformatted_for_name_attr</span><span class="p">(</span><span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
 
@@ -3099,6 +3254,7 @@ Inherits logging from SpecParser.</p>
                 <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
                 <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
                 <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+                <span class="n">ref_columns</span><span class="o">=</span><span class="n">ref_columns</span><span class="p">,</span>
                 <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
                 <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
                 <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -3152,23 +3308,11 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            info_node: The info tree node.</span>
 
 <span class="sd">        """</span>
-        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_book</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_titlepage</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_document_release_info</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
             <span class="n">version</span> <span class="o">=</span> <span class="s2">""</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DICOM Standard version not found"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">version</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_version_from_book</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Extract version of DICOM books in HTML format."""</span>
-        <span class="n">titlepage</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"titlepage"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">titlepage</span><span class="p">:</span>
-            <span class="n">subtitle</span> <span class="o">=</span> <span class="n">titlepage</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"h2"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"subtitle"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">subtitle</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">subtitle</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_version_from_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""Extract version of DICOM sections in the CHTML format."""</span>
-        <span class="n">document_release</span> <span class="o">=</span> <span class="n">dom</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"span"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"documentreleaseinformation"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">document_release</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">document_release</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_process_table_rows</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3181,6 +3325,7 @@ Inherits logging from SpecParser.</p>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
         <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3189,7 +3334,9 @@ Inherits logging from SpecParser.</p>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"tr"</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="n">total_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
-            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">)</span>
+            <span class="n">row_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_row_data</span><span class="p">(</span>
+                <span class="n">row</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span> <span class="n">ref_columns</span><span class="o">=</span><span class="n">ref_columns</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip empty rows</span>
             <span class="n">row_nesting_level</span> <span class="o">=</span> <span class="n">table_nesting_level</span> <span class="o">+</span> <span class="n">row_data</span><span class="p">[</span><span class="n">name_attr</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">)</span>
@@ -3206,7 +3353,7 @@ Inherits logging from SpecParser.</p>
                 <span class="k">if</span> <span class="n">should_include</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_parse_included_table</span><span class="p">(</span>
                         <span class="n">dom</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">row_nesting_level</span><span class="p">,</span> <span class="n">next_depth</span><span class="p">,</span>
-                        <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">unformatted_list</span>
+                        <span class="n">level_nodes</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">visited_tables</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">,</span> <span class="n">ref_columns</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Create a node to represent the circular reference instead of recursing</span>
@@ -3227,7 +3374,8 @@ Inherits logging from SpecParser.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">row</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Extract data from a table row.</span>
 
@@ -3246,6 +3394,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a logical column.</span>
 <span class="sd">            unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column value as</span>
 <span class="sd">                unformatted (HTML) or formatted (ASCII) data.</span>
+<span class="sd">            ref_columns (Optional[set[int]]): Set of column indices to scan for `&lt;a class="xref" href="#sect_..."&gt;`</span>
+<span class="sd">                links, producing a companion `&lt;attr&gt;_section_refs` entry per column.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dict[str, Any]: A dictionary mapping attribute names to cell values of the logical columns for the row.</span>
@@ -3255,6 +3405,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            - The **value** is the cell value for that column in this row, which may be:</span>
 <span class="sd">                - The value physically present in the current row,</span>
 <span class="sd">                - Or a value carried over from a previous row due to rowspan.</span>
+<span class="sd">            - For each column in `ref_columns`, an additional `&lt;attr&gt;_section_refs` key holds the list of</span>
+<span class="sd">                section ids found in that cell (empty if none).</span>
 
 <span class="sd">        """</span>
         <span class="c1"># Initialize rowspan trackers if not present</span>
@@ -3289,7 +3441,8 @@ Inherits logging from SpecParser.</p>
                 <span class="k">continue</span>
 
             <span class="n">logical_cells</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">physical_col_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_logical_column</span><span class="p">(</span>
-                <span class="n">cell_iter</span><span class="p">,</span> <span class="n">logical_cells</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">physical_col_idx</span><span class="p">,</span> <span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span>
+                <span class="n">cell_iter</span><span class="p">,</span> <span class="n">logical_cells</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">physical_col_idx</span><span class="p">,</span> <span class="n">skip_columns</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">,</span>
+                <span class="n">ref_columns</span>
             <span class="p">)</span>
 
         <span class="c1"># 3. Trim _rowspan_trackers to match the number of physical columns in this row</span>
@@ -3300,10 +3453,10 @@ Inherits logging from SpecParser.</p>
         <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">skip_columns</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">logical_cells</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">skip_columns</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_cells_with_skipped_columns</span><span class="p">(</span>
-                <span class="n">logical_cells</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">skip_columns</span>
+                <span class="n">logical_cells</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">skip_columns</span><span class="p">,</span> <span class="n">ref_columns</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_cells_to_attributes</span><span class="p">(</span><span class="n">logical_cells</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_cells_to_attributes</span><span class="p">(</span><span class="n">logical_cells</span><span class="p">,</span> <span class="n">attr_indices</span><span class="p">,</span> <span class="n">ref_columns</span><span class="p">)</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_rowspan_cells</span><span class="p">(</span>
@@ -3351,7 +3504,8 @@ Inherits logging from SpecParser.</p>
         <span class="n">logical_col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">physical_col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
-        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]],</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Process a single logical column in the row.</span>
 
@@ -3378,7 +3532,7 @@ Inherits logging from SpecParser.</p>
             <span class="k">return</span> <span class="n">logical_cells</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">physical_col_idx</span>
 
         <span class="c1"># Extract value for the current logical column using the specified unformatted setting</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_cell_value</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_cell_value</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">logical_col_idx</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">,</span> <span class="n">ref_columns</span><span class="p">)</span>
 
         <span class="c1"># Determine colspan and rowspan</span>
         <span class="n">colspan</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"colspan"</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
@@ -3407,24 +3561,45 @@ Inherits logging from SpecParser.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cell</span><span class="p">:</span> <span class="n">Tag</span><span class="p">,</span>
         <span class="n">logical_col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Extract and clean the value from a cell as unformatted text or HTML."""</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Extract and clean the value from a cell as unformatted text or HTML, plus its section refs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[str, list[str]]: The cell's text or HTML value, and the list of section ids found via</span>
+<span class="sd">                `&lt;a class="xref" href="#sect_..."&gt;` links within the cell (empty if this column is not</span>
+<span class="sd">                in `ref_columns`, or none are found).</span>
+
+<span class="sd">        """</span>
         <span class="n">use_unformatted</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">unformatted_list</span><span class="p">[</span><span class="n">logical_col_idx</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">and</span> <span class="n">logical_col_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">unformatted_list</span><span class="p">)</span>
             <span class="k">else</span> <span class="kc">True</span>
         <span class="p">)</span>
 
+        <span class="n">section_refs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extract_section_refs</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_columns</span> <span class="ow">and</span> <span class="n">logical_col_idx</span> <span class="ow">in</span> <span class="n">ref_columns</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
         <span class="c1"># Guard clause: if formatted HTML is required, return content as-is</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">use_unformatted</span><span class="p">:</span>
             <span class="c1"># Keep original HTML content</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">decode_contents</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">decode_contents</span><span class="p">()),</span> <span class="n">section_refs</span>
 
         <span class="c1"># Use html2text for better readability of unformatted text extraction</span>
         <span class="n">converter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_html2text_converter</span><span class="p">()</span>
         <span class="n">raw_text</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">raw_text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_extracted_text</span><span class="p">(</span><span class="n">raw_text</span><span class="p">),</span> <span class="n">section_refs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_section_refs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cell</span><span class="p">:</span> <span class="n">Tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return the section ids of every `&lt;a class="xref" href="#sect_..."&gt;` link within a cell."""</span>
+        <span class="n">section_refs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">anchor</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"xref"</span><span class="p">):</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">anchor</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"href"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"#"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"sect_"</span><span class="p">):</span>
+                <span class="n">section_refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">section_refs</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_html2text_converter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">html2text</span><span class="o">.</span><span class="n">HTML2Text</span><span class="p">:</span>
@@ -3461,7 +3636,8 @@ Inherits logging from SpecParser.</p>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
         <span class="n">attr_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-        <span class="n">skip_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+        <span class="n">skip_columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Map the list of extracted cell values to the attribute names for this row in presence of skipped columns.</span>
 
@@ -3473,6 +3649,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">            cells (list): Extracted cell values for the row, in logical column order (excluding skipped columns).</span>
 <span class="sd">            attr_indices (list): Column indices (keys from column_to_attr) in logical order.</span>
 <span class="sd">            skip_columns (list): Column indices to skip.</span>
+<span class="sd">            ref_columns (Optional[set[int]]): Column indices for which to add a companion</span>
+<span class="sd">                `&lt;attr&gt;_section_refs` entry.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: Dictionary mapping attribute names to cell values (excluding skipped columns).</span>
@@ -3484,16 +3662,18 @@ Inherits logging from SpecParser.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_skipped_columns_flag</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># Map the remaining cells to the correct attributes</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_indices</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]]:</span> <span class="n">cell</span>
-            <span class="k">for</span> <span class="n">attr_index</span><span class="p">,</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">attr_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">)</span>
-        <span class="p">}</span>
+        <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr_index</span><span class="p">,</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cells</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attr_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
+                <span class="n">col_idx</span> <span class="o">=</span> <span class="n">attr_indices</span><span class="p">[</span><span class="n">attr_index</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_assign_cell</span><span class="p">(</span><span class="n">row_data</span><span class="p">,</span> <span class="n">col_idx</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">ref_columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">row_data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_map_cells_to_attributes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
-        <span class="n">attr_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+        <span class="n">attr_indices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Map the list of extracted cell values to the attribute names for this row.</span>
 
@@ -3504,6 +3684,8 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            cells (list): List of extracted cell values for the row, in logical column order.</span>
 <span class="sd">            attr_indices (list): List of column indices (keys from column_to_attr) in logical order.</span>
+<span class="sd">            ref_columns (Optional[set[int]]): Column indices for which to add a companion</span>
+<span class="sd">                `&lt;attr&gt;_section_refs` entry.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: Dictionary mapping attribute names to cell values (or None if missing).</span>
@@ -3512,9 +3694,17 @@ Inherits logging from SpecParser.</p>
         <span class="n">row_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">attr_indices</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">attr_idx</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">attr_indices</span><span class="p">):</span>
-            <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">attr_idx</span><span class="p">]</span>
-            <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">cell</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_assign_cell</span><span class="p">(</span><span class="n">row_data</span><span class="p">,</span> <span class="n">attr_idx</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">ref_columns</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">row_data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_assign_cell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">col_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cell</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Assign a cell's value into row_data, plus its section refs if col_idx is in ref_columns."""</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">[</span><span class="n">col_idx</span><span class="p">]</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">section_refs</span> <span class="o">=</span> <span class="n">cell</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">row_data</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">ref_columns</span> <span class="ow">and</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="n">ref_columns</span><span class="p">:</span>
+            <span class="n">row_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">_section_refs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">section_refs</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_pending_rowspans</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Handle cells that are carried forward from previous rows due to rowspan.</span>
@@ -3604,7 +3794,8 @@ Inherits logging from SpecParser.</p>
         <span class="n">level_nodes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Node</span><span class="p">],</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span>
         <span class="n">visited_tables</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span>
-        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Recursively parse Included Table."""</span>
         <span class="n">include_anchor</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"class"</span><span class="p">:</span> <span class="s2">"xref"</span><span class="p">})</span>
@@ -3623,7 +3814,8 @@ Inherits logging from SpecParser.</p>
             <span class="n">table_nesting_level</span><span class="o">=</span><span class="n">table_nesting_level</span><span class="p">,</span>
             <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
             <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
-            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
+            <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+            <span class="n">ref_columns</span><span class="o">=</span><span class="n">ref_columns</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">included_table_tree</span><span class="p">:</span>
             <span class="k">return</span>
@@ -3692,28 +3884,6 @@ Inherits logging from SpecParser.</p>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Extracted Header: </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">header</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_clean_extracted_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Clean extracted text using Unicode normalization and regex."""</span>
-        <span class="c1"># Normalize unicode characters to compatibility form</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">'NFKC'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-
-        <span class="c1"># Replace non-breaking spaces and zero-width spaces with regular space</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u00a0\u200b]'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
-
-        <span class="c1"># Replace typographic single quotes with ASCII single quote</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u2018\u2019]'</span><span class="p">,</span> <span class="s2">"'"</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
-        <span class="c1"># Replace typographic double quotes with ASCII double quote</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u201c\u201d\u00e2\u0080\u009c\u00e2\u0080\u009d]'</span><span class="p">,</span> <span class="s1">'"'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
-        <span class="c1"># Replace em dash and en dash with hyphen</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[\u2013\u2014]'</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
-        <span class="c1"># Remove stray Â character</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'</span><span class="se">\u00c2</span><span class="s1">'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
-
-        <span class="c1"># Collapse multiple newlines (including those separated by spaces/tabs) into a single newline</span>
-        <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\n\s*){2,}'</span><span class="p">,</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">cleaned</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_string</span><span class="p">(</span><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -3818,7 +3988,8 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+<span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
@@ -3828,8 +3999,7 @@ Inherits logging from SpecParser.</p>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Initialize the DOMTableSpecParser.</span>
 
 <span class="sd">    Sets up the parser with an optional logger and a DOMUtils instance for DOM navigation.</span>
@@ -3935,22 +4105,22 @@ Inherits logging from SpecParser.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Retrieve the DICOM Standard version from the DOM.</span>
 
 <span class="sd">    Args:</span>
@@ -3961,7 +4131,7 @@ Inherits logging from SpecParser.</p>
 <span class="sd">        info_node: The info tree node.</span>
 
 <span class="sd">    """</span>
-    <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_book</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_section</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_titlepage</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_from_document_release_info</span><span class="p">(</span><span class="n">dom</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
         <span class="n">version</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"DICOM Standard version not found"</span><span class="p">)</span>
@@ -3976,7 +4146,7 @@ Inherits logging from SpecParser.</p>
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ref_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -4066,7 +4236,7 @@ the metadata node and the table content node as structured in-memory representat
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>The depth to which included tables should be parsed. 
+                <p>The depth to which included tables should be parsed.
 None means unlimited.</p>
               </div>
               <p>
@@ -4144,6 +4314,30 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
               </p>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ref_columns</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>List of column indices to scan for <code>&lt;a class="xref"
+href="#sect_..."&gt;</code> links, e.g. "See Section C.x" references. For each such column,
+every node gets a companion <code>&lt;attr&gt;_section_refs</code> attribute (a list of the section ids
+found in that cell, empty if none). Default None scans no columns, so existing callers
+see no change. This argument is typically set via <code>parser_kwargs</code> when using SpecFactory.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="list">list</span>[<span title="int">int</span>]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -4174,7 +4368,8 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 41</span>
+<span class="normal"> 42</span>
 <span class="normal"> 43</span>
 <span class="normal"> 44</span>
 <span class="normal"> 45</span>
@@ -4242,7 +4437,14 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
-<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4252,6 +4454,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
     <span class="n">progress_observer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ProgressObserver</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Node</span><span class="p">,</span> <span class="n">Node</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Parse specification metadata and content from tables in the DOM.</span>
 
@@ -4263,15 +4466,20 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="sd">        table_id (str): The ID of the table to parse.</span>
 <span class="sd">        column_to_attr (Dict[int, str]): Mapping from column indices to attribute names for tree nodes.</span>
 <span class="sd">        name_attr (str): The attribute name to use for building node names.</span>
-<span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed. </span>
+<span class="sd">        include_depth (Optional[int], optional): The depth to which included tables should be parsed.</span>
 <span class="sd">            None means unlimited.</span>
 <span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
-<span class="sd">        unformatted (Optional[Union[bool, Dict[int, bool]]]): </span>
+<span class="sd">        unformatted (Optional[Union[bool, Dict[int, bool]]]):</span>
 <span class="sd">            Whether to extract unformatted (plain text) cell content (default True).</span>
 <span class="sd">            Can be a bool (applies to all columns) or a dict mapping column indices to bools.</span>
 <span class="sd">            This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
+<span class="sd">        ref_columns (Optional[list[int]]): List of column indices to scan for `&lt;a class="xref"</span>
+<span class="sd">            href="#sect_..."&gt;` links, e.g. "See Section C.x" references. For each such column,</span>
+<span class="sd">            every node gets a companion `&lt;attr&gt;_section_refs` attribute (a list of the section ids</span>
+<span class="sd">            found in that cell, empty if none). Default None scans no columns, so existing callers</span>
+<span class="sd">            see no change. This argument is typically set via `parser_kwargs` when using SpecFactory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[Node, Node]: The metadata node and the table content node.</span>
@@ -4288,14 +4496,15 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
         <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unformatted</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
 
     <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_table</span><span class="p">(</span>
-        <span class="n">dom</span><span class="p">,</span> 
-        <span class="n">table_id</span><span class="p">,</span> 
-        <span class="n">column_to_attr</span><span class="p">,</span> 
-        <span class="n">name_attr</span><span class="p">,</span> 
-        <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span> 
+        <span class="n">dom</span><span class="p">,</span>
+        <span class="n">table_id</span><span class="p">,</span>
+        <span class="n">column_to_attr</span><span class="p">,</span>
+        <span class="n">name_attr</span><span class="p">,</span>
+        <span class="n">include_depth</span><span class="o">=</span><span class="n">include_depth</span><span class="p">,</span>
         <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">,</span>
-        <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span> 
-        <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span>
+        <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
+        <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+        <span class="n">ref_columns</span><span class="o">=</span><span class="nb">set</span><span class="p">(</span><span class="n">ref_columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_columns</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># If we ever skipped columns, remove them from metadata.column_to_attr and realign keys</span>
@@ -4310,6 +4519,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
     <span class="n">metadata</span><span class="o">.</span><span class="n">table_id</span> <span class="o">=</span> <span class="n">table_id</span>
     <span class="k">if</span> <span class="n">include_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">metadata</span><span class="o">.</span><span class="n">include_depth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">include_depth</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">ref_columns</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ref_columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref_columns</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4422,21 +4632,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">232</span>
 <span class="normal">233</span>
 <span class="normal">234</span>
 <span class="normal">235</span>
@@ -4453,7 +4649,21 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 <span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
-<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_metadata</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4495,7 +4705,7 @@ This argument is typically set via <code>parser_kwargs</code> when using SpecFac
 
 
 <h3 id="dcmspec.dom_table_spec_parser.DOMTableSpecParser.parse_table" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">parse_table</span><span class="p">(</span><span class="n">dom</span><span class="p">,</span> <span class="n">table_id</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">table_nesting_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visited_tables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -4687,13 +4897,34 @@ model.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>List of booleans indicating whether to extract each column as 
+                <p>List of booleans indicating whether to extract each column as
 unformatted text.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
                       <code><span title="typing.Optional">Optional</span>[<span title="list">list</span>[<span title="bool">bool</span>]]</code>
+                  </span>
+                  <span class="doc-param-default">
+                    <b>DEFAULT:</b>
+                      <code>None</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ref_columns</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                <p>Set of column indices to scan for <code>&lt;a class="xref" href="#sect_..."&gt;</code>
+links, producing a companion <code>&lt;attr&gt;_section_refs</code> attribute per node for those columns.</p>
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="set">set</span>[<span title="int">int</span>]]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -4736,14 +4967,7 @@ unformatted text.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/dom_table_spec_parser.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
@@ -4822,7 +5046,21 @@ unformatted text.</p>
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
-<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">parse_table</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">dom</span><span class="p">:</span> <span class="n">BeautifulSoup</span><span class="p">,</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -4834,6 +5072,7 @@ unformatted text.</p>
     <span class="n">skip_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">visited_tables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">unformatted_list</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ref_columns</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">set</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Parse specification content from tables within the DOM of a DICOM document.</span>
 
@@ -4852,8 +5091,10 @@ unformatted text.</p>
 <span class="sd">        progress_observer (Optional[ProgressObserver]): Optional observer to report parsing progress.</span>
 <span class="sd">        skip_columns (Optional[list[int]]): List of column indices to skip if the row is missing a column.</span>
 <span class="sd">        visited_tables (Optional[set]): Set of table IDs that have been visited to prevent infinite recursion.</span>
-<span class="sd">        unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as </span>
+<span class="sd">        unformatted_list (Optional[list[bool]]): List of booleans indicating whether to extract each column as</span>
 <span class="sd">            unformatted text.</span>
+<span class="sd">        ref_columns (Optional[set[int]]): Set of column indices to scan for `&lt;a class="xref" href="#sect_..."&gt;`</span>
+<span class="sd">            links, producing a companion `&lt;attr&gt;_section_refs` attribute per node for those columns.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        root: The root node of the tree representation of the specification table.</span>
@@ -4864,6 +5105,9 @@ unformatted text.</p>
     <span class="k">if</span> <span class="n">unformatted_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">num_columns</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">column_to_attr</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">unformatted_list</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_columns</span>
+
+    <span class="k">if</span> <span class="n">ref_columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ref_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_enforce_unformatted_for_name_attr</span><span class="p">(</span><span class="n">column_to_attr</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">,</span> <span class="n">unformatted_list</span><span class="p">)</span>
 
@@ -4901,6 +5145,7 @@ unformatted text.</p>
             <span class="n">skip_columns</span><span class="o">=</span><span class="n">skip_columns</span><span class="p">,</span>
             <span class="n">visited_tables</span><span class="o">=</span><span class="n">visited_tables</span><span class="p">,</span>
             <span class="n">unformatted_list</span><span class="o">=</span><span class="n">unformatted_list</span><span class="p">,</span>
+            <span class="n">ref_columns</span><span class="o">=</span><span class="n">ref_columns</span><span class="p">,</span>
             <span class="n">level_nodes</span><span class="o">=</span><span class="n">level_nodes</span><span class="p">,</span>
             <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
             <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span> <span class="k">if</span> <span class="n">table_nesting_level</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>

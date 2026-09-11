@@ -1105,6 +1105,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../module_spec_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModuleSpecBuilder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../module_registry/" class="md-nav__link">
         
   
@@ -1113,6 +1141,62 @@
     
   
     ModuleRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_image_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionImageResolver
   
 
     
@@ -1224,6 +1308,34 @@
     
   
     DOMTableSpecParser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_section_spec_parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOMSectionSpecParser
   
 
     
@@ -1503,10 +1615,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dcmspec.pdf_doc_handler.PDFDocHandler.download" class="md-nav__link">
+  <a href="#dcmspec.pdf_doc_handler.PDFDocHandler.download_to_cache" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;download
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;download_to_cache
       
     </span>
   </a>
@@ -2017,10 +2129,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dcmspec.pdf_doc_handler.PDFDocHandler.download" class="md-nav__link">
+  <a href="#dcmspec.pdf_doc_handler.PDFDocHandler.download_to_cache" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;download
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;download_to_cache
       
     </span>
   </a>
@@ -2614,7 +2726,8 @@
 <span class="normal">665</span>
 <span class="normal">666</span>
 <span class="normal">667</span>
-<span class="normal">668</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PDFDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
+<span class="normal">668</span>
+<span class="normal">669</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PDFDocHandler</span><span class="p">(</span><span class="n">DocHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Handler class for extracting tables from PDF documents.</span>
 
 <span class="sd">    Provides methods to download, cache, and extract tables as CSV data from PDF files.</span>
@@ -2711,7 +2824,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloading PDF from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">cache_file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+            <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_to_cache</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading PDF from cache file </span><span class="si">{</span><span class="n">cache_file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
@@ -2746,7 +2859,7 @@
 
         <span class="k">return</span> <span class="n">spec_table</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_to_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                 <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                 <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                 <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2754,7 +2867,9 @@
                 <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="c1"># END LEGACY SUPPORT</span>
                 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Download and cache a PDF file from a URL using the base class download method.</span>
+<span class="w">        </span><span class="sd">"""Download and cache a PDF file from a URL, given its cache filename.</span>
+
+<span class="sd">        Uses the base class's download_to_cache, saving as binary.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            url: The URL of the PDF document to download.</span>
@@ -2774,8 +2889,7 @@
         <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
         <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
         <span class="c1"># END LEGACY SUPPORT</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download_to_cache</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_pdfplumber</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3365,8 +3479,7 @@ while <code>camelot</code> detects tables by processing the rendered page image 
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/pdf_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">532</span>
-<span class="normal">533</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">533</span>
 <span class="normal">534</span>
 <span class="normal">535</span>
 <span class="normal">536</span>
@@ -3430,7 +3543,8 @@ while <code>camelot</code> detects tables by processing the rendered page image 
 <span class="normal">594</span>
 <span class="normal">595</span>
 <span class="normal">596</span>
-<span class="normal">597</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">concat_tables</span><span class="p">(</span>
+<span class="normal">597</span>
+<span class="normal">598</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">concat_tables</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
     <span class="n">table_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3505,15 +3619,16 @@ while <code>camelot</code> detects tables by processing the rendered page image 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="dcmspec.pdf_doc_handler.PDFDocHandler.download" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<h3 id="dcmspec.pdf_doc_handler.PDFDocHandler.download_to_cache" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">download_to_cache</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
 
     <div class="doc doc-contents ">
 
-        <p>Download and cache a PDF file from a URL using the base class download method.</p>
+        <p>Download and cache a PDF file from a URL, given its cache filename.</p>
+<p>Uses the base class's download_to_cache, saving as binary.</p>
 
 
 <table>
@@ -3681,7 +3796,8 @@ instead. Will be removed in a future release.</p>
 <span class="normal">345</span>
 <span class="normal">346</span>
 <span class="normal">347</span>
-<span class="normal">348</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<span class="normal">348</span>
+<span class="normal">349</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">download_to_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">cache_file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">progress_observer</span><span class="p">:</span> <span class="s1">'Optional[ProgressObserver]'</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3689,7 +3805,9 @@ instead. Will be removed in a future release.</p>
             <span class="n">progress_callback</span><span class="p">:</span> <span class="s1">'Optional[Callable[[int], None]]'</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="c1"># END LEGACY SUPPORT</span>
             <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Download and cache a PDF file from a URL using the base class download method.</span>
+<span class="w">    </span><span class="sd">"""Download and cache a PDF file from a URL, given its cache filename.</span>
+
+<span class="sd">    Uses the base class's download_to_cache, saving as binary.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        url: The URL of the PDF document to download.</span>
@@ -3709,8 +3827,7 @@ instead. Will be removed in a future release.</p>
     <span class="c1"># BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation</span>
     <span class="n">progress_observer</span> <span class="o">=</span> <span class="n">handle_legacy_callback</span><span class="p">(</span><span class="n">progress_observer</span><span class="p">,</span> <span class="n">progress_callback</span><span class="p">)</span>
     <span class="c1"># END LEGACY SUPPORT</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s2">"cache_dir"</span><span class="p">),</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">download_to_cache</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3914,8 +4031,7 @@ instead. Will be removed in a future release.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/pdf_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">599</span>
-<span class="normal">600</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">600</span>
 <span class="normal">601</span>
 <span class="normal">602</span>
 <span class="normal">603</span>
@@ -3983,7 +4099,8 @@ instead. Will be removed in a future release.</p>
 <span class="normal">665</span>
 <span class="normal">666</span>
 <span class="normal">667</span>
-<span class="normal">668</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_notes</span><span class="p">(</span>
+<span class="normal">668</span>
+<span class="normal">669</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_notes</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">pdf</span><span class="p">:</span> <span class="n">pdfplumber</span><span class="o">.</span><span class="n">PDF</span><span class="p">,</span>
     <span class="n">page_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -4144,8 +4261,7 @@ instead. Will be removed in a future release.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/pdf_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">410</span>
-<span class="normal">411</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">411</span>
 <span class="normal">412</span>
 <span class="normal">413</span>
 <span class="normal">414</span>
@@ -4173,7 +4289,8 @@ instead. Will be removed in a future release.</p>
 <span class="normal">436</span>
 <span class="normal">437</span>
 <span class="normal">438</span>
-<span class="normal">439</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_camelot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">page_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">439</span>
+<span class="normal">440</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_camelot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">page_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Extract and return all tables from the specified PDF pages using Camelot.</span>
 
 <span class="sd">    Uses Camelot in "lattice" mode, which detects tables by analyzing the rendered page image for drawn lines.</span>
@@ -4341,8 +4458,7 @@ see the module-level note on <code>_DEFAULT_SNAP_TOLERANCE</code>.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/pdf_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">350</span>
-<span class="normal">351</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">351</span>
 <span class="normal">352</span>
 <span class="normal">353</span>
 <span class="normal">354</span>
@@ -4399,7 +4515,8 @@ see the module-level note on <code>_DEFAULT_SNAP_TOLERANCE</code>.</p>
 <span class="normal">405</span>
 <span class="normal">406</span>
 <span class="normal">407</span>
-<span class="normal">408</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_pdfplumber</span><span class="p">(</span>
+<span class="normal">408</span>
+<span class="normal">409</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_tables_pdfplumber</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">pdf</span><span class="p">:</span> <span class="n">pdfplumber</span><span class="o">.</span><span class="n">PDF</span><span class="p">,</span>
     <span class="n">page_numbers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -4898,7 +5015,7 @@ header rule fuses into the first data row. Only applies to the <code>pdfplumber<
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"URL must be provided to download the file."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Downloading PDF from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">cache_file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
+        <span class="n">cache_file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_to_cache</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cache_file_name</span><span class="p">,</span> <span class="n">progress_observer</span><span class="o">=</span><span class="n">progress_observer</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading PDF from cache file </span><span class="si">{</span><span class="n">cache_file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
@@ -5113,8 +5230,7 @@ here prevents silently dropping a real attribute row from the specification.</p>
 
             <details class="quote">
               <summary>Source code in <code>src/dcmspec/pdf_doc_handler.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">441</span>
-<span class="normal">442</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">442</span>
 <span class="normal">443</span>
 <span class="normal">444</span>
 <span class="normal">445</span>
@@ -5202,7 +5318,8 @@ here prevents silently dropping a real attribute row from the specification.</p>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span>
-<span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">select_tables</span><span class="p">(</span>
+<span class="normal">530</span>
+<span class="normal">531</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">select_tables</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">tables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
     <span class="n">table_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>

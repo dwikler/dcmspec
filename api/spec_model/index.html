@@ -1222,6 +1222,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../module_spec_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ModuleSpecBuilder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../module_registry/" class="md-nav__link">
         
   
@@ -1230,6 +1258,62 @@
     
   
     ModuleRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionRegistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../section_image_resolver/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SectionImageResolver
   
 
     
@@ -1341,6 +1425,34 @@
     
   
     DOMTableSpecParser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dom_section_spec_parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DOMSectionSpecParser
   
 
     
@@ -2523,7 +2635,13 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 <span class="normal">458</span>
 <span class="normal">459</span>
 <span class="normal">460</span>
-<span class="normal">461</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecModel</span><span class="p">:</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SpecModel</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Represent a hierarchical information model from any table of DICOM documents.</span>
 
 <span class="sd">    This class holds the DICOM specification model, structured into a hierarchical tree</span>
@@ -2728,6 +2846,9 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
     <span class="k">def</span><span class="w"> </span><span class="nf">_is_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Determine if a node is a title.</span>
 
+<span class="sd">        Title-row detection is a table concept: models with no `column_to_attr` on their metadata</span>
+<span class="sd">        (e.g. a section model, whose content isn't tabular) never have title nodes.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            node: The node to check.</span>
 
@@ -2735,8 +2856,11 @@ of DICOM components such as Data Elements, UIDs, Attributes, and others.</p>
 <span class="sd">            True if the node is a title, False otherwise.</span>
 
 <span class="sd">        """</span>
+        <span class="n">column_to_attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="s2">"column_to_attr"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">column_to_attr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_has_only_key_0_attr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">column_to_attr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_has_only_key_0_attr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">column_to_attr</span><span class="p">)</span>
             <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_include</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">"content"</span>
         <span class="p">)</span>
