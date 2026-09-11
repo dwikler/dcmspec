@@ -125,6 +125,25 @@ def test_build_from_dom_missing_section_warns_and_continues(module_with_sections
     assert "Could not resolve section 'sect_DOES_NOT_EXIST'" in caplog.text
 
 
+def test_build_from_dom_force_download_forces_module_reparse(module_with_sections_dom, monkeypatch):  # noqa: F811
+    """Test that force_download is passed through as force_parse to the module factory."""
+    builder = make_builder()
+    seen_force_parse = []
+    original_build_model = builder.module_factory.build_model
+
+    def spy_build_model(*args, **kwargs):
+        seen_force_parse.append(kwargs.get("force_parse"))
+        return original_build_model(*args, **kwargs)
+
+    monkeypatch.setattr(builder.module_factory, "build_model", spy_build_model)
+
+    builder.build_from_dom(
+        module_with_sections_dom, table_id="table_MODULE", url="https://example.org/part03.html",
+        json_file_name="table_MODULE.json", force_download=True,
+    )
+    assert seen_force_parse == [True]
+
+
 def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa: F811
     """Test that a ModuleSpecBuilder with no ref_columns configured resolves no sections at all."""
     module_factory = SpecFactory(column_to_attr=COLUMN_TO_ATTR, name_attr="elem_name")

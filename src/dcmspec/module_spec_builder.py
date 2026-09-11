@@ -89,8 +89,9 @@ class ModuleSpecBuilder:
             url (str): The URL to download the module's document from.
             cache_file_name (str): Filename of the cached input document.
             table_id (str): The id of the module attribute table to parse.
-            force_download (bool): If True, always download the input file even if cached, and
-                re-download (rather than reuse) each resolved section's cached images.
+            force_download (bool): If True, always download the input file even if cached, re-parse
+                the module table instead of reusing its cached model, and re-download (rather than
+                reuse) each resolved section's cached images.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download
                 and parsing progress for the module table. Section resolution does not report
                 progress.
@@ -138,8 +139,9 @@ class ModuleSpecBuilder:
             json_file_name (Optional[str]): Filename to save the cached module model as.
             progress_observer (Optional[ProgressObserver]): Optional observer to report parsing
                 progress for the module table. Section resolution does not report progress.
-            force_download (bool): If True, re-download (rather than reuse) each resolved
-                section's cached images.
+            force_download (bool): If True, re-parse the module table instead of reusing its
+                cached model, and re-download (rather than reuse) each resolved section's
+                cached images.
 
         Returns:
             Tuple[SpecModel, Dict[str, SpecModel]]: The module model, and a dict mapping section_id
@@ -152,6 +154,7 @@ class ModuleSpecBuilder:
             url=url,
             json_file_name=json_file_name,
             progress_observer=progress_observer,
+            force_parse=force_download,
             parser_kwargs={"ref_columns": self.ref_columns},
         )
         section_models = self._resolve_sections(module_model.content, dom, url, force_download)

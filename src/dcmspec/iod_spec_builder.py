@@ -166,7 +166,9 @@ class IODSpecBuilder:
         iod_model_path = self._get_model_cache_path(json_file_name, cache_dir)
         iod_model = self._load_iod_model_from_cache(iod_model_path, force_download)
         module_models = None
-        if not self.expand and iod_model is not None:
+        # _load_module_models_from_cache loads each module's JSON directly, bypassing module_builder
+        # and any section resolution it would perform, so skip it when a module_builder is configured.
+        if not self.expand and self.module_builder is None and iod_model is not None:
             module_models = self._load_module_models_from_cache(iod_model, cache_dir)
         if iod_model is not None and (self.expand or module_models is not None):
             self.logger.info(f"Loaded IOD model from cache: {iod_model_path}")
@@ -209,7 +211,8 @@ class IODSpecBuilder:
 
         # Build or load module models for each referenced section
         module_models = self._build_module_models(
-            nodes_with_ref, dom, url, step=3, total_steps=total_steps, progress_observer=progress_observer
+            nodes_with_ref, dom, url, step=3, total_steps=total_steps, progress_observer=progress_observer,
+            force_download=force_download,
         )
         # Fail if no module models were found.
         if not module_models:
@@ -315,7 +318,8 @@ class IODSpecBuilder:
         url: str,
         step: int,
         total_steps: int,
-        progress_observer: Optional['ProgressObserver'] = None
+        progress_observer: Optional['ProgressObserver'] = None,
+        force_download: bool = False,
     ) -> Dict[str, Any]:
         """Build or load module models for each referenced section, reporting progress.
 
@@ -347,7 +351,7 @@ class IODSpecBuilder:
 
             # Load the module model from cache or registry, or build it if not found
             module_model = self._get_or_build_module_model(
-                module_table_id, dom, url, progress_observer
+                module_table_id, dom, url, progress_observer, force_download=force_download
             )
             # Add Module model to dict
             if module_model is not None:
@@ -369,7 +373,8 @@ class IODSpecBuilder:
         module_table_id: str,
         dom: Any,
         url: str,
-        progress_observer: Optional['ProgressObserver'] = None
+        progress_observer: Optional['ProgressObserver'] = None,
+        force_download: bool = False,
     ) -> Optional[Any]:
         """Get or build a module model for the given table_id, using registry and cache as appropriate."""
         # Use registry if available and module already present
@@ -387,6 +392,7 @@ class IODSpecBuilder:
                 url=url,
                 json_file_name=module_json_file_name,
                 progress_observer=progress_observer,
+                force_download=force_download,
             )
         else:
             # Attempt to load from cache

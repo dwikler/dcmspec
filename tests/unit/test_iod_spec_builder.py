@@ -573,6 +573,59 @@ def test_iod_spec_builder_load_cache_with_registry(monkeypatch, tmp_path):
     assert registry["table_PATIENT"] is module_model_patient
     assert registry["table_STUDY"] is module_model_study
 
+def test_iod_spec_builder_module_builder_bypasses_iod_cache_shortcut(monkeypatch, tmp_path):
+    """Test that a cached IOD model does not skip module_builder's section resolution.
+
+    The registry-mode fast path normally loads module models straight from their JSON cache,
+    bypassing module_builder entirely (see test_iod_spec_builder_load_cache_with_registry). When
+    a module_builder is configured, IODSpecBuilder must go through it instead, so that section
+    resolution based on the current DOM still happens even when the IOD model itself is cached.
+    """
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir=str(tmp_path))
+
+    iod_model = SpecModel(metadata=Node("metadata"), content=Node("content"))
+    iod_node_patient = Node("iod_node_patient", parent=iod_model.content)
+    setattr(iod_node_patient, "ref", "PATIENT")
+    setattr(iod_node_patient, "table_id", "table_PATIENT")
+
+    # Raise if the module-level fast path is taken instead of going through module_builder.
+    factory.model_store = RegistryOnlyModelStore(iod_model, forbidden_table_ids=["table_PATIENT"])
+
+    class FakeModuleBuilder:
+        """Records build_from_dom calls instead of doing real section resolution."""
+
+        def __init__(self):
+            self.calls = []
+
+        def build_from_dom(self, dom, table_id, url, json_file_name=None, progress_observer=None,
+                            force_download=False):
+            self.calls.append(table_id)
+            module_model = SpecModel(metadata=Node("metadata"), content=Node("content"))
+            return module_model, {}
+
+    module_builder = FakeModuleBuilder()
+    registry = ModuleRegistry()
+    builder = IODSpecBuilder(
+        iod_factory=factory, module_factory=factory, module_registry=registry, module_builder=module_builder
+    )
+    builder.iod_factory.model_store = factory.model_store
+    builder.module_factory.model_store = factory.model_store
+
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    model, module_models = builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        force_download=False,
+        json_file_name="dummy.json",
+    )
+    assert module_builder.calls == ["table_PATIENT"]
+    assert "table_PATIENT" in module_models
+
+
 def test_iod_spec_builder_load_iod_cache_and_reuse_module_from_registry(monkeypatch, tmp_path):
     """Test IODSpecBuilder loads IOD from cache and reuses modules from registry."""
     factory = DummyFactory()
