@@ -127,6 +127,13 @@ See [RELEASE.md](RELEASE.md) for the full workflow; the essentials:
   `hotfix/` branches are created from (and PR'd back into) `main`, then propagated into active release branches.
 - CI (`.github/workflows/test.yml`) runs the pytest suite on pushes/PRs to `main` and `release/*` across
   Python 3.10–3.12 on Ubuntu.
+- Before assuming a `feat/`/`fix/`/`change/`/`test/` branch's target `release/x.y.z` branch, check the GitHub
+  milestones (`gh api repos/dwikler/dcmspec/milestones`) and the milestone's linked issues — they're the source
+  of truth for which version a change belongs to. It's normal for multiple releases to be in progress at once
+  (see RELEASE.md's diagram), so a `release/x.y.z` branch may lag behind `main` if other releases landed while
+  it sat untouched. Branch protection blocks force-pushing or deleting `release/*` directly, so sync it by
+  branching `chore/sync-release-x.y.z` from it, merging `main` in, and opening a PR from that branch back into
+  `release/x.y.z` — before branching the `feat/`/`fix/`/etc. work off it.
 
 ## Changelog and roadmap
 
