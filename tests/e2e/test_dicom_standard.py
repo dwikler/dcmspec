@@ -11,6 +11,8 @@ Not run by default; see CONTRIBUTING.md for how to run it.
 from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.iod_spec_printer import IODSpecPrinter
+from dcmspec.module_spec_builder import ModuleSpecBuilder
+from dcmspec.section_registry import SectionRegistry
 from dcmspec.service_attribute_defaults import UPS_COLUMNS_MAPPING, UPS_DIMSE_MAPPING, UPS_NAME_ATTR
 from dcmspec.service_attribute_model import ServiceAttributeModel
 from dcmspec.spec_factory import SpecFactory
@@ -35,7 +37,9 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
     """Part 3 Composite IOD + referenced modules, via IODSpecBuilder.build_from_url.
 
     Canary for NEMA changing the IOD table's or a module table's column layout, which would
-    break IODSpecBuilder's assumption of where the module/attribute fields live.
+    break IODSpecBuilder's assumption of where the module/attribute fields live. Also canaries
+    the explanatory-section extraction of "See Section" references, and section image
+    resolution (a resolved section's <img src> download).
     """
     config = Config(app_name="dcmspec")
     iod_factory = SpecFactory(
@@ -48,7 +52,11 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         name_attr="elem_name",
         config=config,
     )
-    builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory)
+    section_registry = SectionRegistry()
+    module_builder = ModuleSpecBuilder(
+        module_factory=module_factory, ref_columns=[3], section_registry=section_registry
+    )
+    builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory, module_builder=module_builder)
 
     model = None
     status = "FAILED"
@@ -80,13 +88,34 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         assert not incomplete_attr_nodes, (
             f"attribute nodes missing elem_name/elem_tag/elem_type: {incomplete_attr_nodes}"
         )
+
+        missing_section_refs = [
+            (iod_node.name, attr_node.name)
+            for iod_node in model.content.children
+            for attr_node in iod_node.children
+            if not hasattr(attr_node, "elem_description_section_refs")
+        ]
+        assert not missing_section_refs, (
+            f"attribute nodes missing elem_description_section_refs: {missing_section_refs}"
+        )
+
+        assert section_registry, "no sections were resolved from the IOD's modules"
+        resolved_image_paths = [
+            path
+            for section_model in section_registry.values()
+            for path in section_model.metadata.image_paths
+        ]
+        assert any(path is not None for path in resolved_image_paths), (
+            "no resolved section had an image successfully downloaded"
+        )
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "iod_cr-image.txt"
 
         def _print():
             IODSpecPrinter(model, output=str(output_path)).print_tree(
-                attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 64]
+                attr_names=["elem_tag", "elem_type", "elem_name", "elem_description_section_refs"],
+                attr_widths=[11, 2, 64, 40],
             )
             return f"IOD tree written to: {output_path}"
 

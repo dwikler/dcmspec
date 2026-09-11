@@ -116,3 +116,38 @@ def test_get_table_id_from_section_no_table_anchor(caplog):
         table_id = dom_utils.get_table_id_from_section(dom, "sect_XYZ")
     assert table_id is None
     assert "No table id found in <div class='table'> for section id 'sect_XYZ'." in caplog.text
+
+def test_get_section_finds_section_div(section_dom):  # noqa: F811
+    """Test DOMUtils.get_section returns the section's div element when the anchor exists."""
+    dom_utils = DOMUtils()
+    section = dom_utils.get_section(section_dom, "sect_C.7.1.1")
+    assert section is not None
+    assert section.name == "div"
+    assert "section" in section.get("class", [])
+
+def test_get_section_anchor_not_found(section_dom, caplog):  # noqa: F811
+    """Test DOMUtils.get_section returns None and logs a warning if the anchor is not found."""
+    dom_utils = DOMUtils()
+    with caplog.at_level("WARNING"):
+        section = dom_utils.get_section(section_dom, "sect_DOES_NOT_EXIST")
+    assert section is None
+    assert "Section with id 'sect_DOES_NOT_EXIST' not found." in caplog.text
+
+def test_get_section_no_parent_section(caplog):
+    """Test DOMUtils.get_section returns None and logs a warning if the anchor is not inside a section div."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div>
+                <a id="sect_XYZ"></a>
+                <p>No section div here.</p>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    dom_utils = DOMUtils()
+    with caplog.at_level("WARNING"):
+        section = dom_utils.get_section(dom, "sect_XYZ")
+    assert section is None
+    assert "Parent <div class='section'> for section id 'sect_XYZ' not found." in caplog.text

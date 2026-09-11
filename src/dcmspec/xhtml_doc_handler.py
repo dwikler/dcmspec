@@ -73,7 +73,7 @@ class XHTMLDocHandler(DocHandler):
         if need_download:
             if not url:
                 raise ValueError("URL must be provided to download the file.")
-            cache_file_path = self.download(url, cache_file_name, progress_observer=progress_observer)
+            cache_file_path = self.download_to_cache(url, cache_file_name, progress_observer=progress_observer)
         else:
             # Also report progress when XHTML file was loaded from cache (keeping DOWNLOADING status for consistency)
             if progress_observer:
@@ -84,7 +84,7 @@ class XHTMLDocHandler(DocHandler):
         # consider extending progress reporting here.
         return self.parse_dom(cache_file_path)
 
-    def download(
+    def download_to_cache(
         self,
         url: str,
         cache_file_name: str,
@@ -93,9 +93,9 @@ class XHTMLDocHandler(DocHandler):
         progress_callback: 'Optional[Callable[[int], None]]' = None
         # END LEGACY SUPPORT
     ) -> str:
-        """Download and cache an XHTML file from a URL.
+        """Download and cache an XHTML file from a URL, given its cache filename.
 
-        Uses the base class download method, saving as UTF-8 text and cleaning ZWSP/NBSP.
+        Uses the base class's download_to_cache, saving as UTF-8 text.
 
         Args:
             url: The URL of the XHTML document to download.
@@ -115,8 +115,7 @@ class XHTMLDocHandler(DocHandler):
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
         progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
-        file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
-        return super().download(url, file_path, binary=False, progress_observer=progress_observer)
+        return super().download_to_cache(url, cache_file_name, binary=False, progress_observer=progress_observer)
 
     def clean_text(self, text: str) -> str:
         """Clean text content before saving.

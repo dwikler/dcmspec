@@ -90,7 +90,7 @@ def test_load_document_download(monkeypatch, patch_dirs):
     monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
     monkeypatch.setattr(
         handler,
-        "download",
+        "download_to_cache",
         lambda url, cache_file_name, progress_observer=None, progress_callback=None: "test.pdf"
 )
     monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn, snap=None: [])
@@ -170,8 +170,8 @@ def test_load_document_unknown_extractor(monkeypatch, patch_dirs):
             table_indices=table_indices,
         )
 
-def test_download_calls_super(monkeypatch, patch_dirs):
-    """Test download calls the super().download method with correct arguments."""
+def test_download_to_cache_calls_super(monkeypatch, patch_dirs):
+    """Test download_to_cache calls the super().download method with correct arguments."""
     # Arrange
     handler = make_handler()
     called = {}
@@ -184,7 +184,7 @@ def test_download_calls_super(monkeypatch, patch_dirs):
     expected_path = str(patch_dirs / "cache" / "standard" / "test.pdf")
 
     # Act
-    result = handler.download(url, cache_file_name)
+    result = handler.download_to_cache(url, cache_file_name)
 
     # Assert
     assert result == "SAVED_PATH"
