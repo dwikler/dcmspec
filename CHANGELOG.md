@@ -2,13 +2,15 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.4.0] - unreleased
+## [0.4.0] - 2026-09-11
 
 ### Added
 
 - `DOMSectionSpecParser` parses a DICOM standard section, given its anchor id.
 - `ModuleSpecBuilder` builds a module attribute model and resolves the sections it
   directly references, caching each one separately and downloading their images.
+- `IODSpecBuilder` accepts an optional `module_builder` so each module built as part
+  of a full IOD has its referenced sections resolved.
 
 ### Changed
 
