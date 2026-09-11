@@ -111,6 +111,61 @@ class DocHandler:
             self.logger.error(f"Failed to save file {file_path}: {e}")
             raise RuntimeError(f"Failed to save file {file_path}: {e}") from e
 
+    def download_if_needed(
+        self,
+        url: str,
+        file_path: str,
+        force: bool = False,
+        binary: bool = False,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+    ) -> str:
+        """Download a file from a URL to a path, unless already cached there and force flag is not set.
+
+        Args:
+            url (str): The URL to download the file from.
+            file_path (str): The path to save the downloaded file, and where an existing
+                cached copy is looked for.
+            force (bool): If True, download and overwrite even if file_path already exists.
+            binary (bool): If True, save as binary. If False, save as UTF-8 text.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+
+        Returns:
+            str: The file path, whether just downloaded or already cached.
+
+        Raises:
+            RuntimeError: If the download or save fails.
+
+        """
+        if not force and os.path.exists(file_path):
+            return file_path
+        return self.download(url, file_path, binary=binary, progress_observer=progress_observer)
+
+    def download_to_cache(
+        self,
+        url: str,
+        cache_file_name: str,
+        binary: bool = False,
+        progress_observer: 'Optional[ProgressObserver]' = None,
+    ) -> str:
+        """Download a file from a URL, caching it under "<cache_dir>/standard/<cache_file_name>".
+
+        Args:
+            url (str): The URL to download the file from.
+            cache_file_name (str): The filename to cache the file under, resolved against
+                "<cache_dir>/standard/".
+            binary (bool): If True, save as binary. If False, save as UTF-8 text.
+            progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
+
+        Returns:
+            str: The file path where the document was saved.
+
+        Raises:
+            RuntimeError: If the download or save fails.
+
+        """
+        file_path = os.path.join(self.config.get_param("cache_dir"), "standard", cache_file_name)
+        return self.download(url, file_path, binary=binary, progress_observer=progress_observer)
+
     def _set_response_encoding(self, response):
         """Set response.encoding to UTF-8 only if the Content-Type header does not specify a charset.
         

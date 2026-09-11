@@ -11,6 +11,7 @@ from anytree import Node
 from bs4 import BeautifulSoup
 
 from dcmspec.dom_utils import DOMUtils
+from dcmspec.module_spec_builder import ModuleSpecBuilder
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.spec_model import SpecModel
 from dcmspec.module_registry import ModuleRegistry
@@ -36,6 +37,10 @@ class IODSpecBuilder:
     - Registry/reference mode: If a ModuleRegistry is provided, Module models are shared by reference via the registry,
     enabling efficient reuse and reduced memory usage when building many IODs.
 
+    If a ModuleSpecBuilder is provided, each module is built through it instead of directly through
+    module_factory, so the explanatory sections a module's attributes reference (see ModuleSpecBuilder)
+    are resolved the same way whether the module is built standalone or as part of a full IOD.
+
     """
 
     def __init__(
@@ -45,6 +50,7 @@ class IODSpecBuilder:
         logger: logging.Logger = None,
         ref_attr: str = None,
         module_registry: Optional[ModuleRegistry] = None,
+        module_builder: Optional[ModuleSpecBuilder] = None,
     ):
         """Initialize the IODSpecBuilder.
 
@@ -57,6 +63,9 @@ class IODSpecBuilder:
             ref_attr (Optional[str]): Attribute name to use for Module references. If None, defaults to "ref".
             module_registry (Optional[ModuleRegistry]): Registry for sharing Module models by table_id.
                 If provided, Module models are shared by reference across IODs.
+            module_builder (Optional[ModuleSpecBuilder]): If provided, each module is built through it
+                (resolving the explanatory sections its attributes reference) instead of directly through
+                module_factory. If None (the default), behavior is unchanged from before this option existed.
 
         Raises:
             ValueError: If `ref_attr` is not a non-empty string.
@@ -73,6 +82,7 @@ class IODSpecBuilder:
         self.dom_utils = DOMUtils(logger=self.logger)
         self.ref_attr = ref_attr or "ref"
         self.module_registry = module_registry
+        self.module_builder = module_builder
         # Set expand flag: expand=True for legacy (expanded/copy) mode, False for registry/reference mode
         self.expand = self.module_registry is None
         if not isinstance(self.ref_attr, str) or not self.ref_attr.strip():
@@ -156,7 +166,9 @@ class IODSpecBuilder:
         iod_model_path = self._get_model_cache_path(json_file_name, cache_dir)
         iod_model = self._load_iod_model_from_cache(iod_model_path, force_download)
         module_models = None
-        if not self.expand and iod_model is not None:
+        # _load_module_models_from_cache loads each module's JSON directly, bypassing module_builder
+        # and any section resolution it would perform, so skip it when a module_builder is configured.
+        if not self.expand and self.module_builder is None and iod_model is not None:
             module_models = self._load_module_models_from_cache(iod_model, cache_dir)
         if iod_model is not None and (self.expand or module_models is not None):
             self.logger.info(f"Loaded IOD model from cache: {iod_model_path}")
@@ -199,7 +211,8 @@ class IODSpecBuilder:
 
         # Build or load module models for each referenced section
         module_models = self._build_module_models(
-            nodes_with_ref, dom, url, step=3, total_steps=total_steps, progress_observer=progress_observer
+            nodes_with_ref, dom, url, step=3, total_steps=total_steps, progress_observer=progress_observer,
+            force_download=force_download,
         )
         # Fail if no module models were found.
         if not module_models:
@@ -305,7 +318,8 @@ class IODSpecBuilder:
         url: str,
         step: int,
         total_steps: int,
-        progress_observer: Optional['ProgressObserver'] = None
+        progress_observer: Optional['ProgressObserver'] = None,
+        force_download: bool = False,
     ) -> Dict[str, Any]:
         """Build or load module models for each referenced section, reporting progress.
 
@@ -337,7 +351,7 @@ class IODSpecBuilder:
 
             # Load the module model from cache or registry, or build it if not found
             module_model = self._get_or_build_module_model(
-                module_table_id, dom, url, progress_observer
+                module_table_id, dom, url, progress_observer, force_download=force_download
             )
             # Add Module model to dict
             if module_model is not None:
@@ -359,21 +373,44 @@ class IODSpecBuilder:
         module_table_id: str,
         dom: Any,
         url: str,
-        progress_observer: Optional['ProgressObserver'] = None
+        progress_observer: Optional['ProgressObserver'] = None,
+        force_download: bool = False,
     ) -> Optional[Any]:
         """Get or build a module model for the given table_id, using registry and cache as appropriate."""
         # Use registry if available and module already present
         if self.module_registry is not None and module_table_id in self.module_registry:
             return self.module_registry[module_table_id]
-        
-        # Attempt to load from cache
+
         module_json_file_name = f"{module_table_id}.json"
-        module_json_file_path = self._get_module_model_cache_path(module_json_file_name)
-        if module_json_file_path and os.path.exists(module_json_file_path):
-            try:
-                module_model = self.module_factory.model_store.load(module_json_file_path)
-            except Exception as e:
-                self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
+
+        if self.module_builder is not None:
+            # Delegate to ModuleSpecBuilder so the module's referenced explanatory sections are
+            # resolved too. build_from_dom already checks/writes the module's own JSON cache.
+            module_model, _ = self.module_builder.build_from_dom(
+                dom,
+                table_id=module_table_id,
+                url=url,
+                json_file_name=module_json_file_name,
+                progress_observer=progress_observer,
+                force_download=force_download,
+            )
+        else:
+            # Attempt to load from cache
+            module_json_file_path = self._get_module_model_cache_path(module_json_file_name)
+            if module_json_file_path and os.path.exists(module_json_file_path):
+                try:
+                    module_model = self.module_factory.model_store.load(module_json_file_path)
+                except Exception as e:
+                    self.logger.warning(f"Failed to load module model from cache {module_json_file_path}: {e}")
+                    module_model = self.module_factory.build_model(
+                        doc_object=dom,
+                        table_id=module_table_id,
+                        url=url,
+                        json_file_name=module_json_file_name,
+                        progress_observer=progress_observer,
+                    )
+            else:
+                # Build the module model without caching (it will be cached when building the IOD model)
                 module_model = self.module_factory.build_model(
                     doc_object=dom,
                     table_id=module_table_id,
@@ -381,15 +418,6 @@ class IODSpecBuilder:
                     json_file_name=module_json_file_name,
                     progress_observer=progress_observer,
                 )
-        else:
-            # Build the module model without caching (it will be cached when building the IOD model)
-            module_model = self.module_factory.build_model(
-                doc_object=dom,
-                table_id=module_table_id,
-                url=url,
-                json_file_name=module_json_file_name,
-                progress_observer=progress_observer,
-            )
         # Store in registry if using reference mode
         if self.module_registry is not None:
             self.module_registry[module_table_id] = module_model

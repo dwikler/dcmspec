@@ -1,10 +1,21 @@
 """Tests for the IODSpecBuilder class in dcmspec.iod_spec_builder."""
 import pytest
 from anytree import Node
+from dcmspec.dom_utils import DOMUtils
 from dcmspec.iod_spec_builder import IODSpecBuilder
 from dcmspec.progress import Progress, ProgressStatus
 from dcmspec.spec_model import SpecModel
 from dcmspec.module_registry import ModuleRegistry
+
+# Import fixture and disable ruff checks as fixture import triggers a false positive warning
+from .fixtures_dom_iod_module_sections import iod_with_module_and_section_dom  # noqa: F401
+
+# Captured at import time, before patch_get_table_id_from_section below ever runs, so a test that
+# needs the real implementation can restore it without calling monkeypatch.undo() (which would
+# also revert other patches sharing the same monkeypatch instance, e.g. conftest.py's autouse
+# patch_dirs fixture).
+_REAL_GET_TABLE_ID_FROM_SECTION = DOMUtils.get_table_id_from_section
+
 
 @pytest.fixture(autouse=True)
 def patch_get_table_id_from_section(monkeypatch):
@@ -562,6 +573,59 @@ def test_iod_spec_builder_load_cache_with_registry(monkeypatch, tmp_path):
     assert registry["table_PATIENT"] is module_model_patient
     assert registry["table_STUDY"] is module_model_study
 
+def test_iod_spec_builder_module_builder_bypasses_iod_cache_shortcut(monkeypatch, tmp_path):
+    """Test that a cached IOD model does not skip module_builder's section resolution.
+
+    The registry-mode fast path normally loads module models straight from their JSON cache,
+    bypassing module_builder entirely (see test_iod_spec_builder_load_cache_with_registry). When
+    a module_builder is configured, IODSpecBuilder must go through it instead, so that section
+    resolution based on the current DOM still happens even when the IOD model itself is cached.
+    """
+    factory = DummyFactory()
+    factory.table_parser = factory
+    factory.config = DummyConfig(cache_dir=str(tmp_path))
+
+    iod_model = SpecModel(metadata=Node("metadata"), content=Node("content"))
+    iod_node_patient = Node("iod_node_patient", parent=iod_model.content)
+    setattr(iod_node_patient, "ref", "PATIENT")
+    setattr(iod_node_patient, "table_id", "table_PATIENT")
+
+    # Raise if the module-level fast path is taken instead of going through module_builder.
+    factory.model_store = RegistryOnlyModelStore(iod_model, forbidden_table_ids=["table_PATIENT"])
+
+    class FakeModuleBuilder:
+        """Records build_from_dom calls instead of doing real section resolution."""
+
+        def __init__(self):
+            self.calls = []
+
+        def build_from_dom(self, dom, table_id, url, json_file_name=None, progress_observer=None,
+                            force_download=False):
+            self.calls.append(table_id)
+            module_model = SpecModel(metadata=Node("metadata"), content=Node("content"))
+            return module_model, {}
+
+    module_builder = FakeModuleBuilder()
+    registry = ModuleRegistry()
+    builder = IODSpecBuilder(
+        iod_factory=factory, module_factory=factory, module_registry=registry, module_builder=module_builder
+    )
+    builder.iod_factory.model_store = factory.model_store
+    builder.module_factory.model_store = factory.model_store
+
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    model, module_models = builder.build_from_url(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table_IOD",
+        force_download=False,
+        json_file_name="dummy.json",
+    )
+    assert module_builder.calls == ["table_PATIENT"]
+    assert "table_PATIENT" in module_models
+
+
 def test_iod_spec_builder_load_iod_cache_and_reuse_module_from_registry(monkeypatch, tmp_path):
     """Test IODSpecBuilder loads IOD from cache and reuses modules from registry."""
     factory = DummyFactory()
@@ -818,3 +882,75 @@ def test_iod_spec_builder_both_progress_callback_and_observer(monkeypatch):
     assert not progress_values
     assert progress_objects
     assert all(isinstance(p, Progress) for p in progress_objects)
+
+
+class _FakeDocHandler:
+    """A stub DocHandler used where the fixture's sections have no images to download."""
+
+    def download(self, url, file_path, binary=False):
+        """Fail loudly if ever called: this fixture's section has no images."""
+        raise AssertionError(f"Unexpected image download for {url}")
+
+
+def test_iod_spec_builder_with_module_builder_resolves_sections(monkeypatch, iod_with_module_and_section_dom):  # noqa: F811
+    """Test that a module_builder resolves explanatory sections when building a full IOD.
+
+    Uses real SpecFactory/ModuleSpecBuilder (not the DummyFactory used elsewhere in this file)
+    against a real DOM fixture, since section resolution needs actual DOM navigation. The document
+    download itself is monkeypatched to avoid a real network call, mirroring the side effect
+    (setting input_handler.cache_file_name) that a real load_document call would have had.
+    """
+    from dcmspec.module_spec_builder import ModuleSpecBuilder
+    from dcmspec.section_registry import SectionRegistry
+    from dcmspec.spec_factory import SpecFactory
+
+    # This module's autouse patch_get_table_id_from_section fixture stubs out
+    # DOMUtils.get_table_id_from_section for every test; this test needs the real DOM-navigating
+    # implementation instead. Re-patch just that one attribute rather than calling
+    # monkeypatch.undo(), which would also revert conftest.py's autouse patch_dirs fixture (it
+    # shares this same monkeypatch instance) and send this test's cache/config I/O to the real,
+    # unpatched platformdirs locations on disk instead of the isolated tmp path.
+    monkeypatch.setattr(
+        "dcmspec.iod_spec_builder.DOMUtils.get_table_id_from_section", _REAL_GET_TABLE_ID_FROM_SECTION
+    )
+
+    iod_factory = SpecFactory(column_to_attr={0: "module", 1: "ref"}, name_attr="module")
+    module_factory = SpecFactory(
+        column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}, name_attr="elem_name"
+    )
+
+    def fake_load_document(**kwargs):
+        iod_factory.input_handler.cache_file_name = kwargs.get("cache_file_name")
+        return iod_with_module_and_section_dom
+
+    monkeypatch.setattr(iod_factory, "load_document", fake_load_document)
+
+    section_registry = SectionRegistry()
+    module_builder = ModuleSpecBuilder(
+        module_factory=module_factory,
+        section_registry=section_registry,
+        ref_columns=[3],
+        doc_handler=_FakeDocHandler(),
+    )
+    module_registry = ModuleRegistry()
+    builder = IODSpecBuilder(
+        iod_factory=iod_factory,
+        module_factory=module_factory,
+        module_registry=module_registry,
+        module_builder=module_builder,
+    )
+
+    iod_model, module_models = builder.build_from_url(
+        url="https://example.org/part03.html",
+        cache_file_name="part03.html",
+        table_id="table_IOD",
+        json_file_name=None,
+    )
+
+    assert "table_MODULE" in module_models
+    frame_label = next(c for c in module_models["table_MODULE"].content.children if c.elem_name == "Frame Label")
+    assert frame_label.elem_desc_section_refs == ["sect_C.1"]
+    # The section was resolved and shared via the registry the test owns, without IODSpecBuilder's
+    # return signature needing to change to expose it directly.
+    assert "sect_C.1" in section_registry
+    assert "Explanatory text for the Frame Label attribute." in section_registry["sect_C.1"].content.html

@@ -2,6 +2,26 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.0] - unreleased
+
+### Added
+
+- `DOMSectionSpecParser` parses a DICOM standard section, given its anchor id.
+- `ModuleSpecBuilder` builds a module attribute model and resolves the sections it
+  directly references, caching each one separately and downloading their images.
+
+### Changed
+
+- **Breaking change:** `XHTMLDocHandler.download`/`PDFDocHandler.download` renamed to
+  `download_to_cache`. Callers using `load_document` are unaffected.
+
+### Fixed
+
+- `DOMTableSpecParser.get_version` no longer raises `UnboundLocalError` when the document has no
+  `<div class="titlepage">`; it will return `""` with a warning.
+- `SpecModel.exclude_titles` no longer raises `AttributeError` when a model's metadata has no
+  `column_to_attr` such as a section model.
+
 ## [0.3.1] - 2026-08-27
 
 ### Added

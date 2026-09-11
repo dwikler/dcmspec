@@ -141,6 +141,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         force_parse: bool = False,
+        ref_columns: Optional[list] = None,
     ) -> Optional[SpecModel]:
         """Check for and load a model from cache if available and not force_parse."""
         if json_file_name is None:
@@ -150,7 +151,7 @@ class SpecFactory:
             json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_parse:
-            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs)
+            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, ref_columns)
             if model is not None:
                 return model
         return None
@@ -214,7 +215,10 @@ class SpecFactory:
             
         """
         # Try to load from cache first
-        model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse)
+        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        model = self.try_load_cache(
+            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs.get("ref_columns")
+        )
         if model is not None:
             return model
 
@@ -227,7 +231,6 @@ class SpecFactory:
             parsing_progress_observer = None
 
         # Parse provided document otherwise
-        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self._parse_and_build_model(
             doc_object=doc_object,
             table_id=table_id,
@@ -321,7 +324,14 @@ class SpecFactory:
         self.input_handler.cache_file_name = cache_file_name
 
         # Try to load from cache before loading document object
-        model = self.try_load_cache(json_file_name, include_depth, model_kwargs, force_parse or force_download)
+        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        model = self.try_load_cache(
+            json_file_name,
+            include_depth,
+            model_kwargs,
+            force_parse or force_download,
+            merged_parser_kwargs.get("ref_columns"),
+        )
         if model is not None:
             return model
 
@@ -375,8 +385,9 @@ class SpecFactory:
         json_file_path: str,
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
+        ref_columns: Optional[list] = None,
     ) -> Optional[SpecModel]:
-        """Load model from cache file if include depth is valid."""
+        """Load model from cache file if include depth and ref columns are valid."""
         try:
             # Load the model from cache
             model = self.model_store.load(json_file_path)
@@ -397,7 +408,19 @@ class SpecFactory:
                 )
                 return None
 
-            # Return the cached model, reconstructing it to the required subclass if necessary        
+            # Do not use cache if ref_columns does not match the cached model's metadata
+            cached_ref_columns = getattr(model.metadata, "ref_columns", None)
+            requested_ref_columns = sorted(ref_columns) if ref_columns else None
+            if cached_ref_columns != requested_ref_columns:
+                self.logger.info(
+                    (
+                        f"Cached model ref_columns ({cached_ref_columns}) "
+                        f"does not match requested ({requested_ref_columns}), reparsing."
+                    )
+                )
+                return None
+
+            # Return the cached model, reconstructing it to the required subclass if necessary
             if isinstance(model, self.model_class):
                 model.logger = self.logger
                 return model
