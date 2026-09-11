@@ -338,11 +338,11 @@ def table_include_dom():
                                 </tr>
                                 <tr valign="top">
                                     <td align="left" colspan="4" rowspan="1">
-                                        <p>
-                                            <span class="italic">
-                                                Include <a class="xref" href="#table_MACRO">Table Macro</a>
-                                            </span>
-                                        </p>
+                                    <p>
+                                        <a id="para_12345" shape="rect"></a>
+                                        <span class="italic">Include <a class="xref" href="#table_MACRO" title="Table MACRO. Some Macro Attributes" shape="rect">Table MACRO “Some Macro Attributes”</a>
+                                        </span>
+                                    </p>
                                     </td>
                                 </tr>
                             </tbody>

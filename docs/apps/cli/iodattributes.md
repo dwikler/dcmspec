@@ -28,7 +28,18 @@ For more information on configuration and caching location see the [Configuratio
 : Path to the configuration file.
 
 `--print-mode <mode>`  
-: Print as `'table'` (default), `'tree'`, or `'none'` to skip printing.
+: Print as `'table'` (default), `'tree'`, `'csv'`, `'xlsx'`, or `'none'` to skip printing.
+
+- **xlsx**: Writes an OOXML Excel file. Requires `--output` to specify the filename.
+
+`--output <file>`  
+: Path to output file. If not specified, prints to stdout (console).
+
+- When writing to a file, colorization is automatically disabled and plain text is used.
+- **Mandatory when `--print-mode xlsx` is used.**
+
+`--no-color`  
+: Disable colorized output (default: color enabled).
 
 `-h`, `--help`  
 : Show this help message and exit.
@@ -39,8 +50,36 @@ For more information on configuration and caching location see the [Configuratio
 
 To parse a Composite IOD table and print it as a table:
 
+```bash
     poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1
+```
 
 To parse a Normalized IOD table and print it as a tree:
 
+```bash
     poetry run python -m src.dcmspec.apps.cli.iodattributes table_B.1-1 --print-mode tree
+```
+
+To parse a Normalized IOD table and print it as a tree:
+
+```bash
+    poetry run python -m src.dcmspec.apps.cli.iodattributes table_B.1-1 --print-mode tree
+```
+
+To save the specification model as an ASCII table to a text file:
+
+```bash
+    poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1 --output iod.txt
+```
+
+To save the specification model as a CSV file:
+
+```bash
+    poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1 --print-mode csv --output iod.csv
+```
+
+To save the specification model as an Excel (OOXML) file:
+
+```bash
+    poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.1-1 --print-mode xlsx --output iod.xlsx
+```

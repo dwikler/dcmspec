@@ -484,8 +484,52 @@ def test_parse_table_include_missing_table(table_include_dom):  # noqa: F811
             name_attr="col1"
         )
 
+def test_parse_table_include_row_name_prefix(table_include_dom):  # noqa: F811
+    """Test that parse with include_depth equals 0 produce a node whose name starts with 'include_table'."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3", 3: "col4"}
+    node = parser.parse_table(
+        dom=table_include_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        include_depth=0
+    )
+    children = list(node.children)
+    # The root should have 3 children: AttrName1, AttrName2, Include
+    assert len(children) == 3
+    assert children[0].col1 == "AttrName1"
+    assert children[1].col1 == "AttrName2"    
+    expected_prefix = "include_table"
+    assert children[2].name.startswith(expected_prefix), \
+        f"Include node name '{children[2].name}' does not start with '{expected_prefix}'"
+
+def test_parse_table_include_row_text_extraction(table_include_dom):  # noqa: F811
+    """Include row (colspan=4) extracts plain text when recursion disabled (include_depth=0)."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3", 3: "col4"}
+    node = parser.parse_table(
+        dom=table_include_dom,
+        table_id="table_MAIN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        include_depth=0  # disable recursion so include row becomes its own node
+    )
+    children = list(node.children)
+    # The root should have 3 children: AttrName1, AttrName2, Include
+    assert len(children) == 3
+    include_row = children[2]
+    text = include_row.col1
+    # Basic content checks
+    assert "Include Table MACRO" in text
+    assert "Some Macro Attributes" in text
+    # No HTML tags
+    assert "<" not in text and ">" not in text
+    # Gaps collapsed (no double blank lines)
+    assert "\n\n" not in text
+
 def test_parse_metadata_realigns_column_to_attr_when_middle_missing(docbook_sample_dom_1):  # noqa: F811
-    """Test that parse realigns the metadata column_to_attr values when a middle column (e.g., elem_type) is missing."""
+    """Test that parse realigns the metadata column_to_attr values when a column (e.g., elem_type) is missing."""
     parser = DOMTableSpecParser()
     # Simulate a mapping where index 2 (elem_type) is missing, but index 3 (elem_desc) is present
     column_to_attr = {0: "elem_name", 1: "elem_tag", 3: "elem_desc"}

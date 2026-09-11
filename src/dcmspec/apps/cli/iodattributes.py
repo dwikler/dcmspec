@@ -58,11 +58,24 @@ def main():
     parser.add_argument("--config", help="Path to the configuration file")
     parser.add_argument(
         "--print-mode", 
-        choices=["table", "tree", "none"],
+        choices=["table", "tree", "csv", "xlsx", "none"],
         default="table",
-        help="Print as 'table' (default), 'tree', or 'none' to skip printing"
+        help="Print as 'table' (default), 'tree', 'csv', 'xlsx' (requires --output), or 'none' to skip printing"
+    )
+    parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable colorized output (default: color enabled for terminal, disabled for file output)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to output file. If not specified (and not xlsx), prints to stdout."
     )
     args = parser.parse_args()
+
+    if args.print_mode == "xlsx" and not args.output:
+        parser.error("--output is required when --print-mode xlsx")
 
     cache_file_name = "Part3.xhtml"
     model_file_name = f"Part3_{args.table}_expanded.json"
@@ -114,11 +127,21 @@ def main():
     )
 
     # Print the model
-    printer = IODSpecPrinter(model)
+    printer = IODSpecPrinter(model, output=getattr(args, "output", None))
+
+    # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
+    use_color = not args.no_color
+
     if args.print_mode == "tree":
-        printer.print_tree(colorize=True)
+        printer.print_tree(
+            attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color
+            )
     elif args.print_mode == "table":
-        printer.print_table(colorize=True)
+        printer.print_table(colorize=use_color, column_widths=[30, 11, 4, 60])
+    elif args.print_mode == "csv":
+        printer.print_csv(colorize=use_color)
+    elif args.print_mode == "xlsx":
+        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=use_color)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":
