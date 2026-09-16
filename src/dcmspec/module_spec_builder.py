@@ -6,6 +6,7 @@ C.7.6.16.2.2.1" in an attribute's description), caching each section separately 
 them across modules via a SectionRegistry.
 """
 import logging
+import os
 from typing import Dict, List, Optional, Tuple
 
 from anytree import Node, PreOrderIter
@@ -25,10 +26,9 @@ class ModuleSpecBuilder:
 
     Sections are found via "See Section C.x" references in the Description column and cached
     as separate SpecModels, one JSON file per section. A reference pointing at a section other
-    than an attribute description in a module or macro is skipped.
-    A resolved section's outgoing references are saved as metadata and not resolved, so a caller
-    may resolve them if needed.
-    A SectionRegistry, if provided, allows modules to reuse cached sections.
+    than an attribute description in a module or macro is skipped. A resolved section's outgoing
+    references are left on its metadata, not resolved further. A SectionRegistry, if provided,
+    allows cached sections to be reused.
     """
 
     def __init__(
@@ -168,45 +168,54 @@ class ModuleSpecBuilder:
         section_models: Dict[str, SpecModel] = {}
         for node in PreOrderIter(content):
             for section_id in self._collect_section_refs(node):
-                self._resolve_section(section_id, dom, url, section_models, force_download)
+                if section_id in section_models:
+                    continue
+                section_model = self.resolve_section(section_id, dom, url, force_download)
+                if section_model is not None:
+                    section_models[section_id] = section_model
         return section_models
 
-    def _resolve_section(
-        self,
-        section_id: str,
-        dom: BeautifulSoup,
-        url: str,
-        section_models: Dict[str, SpecModel],
-        force_download: bool,
-    ) -> None:
-        """Resolve one section into section_models. Does not resolve sections it references in turn."""
-        if section_id in section_models:
-            return
+    def resolve_section(
+        self, section_id: str, dom: BeautifulSoup, url: str, force_download: bool = False
+    ) -> Optional[SpecModel]:
+        """Resolve one section by id into a SpecModel.
+
+        Does not resolve sections it references. Returns None if section_id is not an
+        attribute description section in a module or macro, or if it could not be parsed.
+        """
         if self.section_registry is not None and section_id in self.section_registry:
-            section_models[section_id] = self.section_registry[section_id]
-            return
+            return self.section_registry[section_id]
         if not self.is_attribute_description(dom, section_id):
             self.logger.info(
                 f"Skipping section '{section_id}': not an attribute description of a module or macro."
             )
-            return
+            return None
 
+        json_file_name = f"sections/{section_id}.json"
         try:
             section_model = self.section_factory.build_model(
                 doc_object=dom,
                 table_id=section_id,
                 url=url,
-                json_file_name=f"sections/{section_id}.json",
+                json_file_name=json_file_name,
             )
         except ValueError as e:
             self.logger.warning(f"Could not resolve section '{section_id}': {e}")
-            return
+            return None
 
-        self.image_resolver.resolve(section_model, url, force_download=force_download)
+        if force_download or getattr(section_model.metadata, "image_paths", None) is None:
+            self.image_resolver.resolve(section_model, url, force_download=force_download)
+            json_file_path = os.path.join(
+                self.section_factory.config.get_param("cache_dir"), "model", json_file_name
+            )
+            try:
+                self.section_factory.model_store.save(section_model, json_file_path)
+            except Exception as e:
+                self.logger.warning(f"Failed to cache section '{section_id}' with resolved images: {e}")
 
-        section_models[section_id] = section_model
         if self.section_registry is not None:
             self.section_registry[section_id] = section_model
+        return section_model
 
     def is_attribute_description(self, dom: BeautifulSoup, section_id: str) -> bool:
         """Return whether section_id is an attribute description section."""
