@@ -24,10 +24,11 @@ class ModuleSpecBuilder:
     """Builds a module attribute model, resolving the sections its attributes directly reference.
 
     Sections are found via "See Section C.x" references in the Description column and cached
-    as separate SpecModels, one JSON file per section. A resolved section's own outgoing
-    references are left on its metadata, not resolved further -- a caller wanting to go deeper
-    can resolve individual ids itself the same way. A SectionRegistry, if provided, lets modules
-    reuse an already-resolved section.
+    as separate SpecModels, one JSON file per section. A reference pointing at a section other
+    than an attribute description in a module or macro is skipped.
+    A resolved section's outgoing references are saved as metadata and not resolved, so a caller
+    may resolve them if needed.
+    A SectionRegistry, if provided, allows modules to reuse cached sections.
     """
 
     def __init__(
@@ -184,6 +185,11 @@ class ModuleSpecBuilder:
         if self.section_registry is not None and section_id in self.section_registry:
             section_models[section_id] = self.section_registry[section_id]
             return
+        if not self.is_attribute_description(dom, section_id):
+            self.logger.info(
+                f"Skipping section '{section_id}': not an attribute description of a module or macro."
+            )
+            return
 
         try:
             section_model = self.section_factory.build_model(
@@ -201,6 +207,13 @@ class ModuleSpecBuilder:
         section_models[section_id] = section_model
         if self.section_registry is not None:
             self.section_registry[section_id] = section_model
+
+    def is_attribute_description(self, dom: BeautifulSoup, section_id: str) -> bool:
+        """Return whether section_id is an attribute description section."""
+        table_parser = self.section_factory.table_parser
+        if not isinstance(table_parser, DOMSectionSpecParser):
+            return True
+        return table_parser.is_attribute_description(dom, section_id)
 
     def _collect_section_refs(self, node: Node) -> List[str]:
         """Return every section id listed in any of a node's `*section_refs` attributes."""

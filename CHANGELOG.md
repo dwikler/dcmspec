@@ -2,6 +2,14 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.1] - unreleased
+
+### Fixed
+
+- `ModuleSpecBuilder` no longer resolves a "See Section X" reference that isn't an
+  attribute description of a module or macro; such references are now skipped
+  ([#132](https://github.com/dwikler/dcmspec/issues/132)).
+
 ## [0.4.0] - 2026-09-11
 
 ### Added

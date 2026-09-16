@@ -8,6 +8,8 @@ from .fixtures_dom_sections import (
     docbook_sample_section_dom,  # noqa: F401
     docbook_sample_section_with_variablelist_dom,  # noqa: F401
     docbook_grouping_section_dom,  # noqa: F401
+    docbook_module_definition_section_dom,  # noqa: F401
+    docbook_attribute_description_sections_dom,  # noqa: F401
     docbook_sample_section_missing_heading_dom,  # noqa: F401
 )
 
@@ -131,3 +133,49 @@ def test_parse_returns_metadata_and_content(docbook_sample_section_dom):  # noqa
     assert metadata.section_id == "sect_SAMPLE"
     assert content.name == "content"
     assert "First paragraph" in content.html
+
+
+def test_is_attribute_description_false_for_a_module_own_definition(
+    docbook_module_definition_section_dom,  # noqa: F811
+):
+    """Test that a section titled "... Module", with no enclosing section, is not attribute description."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_module_definition_section_dom, "sect_C.MODULE") is False
+
+
+def test_is_attribute_description_true_nested_under_a_module(
+    docbook_attribute_description_sections_dom,  # noqa: F811
+):
+    """Test that a section nested two levels under a "... Module"-titled ancestor is attribute description."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_attribute_description_sections_dom, "sect_MOD.1.1") is True
+
+
+def test_is_attribute_description_true_nested_under_a_macro(
+    docbook_attribute_description_sections_dom,  # noqa: F811
+):
+    """Test that a section nested under a "... Macro"-titled ancestor is attribute description."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_attribute_description_sections_dom, "sect_MACRO.1") is True
+
+
+def test_is_attribute_description_true_nested_under_a_retired_module(
+    docbook_attribute_description_sections_dom,  # noqa: F811
+):
+    """Test that a section nested under a "... Module (Retired)"-titled ancestor is attribute description."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_attribute_description_sections_dom, "sect_RETIRED.1") is True
+
+
+def test_is_attribute_description_false_for_section_with_no_module_or_macro_ancestor(
+    docbook_sample_section_dom,  # noqa: F811
+):
+    """Test that a section with no enclosing section at all is not attribute description."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_sample_section_dom, "sect_SAMPLE") is False
+
+
+def test_is_attribute_description_true_for_missing_section(docbook_sample_section_dom):  # noqa: F811
+    """Test that a section id not found in the DOM is left for the normal build to report, not excluded here."""
+    parser = DOMSectionSpecParser()
+    assert parser.is_attribute_description(docbook_sample_section_dom, "sect_NOT_A_SECTION") is True

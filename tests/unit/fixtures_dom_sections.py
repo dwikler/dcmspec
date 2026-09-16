@@ -214,6 +214,118 @@ def docbook_grouping_section_dom():
 
 
 @pytest.fixture
+def docbook_module_definition_section_dom():
+    """Return a BeautifulSoup DOM mimicking a module's own definition section (e.g. C.12.1 SOP Common Module).
+
+    sect_C.MODULE is titled "... Module", DICOM Part 3's convention for a module's own section,
+    and has no enclosing section of its own.
+    """
+    xhtml = f"""
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            {_VERSION_MARKUP}
+            <div class="section">
+                <div class="titlepage">
+                    <div>
+                        <div>
+                            <h6 class="title">
+                                <a id="sect_C.MODULE" shape="rect"></a>C.12.1 Sample Module</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="table">
+                    <a id="table_MODULE" shape="rect"></a>
+                    <p class="title"><strong>Table C.12-1. Sample Module Attributes</strong></p>
+                    <div class="table-contents">
+                        <table><tbody><tr>
+                            <td>The module's own attribute table.</td>
+                        </tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    return BeautifulSoup(xhtml, "lxml-xml")
+
+
+@pytest.fixture
+def docbook_attribute_description_sections_dom():
+    """Return a DOM with attribute description sections nested under a module, a macro, and a retired module.
+
+    Each top-level section is titled as DICOM Part 3 titles a module's or macro's own definition
+    ("... Module", "... Macro", "... Module (Retired)"), with a leaf section nested underneath
+    it (sect_MOD.1.1 two levels deep, through a non-module-titled grouping subsection, mirroring
+    a real "<Module> Attribute Descriptions" container; sect_MACRO.1 and sect_RETIRED.1 one level
+    deep) representing the small explanatory content a "See Section X" reference should resolve.
+    """
+    xhtml = f"""
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            {_VERSION_MARKUP}
+            <div class="section">
+                <div class="titlepage">
+                    <div><div>
+                        <h6 class="title"><a id="sect_MOD" shape="rect"></a>C.7.6.1 Sample Module</h6>
+                    </div></div>
+                </div>
+                <div class="section">
+                    <div class="titlepage">
+                        <div><div>
+                            <h6 class="title">
+                                <a id="sect_MOD.1" shape="rect"></a>C.7.6.1.1 Sample Module Attribute
+                                Descriptions</h6>
+                        </div></div>
+                    </div>
+                    <div class="section">
+                        <div class="titlepage">
+                            <div><div>
+                                <h6 class="title"><a id="sect_MOD.1.1" shape="rect"></a>C.7.6.1.1.1
+                                    Some Attribute</h6>
+                            </div></div>
+                        </div>
+                        <p><a id="para_1" shape="rect"></a>Explanation of some attribute.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="titlepage">
+                    <div><div>
+                        <h6 class="title"><a id="sect_MACRO" shape="rect"></a>10.1 Sample Macro</h6>
+                    </div></div>
+                </div>
+                <div class="section">
+                    <div class="titlepage">
+                        <div><div>
+                            <h6 class="title"><a id="sect_MACRO.1" shape="rect"></a>10.1.1 Some Attribute</h6>
+                        </div></div>
+                    </div>
+                    <p><a id="para_2" shape="rect"></a>Explanation of the macro's attribute.</p>
+                </div>
+            </div>
+            <div class="section">
+                <div class="titlepage">
+                    <div><div>
+                        <h6 class="title">
+                            <a id="sect_RETIRED" shape="rect"></a>C.10.2 Sample Module (Retired)</h6>
+                    </div></div>
+                </div>
+                <div class="section">
+                    <div class="titlepage">
+                        <div><div>
+                            <h6 class="title"><a id="sect_RETIRED.1" shape="rect"></a>C.10.2.1 Some Attribute</h6>
+                        </div></div>
+                    </div>
+                    <p><a id="para_3" shape="rect"></a>Explanation of the retired module's attribute.</p>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+    return BeautifulSoup(xhtml, "lxml-xml")
+
+
+@pytest.fixture
 def docbook_sample_section_missing_heading_dom():
     """Return a BeautifulSoup DOM with a section anchor that has no enclosing heading tag."""
     xhtml = """
