@@ -6,6 +6,7 @@ from dcmspec.spec_factory import SpecFactory
 # Import fixtures and disable ruff checks as fixtures import triggers false positive warnings
 from .fixtures_dom_module_sections import (
     module_with_sections_dom,  # noqa: F401
+    module_referencing_module_definition_section_dom,  # noqa: F401
 )
 
 COLUMN_TO_ATTR = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
@@ -142,6 +143,20 @@ def test_build_from_dom_force_download_forces_module_reparse(module_with_section
         json_file_name="table_MODULE.json", force_download=True,
     )
     assert seen_force_parse == [True]
+
+
+def test_build_from_dom_skips_module_definition_section(
+    module_referencing_module_definition_section_dom, caplog  # noqa: F811
+):
+    """Test that a reference to another module's own definition section is skipped, not resolved."""
+    builder = make_builder()
+    with caplog.at_level("INFO"):
+        _, section_models = builder.build_from_dom(
+            module_referencing_module_definition_section_dom, table_id="table_MODULE",
+            url="https://example.org/part03.html", json_file_name="table_MODULE.json"
+        )
+    assert section_models == {}
+    assert "Skipping section 'sect_C.OTHER_MODULE'" in caplog.text
 
 
 def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa: F811
