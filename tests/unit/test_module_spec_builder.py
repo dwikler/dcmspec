@@ -159,6 +159,50 @@ def test_build_from_dom_skips_module_definition_section(
     assert "Skipping section 'sect_C.OTHER_MODULE'" in caplog.text
 
 
+def test_resolve_section_resolves_a_single_section_standalone(module_with_sections_dom):  # noqa: F811
+    """Test that resolve_section resolves one known section id on its own, without a module build."""
+    builder = make_builder()
+    section_model = builder.resolve_section(
+        "sect_C.1", module_with_sections_dom, url="https://example.org/part03.html"
+    )
+    assert section_model.metadata.title == "C.1 First Section"
+    assert section_model.metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
+def test_resolve_section_persists_image_paths_to_cache(module_with_sections_dom):  # noqa: F811
+    """Test that a resolved section's cached JSON is re-saved with its resolved image_paths."""
+    builder = make_builder()
+    builder.resolve_section("sect_C.1", module_with_sections_dom, url="https://example.org/part03.html")
+
+    import os
+    json_file_path = os.path.join(
+        builder.section_factory.config.get_param("cache_dir"), "model", "sections/sect_C.1.json"
+    )
+    cached_model = builder.section_factory.model_store.load(json_file_path)
+    assert cached_model.metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
+def test_build_from_dom_reuses_cached_resolved_images_on_a_later_build(module_with_sections_dom):  # noqa: F811
+    """Test that a section already resolved and cached does not have its images re-resolved."""
+    doc_handler = FakeDocHandler()
+    builder = make_builder(doc_handler=doc_handler)
+
+    builder.build_from_dom(
+        module_with_sections_dom, table_id="table_MODULE", url="https://example.org/part03.html",
+        json_file_name="table_MODULE.json"
+    )
+    assert len(doc_handler.calls) == 1
+
+    # A second, independent builder reusing the same cache dir does not re-resolve images
+    other_builder = make_builder(doc_handler=doc_handler)
+    _, section_models = other_builder.build_from_dom(
+        module_with_sections_dom, table_id="table_MODULE", url="https://example.org/part03.html",
+        json_file_name="table_MODULE.json"
+    )
+    assert len(doc_handler.calls) == 1
+    assert section_models["sect_C.1"].metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
 def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa: F811
     """Test that a ModuleSpecBuilder with no ref_columns configured resolves no sections at all."""
     module_factory = SpecFactory(column_to_attr=COLUMN_TO_ATTR, name_attr="elem_name")

@@ -4,11 +4,18 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ## [0.4.1] - unreleased
 
+### Added
+
+- `ModuleSpecBuilder.resolve_section` resolves a single section by id, for callers that
+  built a module model without resolving its referenced attribute descriptions
+  ([#131](https://github.com/dwikler/dcmspec/issues/131)).
+
 ### Fixed
 
 - `ModuleSpecBuilder` no longer resolves a "See Section X" reference that isn't an
   attribute description of a module or macro; such references are now skipped
   ([#132](https://github.com/dwikler/dcmspec/issues/132)).
+- A resolved section's cached model is now updated with its resolved image paths ([#131](https://github.com/dwikler/dcmspec/issues/131)).
 
 ## [0.4.0] - 2026-09-11
 
