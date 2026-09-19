@@ -212,3 +212,34 @@ def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa:
         json_file_name="table_MODULE.json"
     )
     assert section_models == {}
+
+
+def test_build_from_url_derives_json_file_name_without_handler_side_effect(
+    module_with_sections_dom  # noqa: F811
+):
+    """Test build_from_url derives json_file_name from cache_file_name without needing input_handler.cache_file_name."""
+    class MinimalInputHandler:
+        """A DocHandler whose load_document does not record cache_file_name, per its documented contract."""
+
+        def load_document(self, cache_file_name, url=None, force_download=False, progress_observer=None, **kwargs):
+            """Return the fixture DOM without setting any attribute on self."""
+            return module_with_sections_dom
+
+    module_factory = SpecFactory(
+        column_to_attr=COLUMN_TO_ATTR, name_attr="elem_name", input_handler=MinimalInputHandler()
+    )
+    builder = ModuleSpecBuilder(module_factory=module_factory, ref_columns=[3], doc_handler=FakeDocHandler())
+
+    module_model, _ = builder.build_from_url(
+        url="https://example.org/part03.html",
+        cache_file_name="table_MODULE.xhtml",
+        table_id="table_MODULE",
+    )
+    assert module_model is not None
+    assert not hasattr(module_factory.input_handler, "cache_file_name")
+
+    import os
+    json_file_path = os.path.join(
+        module_factory.config.get_param("cache_dir"), "model", "table_MODULE.json"
+    )
+    assert os.path.exists(json_file_path)
