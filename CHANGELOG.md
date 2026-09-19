@@ -10,6 +10,11 @@ These release notes summarize key changes, improvements, and breaking updates fo
   built a module model without resolving its referenced attribute descriptions
   ([#131](https://github.com/dwikler/dcmspec/issues/131)).
 
+### Changed
+
+- **Breaking change:** `SpecFactory.try_load_cache`'s `ref_columns` parameter is replaced
+  by a generic `parser_kwargs` dict ([#124](https://github.com/dwikler/dcmspec/issues/124)).
+
 ### Fixed
 
 - `ModuleSpecBuilder` no longer resolves a "See Section X" reference that isn't an
