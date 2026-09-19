@@ -146,7 +146,8 @@ class SpecFactory:
         """Return the cached model for json_file_name, if one exists and is still valid.
 
         Allows a caller to check whether a model is already cached before deciding to call
-        load_document.
+        load_document. Requires a json_file_name value, or input_handler.cache_file_name
+        to already be set.
 
         Args:
             json_file_name (Optional[str]): Filename of the cached JSON model. If None,
