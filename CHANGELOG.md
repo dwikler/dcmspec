@@ -16,6 +16,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
   attribute description of a module or macro; such references are now skipped
   ([#132](https://github.com/dwikler/dcmspec/issues/132)).
 - A resolved section's cached model is now updated with its resolved image paths ([#131](https://github.com/dwikler/dcmspec/issues/131)).
+- `SpecFactory.build_model`'s docstring now notes `doc_object` is ignored when a cached
+  model is already found, and `try_load_cache` documents how to check for one without a
+  parsed document ([#133](https://github.com/dwikler/dcmspec/issues/133)).
 
 ## [0.4.0] - 2026-09-11
 

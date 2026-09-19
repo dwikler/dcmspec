@@ -143,7 +143,30 @@ class SpecFactory:
         force_parse: bool = False,
         ref_columns: Optional[list] = None,
     ) -> Optional[SpecModel]:
-        """Check for and load a model from cache if available and not force_parse."""
+        """Return the cached model for json_file_name, if one exists and is still valid.
+
+        Allows a caller to check whether a model is already cached before deciding to call
+        load_document. Requires a json_file_name value, or input_handler.cache_file_name
+        to already be set.
+
+        Args:
+            json_file_name (Optional[str]): Filename of the cached JSON model. If None,
+                derived from input_handler.cache_file_name.
+            include_depth (Optional[int]): Requested include depth; a cached model built
+                with a different value is treated as a miss.
+            model_kwargs (Optional[Dict[str, Any]]): Extra keyword arguments used when
+                reconstructing the cached model into self.model_class.
+            force_parse (bool): If True, always treat this as a cache miss.
+            ref_columns (Optional[list]): Requested ref_columns; a cached model built with
+                a different value is treated as a miss.
+
+        Returns:
+            Optional[SpecModel]: The cached model, or None if no valid cache exists.
+
+        Raises:
+            ValueError: If json_file_name is None and input_handler.cache_file_name is not set.
+
+        """
         if json_file_name is None:
             cache_file_name = getattr(self.input_handler, "cache_file_name", None)
             if cache_file_name is None:
@@ -168,10 +191,11 @@ class SpecFactory:
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
-        """Build and cache a DICOM specification model from a parsed document object.
+        """Build and cache a DICOM specification model from a parsed document object, if needed.
 
         Args:
-            doc_object (Any): The parsed document object to be parsed into a model.
+            doc_object (Any): The parsed document object to be parsed into a model, ignored
+                if a cached model is found.
                 - For XHTML: a BeautifulSoup DOM object.
                 - For PDF: a grouped table dict (from PDFDocHandler).
                 - For other formats: as defined by the handler/parser.
