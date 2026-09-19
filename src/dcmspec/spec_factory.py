@@ -151,8 +151,9 @@ class SpecFactory:
         to already be set.
 
         Args:
-            json_file_name (Optional[str]): Filename of the cached JSON model. If None,
-                derived from input_handler.cache_file_name.
+            json_file_name (Optional[str]): Filename of the cached model. If None,
+                derived from input_handler.cache_file_name, using model_store's file extension
+                (not always `.json`).
             include_depth (Optional[int]): Requested include depth; a cached model built
                 with a different value is treated as a miss.
             model_kwargs (Optional[Dict[str, Any]]): Extra keyword arguments used when
@@ -203,9 +204,9 @@ class SpecFactory:
                 - For other formats: as defined by the handler/parser.
             table_id (Optional[str]): Table identifier for model parsing.
             url (Optional[str]): The URL the document was fetched from (for metadata).
-            json_file_name (Optional[str]): Filename to save the cached JSON model.
+            json_file_name (Optional[str]): Filename to save the cached model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
-            force_parse (bool): If True, always parse and (over)write the JSON cache file.
+            force_parse (bool): If True, always parse and (over)write the cache file.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
                 See the Note below for details on the progress events and their properties.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
@@ -216,8 +217,9 @@ class SpecFactory:
                 `parse` method. Use this to supply parser-specific options such as `skip_columns`.
 
         If `json_file_name` is not provided, the factory will attempt to use
-        `self.input_handler.cache_file_name` to generate a default JSON file name.
-        If neither is set, a ValueError is raised.
+        `self.input_handler.cache_file_name` to generate a default cache file name,
+        using model_store's file extension (not always `.json`). If neither is set,
+        a ValueError is raised.
 
         Returns:
             SpecModel: The constructed model.
@@ -307,10 +309,12 @@ class SpecFactory:
             url (str): The URL to download the input file from.
             cache_file_name (str): Filename of the cached input file.
             table_id (Optional[str]): Table identifier for model parsing.
-            force_parse (bool): If True, always parse the DOM and generate the JSON model, even if cached.
+            force_parse (bool): If True, always parse the DOM and generate the model, even if cached.
             force_download (bool): If True, always download the input file and generate the model even if cached.
                 Note: force_download also implies force_parse.
-            json_file_name (Optional[str]): Filename to save the cached JSON model.
+            json_file_name (Optional[str]): Filename to save the cached model. If None,
+                derived from cache_file_name, using model_store's file extension
+                (not always `.json`).
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
                 See the Note below for details on the progress events and their properties.
