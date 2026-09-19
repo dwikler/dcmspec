@@ -9,6 +9,8 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `ModuleSpecBuilder.resolve_section` resolves a single section by id, for callers that
   built a module model without resolving its referenced attribute descriptions
   ([#131](https://github.com/dwikler/dcmspec/issues/131)).
+- `SpecStore.file_extension` reports a store's cache file extension
+  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
 
 ### Changed
 
@@ -31,6 +33,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
   `input_handler.cache_file_name` being set for their own cache lookup, fixing a mix-up
   risk when reusing one factory/builder for multiple calls with different
   `cache_file_name` values ([#138](https://github.com/dwikler/dcmspec/issues/138)).
+- `SpecFactory` and `ModuleSpecBuilder` no longer hardcode `.json` when deriving a default
+  cache filename; they now use the configured `model_store`'s file extension
+  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
 
 ## [0.4.0] - 2026-09-11
 
