@@ -141,7 +141,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         force_parse: bool = False,
-        ref_columns: Optional[list] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
         """Return the cached model for json_file_name, if one exists and is still valid.
 
@@ -157,8 +157,9 @@ class SpecFactory:
             model_kwargs (Optional[Dict[str, Any]]): Extra keyword arguments used when
                 reconstructing the cached model into self.model_class.
             force_parse (bool): If True, always treat this as a cache miss.
-            ref_columns (Optional[list]): Requested ref_columns; a cached model built with
-                a different value is treated as a miss.
+            parser_kwargs (Optional[Dict[str, Any]]): Requested parser_kwargs (e.g.
+                ref_columns, skip_columns, unformatted); a cached model built with
+                different values is treated as a miss.
 
         Returns:
             Optional[SpecModel]: The cached model, or None if no valid cache exists.
@@ -174,7 +175,7 @@ class SpecFactory:
             json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_parse:
-            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, ref_columns)
+            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, parser_kwargs)
             if model is not None:
                 return model
         return None
@@ -241,7 +242,7 @@ class SpecFactory:
         # Try to load from cache first
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self.try_load_cache(
-            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs.get("ref_columns")
+            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs
         )
         if model is not None:
             return model
@@ -354,7 +355,7 @@ class SpecFactory:
             include_depth,
             model_kwargs,
             force_parse or force_download,
-            merged_parser_kwargs.get("ref_columns"),
+            merged_parser_kwargs,
         )
         if model is not None:
             return model
@@ -404,14 +405,26 @@ class SpecFactory:
         )
 
 
+    @staticmethod
+    def _normalize_parser_kwargs(parser_kwargs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Sort list values and convert dict keys to strings in parser_kwargs."""
+        def normalize(value: Any) -> Any:
+            if isinstance(value, list):
+                return sorted(value)
+            if isinstance(value, dict):
+                return {str(k): normalize(v) for k, v in sorted(value.items(), key=lambda item: str(item[0]))}
+            return value
+
+        return {key: normalize(value) for key, value in sorted((parser_kwargs or {}).items())}
+
     def _load_model_from_cache(
         self,
         json_file_path: str,
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
-        ref_columns: Optional[list] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
-        """Load model from cache file if include depth and ref columns are valid."""
+        """Load model from cache file if include depth and parser_kwargs are valid."""
         try:
             # Load the model from cache
             model = self.model_store.load(json_file_path)
@@ -432,14 +445,14 @@ class SpecFactory:
                 )
                 return None
 
-            # Do not use cache if ref_columns does not match the cached model's metadata
-            cached_ref_columns = getattr(model.metadata, "ref_columns", None)
-            requested_ref_columns = sorted(ref_columns) if ref_columns else None
-            if cached_ref_columns != requested_ref_columns:
+            # Do not use cache if parser_kwargs does not match the cached model's metadata
+            cached_parser_kwargs = self._normalize_parser_kwargs(getattr(model.metadata, "parser_kwargs", None))
+            requested_parser_kwargs = self._normalize_parser_kwargs(parser_kwargs)
+            if cached_parser_kwargs != requested_parser_kwargs:
                 self.logger.info(
                     (
-                        f"Cached model ref_columns ({cached_ref_columns}) "
-                        f"does not match requested ({requested_ref_columns}), reparsing."
+                        f"Cached model parser_kwargs ({cached_parser_kwargs}) "
+                        f"does not match requested ({requested_parser_kwargs}), reparsing."
                     )
                 )
                 return None
@@ -483,6 +496,7 @@ class SpecFactory:
 
         # Add args values to model metadata
         metadata.url = url
+        metadata.parser_kwargs = parser_kwargs or {}
 
         # Build the model from parsed content and metadata
         model = self.model_class(

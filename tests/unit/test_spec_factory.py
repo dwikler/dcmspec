@@ -229,8 +229,8 @@ def test_build_model_loads_from_cache(monkeypatch, patch_dirs):
     expected_path = str(patch_dirs / "cache" / "model" / "file.json")
     assert ms.loaded == expected_path
 
-def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
-    """Test build_model treats a ref_columns mismatch as a cache miss and reparses."""
+def test_build_model_parser_kwargs_mismatch_reparses(monkeypatch):
+    """Test build_model treats a parser_kwargs mismatch as a cache miss and reparses."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
@@ -238,11 +238,11 @@ def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda path: True)
     monkeypatch.setattr(ms, "save", lambda model, path: None)
 
-    def load_without_ref_columns(path):
+    def load_without_parser_kwargs(path):
         from anytree import Node
         return SpecModel(metadata=Node("metadata"), content=Node("content"))
 
-    monkeypatch.setattr(ms, "load", load_without_ref_columns)
+    monkeypatch.setattr(ms, "load", load_without_parser_kwargs)
     factory.build_model(
         doc_object="DOM",
         table_id="table1",
@@ -252,21 +252,21 @@ def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
     )
     assert tp.called
 
-def test_build_model_ref_columns_match_uses_cache(monkeypatch):
-    """Test build_model uses the cache when ref_columns matches the cached model's metadata."""
+def test_build_model_parser_kwargs_match_uses_cache(monkeypatch):
+    """Test build_model uses the cache when parser_kwargs matches the cached model's metadata."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
     monkeypatch.setattr("os.path.exists", lambda path: True)
 
-    def load_with_ref_columns(path):
+    def load_with_parser_kwargs(path):
         from anytree import Node
         metadata = Node("metadata")
-        metadata.ref_columns = [1, 2]
+        metadata.parser_kwargs = {"ref_columns": [1, 2]}
         return SpecModel(metadata=metadata, content=Node("content"))
 
-    monkeypatch.setattr(ms, "load", load_with_ref_columns)
+    monkeypatch.setattr(ms, "load", load_with_parser_kwargs)
     model = factory.build_model(
         doc_object="DOM",
         table_id="table1",
@@ -276,6 +276,36 @@ def test_build_model_ref_columns_match_uses_cache(monkeypatch):
     )
     assert isinstance(model, SpecModel)
     assert not tp.called
+
+def test_build_model_reparses_old_cache_missing_parser_kwargs(monkeypatch):
+    """Test a cache written before parser_kwargs was recorded self-heals by reparsing."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_without_parser_kwargs_attr(path):
+        from anytree import Node
+        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_parser_kwargs_attr)
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        parser_kwargs={"ref_columns": [1, 2]},
+    )
+    assert tp.called
+
+def test_normalize_parser_kwargs_matches_across_json_round_trip(monkeypatch):
+    """Test that an int-keyed dict value compares equal to its JSON string-keyed reload."""
+    factory = SpecFactory()
+    requested = {"unformatted": {0: True, 1: False}, "ref_columns": [3, 1]}
+    reloaded_from_json = {"unformatted": {"0": True, "1": False}, "ref_columns": [1, 3]}
+    assert factory._normalize_parser_kwargs(requested) == factory._normalize_parser_kwargs(reloaded_from_json)
 
 def test_build_model_fallback_to_parser(monkeypatch):
     """Test build_model falls back to parser if cache load fails."""

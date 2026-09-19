@@ -19,6 +19,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `SpecFactory.build_model`'s docstring now notes `doc_object` is ignored when a cached
   model is already found, and `try_load_cache` documents how to check for one without a
   parsed document ([#133](https://github.com/dwikler/dcmspec/issues/133)).
+- `SpecFactory` now checks all `parser_kwargs` (e.g. `skip_columns`, `unformatted`) against
+  a cache hit, not just `ref_columns`; a cache built with different values is now rebuilt
+  instead of silently reused ([#124](https://github.com/dwikler/dcmspec/issues/124)).
 
 ## [0.4.0] - 2026-09-11
 
