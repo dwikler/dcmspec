@@ -98,8 +98,9 @@ class ModuleSpecBuilder:
                 and parsing progress for the module table. Section resolution does not report
                 progress.
             json_file_name (Optional[str]): Filename to save the cached module model as. If
-                None, derived from cache_file_name. Each resolved section is cached
-                separately (see `build_from_dom`).
+                None, derived from cache_file_name, using model_store's file extension
+                (not always `.json`). Each resolved section is cached separately
+                (see `build_from_dom`).
 
         Returns:
             Tuple[SpecModel, Dict[str, SpecModel]]: The module model, and a dict mapping section_id
