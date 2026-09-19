@@ -345,10 +345,11 @@ class SpecFactory:
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
         progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
-        # Set cache_file_name on the handler before checking cache
-        self.input_handler.cache_file_name = cache_file_name
-
         # Try to load from cache before loading document object
+        if json_file_name is None:
+            if cache_file_name is None:
+                raise ValueError("cache_file_name or json_file_name must be set")
+            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self.try_load_cache(
             json_file_name,

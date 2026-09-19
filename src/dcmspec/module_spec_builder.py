@@ -96,15 +96,17 @@ class ModuleSpecBuilder:
             progress_observer (Optional[ProgressObserver]): Optional observer to report download
                 and parsing progress for the module table. Section resolution does not report
                 progress.
-            json_file_name (Optional[str]): Filename to save the cached module model as. Each
-                resolved section is cached separately (see `build_from_dom`).
+            json_file_name (Optional[str]): Filename to save the cached module model as. If
+                None, derived from cache_file_name. Each resolved section is cached
+                separately (see `build_from_dom`).
 
         Returns:
             Tuple[SpecModel, Dict[str, SpecModel]]: The module model, and a dict mapping section_id
                 to SpecModel for every section directly referenced from it.
 
         """
-        self.module_factory.input_handler.cache_file_name = cache_file_name
+        if json_file_name is None:
+            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
         dom = self.module_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,

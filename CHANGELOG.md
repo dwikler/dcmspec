@@ -27,6 +27,10 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `SpecFactory` now checks all `parser_kwargs` (e.g. `skip_columns`, `unformatted`) against
   a cache hit, not just `ref_columns`; a cache built with different values is now rebuilt
   instead of silently reused ([#124](https://github.com/dwikler/dcmspec/issues/124)).
+- `SpecFactory.create_model` and `ModuleSpecBuilder.build_from_url` no longer rely on
+  `input_handler.cache_file_name` being set for their own cache lookup, fixing a mix-up
+  risk when reusing one factory/builder for multiple calls with different
+  `cache_file_name` values ([#138](https://github.com/dwikler/dcmspec/issues/138)).
 
 ## [0.4.0] - 2026-09-11
 

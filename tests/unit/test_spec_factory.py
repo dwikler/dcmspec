@@ -492,18 +492,34 @@ def test_create_model_force_parse(monkeypatch, fake_load_and_build):
 def test_create_model_raises_if_no_json_or_cache(monkeypatch):
     """Test create_model raises ValueError if neither json_file_name nor cache_file_name is set."""
     ms = DummyModelStore()
-    ih = NoCacheFileNameInputHandler()
+    ih = DummyInputHandler()
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
-    # Remove cache_file_name from handler to simulate the error
-    ih.cache_file_name = None
-    with pytest.raises(ValueError, match="input_handler.cache_file_name not set"):
+    with pytest.raises(ValueError, match="cache_file_name or json_file_name must be set"):
         factory.create_model(
             url="http://example.com",
             cache_file_name=None,  # Explicitly pass None
             table_id="table1",
             # json_file_name is omitted
         )
+
+def test_create_model_derives_cache_path_from_its_own_cache_file_name(monkeypatch):
+    """Test create_model derives the cache path from its own argument, not a stale handler attribute."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    ih.cache_file_name = "stale.xhtml"  # left over from an earlier, unrelated call
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    model = factory.create_model(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table1",
+    )
+    assert isinstance(model, SpecModel)
+    assert ms.loaded.endswith("file.json")
+    assert not ih.called
 
 def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
     """Test build_model reports both parsing and saving progress updates via the observer."""
