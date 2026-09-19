@@ -104,7 +104,6 @@ class ModuleSpecBuilder:
                 to SpecModel for every section directly referenced from it.
 
         """
-        self.module_factory.input_handler.cache_file_name = cache_file_name
         dom = self.module_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,
