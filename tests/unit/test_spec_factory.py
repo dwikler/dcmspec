@@ -76,6 +76,8 @@ class DummyTableParser:
 class DummyModelStore:
     """A dummy model store that simulates loading and saving SpecModel objects."""
 
+    file_extension = ".json"
+
     def __init__(self):
         """Initialize the dummy model store."""
         self.saved = None

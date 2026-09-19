@@ -5,6 +5,7 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
+from pathlib import Path
 from typing import Any, Optional, Dict, Type
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from dcmspec.progress import Progress, ProgressStatus, add_progress_step, handle_legacy_callback, offset_progress_steps
@@ -172,7 +173,7 @@ class SpecFactory:
             cache_file_name = getattr(self.input_handler, "cache_file_name", None)
             if cache_file_name is None:
                 raise ValueError("input_handler.cache_file_name not set")
-            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
+            json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_parse:
             model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, parser_kwargs)
@@ -349,7 +350,7 @@ class SpecFactory:
         if json_file_name is None:
             if cache_file_name is None:
                 raise ValueError("cache_file_name or json_file_name must be set")
-            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
+            json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
         merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
         model = self.try_load_cache(
             json_file_name,

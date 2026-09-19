@@ -7,6 +7,7 @@ them across modules via a SectionRegistry.
 """
 import logging
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from anytree import Node, PreOrderIter
@@ -106,7 +107,7 @@ class ModuleSpecBuilder:
 
         """
         if json_file_name is None:
-            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
+            json_file_name = str(Path(cache_file_name).with_suffix(self.module_factory.model_store.file_extension))
         dom = self.module_factory.load_document(
             url=url,
             cache_file_name=cache_file_name,

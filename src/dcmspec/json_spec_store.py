@@ -23,6 +23,8 @@ class JSONSpecStore(SpecStore):
     Inherits logging from SpecStore.
     """
 
+    file_extension = ".json"
+
     def load(self, path: str) -> SpecModel:
         """Load a specification model from a JSON file.
 
