@@ -11,6 +11,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
   ([#131](https://github.com/dwikler/dcmspec/issues/131)).
 - `SpecStore.file_extension` reports a store's cache file extension
   ([#137](https://github.com/dwikler/dcmspec/issues/137)).
+- The [API Overview](api/index.md) page documents the architecture of the library and
+  the SpecFactory pipeline; the API Reference nav is reorganized into consistent
+  functional categories ([#139](https://github.com/dwikler/dcmspec/issues/139)).
 
 ### Changed
 
