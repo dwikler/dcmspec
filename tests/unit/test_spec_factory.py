@@ -52,6 +52,8 @@ class NoCacheFileNameInputHandler(DummyInputHandler):
 class DummyTableParser:
     """A dummy table parser that simulates parsing a DOM into metadata and content nodes."""
 
+    parser_kwargs_defaults = {}
+
     def __init__(self):
         """Initialize the dummy table parser."""
         self.called = False
@@ -72,6 +74,11 @@ class DummyTableParser:
         metadata.column_to_attr = column_to_attr or {}
         content = Node("content")
         return metadata, content
+
+class DummyTableParserWithDefaults(DummyTableParser):
+    """A dummy table parser that declares a non-empty default for one of its parse() kwargs."""
+
+    parser_kwargs_defaults = {"unformatted": True}
 
 class DummyModelStore:
     """A dummy model store that simulates loading and saving SpecModel objects."""
@@ -217,7 +224,7 @@ def test_build_model_loads_from_cache(monkeypatch, patch_dirs):
     ms = DummyModelStore()
     ih = DummyInputHandler()
     ms.load_should_fail = False
-    factory = SpecFactory(model_store=ms, input_handler=ih)
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=DummyTableParser())
     monkeypatch.setattr("os.path.exists", lambda path: True)
     dom = "DOM"
     model = factory.build_model(
@@ -275,6 +282,31 @@ def test_build_model_parser_kwargs_match_uses_cache(monkeypatch):
         url="http://example.com",
         json_file_name="file.json",
         parser_kwargs={"ref_columns": [1, 2]},
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
+
+def test_build_model_matches_cache_when_explicit_value_equals_parser_default(monkeypatch):
+    """Test build_model uses the cache when an explicit value equals the parser's default."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParserWithDefaults()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_without_explicit_unformatted(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.parser_kwargs = {"unformatted": True}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_explicit_unformatted)
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        parser_kwargs={"unformatted": True},
     )
     assert isinstance(model, SpecModel)
     assert not tp.called

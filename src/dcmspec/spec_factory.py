@@ -243,7 +243,7 @@ class SpecFactory:
             
         """
         # Try to load from cache first
-        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        merged_parser_kwargs = self._merge_parser_kwargs(parser_kwargs)
         model = self.try_load_cache(
             json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs
         )
@@ -355,7 +355,7 @@ class SpecFactory:
             if cache_file_name is None:
                 raise ValueError("cache_file_name or json_file_name must be set")
             json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
-        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        merged_parser_kwargs = self._merge_parser_kwargs(parser_kwargs)
         model = self.try_load_cache(
             json_file_name,
             include_depth,
@@ -410,6 +410,14 @@ class SpecFactory:
             parser_kwargs=parser_kwargs,
         )
 
+
+    def _merge_parser_kwargs(self, parser_kwargs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Merge all specific options of the factory's parser: defaults, factory-level, call-level."""
+        return {
+            **self.table_parser.parser_kwargs_defaults,
+            **self.parser_kwargs,
+            **(parser_kwargs or {}),
+        }
 
     @staticmethod
     def _normalize_parser_kwargs(parser_kwargs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
