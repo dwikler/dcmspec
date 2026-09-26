@@ -42,6 +42,10 @@ These release notes summarize key changes, improvements, and breaking updates fo
   ([#137](https://github.com/dwikler/dcmspec/issues/137)).
 - `SpecFactory` no longer reparses when a `parser_kwargs` option was omitted and the default
   value is used ([#142](https://github.com/dwikler/dcmspec/issues/142)).
+- `SpecFactory` now checks `column_to_attr` and `name_attr` against a cache hit, along with
+  the existing `include_depth` and `parser_kwargs` checks; a cache built with different
+  values is rebuilt instead of silently reused
+  ([#146](https://github.com/dwikler/dcmspec/issues/146)).
 
 ## [0.4.0] - 2026-09-11
 

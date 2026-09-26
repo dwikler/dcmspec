@@ -420,8 +420,8 @@ class SpecFactory:
         }
 
     @staticmethod
-    def _normalize_parser_kwargs(parser_kwargs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-        """Sort list values and convert dict keys to strings in parser_kwargs."""
+    def _normalize_parser_options(parser_options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Sort list values and convert dict keys to strings in parser options."""
         def normalize(value: Any) -> Any:
             if isinstance(value, list):
                 return sorted(value)
@@ -429,7 +429,7 @@ class SpecFactory:
                 return {str(k): normalize(v) for k, v in sorted(value.items(), key=lambda item: str(item[0]))}
             return value
 
-        return {key: normalize(value) for key, value in sorted((parser_kwargs or {}).items())}
+        return {key: normalize(value) for key, value in sorted((parser_options or {}).items())}
 
     def _load_model_from_cache(
         self,
@@ -438,37 +438,36 @@ class SpecFactory:
         model_kwargs: Optional[Dict[str, Any]],
         parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
-        """Load model from cache file if include depth and parser_kwargs are valid."""
+        """Load model from cache file if the options it was built with match the requested ones."""
         try:
             # Load the model from cache
             model = self.model_store.load(json_file_path)
             self.logger.info(f"Loaded model from cache {json_file_path}")
 
-            # Do not use cache if include_depth does not match the cached model's metadata
-            cached_depth = getattr(model.metadata, "include_depth", None)
-            if (
-                (include_depth is not None and cached_depth is not None and int(cached_depth) != int(include_depth))
-                or (include_depth is None and cached_depth is not None)
-                or (include_depth is not None and cached_depth is None)
-            ):
-                self.logger.info(
-                    (
-                        f"Cached model include_depth ({cached_depth}) "
-                        f"does not match requested ({include_depth}), reparsing."
-                    )
+            # Do not use cache if the options it was built with do not match the requested ones
+            metadata = model.metadata
+            cached_depth = getattr(metadata, "include_depth", None)
+            cached_options = {
+                "include_depth": None if cached_depth is None else int(cached_depth),
+                "column_to_attr": getattr(metadata, "requested_column_to_attr", None),
+                "name_attr": getattr(metadata, "name_attr", None),
+                "parser_kwargs": getattr(metadata, "parser_kwargs", None) or {},
+            }
+            requested_options = {
+                "include_depth": None if include_depth is None else int(include_depth),
+                "column_to_attr": self.column_to_attr,
+                "name_attr": self.name_attr,
+                "parser_kwargs": parser_kwargs or {},
+            }
+            cached_options = self._normalize_parser_options(cached_options)
+            requested_options = self._normalize_parser_options(requested_options)
+            mismatched = [name for name in requested_options if cached_options[name] != requested_options[name]]
+            if mismatched:
+                details = ", ".join(
+                    f"{name}: cached {cached_options[name]}, requested {requested_options[name]}"
+                    for name in mismatched
                 )
-                return None
-
-            # Do not use cache if parser_kwargs does not match the cached model's metadata
-            cached_parser_kwargs = self._normalize_parser_kwargs(getattr(model.metadata, "parser_kwargs", None))
-            requested_parser_kwargs = self._normalize_parser_kwargs(parser_kwargs)
-            if cached_parser_kwargs != requested_parser_kwargs:
-                self.logger.info(
-                    (
-                        f"Cached model parser_kwargs ({cached_parser_kwargs}) "
-                        f"does not match requested ({requested_parser_kwargs}), reparsing."
-                    )
-                )
+                self.logger.info(f"Cached model options do not match requested ({details}), reparsing.")
                 return None
 
             # Return the cached model, reconstructing it to the required subclass if necessary
@@ -510,6 +509,8 @@ class SpecFactory:
 
         # Add args values to model metadata
         metadata.url = url
+        metadata.requested_column_to_attr = self.column_to_attr
+        metadata.name_attr = self.name_attr
         metadata.parser_kwargs = parser_kwargs or {}
 
         # Build the model from parsed content and metadata
