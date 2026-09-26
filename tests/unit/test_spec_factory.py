@@ -373,7 +373,12 @@ def test_build_model_column_to_attr_matches_across_json_round_trip(monkeypatch):
     def load_with_string_keys(path):
         from anytree import Node
         metadata = Node("metadata")
-        metadata.requested_column_to_attr = {"0": "elem_name", "1": "elem_tag", "2": "elem_type", "3": "elem_description"}
+        metadata.requested_column_to_attr = {
+            "0": "elem_name",
+            "1": "elem_tag",
+            "2": "elem_type",
+            "3": "elem_description",
+        }
         metadata.name_attr = "elem_name"
         return SpecModel(metadata=metadata, content=Node("content"))
 
