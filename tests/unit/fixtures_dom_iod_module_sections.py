@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 def iod_with_module_and_section_dom():
     """Return a DOM with an IOD modules table referencing a module, whose attribute references a section.
 
+    sect_C.1 is nested under sect_C.MODULE, titled "... Module" as DICOM Part 3 titles a
+    module's own section. sect_C.1 is an attribute description of that module.
+
     table_IOD's "Reference" cell is plain text "C.MODULE" (no anchor), matching how
     IODSpecBuilder._get_section_id_from_ref resolves it by default (unformatted=True strips
     the link, so the fallback plain-text branch is used) -- this is also how the real
@@ -83,14 +86,14 @@ def iod_with_module_and_section_dom():
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="section">
-                <div class="titlepage">
-                    <div><div>
-                        <h6 class="title"><a id="sect_C.1" shape="rect"></a>C.1 First Section</h6>
-                    </div></div>
+                <div class="section">
+                    <div class="titlepage">
+                        <div><div>
+                            <h6 class="title"><a id="sect_C.1" shape="rect"></a>C.1 First Section</h6>
+                        </div></div>
+                    </div>
+                    <p><a id="para_1" shape="rect"></a>Explanatory text for the Frame Label attribute.</p>
                 </div>
-                <p><a id="para_1" shape="rect"></a>Explanatory text for the Frame Label attribute.</p>
             </div>
         </body>
     </html>

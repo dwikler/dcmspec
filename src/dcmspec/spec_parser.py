@@ -7,7 +7,7 @@ import unicodedata
 from abc import ABC, abstractmethod
 from anytree import Node
 from bs4 import BeautifulSoup
-from typing import Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 import logging
 
 
@@ -16,6 +16,13 @@ class SpecParser(ABC):
 
     Handles DICOM specifications in various in-memory formats (e.g., DOM for XHTML/XML, CSV).
     Subclasses must implement the `parse` method to parse the specification content and build a structured model.
+    """
+
+    parser_kwargs_defaults: Dict[str, Any] = {}
+    """Default values of the parser-specific options.
+
+    Parsers with parser-specific options must override this with their defaults.
+    Used to check that a cached model was built with the same options as requested.
     """
 
     def __init__(self, logger: Optional[logging.Logger] = None):
@@ -32,6 +39,10 @@ class SpecParser(ABC):
     @abstractmethod
     def parse(self, *args, **kwargs) -> Tuple[Node, Node]:
         """Parse the DICOM specification and return metadata and attribute tree nodes.
+
+        Args:
+            *args: The arguments common to all parsers, including at least the document object to parse.
+            **kwargs: The parser-specific options.
 
         Returns:
             Tuple[Node, Node]: The metadata node and the content node.

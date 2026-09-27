@@ -2,6 +2,52 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.1] - 2026-09-27
+
+### Added
+
+- `ModuleSpecBuilder.resolve_section` resolves a single section by id, for callers that
+  built a module model without resolving its referenced attribute descriptions
+  ([#131](https://github.com/dwikler/dcmspec/issues/131)).
+- The [API Overview](https://dwikler.github.io/dcmspec/api/) page documents the
+  architecture of the library and the SpecFactory pipeline; the API Reference nav is
+  reorganized into consistent functional categories
+  ([#139](https://github.com/dwikler/dcmspec/issues/139)).
+
+### Changed
+
+- **Breaking change:** `SpecFactory.try_load_cache`'s `ref_columns` parameter is replaced
+  by a generic `parser_kwargs` dict ([#124](https://github.com/dwikler/dcmspec/issues/124)).
+- **Breaking change:** `SpecStore` gains a new abstract `file_extension` property, reporting
+  a store's cache file extension; custom subclasses must implement it
+  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
+
+### Fixed
+
+- `ModuleSpecBuilder` no longer resolves a "See Section X" reference that isn't an
+  attribute description of a module or macro; such references are now skipped
+  ([#132](https://github.com/dwikler/dcmspec/issues/132)).
+- A resolved section's cached model is now updated with its resolved image paths ([#131](https://github.com/dwikler/dcmspec/issues/131)).
+- `SpecFactory.build_model`'s docstring now notes `doc_object` is ignored when a cached
+  model is already found, and `try_load_cache` documents how to check for one without a
+  parsed document ([#133](https://github.com/dwikler/dcmspec/issues/133)).
+- `SpecFactory` now checks all `parser_kwargs` (e.g. `skip_columns`, `unformatted`) against
+  a cache hit, not just `ref_columns`; a cache built with different values is now rebuilt
+  instead of silently reused ([#124](https://github.com/dwikler/dcmspec/issues/124)).
+- `SpecFactory.create_model` and `ModuleSpecBuilder.build_from_url` no longer rely on
+  `input_handler.cache_file_name` being set for cache lookup, fixing a mix-up
+  risk when reusing one factory/builder for multiple calls with different
+  `cache_file_name` values ([#138](https://github.com/dwikler/dcmspec/issues/138)).
+- `SpecFactory` and `ModuleSpecBuilder` no longer hardcode `.json` when deriving a default
+  cache filename; they now use the configured `model_store`'s file extension
+  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
+- `SpecFactory` no longer reparses when a `parser_kwargs` option was omitted and the default
+  value is used ([#142](https://github.com/dwikler/dcmspec/issues/142)).
+- `SpecFactory` now checks `column_to_attr` and `name_attr` against a cache hit, along with
+  the existing `include_depth` and `parser_kwargs` checks; a cache built with different
+  values is rebuilt instead of silently reused
+  ([#146](https://github.com/dwikler/dcmspec/issues/146)).
+
 ## [0.4.0] - 2026-09-11
 
 ### Added

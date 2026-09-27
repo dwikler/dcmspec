@@ -6,6 +6,7 @@ from dcmspec.spec_factory import SpecFactory
 # Import fixtures and disable ruff checks as fixtures import triggers false positive warnings
 from .fixtures_dom_module_sections import (
     module_with_sections_dom,  # noqa: F401
+    module_referencing_module_definition_section_dom,  # noqa: F401
 )
 
 COLUMN_TO_ATTR = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_desc"}
@@ -144,6 +145,64 @@ def test_build_from_dom_force_download_forces_module_reparse(module_with_section
     assert seen_force_parse == [True]
 
 
+def test_build_from_dom_skips_module_definition_section(
+    module_referencing_module_definition_section_dom, caplog  # noqa: F811
+):
+    """Test that a reference to another module's own definition section is skipped, not resolved."""
+    builder = make_builder()
+    with caplog.at_level("INFO"):
+        _, section_models = builder.build_from_dom(
+            module_referencing_module_definition_section_dom, table_id="table_MODULE",
+            url="https://example.org/part03.html", json_file_name="table_MODULE.json"
+        )
+    assert section_models == {}
+    assert "Skipping section 'sect_C.OTHER_MODULE'" in caplog.text
+
+
+def test_resolve_section_resolves_a_single_section_standalone(module_with_sections_dom):  # noqa: F811
+    """Test that resolve_section resolves one known section id on its own, without a module build."""
+    builder = make_builder()
+    section_model = builder.resolve_section(
+        "sect_C.1", module_with_sections_dom, url="https://example.org/part03.html"
+    )
+    assert section_model.metadata.title == "C.1 First Section"
+    assert section_model.metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
+def test_resolve_section_persists_image_paths_to_cache(module_with_sections_dom):  # noqa: F811
+    """Test that a resolved section's cached JSON is re-saved with its resolved image_paths."""
+    builder = make_builder()
+    builder.resolve_section("sect_C.1", module_with_sections_dom, url="https://example.org/part03.html")
+
+    import os
+    json_file_path = os.path.join(
+        builder.section_factory.config.get_param("cache_dir"), "model", "sections/sect_C.1.json"
+    )
+    cached_model = builder.section_factory.model_store.load(json_file_path)
+    assert cached_model.metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
+def test_build_from_dom_reuses_cached_resolved_images_on_a_later_build(module_with_sections_dom):  # noqa: F811
+    """Test that a section already resolved and cached does not have its images re-resolved."""
+    doc_handler = FakeDocHandler()
+    builder = make_builder(doc_handler=doc_handler)
+
+    builder.build_from_dom(
+        module_with_sections_dom, table_id="table_MODULE", url="https://example.org/part03.html",
+        json_file_name="table_MODULE.json"
+    )
+    assert len(doc_handler.calls) == 1
+
+    # A second, independent builder reusing the same cache dir does not re-resolve images
+    other_builder = make_builder(doc_handler=doc_handler)
+    _, section_models = other_builder.build_from_dom(
+        module_with_sections_dom, table_id="table_MODULE", url="https://example.org/part03.html",
+        json_file_name="table_MODULE.json"
+    )
+    assert len(doc_handler.calls) == 1
+    assert section_models["sect_C.1"].metadata.image_paths == ["figures/PS3.3_C.1-1.svg"]
+
+
 def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa: F811
     """Test that a ModuleSpecBuilder with no ref_columns configured resolves no sections at all."""
     module_factory = SpecFactory(column_to_attr=COLUMN_TO_ATTR, name_attr="elem_name")
@@ -153,3 +212,34 @@ def test_no_ref_columns_resolves_no_sections(module_with_sections_dom):  # noqa:
         json_file_name="table_MODULE.json"
     )
     assert section_models == {}
+
+
+def test_build_from_url_derives_json_file_name_without_handler_side_effect(
+    module_with_sections_dom  # noqa: F811
+):
+    """Test build_from_url derives json_file_name from cache_file_name without needing input_handler.cache_file_name."""
+    class MinimalInputHandler:
+        """A DocHandler whose load_document does not record cache_file_name, per its documented contract."""
+
+        def load_document(self, cache_file_name, url=None, force_download=False, progress_observer=None, **kwargs):
+            """Return the fixture DOM without setting any attribute on self."""
+            return module_with_sections_dom
+
+    module_factory = SpecFactory(
+        column_to_attr=COLUMN_TO_ATTR, name_attr="elem_name", input_handler=MinimalInputHandler()
+    )
+    builder = ModuleSpecBuilder(module_factory=module_factory, ref_columns=[3], doc_handler=FakeDocHandler())
+
+    module_model, _ = builder.build_from_url(
+        url="https://example.org/part03.html",
+        cache_file_name="table_MODULE.xhtml",
+        table_id="table_MODULE",
+    )
+    assert module_model is not None
+    assert not hasattr(module_factory.input_handler, "cache_file_name")
+
+    import os
+    json_file_path = os.path.join(
+        module_factory.config.get_param("cache_dir"), "model", "table_MODULE.json"
+    )
+    assert os.path.exists(json_file_path)

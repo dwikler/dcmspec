@@ -29,6 +29,8 @@ class DOMSectionSpecParser(SpecParser):
     to resolve them or not.
     """
 
+    _MODULE_OR_MACRO_TITLE_SUFFIXES = ("Module", "Module (Retired)", "Macro", "Macro (Retired)")
+
     def __init__(self, logger: Optional[Any] = None):
         """Initialize the DOMSectionSpecParser.
 
@@ -126,6 +128,40 @@ class DOMSectionSpecParser(SpecParser):
         children = self._resolved_content_children(section_div)
         html = self._clean_extracted_text("".join(str(child) for child in children))
         return Node("content", html=html)
+
+    def is_attribute_description(self, dom: BeautifulSoup, section_id: str) -> bool:
+        """Determine whether a section is an attribute description under a module or macro table.
+
+        A "See Section X" reference can point at any section -- another module's or macro's own
+        definition (e.g. "SOP Common Module"), an unrelated section elsewhere in this part of the
+        standard, or even a section in a different part entirely -- not only at an attribute
+        description. This method checks that the section is under a module or a macro section.
+
+        Args:
+            dom (BeautifulSoup): The parsed XHTML DOM object.
+            section_id (str): The id of the section to check, e.g. "sect_C.7.6.1.1.1".
+
+        Returns:
+            bool: True if some ancestor section is itself titled as a module or macro, or if
+                section_id is not found.
+
+        """
+        section_div = self.dom_utils.get_section(dom, section_id)
+        if not section_div:
+            return True
+        ancestor = section_div.find_parent("div", class_="section")
+        while ancestor is not None:
+            title = self._section_title_text(ancestor)
+            if title and title.endswith(self._MODULE_OR_MACRO_TITLE_SUFFIXES):
+                return True
+            ancestor = ancestor.find_parent("div", class_="section")
+        return False
+
+    def _section_title_text(self, section_div: Tag) -> Optional[str]:
+        """Return a section div's own heading text, e.g. "C.7.6.1 General Image Module"."""
+        titlepage = next((child for child in section_div.find_all(recursive=False) if self._is_titlepage(child)), None)
+        heading = titlepage.find(["h1", "h2", "h3", "h4", "h5", "h6"]) if titlepage else None
+        return heading.get_text(strip=True) if heading else None
 
     def _own_content_children(self, section_div: Tag) -> List[Tag]:
         """Return section_div's direct children, excluding its heading and nested subsections."""

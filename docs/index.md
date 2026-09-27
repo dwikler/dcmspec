@@ -9,7 +9,9 @@
 
 ## Getting Started
 
-For setup instructions, refer to the [Installation](installation.md) page. Information about configuration options and caching behavior can be found in the [Configuration & Caching](configuration.md) page.
+- See the [API Overview](api/index.md) page for an overview of how the library's classes work together.
+- For setup instructions, refer to the [Installation](installation.md) page.
+- Information about configuration options and caching behavior can be found in the [Configuration & Caching](configuration.md) page.
 
 ## Further Information
 

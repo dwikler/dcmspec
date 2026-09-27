@@ -100,3 +100,8 @@ def test_load_converts_column_to_attr_keys_to_int(tmp_path):
     assert all(isinstance(k, int) for k in loaded_model.metadata.column_to_attr.keys())
     assert loaded_model.metadata.column_to_attr[0] == "elem_name"
     assert loaded_model.metadata.column_to_attr[1] == "elem_tag"
+
+def test_file_extension():
+    """Test that JSONSpecStore reports its cache file extension."""
+    assert JSONSpecStore.file_extension == ".json"
+    assert JSONSpecStore().file_extension == ".json"

@@ -103,10 +103,10 @@ Tests live under the top-level `tests/` directory, **not** under `src/dcmspec/te
   the bulk of the suite and runs on every push/PR. `tests/unit/conftest.py` provides an autouse fixture that
   redirects `platformdirs` cache/config dirs into a per-test tmp path, plus shared `SpecModel`/merge fixtures and
   a `DummyResponse` for mocking `requests`.
-- `tests/integration/` — reserved for tests that wire multiple real `dcmspec` classes together (e.g. a real
-  `SpecFactory` + `DocHandler` + parser cooperating end to end) with `requests` still mocked. Currently empty —
-  no existing test does this yet (every current test fakes its collaborators), so this is a placeholder
-  convention for when one is written, not an active suite.
+- `tests/integration/` — tests that wire multiple real `dcmspec` classes together, with no network access.
+  `test_spec_factory_cache.py` runs a real `SpecFactory`, `XHTMLDocHandler`, `DOMTableSpecParser` and
+  `JSONSpecStore` on a small local XHTML table placed in the document cache, to check when a cached model is
+  reused or rebuilt.
 - `tests/e2e/` — a small canary suite that performs real network requests against the live, current DICOM
   standard site, one representative table per distinct pipeline path (Part 3 IOD+modules, Part 6 data
   dictionary, Part 4 UPS DIMSE attributes, a Part 3/Part 6 merge). Assertions are structural only (non-empty,

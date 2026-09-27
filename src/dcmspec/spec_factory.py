@@ -5,6 +5,7 @@ of DICOM specification tables from standard sources, producing structured SpecMo
 """
 import logging
 import os
+from pathlib import Path
 from typing import Any, Optional, Dict, Type
 # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
 from dcmspec.progress import Progress, ProgressStatus, add_progress_step, handle_legacy_callback, offset_progress_steps
@@ -141,17 +142,42 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         force_parse: bool = False,
-        ref_columns: Optional[list] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
-        """Check for and load a model from cache if available and not force_parse."""
+        """Return the cached model for json_file_name, if one exists and is still valid.
+
+        Allows a caller to check whether a model is already cached before deciding to call
+        load_document. Requires a json_file_name value, or input_handler.cache_file_name
+        to already be set.
+
+        Args:
+            json_file_name (Optional[str]): Filename of the cached model. If None,
+                derived from input_handler.cache_file_name, using model_store's file extension
+                (not always `.json`).
+            include_depth (Optional[int]): Requested include depth; a cached model built
+                with a different value is treated as a miss.
+            model_kwargs (Optional[Dict[str, Any]]): Extra keyword arguments used when
+                reconstructing the cached model into self.model_class.
+            force_parse (bool): If True, always treat this as a cache miss.
+            parser_kwargs (Optional[Dict[str, Any]]): Requested parser_kwargs (e.g.
+                ref_columns, skip_columns, unformatted); a cached model built with
+                different values is treated as a miss.
+
+        Returns:
+            Optional[SpecModel]: The cached model, or None if no valid cache exists.
+
+        Raises:
+            ValueError: If json_file_name is None and input_handler.cache_file_name is not set.
+
+        """
         if json_file_name is None:
             cache_file_name = getattr(self.input_handler, "cache_file_name", None)
             if cache_file_name is None:
                 raise ValueError("input_handler.cache_file_name not set")
-            json_file_name = f"{os.path.splitext(cache_file_name)[0]}.json"
+            json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_parse:
-            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, ref_columns)
+            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, parser_kwargs)
             if model is not None:
                 return model
         return None
@@ -168,18 +194,19 @@ class SpecFactory:
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
-        """Build and cache a DICOM specification model from a parsed document object.
+        """Build and cache a DICOM specification model from a parsed document object, if needed.
 
         Args:
-            doc_object (Any): The parsed document object to be parsed into a model.
+            doc_object (Any): The parsed document object to be parsed into a model, ignored
+                if a cached model is found.
                 - For XHTML: a BeautifulSoup DOM object.
                 - For PDF: a grouped table dict (from PDFDocHandler).
                 - For other formats: as defined by the handler/parser.
             table_id (Optional[str]): Table identifier for model parsing.
             url (Optional[str]): The URL the document was fetched from (for metadata).
-            json_file_name (Optional[str]): Filename to save the cached JSON model.
+            json_file_name (Optional[str]): Filename to save the cached model.
             include_depth (Optional[int]): The depth to which included tables should be parsed.
-            force_parse (bool): If True, always parse and (over)write the JSON cache file.
+            force_parse (bool): If True, always parse and (over)write the cache file.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
                 See the Note below for details on the progress events and their properties.
             model_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments for model construction.
@@ -190,8 +217,9 @@ class SpecFactory:
                 `parse` method. Use this to supply parser-specific options such as `skip_columns`.
 
         If `json_file_name` is not provided, the factory will attempt to use
-        `self.input_handler.cache_file_name` to generate a default JSON file name.
-        If neither is set, a ValueError is raised.
+        `self.input_handler.cache_file_name` to generate a default cache file name,
+        using model_store's file extension (not always `.json`). If neither is set,
+        a ValueError is raised.
 
         Returns:
             SpecModel: The constructed model.
@@ -215,9 +243,9 @@ class SpecFactory:
             
         """
         # Try to load from cache first
-        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        merged_parser_kwargs = self._merge_parser_kwargs(parser_kwargs)
         model = self.try_load_cache(
-            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs.get("ref_columns")
+            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs
         )
         if model is not None:
             return model
@@ -281,10 +309,12 @@ class SpecFactory:
             url (str): The URL to download the input file from.
             cache_file_name (str): Filename of the cached input file.
             table_id (Optional[str]): Table identifier for model parsing.
-            force_parse (bool): If True, always parse the DOM and generate the JSON model, even if cached.
+            force_parse (bool): If True, always parse the DOM and generate the model, even if cached.
             force_download (bool): If True, always download the input file and generate the model even if cached.
                 Note: force_download also implies force_parse.
-            json_file_name (Optional[str]): Filename to save the cached JSON model.
+            json_file_name (Optional[str]): Filename to save the cached model. If None,
+                derived from cache_file_name, using model_store's file extension
+                (not always `.json`).
             include_depth (Optional[int]): The depth to which included tables should be parsed.
             progress_observer (Optional[ProgressObserver]): Optional observer to report download progress.
                 See the Note below for details on the progress events and their properties.
@@ -320,17 +350,18 @@ class SpecFactory:
         # BEGIN LEGACY SUPPORT: Remove for int progress callback deprecation
         progress_observer = handle_legacy_callback(progress_observer, progress_callback)
         # END LEGACY SUPPORT
-        # Set cache_file_name on the handler before checking cache
-        self.input_handler.cache_file_name = cache_file_name
-
         # Try to load from cache before loading document object
-        merged_parser_kwargs = {**self.parser_kwargs, **(parser_kwargs or {})}
+        if json_file_name is None:
+            if cache_file_name is None:
+                raise ValueError("cache_file_name or json_file_name must be set")
+            json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
+        merged_parser_kwargs = self._merge_parser_kwargs(parser_kwargs)
         model = self.try_load_cache(
             json_file_name,
             include_depth,
             model_kwargs,
             force_parse or force_download,
-            merged_parser_kwargs.get("ref_columns"),
+            merged_parser_kwargs,
         )
         if model is not None:
             return model
@@ -380,44 +411,63 @@ class SpecFactory:
         )
 
 
+    def _merge_parser_kwargs(self, parser_kwargs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Merge all specific options of the factory's parser: defaults, factory-level, call-level."""
+        return {
+            **self.table_parser.parser_kwargs_defaults,
+            **self.parser_kwargs,
+            **(parser_kwargs or {}),
+        }
+
+    @staticmethod
+    def _normalize_parser_options(parser_options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Sort list values and convert dict keys to strings in parser options."""
+        def normalize(value: Any) -> Any:
+            if isinstance(value, list):
+                return sorted(value)
+            if isinstance(value, dict):
+                return {str(k): normalize(v) for k, v in sorted(value.items(), key=lambda item: str(item[0]))}
+            return value
+
+        return {key: normalize(value) for key, value in sorted((parser_options or {}).items())}
+
     def _load_model_from_cache(
         self,
         json_file_path: str,
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
-        ref_columns: Optional[list] = None,
+        parser_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
-        """Load model from cache file if include depth and ref columns are valid."""
+        """Load model from cache file if the options it was built with match the requested ones."""
         try:
             # Load the model from cache
             model = self.model_store.load(json_file_path)
             self.logger.info(f"Loaded model from cache {json_file_path}")
 
-            # Do not use cache if include_depth does not match the cached model's metadata
-            cached_depth = getattr(model.metadata, "include_depth", None)
-            if (
-                (include_depth is not None and cached_depth is not None and int(cached_depth) != int(include_depth))
-                or (include_depth is None and cached_depth is not None)
-                or (include_depth is not None and cached_depth is None)
-            ):
-                self.logger.info(
-                    (
-                        f"Cached model include_depth ({cached_depth}) "
-                        f"does not match requested ({include_depth}), reparsing."
-                    )
+            # Do not use cache if the options it was built with do not match the requested ones
+            metadata = model.metadata
+            cached_depth = getattr(metadata, "include_depth", None)
+            cached_options = {
+                "include_depth": None if cached_depth is None else int(cached_depth),
+                "column_to_attr": getattr(metadata, "requested_column_to_attr", None),
+                "name_attr": getattr(metadata, "name_attr", None),
+                "parser_kwargs": getattr(metadata, "parser_kwargs", None) or {},
+            }
+            requested_options = {
+                "include_depth": None if include_depth is None else int(include_depth),
+                "column_to_attr": self.column_to_attr,
+                "name_attr": self.name_attr,
+                "parser_kwargs": parser_kwargs or {},
+            }
+            cached_options = self._normalize_parser_options(cached_options)
+            requested_options = self._normalize_parser_options(requested_options)
+            mismatched = [name for name in requested_options if cached_options[name] != requested_options[name]]
+            if mismatched:
+                details = ", ".join(
+                    f"{name}: cached {cached_options[name]}, requested {requested_options[name]}"
+                    for name in mismatched
                 )
-                return None
-
-            # Do not use cache if ref_columns does not match the cached model's metadata
-            cached_ref_columns = getattr(model.metadata, "ref_columns", None)
-            requested_ref_columns = sorted(ref_columns) if ref_columns else None
-            if cached_ref_columns != requested_ref_columns:
-                self.logger.info(
-                    (
-                        f"Cached model ref_columns ({cached_ref_columns}) "
-                        f"does not match requested ({requested_ref_columns}), reparsing."
-                    )
-                )
+                self.logger.info(f"Cached model options do not match requested ({details}), reparsing.")
                 return None
 
             # Return the cached model, reconstructing it to the required subclass if necessary
@@ -459,6 +509,9 @@ class SpecFactory:
 
         # Add args values to model metadata
         metadata.url = url
+        metadata.requested_column_to_attr = self.column_to_attr
+        metadata.name_attr = self.name_attr
+        metadata.parser_kwargs = parser_kwargs or {}
 
         # Build the model from parsed content and metadata
         model = self.model_class(

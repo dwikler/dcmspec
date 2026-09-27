@@ -48,3 +48,9 @@ class SpecStore(ABC):
 
         """
         pass
+
+    @property
+    @abstractmethod
+    def file_extension(self) -> str:
+        """Return this store's file extension, including the leading dot (e.g. '.json')."""
+        pass

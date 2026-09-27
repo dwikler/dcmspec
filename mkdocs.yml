@@ -8,6 +8,45 @@ nav:
   - Installation: installation.md
   - Release Notes: changelog.md
   - Configuration & Caching: configuration.md
+  - API Reference:
+      - API Overview: api/index.md
+      - Document Handlers:
+          - DocHandler: api/doc_handler.md
+          - XHTMLDocHandler: api/xhtml_doc_handler.md
+          - UPSXHTMLDocHandler: api/ups_xhtml_doc_handler.md
+          - PDFDocHandler: api/pdf_doc_handler.md
+          - SectionImageResolver: api/section_image_resolver.md
+      - Parsers:
+          - SpecParser: api/spec_parser.md
+          - DOMTableSpecParser: api/dom_table_spec_parser.md
+          - DOMSectionSpecParser: api/dom_section_spec_parser.md
+          - CSVTableSpecParser: api/csv_table_spec_parser.md
+      - Storers:
+          - SpecStore: api/spec_store.md
+          - JSONSpecStore: api/json_spec_store.md
+      - Models:
+          - SpecModel: api/spec_model.md
+          - ServiceAttributeModel: api/service_attribute_model.md
+      - Factories:
+          - SpecFactory: api/spec_factory.md
+      - Builders:
+          - IODSpecBuilder: api/iod_spec_builder.md
+          - ModuleSpecBuilder: api/module_spec_builder.md
+      - Registries:
+          - ModuleRegistry: api/module_registry.md
+          - SectionRegistry: api/section_registry.md
+      - Mergers:
+          - SpecMerger: api/spec_merger.md
+      - Printers:
+          - SpecPrinter: api/spec_printer.md
+          - IODSpecPrinter: api/iod_spec_printer.md
+      - Utilities:
+          - DOMUtils: api/dom_utils.md
+          - Progress: api/progress.md
+      - Configuration:
+          - Config: api/config.md
+          - Service Attribute Defaults: api/service_attribute_defaults.md
+
   - CLI Applications:
       - CLI Apps Overview: apps/cli/index.md
       - modattributes: apps/cli/modattributes.md
@@ -22,41 +61,6 @@ nav:
   - UI Applications:
       - UI Apps Overview: apps/ui/index.md
       - IOD Explorer: apps/ui/iod-explorer.md
-
-  - API Reference:
-      - API Overview: api/index.md
-      - Constants Modules:
-          - Service Attribute Defaults: api/service_attribute_defaults.md
-      - Core Classes:
-          - SpecModel: api/spec_model.md
-          - SpecMerger: api/spec_merger.md
-          - ServiceAttributeModel: api/service_attribute_model.md
-          - SpecFactory: api/spec_factory.md
-          - IODSpecBuilder: api/iod_spec_builder.md
-          - ModuleSpecBuilder: api/module_spec_builder.md
-          - ModuleRegistry: api/module_registry.md
-          - SectionRegistry: api/section_registry.md
-          - SectionImageResolver: api/section_image_resolver.md
-      - Parse Classes:
-          - SpecParser: api/spec_parser.md
-          - DOMTableSpecParser: api/dom_table_spec_parser.md
-          - DOMSectionSpecParser: api/dom_section_spec_parser.md
-          - CSVTableSpecParser: api/csv_table_spec_parser.md
-      - Load Classes:
-          - DocHandler: api/doc_handler.md
-          - XHTMLDocHandler: api/xhtml_doc_handler.md
-          - UPSXHTMLDocHandler: api/ups_xhtml_doc_handler.md
-          - PDFDocHandler: api/pdf_doc_handler.md
-      - Store Classes:
-          - SpecStore: api/spec_store.md
-          - JSONSpecStore: api/json_spec_store.md
-      - Print Classes:
-          - SpecPrinter: api/spec_printer.md
-          - IODSpecPrinter: api/iod_spec_printer.md
-      - Utils Classes:
-          - Config: api/config.md
-          - DOMUtils: api/dom_utils.md
-          - Progress: api/progress.md
 
 plugins:
   - search
@@ -92,7 +96,11 @@ theme:
 
 markdown_extensions:
   - pymdownx.highlight
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - def_list
   - pymdownx.snippets
 

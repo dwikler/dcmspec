@@ -25,6 +25,12 @@ class DOMTableSpecParser(SpecParser):
     Inherits logging from SpecParser.
     """
 
+    parser_kwargs_defaults: Dict[str, Any] = {
+        "skip_columns": None,
+        "unformatted": True,
+        "ref_columns": None,
+    }
+
     def __init__(self, logger: Optional[Any] = None):
         """Initialize the DOMTableSpecParser.
 
@@ -46,9 +52,9 @@ class DOMTableSpecParser(SpecParser):
         name_attr: str,
         include_depth: Optional[int] = None,  # None means unlimited
         progress_observer: Optional[ProgressObserver] = None,
-        skip_columns: Optional[list[int]] = None,
-        unformatted: Optional[Union[bool, Dict[int, bool]]] = True,
-        ref_columns: Optional[list[int]] = None,
+        skip_columns: Optional[list[int]] = parser_kwargs_defaults["skip_columns"],
+        unformatted: Optional[Union[bool, Dict[int, bool]]] = parser_kwargs_defaults["unformatted"],
+        ref_columns: Optional[list[int]] = parser_kwargs_defaults["ref_columns"],
     ) -> tuple[Node, Node]:
         """Parse specification metadata and content from tables in the DOM.
 

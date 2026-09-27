@@ -52,6 +52,8 @@ class NoCacheFileNameInputHandler(DummyInputHandler):
 class DummyTableParser:
     """A dummy table parser that simulates parsing a DOM into metadata and content nodes."""
 
+    parser_kwargs_defaults = {}
+
     def __init__(self):
         """Initialize the dummy table parser."""
         self.called = False
@@ -73,8 +75,15 @@ class DummyTableParser:
         content = Node("content")
         return metadata, content
 
+class DummyTableParserWithDefaults(DummyTableParser):
+    """A dummy table parser that declares a non-empty default for one of its parse() kwargs."""
+
+    parser_kwargs_defaults = {"unformatted": True}
+
 class DummyModelStore:
     """A dummy model store that simulates loading and saving SpecModel objects."""
+
+    file_extension = ".json"
 
     def __init__(self):
         """Initialize the dummy model store."""
@@ -89,7 +98,10 @@ class DummyModelStore:
         self.loaded = path
         # Return a SpecModel with anytree Nodes
         from anytree import Node
-        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        return SpecModel(metadata=metadata, content=Node("content"))
 
     def save(self, model, path):
         """Simulate saving a SpecModel to a file path.
@@ -215,7 +227,7 @@ def test_build_model_loads_from_cache(monkeypatch, patch_dirs):
     ms = DummyModelStore()
     ih = DummyInputHandler()
     ms.load_should_fail = False
-    factory = SpecFactory(model_store=ms, input_handler=ih)
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=DummyTableParser())
     monkeypatch.setattr("os.path.exists", lambda path: True)
     dom = "DOM"
     model = factory.build_model(
@@ -229,8 +241,8 @@ def test_build_model_loads_from_cache(monkeypatch, patch_dirs):
     expected_path = str(patch_dirs / "cache" / "model" / "file.json")
     assert ms.loaded == expected_path
 
-def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
-    """Test build_model treats a ref_columns mismatch as a cache miss and reparses."""
+def test_build_model_parser_kwargs_mismatch_reparses(monkeypatch):
+    """Test build_model treats a parser_kwargs mismatch as a cache miss and reparses."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
@@ -238,11 +250,11 @@ def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
     monkeypatch.setattr("os.path.exists", lambda path: True)
     monkeypatch.setattr(ms, "save", lambda model, path: None)
 
-    def load_without_ref_columns(path):
+    def load_without_parser_kwargs(path):
         from anytree import Node
         return SpecModel(metadata=Node("metadata"), content=Node("content"))
 
-    monkeypatch.setattr(ms, "load", load_without_ref_columns)
+    monkeypatch.setattr(ms, "load", load_without_parser_kwargs)
     factory.build_model(
         doc_object="DOM",
         table_id="table1",
@@ -252,21 +264,23 @@ def test_build_model_ref_columns_mismatch_reparses(monkeypatch):
     )
     assert tp.called
 
-def test_build_model_ref_columns_match_uses_cache(monkeypatch):
-    """Test build_model uses the cache when ref_columns matches the cached model's metadata."""
+def test_build_model_parser_kwargs_match_uses_cache(monkeypatch):
+    """Test build_model uses the cache when parser_kwargs matches the cached model's metadata."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
     monkeypatch.setattr("os.path.exists", lambda path: True)
 
-    def load_with_ref_columns(path):
+    def load_with_parser_kwargs(path):
         from anytree import Node
         metadata = Node("metadata")
-        metadata.ref_columns = [1, 2]
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        metadata.parser_kwargs = {"ref_columns": [1, 2]}
         return SpecModel(metadata=metadata, content=Node("content"))
 
-    monkeypatch.setattr(ms, "load", load_with_ref_columns)
+    monkeypatch.setattr(ms, "load", load_with_parser_kwargs)
     model = factory.build_model(
         doc_object="DOM",
         table_id="table1",
@@ -276,6 +290,124 @@ def test_build_model_ref_columns_match_uses_cache(monkeypatch):
     )
     assert isinstance(model, SpecModel)
     assert not tp.called
+
+def test_build_model_matches_cache_when_explicit_value_equals_parser_default(monkeypatch):
+    """Test build_model uses the cache when an explicit value equals the parser's default."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParserWithDefaults()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_without_explicit_unformatted(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        metadata.parser_kwargs = {"unformatted": True}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_explicit_unformatted)
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        parser_kwargs={"unformatted": True},
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
+
+def test_build_model_reparses_old_cache_missing_parser_kwargs(monkeypatch):
+    """Test a cache written before parser_kwargs was recorded self-heals by reparsing."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_without_parser_kwargs_attr(path):
+        from anytree import Node
+        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_parser_kwargs_attr)
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        parser_kwargs={"ref_columns": [1, 2]},
+    )
+    assert tp.called
+
+def test_build_model_column_to_attr_mismatch_reparses(monkeypatch):
+    """Test build_model reparses when column_to_attr differs from the cached model's."""
+    ms = DummyModelStore()
+    tp = DummyTableParser()
+    factory = SpecFactory(
+        model_store=ms, input_handler=DummyInputHandler(), table_parser=tp, column_to_attr={0: "elem_tag"}
+    )
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+    factory.build_model(doc_object="DOM", table_id="table1", url="http://example.com", json_file_name="file.json")
+    assert tp.called
+
+def test_build_model_name_attr_mismatch_reparses(monkeypatch):
+    """Test build_model reparses when name_attr differs from the cached model's."""
+    ms = DummyModelStore()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=DummyInputHandler(), table_parser=tp, name_attr="elem_tag")
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+    factory.build_model(doc_object="DOM", table_id="table1", url="http://example.com", json_file_name="file.json")
+    assert tp.called
+
+def test_build_model_column_to_attr_matches_across_json_round_trip(monkeypatch):
+    """Test build_model uses the cache when a cached column_to_attr has string keys from JSON."""
+    ms = DummyModelStore()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=DummyInputHandler(), table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_with_string_keys(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {
+            "0": "elem_name",
+            "1": "elem_tag",
+            "2": "elem_type",
+            "3": "elem_description",
+        }
+        metadata.name_attr = "elem_name"
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_with_string_keys)
+    factory.build_model(doc_object="DOM", table_id="table1", url="http://example.com", json_file_name="file.json")
+    assert not tp.called
+
+def test_build_model_reparses_old_cache_missing_column_to_attr(monkeypatch):
+    """Test a cache written before column_to_attr and name_attr were recorded self-heals by reparsing."""
+    ms = DummyModelStore()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=DummyInputHandler(), table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_without_shape(path):
+        from anytree import Node
+        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_shape)
+    factory.build_model(doc_object="DOM", table_id="table1", url="http://example.com", json_file_name="file.json")
+    assert tp.called
+
+def test_normalize_parser_options_matches_across_json_round_trip(monkeypatch):
+    """Test that an int-keyed dict value compares equal to its JSON string-keyed reload."""
+    factory = SpecFactory()
+    requested = {"unformatted": {0: True, 1: False}, "ref_columns": [3, 1]}
+    reloaded_from_json = {"unformatted": {"0": True, "1": False}, "ref_columns": [1, 3]}
+    assert factory._normalize_parser_options(requested) == factory._normalize_parser_options(reloaded_from_json)
 
 def test_build_model_fallback_to_parser(monkeypatch):
     """Test build_model falls back to parser if cache load fails."""
@@ -462,18 +594,34 @@ def test_create_model_force_parse(monkeypatch, fake_load_and_build):
 def test_create_model_raises_if_no_json_or_cache(monkeypatch):
     """Test create_model raises ValueError if neither json_file_name nor cache_file_name is set."""
     ms = DummyModelStore()
-    ih = NoCacheFileNameInputHandler()
+    ih = DummyInputHandler()
     tp = DummyTableParser()
     factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
-    # Remove cache_file_name from handler to simulate the error
-    ih.cache_file_name = None
-    with pytest.raises(ValueError, match="input_handler.cache_file_name not set"):
+    with pytest.raises(ValueError, match="cache_file_name or json_file_name must be set"):
         factory.create_model(
             url="http://example.com",
             cache_file_name=None,  # Explicitly pass None
             table_id="table1",
             # json_file_name is omitted
         )
+
+def test_create_model_derives_cache_path_from_its_own_cache_file_name(monkeypatch):
+    """Test create_model derives the cache path from its own argument, not a stale handler attribute."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    ih.cache_file_name = "stale.xhtml"  # left over from an earlier, unrelated call
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    model = factory.create_model(
+        url="http://example.com",
+        cache_file_name="file.xhtml",
+        table_id="table1",
+    )
+    assert isinstance(model, SpecModel)
+    assert ms.loaded.endswith("file.json")
+    assert not ih.called
 
 def test_build_model_reports_parsing_and_saving_progress(monkeypatch, tmp_path):
     """Test build_model reports both parsing and saving progress updates via the observer."""
