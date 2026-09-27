@@ -195,7 +195,7 @@ class ModuleSpecBuilder:
             )
             return None
 
-        json_file_name = f"sections/{section_id}.json"
+        json_file_name = f"sections/{section_id}{self.section_factory.model_store.file_extension}"
         try:
             section_model = self.section_factory.build_model(
                 doc_object=dom,
