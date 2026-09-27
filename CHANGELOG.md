@@ -9,8 +9,6 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `ModuleSpecBuilder.resolve_section` resolves a single section by id, for callers that
   built a module model without resolving its referenced attribute descriptions
   ([#131](https://github.com/dwikler/dcmspec/issues/131)).
-- `SpecStore.file_extension` reports a store's cache file extension
-  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
 - The [API Overview](https://dwikler.github.io/dcmspec/api/) page documents the
   architecture of the library and the SpecFactory pipeline; the API Reference nav is
   reorganized into consistent functional categories
@@ -20,6 +18,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 - **Breaking change:** `SpecFactory.try_load_cache`'s `ref_columns` parameter is replaced
   by a generic `parser_kwargs` dict ([#124](https://github.com/dwikler/dcmspec/issues/124)).
+- **Breaking change:** `SpecStore` gains a new abstract `file_extension` property, reporting
+  a store's cache file extension; custom subclasses must implement it
+  ([#137](https://github.com/dwikler/dcmspec/issues/137)).
 
 ### Fixed
 
