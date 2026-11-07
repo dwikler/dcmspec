@@ -67,6 +67,30 @@ def test_print_table_prints_module_title_and_attr(iod_spec_model):
     assert "Value1" in result
     assert "Value2" in result
 
+@pytest.fixture
+def module_without_usage_model(iod_spec_model):
+    """Fixture for an IOD SpecModel whose module has no usage, as in a Normalized IOD."""
+    iod_spec_model.content.children[0].usage = None
+    return iod_spec_model
+
+def test_print_tree_module_title_without_usage(module_without_usage_model):
+    """Test that print_tree titles a module without usage as '<name> Module' with no parentheses."""
+    printer = IODSpecPrinter(module_without_usage_model)
+    with printer.console.capture() as capture:
+        printer.print_tree(attr_names=["attr1", "attr2"], colorize=False)
+    result = capture.get()
+    assert "Patient Module" in result
+    assert "Patient Module (" not in result
+
+def test_print_table_module_title_without_usage(module_without_usage_model):
+    """Test that print_table titles a module without usage as '<name> Module' with no parentheses."""
+    printer = IODSpecPrinter(module_without_usage_model)
+    with printer.console.capture() as capture:
+        printer.print_table(colorize=False)
+    result = capture.get()
+    assert "Patient Module" in result
+    assert "Patient Module (" not in result
+
 def test_print_table_column_widths(iod_spec_model):
     """Test that print_table applies column_widths for column sizing."""
     printer = IODSpecPrinter(iod_spec_model)

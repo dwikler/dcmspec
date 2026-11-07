@@ -48,7 +48,7 @@ class IODSpecPrinter(SpecPrinter):
                 # Module title row: always use title color if colorize
                 iod_title = getattr(node, "module", getattr(node, "name", ""))
                 iod_usage = getattr(node, "usage", "")
-                iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else iod_title
+                iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else f"{iod_title} Module"
                 node_text = Text(iod_title_text, style=SPECIAL_COLORS["title"] if colorize else None)
             else:
                 attr_text = self._format_tree_row(node, attr_names, attr_widths)
@@ -234,7 +234,7 @@ class IODSpecPrinter(SpecPrinter):
                 if include_module_titles:
                     iod_title = getattr(node, "module", getattr(node, "name", ""))
                     iod_usage = getattr(node, "usage", "")
-                    iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else iod_title
+                    iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else f"{iod_title} Module"
                     row_style = SPECIAL_COLORS["title"] if colorize else None
                     yield [iod_title_text] + [""] * (len(attr_headers) - 1), row_style, current_module or "Other"
                 # else: skip module title rows for xlsx
