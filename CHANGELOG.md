@@ -13,6 +13,10 @@ These release notes summarize key changes, improvements, and breaking updates fo
   the OS-specific separator. Section models cached on Windows by an earlier version keep their
   backslash paths: delete them from the cache to rebuild them
   ([#156](https://github.com/dwikler/dcmspec/issues/156)).
+- `DOMTableSpecParser` no longer puts the title of a skipped column in `metadata.header` and
+  drops the last one when `skip_columns` is used. Models cached by an earlier version keep the
+  wrong header: delete them from the cache to rebuild them
+  ([#154](https://github.com/dwikler/dcmspec/issues/154)).
 
 ## [0.4.1] - 2026-09-27
 

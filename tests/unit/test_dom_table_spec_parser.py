@@ -328,6 +328,62 @@ def test_parse_table_skip_columns_column_present_not_skipped(docbook_sample_dom_
     assert hasattr(children[1], "elem_type")
     assert children[1].elem_type == "2"
 
+def test_parse_skip_columns_header_excludes_skipped_column_title(table_colspan_dom):  # noqa: F811
+    """Test that parse keeps the titles of the remaining columns when a column is skipped."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    metadata, _ = parser.parse(
+        dom=table_colspan_dom,
+        table_id="table_COLSPAN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        skip_columns=[1],
+    )
+    # The title of the skipped column "Col2" is left out, the title of "Col3" is kept
+    assert metadata.header == ["Col1", "Col3"]
+    assert metadata.column_to_attr == {0: "col1", 1: "col3"}
+
+def test_parse_skip_columns_header_without_skipped_column_title():
+    """Test that parse keeps all titles when the header has no title for the skipped column."""
+    xhtml = """
+    <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+            <div class="table">
+                <a id="table_NO_TYPE_TITLE" shape="rect"></a>
+                <p class="title"><strong>Table NO_TYPE_TITLE. No Type Title</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><p>Attribute Name</p></th>
+                            <th><p>Tag</p></th>
+                            <th><p>Attribute Description</p></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><p>Name</p></td>
+                            <td><p>(0008,0010)</p></td>
+                            <td><p>Description</p></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </body>
+    </html>
+    """
+    dom = BeautifulSoup(xhtml, "lxml-xml")
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+    metadata, _ = parser.parse(
+        dom=dom,
+        table_id="table_NO_TYPE_TITLE",
+        column_to_attr=column_to_attr,
+        name_attr="elem_name",
+        skip_columns=[2],
+    )
+    assert metadata.header == ["Attribute Name", "Tag", "Attribute Description"]
+    assert metadata.column_to_attr == {0: "elem_name", 1: "elem_tag", 2: "elem_description"}
+
 def test_parse_table_skip_columns_all_cells_colspan(table_colspan_dom):  # noqa: F811
     """Test parse_table with skip_columns skips columns for all rows when all cells are missing that column."""
     parser = DOMTableSpecParser()
