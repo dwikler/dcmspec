@@ -28,7 +28,8 @@ def main():
     from Part 3 of the DICOM standard.
 
     The tool parses only the specified IOD table to extract the list of referenced modules, including their Information
-    Entity (IE), reference, and usage. It does not parse or include the attributes of the referenced module tables.
+    Entity (IE), reference, and usage for a Composite IOD, or their reference and description for a Normalized IOD.
+    It does not parse or include the attributes of the referenced module tables.
     The output is a table listing all modules for the specified IOD.
 
     The resulting model is cached as a JSON file. The primary purpose of this cache file is to provide a structured,
@@ -67,9 +68,22 @@ def main():
     # Initialize configuration
     config = Config(app_name="dcmspec", config_file=config_file)
 
+    # Check table_id belongs to either Composite or Normalized IODs annexes
+    if "table_A." in table_id:
+        composite_iod = True
+    elif "table_B." in table_id:
+        composite_iod = False
+    else:
+        parser.error(f"table {table_id} does not correspond to a Composite or Normalized IOD")
+
+    # Composite and Normalized IOD Modules tables do not have the same columns
+    c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
+    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+    iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
+
     # Create the factory
     factory = SpecFactory(
-        column_to_attr={0: "ie", 1: "module", 2: "ref", 3: "usage"}, 
+        column_to_attr=iod_columns_mapping,
         name_attr="module",
         config=config,
     )
