@@ -35,6 +35,7 @@ class SectionImageResolver:
 
         Populates `section_model.metadata.image_paths`, parallel to `metadata.image_srcs`
         (Relative path to cache_dir/standard/ or None for an image that failed to download).
+        Paths always use forward slashes, whatever the OS.
 
         Args:
             section_model (SpecModel): A model built by DOMSectionSpecParser.
