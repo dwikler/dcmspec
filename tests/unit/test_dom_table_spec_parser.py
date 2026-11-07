@@ -328,6 +328,21 @@ def test_parse_table_skip_columns_column_present_not_skipped(docbook_sample_dom_
     assert hasattr(children[1], "elem_type")
     assert children[1].elem_type == "2"
 
+def test_parse_skip_columns_header_excludes_skipped_column_title(table_colspan_dom):  # noqa: F811
+    """Test that parse keeps the titles of the remaining columns when a column is skipped."""
+    parser = DOMTableSpecParser()
+    column_to_attr = {0: "col1", 1: "col2", 2: "col3"}
+    metadata, _ = parser.parse(
+        dom=table_colspan_dom,
+        table_id="table_COLSPAN",
+        column_to_attr=column_to_attr,
+        name_attr="col1",
+        skip_columns=[1],
+    )
+    # The title of the skipped column "Col2" is left out, the title of "Col3" is kept
+    assert metadata.header == ["Col1", "Col3"]
+    assert metadata.column_to_attr == {0: "col1", 1: "col3"}
+
 def test_parse_table_skip_columns_all_cells_colspan(table_colspan_dom):  # noqa: F811
     """Test parse_table with skip_columns skips columns for all rows when all cells are missing that column."""
     parser = DOMTableSpecParser()

@@ -111,10 +111,13 @@ class DOMTableSpecParser(SpecParser):
         if skip_columns and self._skipped_columns_flag:
             kept_items = [(k, v) for k, v in column_to_attr.items() if k not in skip_columns]
             filtered_column_to_attr = {i: v for i, (k, v) in enumerate(kept_items)}
+            # Update the header mapping to remove the skipped column headers
+            header_column_to_attr = dict(kept_items)
         else:
             filtered_column_to_attr = column_to_attr
+            header_column_to_attr = column_to_attr
 
-        metadata = self.parse_metadata(dom, table_id, filtered_column_to_attr)
+        metadata = self.parse_metadata(dom, table_id, header_column_to_attr)
         metadata.column_to_attr = filtered_column_to_attr
         metadata.table_id = table_id
         if include_depth is not None:
