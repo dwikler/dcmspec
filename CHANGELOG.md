@@ -9,6 +9,8 @@ These release notes summarize key changes, improvements, and breaking updates fo
 - `ServiceAttributeModel.select_dimse` now keeps indices of `metadata.column_to_attr`
   aligned with indices of `metadata.header` when filtering DIMSE columns
   ([#26](https://github.com/dwikler/dcmspec/issues/26)).
+- `SectionImageResolver` now stores `image_paths` with forward slashes on every OS, instead of
+  the OS-specific separator ([#156](https://github.com/dwikler/dcmspec/issues/156)).
 
 ## [0.4.1] - 2026-09-27
 
