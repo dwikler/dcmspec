@@ -35,6 +35,7 @@ class SectionImageResolver:
 
         Populates `section_model.metadata.image_paths`, parallel to `metadata.image_srcs`
         (Relative path to cache_dir/standard/ or None for an image that failed to download).
+        Paths always use forward slashes, whatever the OS.
 
         Args:
             section_model (SpecModel): A model built by DOMSectionSpecParser.
@@ -46,14 +47,18 @@ class SectionImageResolver:
         """
         image_paths: List[Optional[str]] = []
         for image_src in section_model.metadata.image_srcs:
-            image_path = os.path.join("figures", os.path.basename(image_src))
-            file_path = os.path.join(self.cache_dir, "standard", image_path)
+            image_name = os.path.basename(image_src)
+            # Always use forward slashes so the cached model does not depend on the OS
+            image_path = f"figures/{image_name}"
+            file_path = os.path.join(
+                self.cache_dir, "standard", "figures", image_name)
             try:
                 self.doc_handler.download_if_needed(
                     urljoin(url, image_src), file_path, force=force_download, binary=True
                 )
                 image_paths.append(image_path)
             except RuntimeError as e:
-                self.logger.warning(f"Failed to download image '{image_src}': {e}")
+                self.logger.warning(
+                    f"Failed to download image '{image_src}': {e}")
                 image_paths.append(None)
         section_model.metadata.image_paths = image_paths
