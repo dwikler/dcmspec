@@ -18,6 +18,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
   wrong header: delete them from the cache to rebuild them
   ([#154](https://github.com/dwikler/dcmspec/issues/154)).
 - The IOD Explorer install instructions now use the correct syntax: `poetry install --extras gui`.
+- The `iodmodules` and `iodattributes` apps now handle Normalized IOD tables correctly. Models
+  cached by an earlier version keep the old values: delete them from the cache to rebuild them
+  ([#51](https://github.com/dwikler/dcmspec/issues/51)).
 
 ## [0.4.1] - 2026-09-27
 
