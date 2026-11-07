@@ -47,8 +47,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          poetry install --with dev
-          poetry run pip install ".[gui,pdf]"
+          poetry install --with dev --extras "gui pdf"
       - name: Run pytest
         shell: bash
         run: poetry run python -m pytest -v tests/unit tests/integration
