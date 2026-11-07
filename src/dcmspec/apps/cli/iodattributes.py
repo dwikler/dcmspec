@@ -97,7 +97,7 @@ def main():
 
     # Create the IOD specification factory
     c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
-    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "module_description"}
     iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
     iod_factory = SpecFactory(
         column_to_attr=iod_columns_mapping, 
@@ -132,16 +132,20 @@ def main():
     # Only disable color if --no-color is set; SpecPrinter disables color for file outputs automatically
     use_color = not args.no_color
 
+    # Normalized IODs have no Type column in the table and xlsx outputs
+    table_widths = [30, 11, 4, 60] if composite_iod else [30, 11, 60]
+    xlsx_widths = [60, 16, 10, 100] if composite_iod else [60, 16, 100]
+
     if args.print_mode == "tree":
         printer.print_tree(
             attr_names=["elem_tag", "elem_type", "elem_name"], attr_widths=[11, 2, 100], colorize=use_color
             )
     elif args.print_mode == "table":
-        printer.print_table(colorize=use_color, column_widths=[30, 11, 4, 60])
+        printer.print_table(colorize=use_color, column_widths=table_widths)
     elif args.print_mode == "csv":
         printer.print_csv(colorize=use_color)
     elif args.print_mode == "xlsx":
-        printer.print_xlsx(column_widths=[60, 16, 10, 100], colorize=use_color)
+        printer.print_xlsx(column_widths=xlsx_widths, colorize=use_color)
     # else: do not print anything if print_mode == "none"
 
 if __name__ == "__main__":

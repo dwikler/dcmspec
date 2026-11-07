@@ -785,7 +785,7 @@ class IODExplorer:
         # Create the IOD specification factory
         c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
         c_iod_unformatted = {0: True, 1: True, 2: False, 3: True}
-        n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+        n_iod_columns_mapping = {0: "module", 1: "ref", 2: "module_description"}
         n_iod_unformatted = {0: True, 1: False, 2: True}
         iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
         iod_unformatted = c_iod_unformatted if composite_iod else n_iod_unformatted

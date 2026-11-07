@@ -232,7 +232,7 @@ def main():
     iod_model_file = "Part3_table_B.26.2-1_expanded.json"
 
     iod_factory = SpecFactory(
-        column_to_attr={0: "module", 1: "ref", 2: "usage"},
+        column_to_attr={0: "module", 1: "ref", 2: "module_description"},
         name_attr="module",
         config=config,
         logger=logger
