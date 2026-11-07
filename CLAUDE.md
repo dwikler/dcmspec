@@ -13,8 +13,7 @@ CLI scripts and one sample Tkinter UI app that demonstrate the API.
 Install dependencies (all optional extras, needed for full dev/test coverage):
 
 ```bash
-poetry install --with dev
-poetry run pip install ".[gui,pdf]"
+poetry install --with dev --extras "gui pdf"
 ```
 
 Run the test suite:
