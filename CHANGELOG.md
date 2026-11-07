@@ -2,6 +2,14 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.2] - unreleased
+
+### Fixed
+
+- `ServiceAttributeModel.select_dimse` now keeps indices of `metadata.column_to_attr`
+  aligned with indices of `metadata.header` when filtering DIMSE columns
+  ([#26](https://github.com/dwikler/dcmspec/issues/26)).
+
 ## [0.4.1] - 2026-09-27
 
 ### Added
