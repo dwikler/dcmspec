@@ -137,7 +137,7 @@ class ServiceAttributeModel(SpecModel):
 
     def _update_metadata_for_dimse(self, dimse_attributes: Sequence[str], all_attributes: Sequence[str]) -> None:
         if hasattr(self.metadata, "header") and hasattr(self.metadata, "column_to_attr"):
-            # Build new header and mapping, keeping original indices for column_to_attr
+            # Rebuild header and mapping together so that header[i] corresponds to column_to_attr[i]
             new_header = []
             new_column_to_attr = {}
             for i, cell in enumerate(self.metadata.header):
@@ -145,8 +145,8 @@ class ServiceAttributeModel(SpecModel):
                 if i in self.metadata.column_to_attr:
                     attr = self.metadata.column_to_attr[i]
                     if (attr in dimse_attributes) or (attr not in all_attributes):
+                        new_column_to_attr[len(new_header)] = attr
                         new_header.append(cell)
-                        new_column_to_attr[i] = attr
             self.metadata.header = new_header
             self.metadata.column_to_attr = new_column_to_attr
         elif hasattr(self.metadata, "column_to_attr"):
