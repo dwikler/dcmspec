@@ -122,6 +122,83 @@ def test_e2e_iod_composite_attributes_via_iod_spec_builder(e2e_output_dir):
         _write_e2e_output(model, status, _print)
 
 
+def test_e2e_iod_normalized_attributes_via_iod_spec_builder(e2e_output_dir):
+    """Part 3 Normalized IOD + referenced modules, via IODSpecBuilder.build_from_url.
+
+    Canary for NEMA changing the Normalized IOD table's column layout (Module, Reference, Module
+    Description, unlike the Composite IOD table's IE, Module, Reference, Usage), or the attribute
+    tables of the modules it references, which have no Type column in a Normalized IOD.
+    """
+    config = Config(app_name="dcmspec")
+    iod_factory = SpecFactory(
+        column_to_attr={0: "module", 1: "ref", 2: "module_description"},
+        name_attr="module",
+        config=config,
+    )
+    module_factory = SpecFactory(
+        column_to_attr={0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"},
+        name_attr="elem_name",
+        parser_kwargs={"skip_columns": [2]},
+        config=config,
+    )
+    builder = IODSpecBuilder(iod_factory=iod_factory, module_factory=module_factory)
+
+    model = None
+    status = "FAILED"
+    try:
+        model, _ = builder.build_from_url(
+            url=PART3_URL,
+            cache_file_name="Part3.xhtml",
+            json_file_name="e2e_Part3_table_B.10-1_expanded.json",
+            table_id="table_B.10-1",
+            force_download=False,
+        )
+
+        assert model.content.children, "IOD model has no top-level module nodes"
+
+        incomplete_module_nodes = [
+            n.name
+            for n in model.content.children
+            if not (getattr(n, "module", None) and getattr(n, "ref", None) and getattr(n, "module_description", None))
+        ]
+        assert not incomplete_module_nodes, (
+            f"module nodes missing module/ref/module_description: {incomplete_module_nodes}"
+        )
+
+        assert not any(hasattr(n, "usage") for n in model.content.children), (
+            "Normalized IOD module nodes should not have a 'usage' attribute"
+        )
+
+        empty_module_nodes = [n.name for n in model.content.children if not n.children]
+        assert not empty_module_nodes, f"module nodes with no attribute children: {empty_module_nodes}"
+
+        incomplete_attr_nodes = [
+            (iod_node.name, attr_node.name)
+            for iod_node in model.content.children
+            for attr_node in iod_node.children
+            if not (
+                hasattr(attr_node, "elem_name")
+                and hasattr(attr_node, "elem_tag")
+                and hasattr(attr_node, "elem_description")
+            )
+        ]
+        assert not incomplete_attr_nodes, (
+            f"attribute nodes missing elem_name/elem_tag/elem_description: {incomplete_attr_nodes}"
+        )
+        status = "PASSED"
+    finally:
+        output_path = e2e_output_dir / "iod_basic-annotation-presentation.txt"
+
+        def _print():
+            IODSpecPrinter(model, output=str(output_path)).print_tree(
+                attr_names=["elem_tag", "elem_type", "elem_name"],
+                attr_widths=[11, 2, 64],
+            )
+            return f"IOD tree written to: {output_path}"
+
+        _write_e2e_output(model, status, _print)
+
+
 def test_e2e_data_elements_dictionary_via_spec_factory(e2e_output_dir):
     """Part 6 Data Elements dictionary, via plain SpecFactory.create_model.
 
