@@ -185,6 +185,15 @@ def test_e2e_iod_normalized_attributes_via_iod_spec_builder(e2e_output_dir):
         assert not incomplete_attr_nodes, (
             f"attribute nodes missing elem_name/elem_tag/elem_description: {incomplete_attr_nodes}"
         )
+
+        modules_without_description = [
+            iod_node.name
+            for iod_node in model.content.children
+            if not any((getattr(attr_node, "elem_description", "") or "").strip() for attr_node in iod_node.children)
+        ]
+        assert not modules_without_description, (
+            f"module nodes where no attribute has a description: {modules_without_description}"
+        )
         status = "PASSED"
     finally:
         output_path = e2e_output_dir / "iod_basic-annotation-presentation.txt"
