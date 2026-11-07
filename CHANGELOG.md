@@ -10,7 +10,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
   aligned with indices of `metadata.header` when filtering DIMSE columns
   ([#26](https://github.com/dwikler/dcmspec/issues/26)).
 - `SectionImageResolver` now stores `image_paths` with forward slashes on every OS, instead of
-  the OS-specific separator ([#156](https://github.com/dwikler/dcmspec/issues/156)).
+  the OS-specific separator. Section models cached on Windows by an earlier version keep their
+  backslash paths: delete them from the cache to rebuild them
+  ([#156](https://github.com/dwikler/dcmspec/issues/156)).
 
 ## [0.4.1] - 2026-09-27
 
