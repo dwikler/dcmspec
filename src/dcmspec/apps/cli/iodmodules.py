@@ -78,7 +78,7 @@ def main():
 
     # Composite and Normalized IOD Modules tables do not have the same columns
     c_iod_columns_mapping = {0: "ie", 1: "module", 2: "ref", 3: "usage"}
-    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "usage"}
+    n_iod_columns_mapping = {0: "module", 1: "ref", 2: "module_description"}
     iod_columns_mapping = c_iod_columns_mapping if composite_iod else n_iod_columns_mapping
 
     # Create the factory
