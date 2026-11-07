@@ -17,6 +17,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
   drops the last one when `skip_columns` is used. Models cached by an earlier version keep the
   wrong header: delete them from the cache to rebuild them
   ([#154](https://github.com/dwikler/dcmspec/issues/154)).
+- The IOD Explorer install instructions now use the correct syntax: `poetry install --extras gui`.
 
 ## [0.4.1] - 2026-09-27
 

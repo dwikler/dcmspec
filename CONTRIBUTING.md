@@ -16,8 +16,7 @@ We welcome bug reports, feature requests, documentation improvements, and code c
 2. **Install all development dependencies** (including optional features):
 
    ```bash
-   poetry install --with dev
-   poetry run pip install ".[gui,pdf]"
+   poetry install --with dev --extras "gui pdf"
    ```
 
 > **Note:** This will install all development, GUI, and PDF dependencies so you can test and work on every feature.
