@@ -3,7 +3,6 @@ name: mkdocs-build-only
 on:
   push:
     branches:
-      - main
       - "release/*"
   pull_request:
     branches:
