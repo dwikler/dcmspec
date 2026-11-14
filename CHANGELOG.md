@@ -6,6 +6,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Fixed
 
+- `SpecPrinter` and `IODSpecPrinter` no longer wrap rows at 80 characters when writing to a file
+  with `--output`
+  ([#112](https://github.com/dwikler/dcmspec/issues/112)).
 - `ServiceAttributeModel.select_dimse` now keeps indices of `metadata.column_to_attr`
   aligned with indices of `metadata.header` when filtering DIMSE columns
   ([#26](https://github.com/dwikler/dcmspec/issues/26)).
