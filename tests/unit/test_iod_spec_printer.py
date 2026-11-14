@@ -143,6 +143,38 @@ def test_print_table_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_p
     # Assert that all styles are None (no color applied)
     assert all(s is None for s in styles), f"Expected no color styles, got {styles}"
 
+def test_print_tree_to_file_does_not_wrap_rows_longer_than_the_width(iod_spec_model, tmp_path):
+    """Test that print_tree writes a very long row on a single line."""
+    long_value = "x" * 1500
+    iod_spec_model.content.children[0].children[0].attr1 = long_value
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(iod_spec_model, output=str(output_file))
+
+    printer.print_tree(attr_names=["attr1"], attr_widths=[1500])
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the long value is not split across lines
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert any(long_value in line for line in lines)
+
+def test_print_csv_to_file_does_not_wrap_long_record(iod_spec_model, tmp_path):
+    """Test that print_csv writes a very long record on a single line."""
+    long_value = "word " * 400
+    iod_spec_model.content.children[0].children[0].attr1 = long_value
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(iod_spec_model, output=str(output_file))
+
+    printer.print_csv()
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the long value is not split across lines
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert any(long_value in line for line in lines)
+
 def test_print_tree_prints_module_title_and_attr(iod_spec_model):
     """Test that print_tree outputs the module title and attribute values."""
     printer = IODSpecPrinter(iod_spec_model)

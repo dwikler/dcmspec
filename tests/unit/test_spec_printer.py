@@ -211,6 +211,43 @@ def test_print_tree_to_file_does_not_wrap_wide_rows(minimal_spec_model, tmp_path
     assert len(lines) == 2  # root node and element1
     assert "Element1" in lines[1] and "(0101,0010)" in lines[1]
 
+def test_print_tree_to_file_does_not_wrap_rows_longer_than_the_width(minimal_spec_model, tmp_path):
+    """Test that print_tree writes a very long row on a single line."""
+    model = minimal_spec_model
+    node = add_standard_node(model)
+    long_name = "x" * 1500
+    node.elem_name = long_name
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    printer.print_tree(attr_names=["elem_name"], attr_widths=[1500])
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the long value is not split across lines
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert any(long_name in line for line in lines)
+
+def test_print_csv_to_file_does_not_wrap_long_record(minimal_spec_model, tmp_path):
+    """Test that print_csv writes a very long record on a single line."""
+    model = minimal_spec_model
+    node = add_standard_node(model)
+    long_name = "word " * 400
+    node.elem_name = long_name
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    printer.print_csv()
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the header and the record each take one line
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    assert long_name in lines[1]
+
 def test_print_table_to_file_does_not_wrap_wide_rows(minimal_spec_model, tmp_path):
     """Test that print_table writes a wide table to a file without wrapping its rows."""
     model = minimal_spec_model
