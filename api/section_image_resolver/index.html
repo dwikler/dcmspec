@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -2380,7 +2380,12 @@ section's images as raw, unresolved paths.</p>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SectionImageResolver</span><span class="p">:</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SectionImageResolver</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Downloads and caches the images a parsed section references.</span>
 
 <span class="sd">    Used with a model built by DOMSectionSpecParser, whose metadata.image_srcs lists the</span>
@@ -2407,6 +2412,7 @@ section's images as raw, unresolved paths.</p>
 
 <span class="sd">        Populates `section_model.metadata.image_paths`, parallel to `metadata.image_srcs`</span>
 <span class="sd">        (Relative path to cache_dir/standard/ or None for an image that failed to download).</span>
+<span class="sd">        Paths always use forward slashes, whatever the OS.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            section_model (SpecModel): A model built by DOMSectionSpecParser.</span>
@@ -2418,15 +2424,19 @@ section's images as raw, unresolved paths.</p>
 <span class="sd">        """</span>
         <span class="n">image_paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">image_src</span> <span class="ow">in</span> <span class="n">section_model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">image_srcs</span><span class="p">:</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"figures"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_src</span><span class="p">))</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">image_path</span><span class="p">)</span>
+            <span class="n">image_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_src</span><span class="p">)</span>
+            <span class="c1"># Always use forward slashes so the cached model does not depend on the OS</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"figures/</span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="s2">"figures"</span><span class="p">,</span> <span class="n">image_name</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_handler</span><span class="o">.</span><span class="n">download_if_needed</span><span class="p">(</span>
                     <span class="n">urljoin</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">image_src</span><span class="p">),</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span>
                 <span class="p">)</span>
                 <span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to download image '</span><span class="si">{</span><span class="n">image_src</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Failed to download image '</span><span class="si">{</span><span class="n">image_src</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
         <span class="n">section_model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="n">image_paths</span>
 </code></pre></div></td></tr></table></div>
@@ -2572,7 +2582,8 @@ logger is created.</p>
 
         <p>Download a section's images, recording local paths.</p>
 <p>Populates <code>section_model.metadata.image_paths</code>, parallel to <code>metadata.image_srcs</code>
-(Relative path to cache_dir/standard/ or None for an image that failed to download).</p>
+(Relative path to cache_dir/standard/ or None for an image that failed to download).
+Paths always use forward slashes, whatever the OS.</p>
 
 
 <table>
@@ -2669,11 +2680,17 @@ image.</p>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_model</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_model</span><span class="p">:</span> <span class="n">SpecModel</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">force_download</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Download a section's images, recording local paths.</span>
 
 <span class="sd">    Populates `section_model.metadata.image_paths`, parallel to `metadata.image_srcs`</span>
 <span class="sd">    (Relative path to cache_dir/standard/ or None for an image that failed to download).</span>
+<span class="sd">    Paths always use forward slashes, whatever the OS.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        section_model (SpecModel): A model built by DOMSectionSpecParser.</span>
@@ -2685,15 +2702,19 @@ image.</p>
 <span class="sd">    """</span>
     <span class="n">image_paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">image_src</span> <span class="ow">in</span> <span class="n">section_model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">image_srcs</span><span class="p">:</span>
-        <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"figures"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_src</span><span class="p">))</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="n">image_path</span><span class="p">)</span>
+        <span class="n">image_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_src</span><span class="p">)</span>
+        <span class="c1"># Always use forward slashes so the cached model does not depend on the OS</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"figures/</span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">,</span> <span class="s2">"standard"</span><span class="p">,</span> <span class="s2">"figures"</span><span class="p">,</span> <span class="n">image_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc_handler</span><span class="o">.</span><span class="n">download_if_needed</span><span class="p">(</span>
                 <span class="n">urljoin</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">image_src</span><span class="p">),</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="n">force_download</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
             <span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to download image '</span><span class="si">{</span><span class="n">image_src</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Failed to download image '</span><span class="si">{</span><span class="n">image_src</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">image_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">section_model</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">image_paths</span> <span class="o">=</span> <span class="n">image_paths</span>
 </code></pre></div></td></tr></table></div>
@@ -2758,10 +2779,10 @@ image.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
