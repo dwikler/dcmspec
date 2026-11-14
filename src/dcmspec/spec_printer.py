@@ -31,6 +31,9 @@ SPECIAL_COLORS = {
     "title": "rgb(255,0,255)",    # Magenta for title nodes
 }
 
+# Set a large line width for tables output to file (Rich defaults to 80)
+FILE_TABLE_WIDTH = 1000
+
 class SpecPrinter:
     """Printer for DICOM specification models.
 
@@ -67,6 +70,8 @@ class SpecPrinter:
         """
         self.model = model
         self.output = output
+        # Set soft wrap for tree and csv rows output to file (one line per row)
+        self._soft_wrap = bool(output)
         self.console = None  # ensure attribute exists even if validation raises
 
         if logger is not None and not isinstance(logger, logging.Logger):
@@ -77,7 +82,8 @@ class SpecPrinter:
             highlight=False,
             file=open(output, "w", encoding="utf-8") if output else None,
             force_terminal=not output,
-            no_color=bool(output)
+            no_color=bool(output),
+            width=FILE_TABLE_WIDTH if output else None,
         )
 
     def print_tree(
@@ -115,7 +121,7 @@ class SpecPrinter:
             attr_text = self._format_tree_row(node, attr_names, attr_widths)
             row_style = self._get_tree_row_style(node, use_color)
             node_text = Text(attr_text, style=row_style)
-            self.console.print(pre_text + node_text)
+            self.console.print(pre_text + node_text, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()  # Ensure data is written immediately
@@ -177,7 +183,7 @@ class SpecPrinter:
             
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
-        self.console.print(header_row)
+        self.console.print(header_row, soft_wrap=self._soft_wrap)
 
         # Add data rows
         for row, row_style in self._iterate_rows(colorize=use_color):
@@ -185,7 +191,7 @@ class SpecPrinter:
             # (e.g., Include Table 10.29-1 "UDI Macro Attributes"→ Include Table 10.29-1 ""UDI Macro Attributes""),
             # then wrap the entire field in quotes for proper CSV formatting
             csv_row = ",".join(f'"{cell.replace(chr(34), chr(34) + chr(34))}"' for cell in row)
-            self.console.print(csv_row, style=row_style)
+            self.console.print(csv_row, style=row_style, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()  # Ensure data is written immediately
