@@ -1,13 +1,16 @@
 """Tests for the SpecPrinter class in dcmspec.spec_model."""
 import gc
+import io
 import logging
+import sys
 import pytest
 
 from anytree import Node
 from openpyxl import load_workbook
+from rich.console import Console
 
 from dcmspec.spec_model import SpecModel
-from dcmspec.spec_printer import SpecPrinter, SPECIAL_COLORS, LEVEL_COLORS
+from dcmspec.spec_printer import SpecPrinter, SPECIAL_COLORS, LEVEL_COLORS, FILE_TABLE_WIDTH
 
 # Mock functions for testing
 def mock_console_print_no_op(*args, **kwargs):
@@ -661,6 +664,75 @@ def test_print_csv_to_file(minimal_spec_model, tmp_path):
     assert lines[0] == '"Name","Tag"'
     assert lines[1] == '"Element1","(0101,0010)"'
     assert "\x1b[" not in content
+
+class FakeTTY(io.StringIO):
+    """Text stream that pretends to be a terminal."""
+
+    def isatty(self):
+        """Return True like a terminal would."""
+        return True
+
+def test_redirected_stdout_is_not_a_terminal(minimal_spec_model, capsys):
+    """Test that the console does not force a terminal when stdout is redirected."""
+    printer = SpecPrinter(minimal_spec_model)
+
+    assert not printer.console.is_terminal
+
+def test_print_to_redirected_stdout_has_no_ansi(minimal_spec_model, capsys):
+    """Test that nothing printed to a redirected stdout contains ANSI escape sequences."""
+    add_standard_node(minimal_spec_model)
+    printer = SpecPrinter(minimal_spec_model)
+
+    printer.print_tree(attr_names="elem_name", colorize=True)
+    printer.print_table(colorize=True)
+    printer.print_csv(colorize=True)
+    output = capsys.readouterr().out
+
+    # Assert that the tree, the table and the csv were printed, once each, and without ANSI
+    assert output.count("Element1") == 3
+    assert "\x1b[" not in output
+
+def test_redirected_stdout_uses_the_file_table_width(minimal_spec_model, capsys):
+    """Test that a redirected stdout gets the large width, as an output file does."""
+    printer = SpecPrinter(minimal_spec_model)
+
+    assert printer.console.width == FILE_TABLE_WIDTH
+
+def test_terminal_stdout_keeps_the_terminal_settings(monkeypatch, minimal_spec_model):
+    """Test that a stdout attached to a terminal is detected as one and keeps its own width."""
+    monkeypatch.setattr(sys, "stdout", FakeTTY())
+    monkeypatch.setenv("TERM", "xterm")
+    for name in ("TTY_COMPATIBLE", "FORCE_COLOR", "NO_COLOR"):
+        monkeypatch.delenv(name, raising=False)
+
+    printer = SpecPrinter(minimal_spec_model)
+
+    assert printer.console.is_terminal
+    assert printer.console.width != FILE_TABLE_WIDTH
+
+def _print_table_to_terminal(model, colorize):
+    """Print the table of the model to a terminal console and return what was written."""
+    stream = io.StringIO()
+    printer = SpecPrinter(model)
+    printer.console = Console(file=stream, force_terminal=True, color_system="standard", width=200, highlight=False)
+    printer.print_table(colorize=colorize)
+    return stream.getvalue()
+
+def test_print_table_header_is_not_magenta_without_color(minimal_spec_model):
+    """Test that print_table does not style the header in magenta when colorize is False."""
+    add_standard_node(minimal_spec_model)
+
+    output = _print_table_to_terminal(minimal_spec_model, colorize=False)
+
+    # Assert that the table was printed with its header, and without the magenta style
+    assert "Name" in output
+    assert "\x1b[1;35m" not in output
+
+def test_print_table_header_is_magenta_with_color(minimal_spec_model):
+    """Test that print_table styles the header in bold magenta when colorize is True."""
+    add_standard_node(minimal_spec_model)
+
+    assert "\x1b[1;35m" in _print_table_to_terminal(minimal_spec_model, colorize=True)
 
 def test_output_file_closed_on_delete(minimal_spec_model, tmp_path):
     """Test that output file is properly closed when printer is deleted."""
