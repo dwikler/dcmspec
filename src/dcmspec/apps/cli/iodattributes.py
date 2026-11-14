@@ -16,6 +16,7 @@ For more details, use the --help option.
 
 import os
 import argparse
+import sys
 
 from dcmspec.config import Config
 from dcmspec.iod_spec_builder import IODSpecBuilder
@@ -50,6 +51,9 @@ def main():
         poetry run python -m src.dcmspec.apps.cli.iodattributes table_A.3-1 --print-mode tree
 
     """
+    # Use UTF-8 when the output is redirected
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")
     url = "https://dicom.nema.org/medical/dicom/current/output/html/part03.html"
 
     # Parse command-line arguments

@@ -17,6 +17,7 @@ import argparse
 import logging
 import os
 import re
+import sys
 
 from anytree import PreOrderIter
 from dcmspec.config import Config
@@ -179,6 +180,9 @@ def main():
         poetry run python -m src.dcmspec.apps.cli.upsioddimseattributes --dimse N-CREATE --role SCU --print-mode tree
 
     """    
+    # Use UTF-8 when the output is redirected
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to the configuration file")
     parser.add_argument("--dimse", default="ALL_DIMSE", help="DIMSE service to use (e.g. N-CREATE, N-SET, N-GET, etc.)")

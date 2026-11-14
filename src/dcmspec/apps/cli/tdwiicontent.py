@@ -25,6 +25,7 @@ For more details, use the --help option.
 import argparse
 from copy import deepcopy
 import logging
+import sys
 
 from anytree import Node
 
@@ -315,6 +316,9 @@ def main():
     For more details, use the --help option.
 
     """
+    # Use UTF-8 when the output is redirected
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")
     args = _parse_args()
     logger = _setup_logger(debug=args.debug, verbose=args.verbose)
 
