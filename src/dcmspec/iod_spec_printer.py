@@ -54,7 +54,7 @@ class IODSpecPrinter(SpecPrinter):
                 attr_text = self._format_tree_row(node, attr_names, attr_widths)
                 row_style = self._get_tree_row_style(node, colorize)
                 node_text = Text(attr_text, style=row_style)
-            self.console.print(Text(pre) + node_text)
+            self.console.print(Text(pre) + node_text, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()
@@ -110,7 +110,7 @@ class IODSpecPrinter(SpecPrinter):
 
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
-        self.console.print(header_row)
+        self.console.print(header_row, soft_wrap=self._soft_wrap)
 
         # Add data rows (including module title rows)
         for row, row_style, _ in self._iterate_rows_iod(colorize):
@@ -119,7 +119,7 @@ class IODSpecPrinter(SpecPrinter):
                 f'"{("" if cell is None else str(cell)).replace(chr(34), chr(34) + chr(34))}"'
                 for cell in row
             )
-            self.console.print(csv_row, style=row_style)
+            self.console.print(csv_row, style=row_style, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()
