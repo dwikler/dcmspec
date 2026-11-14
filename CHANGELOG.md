@@ -6,6 +6,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Fixed
 
+- `SpecPrinter` and `IODSpecPrinter` no longer write ANSI escape sequences or wrap rows at 80
+  characters when stdout is redirected, and `--no-color` also removes the magenta table header
+  ([#122](https://github.com/dwikler/dcmspec/issues/122)).
 - `SpecPrinter` and `IODSpecPrinter` no longer wrap rows at 80 characters when writing to a file
   with `--output`
   ([#112](https://github.com/dwikler/dcmspec/issues/112)).

@@ -70,8 +70,6 @@ class SpecPrinter:
         """
         self.model = model
         self.output = output
-        # Set soft wrap for tree and csv rows output to file (one line per row)
-        self._soft_wrap = bool(output)
         self.console = None  # ensure attribute exists even if validation raises
 
         if logger is not None and not isinstance(logger, logging.Logger):
@@ -81,10 +79,20 @@ class SpecPrinter:
         self.console = Console(
             highlight=False,
             file=open(output, "w", encoding="utf-8") if output else None,
-            force_terminal=not output,
+            # None: detect if stdout is a terminal
+            force_terminal=False if output else None,
             no_color=bool(output),
-            width=FILE_TABLE_WIDTH if output else None,
         )
+
+        # Test if output option or a redirected stdout is being used to write to a file.
+        to_file = not self.console.is_terminal
+
+        # Set soft wrap for tree and csv rows output to file (one line per row)
+        self._soft_wrap = to_file
+
+        # Set a large width for the tables output to file
+        if to_file:
+            self.console.width = FILE_TABLE_WIDTH
 
     def print_tree(
         self,
@@ -149,7 +157,9 @@ class SpecPrinter:
         # Disable colorization if outputting to a file
         use_color = self._should_colorize(colorize)
             
-        table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
+        # Set the header color only when colorizing (the default header style is bold only)
+        header_style = "bold magenta" if use_color else None
+        table = Table(show_header=True, header_style=header_style, show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         # Define the columns using the extracted headers
         for i, header in enumerate(self.model.metadata.header):

@@ -42,3 +42,20 @@ To parse the Patient Module Attributes Table:
 ```bash
 poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1
 ```
+
+To save the output in a file, use the `--output` option when available, or redirect with `>`:
+
+```bash
+# With --output
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --output patient_module.txt
+
+# With redirection
+poetry run python -m src.dcmspec.apps.cli.modattributes table_C.7-1 --print-mode tree > patient_module.txt
+```
+
+In Windows PowerShell 5.1, run this before redirecting, to prevent garbled text:
+
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+```
+

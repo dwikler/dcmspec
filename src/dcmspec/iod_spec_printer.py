@@ -76,7 +76,9 @@ class IODSpecPrinter(SpecPrinter):
         if self.output:
             colorize = False
 
-        table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
+        # Set the header color only when colorizing (the default header style is bold only)
+        header_style = "bold magenta" if colorize else None
+        table = Table(show_header=True, header_style=header_style, show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         attr_headers = list(self.model.metadata.header)
         for i, header in enumerate(attr_headers):
