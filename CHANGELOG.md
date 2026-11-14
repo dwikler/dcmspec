@@ -25,9 +25,7 @@ These release notes summarize key changes, improvements, and breaking updates fo
   cached by an earlier version keep the old values: delete them from the cache to rebuild them
   ([#51](https://github.com/dwikler/dcmspec/issues/51)).
 - The CLI apps no longer fail with a `UnicodeEncodeError` on Windows when their output is
-  redirected with `>`. In Windows PowerShell 5.1 the redirected file is still re-encoded by
-  PowerShell: use `--output` or `Out-File -Encoding utf8`
-  ([#166](https://github.com/dwikler/dcmspec/issues/166)).
+  redirected with `>` ([#166](https://github.com/dwikler/dcmspec/issues/166)).
 
 ## [0.4.1] - 2026-09-27
 
