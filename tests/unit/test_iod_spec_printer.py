@@ -129,7 +129,11 @@ def _print_table_to_terminal(model, colorize):
 
 def test_print_table_header_is_not_magenta_without_color(iod_spec_model):
     """Test that print_table does not style the header in magenta when colorize is False."""
-    assert "\x1b[1;35m" not in _print_table_to_terminal(iod_spec_model, colorize=False)
+    output = _print_table_to_terminal(iod_spec_model, colorize=False)
+
+    # Assert that the table was printed with its header, and without the magenta style
+    assert "Attr1" in output
+    assert "\x1b[1;35m" not in output
 
 def test_print_table_header_is_magenta_with_color(iod_spec_model):
     """Test that print_table styles the header in bold magenta when colorize is True."""

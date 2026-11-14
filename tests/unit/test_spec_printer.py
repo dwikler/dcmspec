@@ -686,8 +686,11 @@ def test_print_to_redirected_stdout_has_no_ansi(minimal_spec_model, capsys):
     printer.print_tree(attr_names="elem_name", colorize=True)
     printer.print_table(colorize=True)
     printer.print_csv(colorize=True)
+    output = capsys.readouterr().out
 
-    assert "\x1b[" not in capsys.readouterr().out
+    # Assert that the tree, the table and the csv were printed, once each, and without ANSI
+    assert output.count("Element1") == 3
+    assert "\x1b[" not in output
 
 def test_redirected_stdout_uses_the_file_table_width(minimal_spec_model, capsys):
     """Test that a redirected stdout gets the large width, as an output file does."""
@@ -719,7 +722,11 @@ def test_print_table_header_is_not_magenta_without_color(minimal_spec_model):
     """Test that print_table does not style the header in magenta when colorize is False."""
     add_standard_node(minimal_spec_model)
 
-    assert "\x1b[1;35m" not in _print_table_to_terminal(minimal_spec_model, colorize=False)
+    output = _print_table_to_terminal(minimal_spec_model, colorize=False)
+
+    # Assert that the table was printed with its header, and without the magenta style
+    assert "Name" in output
+    assert "\x1b[1;35m" not in output
 
 def test_print_table_header_is_magenta_with_color(minimal_spec_model):
     """Test that print_table styles the header in bold magenta when colorize is True."""
