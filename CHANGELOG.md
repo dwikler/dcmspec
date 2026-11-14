@@ -2,7 +2,7 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
-## [0.4.2] - unreleased
+## [0.4.2] - 2026-11-14
 
 ### Fixed
 
