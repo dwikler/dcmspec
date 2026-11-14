@@ -1,9 +1,11 @@
 """Tests for the SpecFactory class in dcmspec.spec_factory."""
 import logging
+import os
 import pytest
 from dcmspec.progress import Progress, ProgressStatus, calculate_percent
 from dcmspec.spec_factory import SpecFactory
 from dcmspec.config import Config
+from dcmspec.json_spec_store import JSONSpecStore
 from dcmspec.spec_model import SpecModel
 
 class DummySpecModel(SpecModel):
@@ -353,6 +355,8 @@ def test_build_model_handler_kwargs_mismatch_reparses(monkeypatch):
     def load_with_other_handler_kwargs(path):
         from anytree import Node
         metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
         metadata.handler_kwargs = {"table_indices": [1]}
         return SpecModel(metadata=metadata, content=Node("content"))
 
@@ -394,7 +398,7 @@ def test_build_model_handler_kwargs_match_uses_cache(monkeypatch):
     assert not tp.called
 
 def test_build_model_handler_kwargs_match_across_json_round_trip(monkeypatch):
-    """Test handler_kwargs still match after a JSON round trip turns int keys and sort order around."""
+    """Test handler_kwargs still match after a JSON round trip turns tuples and keys into JSON types."""
     ms = DummyModelStore()
     ih = DummyInputHandler()
     tp = DummyTableParser()
@@ -406,8 +410,8 @@ def test_build_model_handler_kwargs_match_across_json_round_trip(monkeypatch):
         metadata = Node("metadata")
         metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
         metadata.name_attr = "elem_name"
-        # as written by json: keys are strings, lists keep their order
-        metadata.handler_kwargs = {"snap_tolerance_overrides": {"3": 0.5}, "table_indices": [3, 1]}
+        # as written by json: dict keys are strings, tuple entries are lists
+        metadata.handler_kwargs = {"snap_tolerance_overrides": {"3": 0.5}, "table_indices": [[3, 0]]}
         return SpecModel(metadata=metadata, content=Node("content"))
 
     monkeypatch.setattr(ms, "load", load_after_round_trip)
@@ -416,10 +420,37 @@ def test_build_model_handler_kwargs_match_across_json_round_trip(monkeypatch):
         table_id="table1",
         url="http://example.com",
         json_file_name="file.json",
-        handler_kwargs={"snap_tolerance_overrides": {3: 0.5}, "table_indices": [1, 3]},
+        handler_kwargs={"snap_tolerance_overrides": {3: 0.5}, "table_indices": [(3, 0)]},
     )
     assert isinstance(model, SpecModel)
     assert not tp.called
+
+def test_build_model_handler_kwargs_reordered_table_indices_reparses(monkeypatch):
+    """Test a reordered table_indices request is a cache miss so the caller gets the requested order."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_with_reverse_order(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        metadata.handler_kwargs = {"table_indices": [(2, 0), (1, 0)]}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_with_reverse_order)
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs={"table_indices": [(1, 0), (2, 0)]},
+    )
+    assert tp.called
 
 def test_build_model_reparses_old_cache_missing_handler_kwargs(monkeypatch):
     """Test a cache written before handler_kwargs was recorded self-heals by reparsing."""
@@ -432,7 +463,10 @@ def test_build_model_reparses_old_cache_missing_handler_kwargs(monkeypatch):
 
     def load_without_handler_kwargs_attr(path):
         from anytree import Node
-        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        return SpecModel(metadata=metadata, content=Node("content"))
 
     monkeypatch.setattr(ms, "load", load_without_handler_kwargs_attr)
     factory.build_model(
@@ -459,6 +493,36 @@ def test_build_model_records_handler_kwargs_in_metadata(monkeypatch):
     )
     assert model.metadata.handler_kwargs == handler_kwargs
     assert ms.saved[0].metadata.handler_kwargs == handler_kwargs
+
+def test_build_model_caches_tuple_keyed_handler_kwargs(patch_dirs):
+    """Test handler options keyed by tuples are saved to JSON and reused from the cache."""
+    ms = JSONSpecStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    handler_kwargs = {"table_indices": [(10, 0)], "table_header_rowspan": {(10, 0): 2}}
+
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs=handler_kwargs,
+    )
+    cached_path = str(patch_dirs / "cache" / "model" / "file.json")
+    assert os.path.exists(cached_path)
+    assert tp.called
+
+    tp.called = False
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs=handler_kwargs,
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
 
 def test_build_model_without_handler_kwargs_matches_cache_without_them(monkeypatch):
     """Test a caller that passes no handler_kwargs still uses a cache written without them."""

@@ -445,6 +445,57 @@ class SpecFactory:
 
         return {key: normalize(value) for key, value in sorted((parser_options or {}).items())}
 
+    @staticmethod
+    def _normalize_json_value(value: Any) -> Any:
+        """Recursively normalize a value to the form it takes after a JSON round trip.
+
+        Lists stay lists (their order is preserved), tuples become lists, and dict keys become
+        strings, sorted for a stable comparison.
+        """
+        if isinstance(value, (list, tuple)):
+            return [SpecFactory._normalize_json_value(item) for item in value]
+        if isinstance(value, dict):
+            return {
+                str(k): SpecFactory._normalize_json_value(v)
+                for k, v in sorted(value.items(), key=lambda item: str(item[0]))
+            }
+        return value
+
+    @staticmethod
+    def _normalize_handler_options(handler_options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Normalize handler options for comparison across a JSON round trip.
+
+        List order is preserved because it is significant: `table_indices` selects and orders the
+        tables that are concatenated, so a reordered request must not match the cached model.
+        Tuples become lists (JSON has no tuples) and dict keys become strings (JSON object keys
+        are always strings), recursively, so equal options still match after loading the cache.
+        """
+        return {
+            key: SpecFactory._normalize_json_value(value)
+            for key, value in sorted((handler_options or {}).items())
+        }
+
+    @staticmethod
+    def _json_compatible_handler_options(handler_options: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+        """Return handler options with JSON-incompatible dict keys converted to strings.
+
+        `table_header_rowspan` is keyed by `(page, index)` tuples, which JSON cannot serialize
+        as object keys; without this, saving the model fails and the model is never cached.
+        Keys JSON already accepts (str, int, float, bool, None) are kept as they are, and tuple
+        values are stored as lists so the recorded options match their JSON form.
+        """
+        def convert(value: Any) -> Any:
+            if isinstance(value, dict):
+                return {
+                    (k if isinstance(k, (str, int, float, bool)) or k is None else str(k)): convert(v)
+                    for k, v in value.items()
+                }
+            if isinstance(value, (list, tuple)):
+                return [convert(item) for item in value]
+            return value
+
+        return convert(handler_options or {})
+
     def _load_model_from_cache(
         self,
         json_file_path: str,
@@ -464,20 +515,20 @@ class SpecFactory:
             cached_depth = getattr(metadata, "include_depth", None)
             cached_options = {
                 "include_depth": None if cached_depth is None else int(cached_depth),
-                "column_to_attr": getattr(metadata, "requested_column_to_attr", None),
+                "column_to_attr": self._normalize_json_value(
+                    getattr(metadata, "requested_column_to_attr", None)
+                ),
                 "name_attr": getattr(metadata, "name_attr", None),
-                "parser_kwargs": getattr(metadata, "parser_kwargs", None) or {},
-                "handler_kwargs": getattr(metadata, "handler_kwargs", None) or {},
+                "parser_kwargs": self._normalize_parser_options(getattr(metadata, "parser_kwargs", None)),
+                "handler_kwargs": self._normalize_handler_options(getattr(metadata, "handler_kwargs", None)),
             }
             requested_options = {
                 "include_depth": None if include_depth is None else int(include_depth),
-                "column_to_attr": self.column_to_attr,
+                "column_to_attr": self._normalize_json_value(self.column_to_attr),
                 "name_attr": self.name_attr,
-                "parser_kwargs": parser_kwargs or {},
-                "handler_kwargs": handler_kwargs or {},
+                "parser_kwargs": self._normalize_parser_options(parser_kwargs),
+                "handler_kwargs": self._normalize_handler_options(handler_kwargs),
             }
-            cached_options = self._normalize_parser_options(cached_options)
-            requested_options = self._normalize_parser_options(requested_options)
             mismatched = [name for name in requested_options if cached_options[name] != requested_options[name]]
             if mismatched:
                 details = ", ".join(
@@ -530,7 +581,7 @@ class SpecFactory:
         metadata.requested_column_to_attr = self.column_to_attr
         metadata.name_attr = self.name_attr
         metadata.parser_kwargs = parser_kwargs or {}
-        metadata.handler_kwargs = handler_kwargs or {}
+        metadata.handler_kwargs = self._json_compatible_handler_options(handler_kwargs)
 
         # Build the model from parsed content and metadata
         model = self.model_class(
