@@ -1,8 +1,10 @@
 """Tests for the IODSpecPrinter class in dcmspec.iod_spec_printer."""
+import io
 import pytest
 
 from anytree import Node
 from openpyxl import load_workbook
+from rich.console import Console
 
 from dcmspec.iod_spec_printer import IODSpecPrinter
 from dcmspec.spec_model import SpecModel
@@ -116,6 +118,22 @@ def test_print_table_no_color_styles(iod_spec_model, monkeypatch):
     printer.print_table(colorize=False)
     # All styles should be None or default
     assert all(s in (None, "default", "") for s in styles)
+
+def _print_table_to_terminal(model, colorize):
+    """Print the table of the model to a terminal console and return what was written."""
+    stream = io.StringIO()
+    printer = IODSpecPrinter(model)
+    printer.console = Console(file=stream, force_terminal=True, color_system="standard", width=200, highlight=False)
+    printer.print_table(colorize=colorize)
+    return stream.getvalue()
+
+def test_print_table_header_is_not_magenta_without_color(iod_spec_model):
+    """Test that print_table does not style the header in magenta when colorize is False."""
+    assert "\x1b[1;35m" not in _print_table_to_terminal(iod_spec_model, colorize=False)
+
+def test_print_table_header_is_magenta_with_color(iod_spec_model):
+    """Test that print_table styles the header in bold magenta when colorize is True."""
+    assert "\x1b[1;35m" in _print_table_to_terminal(iod_spec_model, colorize=True)
 
 def test_print_table_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_path):
     """Test that print_table sets style=None for all rows when output is set (writing to file)."""
