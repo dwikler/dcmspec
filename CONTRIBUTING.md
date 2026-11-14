@@ -19,8 +19,8 @@ We welcome bug reports, feature requests, documentation improvements, and code c
    poetry install --with dev --extras "gui pdf"
    ```
 
-> **Note:** This will install all development, GUI, and PDF dependencies so you can test and work on every feature.
-> For details on what each dependency group includes, see the [Dependencies and Optional Features section in the installation guide](https://dwikler.github.io/dcmspec/installation/#dependencies-and-optional-features).
+   > **Note:** This will install all development, GUI, and PDF dependencies so you can test and work on every feature.
+   > For details on what each dependency group includes, see the [Dependencies and Optional Features section in the installation guide](https://dwikler.github.io/dcmspec/installation/#dependencies-and-optional-features).
 
 3. **(Optional) Activate the virtual environment:**
 
@@ -65,7 +65,7 @@ We welcome bug reports, feature requests, documentation improvements, and code c
 
 6. **Build and check documentation** (if applicable):
 
-   - Build and preview the docs locally:
+   - Build and preview the docs locally (requires Python 3.11 or newer):
      ```bash
      mkdocs serve
      ```
@@ -77,6 +77,8 @@ We welcome bug reports, feature requests, documentation improvements, and code c
    git commit -m "Describe your change"
    git push origin my-feature-branch
    ```
+
+   > **Note:** If you added, removed or changed a dependency in `pyproject.toml`, run `poetry lock` first and commit the updated `poetry.lock` with your change.
 
 8. **Open a Pull Request**
    - Go to https://github.com/dwikler/dcmspec and open a PR from your branch.

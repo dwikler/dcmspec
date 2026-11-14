@@ -14,9 +14,6 @@ ENV/
 env/
 *.env
 
-# Poetry
-poetry.lock
-
 # VS Code settings
 .vscode/
 
