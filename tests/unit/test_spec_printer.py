@@ -193,6 +193,43 @@ def test_print_tree_no_color_when_output_set(monkeypatch, minimal_spec_model, tm
     # Assert that no style was applied
     assert all(style in (None, '') for style in styles), f"Expected no color styles, got {styles}"
 
+def test_print_tree_to_file_does_not_wrap_wide_rows(minimal_spec_model, tmp_path):
+    """Test that print_tree writes one line per row to a file, even for rows wider than 80 characters."""
+    model = minimal_spec_model
+    add_standard_node(model)
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    # Print a tree whose rows are wider than the 80 columns Rich defaults to for files
+    printer.print_tree(attr_names=["elem_name", "elem_tag"], attr_widths=[100, 11])
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that there is one line per node, with no wrapped continuation line
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2  # root node and element1
+    assert "Element1" in lines[1] and "(0101,0010)" in lines[1]
+
+def test_print_table_to_file_does_not_wrap_wide_rows(minimal_spec_model, tmp_path):
+    """Test that print_table writes a wide table to a file without wrapping its rows."""
+    model = minimal_spec_model
+    add_standard_node(model)
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = SpecPrinter(model, output=str(output_file))
+
+    # Print a table wider than the 80 columns Rich defaults to for files
+    printer.print_table(column_widths=[100, 20])
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the table is not wrapped and that its columns are not squeezed
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 5  # top border, header, separator, data row, bottom border
+    assert max(len(line) for line in lines) > 80
+    assert "(0101,0010)" in lines[3]
+
 def test_print_table_does_not_crash(monkeypatch, minimal_spec_model):
     """Test that print_table can be called without error."""
     model = minimal_spec_model

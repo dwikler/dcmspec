@@ -31,6 +31,9 @@ SPECIAL_COLORS = {
     "title": "rgb(255,0,255)",    # Magenta for title nodes
 }
 
+# Set a large line width for output to file (Rich defaults to 80)
+FILE_OUTPUT_WIDTH = 1000
+
 class SpecPrinter:
     """Printer for DICOM specification models.
 
@@ -77,7 +80,8 @@ class SpecPrinter:
             highlight=False,
             file=open(output, "w", encoding="utf-8") if output else None,
             force_terminal=not output,
-            no_color=bool(output)
+            no_color=bool(output),
+            width=FILE_OUTPUT_WIDTH if output else None,
         )
 
     def print_tree(
