@@ -143,6 +143,7 @@ class SpecFactory:
         model_kwargs: Optional[Dict[str, Any]],
         force_parse: bool = False,
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        handler_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
         """Return the cached model for json_file_name, if one exists and is still valid.
 
@@ -162,6 +163,10 @@ class SpecFactory:
             parser_kwargs (Optional[Dict[str, Any]]): Requested parser_kwargs (e.g.
                 ref_columns, skip_columns, unformatted); a cached model built with
                 different values is treated as a miss.
+            handler_kwargs (Optional[Dict[str, Any]]): Requested handler_kwargs (e.g.
+                table_indices, snap_tolerance_overrides, strict_header_check); they shape
+                the loaded document, so a cached model built with different values is
+                treated as a miss.
 
         Returns:
             Optional[SpecModel]: The cached model, or None if no valid cache exists.
@@ -177,7 +182,9 @@ class SpecFactory:
             json_file_name = str(Path(cache_file_name).with_suffix(self.model_store.file_extension))
         json_file_path = os.path.join(self.config.get_param("cache_dir"), "model", json_file_name)
         if os.path.exists(json_file_path) and not force_parse:
-            model = self._load_model_from_cache(json_file_path, include_depth, model_kwargs, parser_kwargs)
+            model = self._load_model_from_cache(
+                json_file_path, include_depth, model_kwargs, parser_kwargs, handler_kwargs
+            )
             if model is not None:
                 return model
         return None
@@ -193,6 +200,7 @@ class SpecFactory:
         force_parse: bool = False,
         model_kwargs: Optional[Dict[str, Any]] = None,
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        handler_kwargs: Optional[Dict[str, Any]] = None,
     ) -> SpecModel:
         """Build and cache a DICOM specification model from a parsed document object, if needed.
 
@@ -215,6 +223,9 @@ class SpecFactory:
                 `model_kwargs={"foo": foo_value, "bar": bar_value}`.
             parser_kwargs (Optional[Dict[str, Any]]): Additional keyword arguments to pass to the parser's
                 `parse` method. Use this to supply parser-specific options such as `skip_columns`.
+            handler_kwargs (Optional[Dict[str, Any]]): Keyword arguments the input handler was called with
+                to produce `doc_object` (e.g. table_indices, strict_header_check). They shape the loaded
+                document, so a cached model built with different values is treated as a miss.
 
         If `json_file_name` is not provided, the factory will attempt to use
         `self.input_handler.cache_file_name` to generate a default cache file name,
@@ -245,7 +256,7 @@ class SpecFactory:
         # Try to load from cache first
         merged_parser_kwargs = self._merge_parser_kwargs(parser_kwargs)
         model = self.try_load_cache(
-            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs
+            json_file_name, include_depth, model_kwargs, force_parse, merged_parser_kwargs, handler_kwargs
         )
         if model is not None:
             return model
@@ -266,6 +277,7 @@ class SpecFactory:
             include_depth=include_depth,
             model_kwargs=model_kwargs,
             parser_kwargs=merged_parser_kwargs,
+            handler_kwargs=handler_kwargs,
             progress_observer=parsing_progress_observer,
         )
 
@@ -362,6 +374,7 @@ class SpecFactory:
             model_kwargs,
             force_parse or force_download,
             merged_parser_kwargs,
+            handler_kwargs,
         )
         if model is not None:
             return model
@@ -408,6 +421,7 @@ class SpecFactory:
             force_parse=force_parse or force_download,
             model_kwargs=model_kwargs,
             parser_kwargs=parser_kwargs,
+            handler_kwargs=handler_kwargs,
         )
 
 
@@ -437,6 +451,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        handler_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Optional[SpecModel]:
         """Load model from cache file if the options it was built with match the requested ones."""
         try:
@@ -452,12 +467,14 @@ class SpecFactory:
                 "column_to_attr": getattr(metadata, "requested_column_to_attr", None),
                 "name_attr": getattr(metadata, "name_attr", None),
                 "parser_kwargs": getattr(metadata, "parser_kwargs", None) or {},
+                "handler_kwargs": getattr(metadata, "handler_kwargs", None) or {},
             }
             requested_options = {
                 "include_depth": None if include_depth is None else int(include_depth),
                 "column_to_attr": self.column_to_attr,
                 "name_attr": self.name_attr,
                 "parser_kwargs": parser_kwargs or {},
+                "handler_kwargs": handler_kwargs or {},
             }
             cached_options = self._normalize_parser_options(cached_options)
             requested_options = self._normalize_parser_options(requested_options)
@@ -493,6 +510,7 @@ class SpecFactory:
         include_depth: Optional[int],
         model_kwargs: Optional[Dict[str, Any]],
         parser_kwargs: Optional[Dict[str, Any]] = None,
+        handler_kwargs: Optional[Dict[str, Any]] = None,
         progress_observer: Optional[ProgressObserver] = None,
     ) -> SpecModel:
         """Parse and Build model from provided parsed document object."""
@@ -512,6 +530,7 @@ class SpecFactory:
         metadata.requested_column_to_attr = self.column_to_attr
         metadata.name_attr = self.name_attr
         metadata.parser_kwargs = parser_kwargs or {}
+        metadata.handler_kwargs = handler_kwargs or {}
 
         # Build the model from parsed content and metadata
         model = self.model_class(

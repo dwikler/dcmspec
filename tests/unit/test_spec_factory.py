@@ -341,6 +341,151 @@ def test_build_model_reparses_old_cache_missing_parser_kwargs(monkeypatch):
     )
     assert tp.called
 
+def test_build_model_handler_kwargs_mismatch_reparses(monkeypatch):
+    """Test build_model treats a handler_kwargs mismatch as a cache miss and reparses (issue #175)."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_with_other_handler_kwargs(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.handler_kwargs = {"table_indices": [1]}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_with_other_handler_kwargs)
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs={"table_indices": [2]},
+    )
+    assert tp.called
+
+def test_build_model_handler_kwargs_match_uses_cache(monkeypatch):
+    """Test build_model uses the cache when handler_kwargs match the cached model's metadata."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_with_handler_kwargs(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        metadata.handler_kwargs = {"table_indices": [1, 2], "strict_header_check": True}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_with_handler_kwargs)
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs={"table_indices": [1, 2], "strict_header_check": True},
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
+
+def test_build_model_handler_kwargs_match_across_json_round_trip(monkeypatch):
+    """Test handler_kwargs still match after a JSON round trip turns int keys and sort order around."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_after_round_trip(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        # as written by json: keys are strings, lists keep their order
+        metadata.handler_kwargs = {"snap_tolerance_overrides": {"3": 0.5}, "table_indices": [3, 1]}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_after_round_trip)
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs={"snap_tolerance_overrides": {3: 0.5}, "table_indices": [1, 3]},
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
+
+def test_build_model_reparses_old_cache_missing_handler_kwargs(monkeypatch):
+    """Test a cache written before handler_kwargs was recorded self-heals by reparsing."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr(ms, "save", lambda model, path: None)
+
+    def load_without_handler_kwargs_attr(path):
+        from anytree import Node
+        return SpecModel(metadata=Node("metadata"), content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_without_handler_kwargs_attr)
+    factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs={"table_indices": [1]},
+    )
+    assert tp.called
+
+def test_build_model_records_handler_kwargs_in_metadata(monkeypatch):
+    """Test a model built from a document records the handler_kwargs it was built with."""
+    ms = DummyModelStore()
+    factory = SpecFactory(model_store=ms, input_handler=DummyInputHandler(), table_parser=DummyTableParser())
+    monkeypatch.setattr("os.path.exists", lambda path: False)
+    handler_kwargs = {"table_indices": [1], "strict_header_check": True}
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+        handler_kwargs=handler_kwargs,
+    )
+    assert model.metadata.handler_kwargs == handler_kwargs
+    assert ms.saved[0].metadata.handler_kwargs == handler_kwargs
+
+def test_build_model_without_handler_kwargs_matches_cache_without_them(monkeypatch):
+    """Test a caller that passes no handler_kwargs still uses a cache written without them."""
+    ms = DummyModelStore()
+    ih = DummyInputHandler()
+    tp = DummyTableParser()
+    factory = SpecFactory(model_store=ms, input_handler=ih, table_parser=tp)
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+
+    def load_with_empty_handler_kwargs(path):
+        from anytree import Node
+        metadata = Node("metadata")
+        metadata.requested_column_to_attr = {0: "elem_name", 1: "elem_tag", 2: "elem_type", 3: "elem_description"}
+        metadata.name_attr = "elem_name"
+        metadata.handler_kwargs = {}
+        return SpecModel(metadata=metadata, content=Node("content"))
+
+    monkeypatch.setattr(ms, "load", load_with_empty_handler_kwargs)
+    model = factory.build_model(
+        doc_object="DOM",
+        table_id="table1",
+        url="http://example.com",
+        json_file_name="file.json",
+    )
+    assert isinstance(model, SpecModel)
+    assert not tp.called
+
 def test_build_model_column_to_attr_mismatch_reparses(monkeypatch):
     """Test build_model reparses when column_to_attr differs from the cached model's."""
     ms = DummyModelStore()
