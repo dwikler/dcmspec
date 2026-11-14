@@ -14,6 +14,7 @@ For more details, use the --help option.
 
 import os
 import argparse
+import sys
 from dcmspec.config import Config
 
 from dcmspec.spec_factory import SpecFactory
@@ -42,6 +43,9 @@ def main():
         poetry run python -m src.dcmspec.apps.cli.uidvalues
 
     """
+    # Use UTF-8 when the output is redirected
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to the configuration file")

@@ -48,13 +48,13 @@ class IODSpecPrinter(SpecPrinter):
                 # Module title row: always use title color if colorize
                 iod_title = getattr(node, "module", getattr(node, "name", ""))
                 iod_usage = getattr(node, "usage", "")
-                iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else iod_title
+                iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else f"{iod_title} Module"
                 node_text = Text(iod_title_text, style=SPECIAL_COLORS["title"] if colorize else None)
             else:
                 attr_text = self._format_tree_row(node, attr_names, attr_widths)
                 row_style = self._get_tree_row_style(node, colorize)
                 node_text = Text(attr_text, style=row_style)
-            self.console.print(Text(pre) + node_text)
+            self.console.print(Text(pre) + node_text, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()
@@ -76,7 +76,9 @@ class IODSpecPrinter(SpecPrinter):
         if self.output:
             colorize = False
 
-        table = Table(show_header=True, header_style="bold magenta", show_lines=True, box=box.ASCII_DOUBLE_HEAD)
+        # Set the header color only when colorizing (the default header style is bold only)
+        header_style = "bold magenta" if colorize else None
+        table = Table(show_header=True, header_style=header_style, show_lines=True, box=box.ASCII_DOUBLE_HEAD)
 
         attr_headers = list(self.model.metadata.header)
         for i, header in enumerate(attr_headers):
@@ -110,7 +112,7 @@ class IODSpecPrinter(SpecPrinter):
 
         # Print CSV header
         header_row = ",".join(f'"{h}"' for h in self.model.metadata.header)
-        self.console.print(header_row)
+        self.console.print(header_row, soft_wrap=self._soft_wrap)
 
         # Add data rows (including module title rows)
         for row, row_style, _ in self._iterate_rows_iod(colorize):
@@ -119,7 +121,7 @@ class IODSpecPrinter(SpecPrinter):
                 f'"{("" if cell is None else str(cell)).replace(chr(34), chr(34) + chr(34))}"'
                 for cell in row
             )
-            self.console.print(csv_row, style=row_style)
+            self.console.print(csv_row, style=row_style, soft_wrap=self._soft_wrap)
 
         if self.console.file:
             self.console.file.flush()
@@ -234,7 +236,7 @@ class IODSpecPrinter(SpecPrinter):
                 if include_module_titles:
                     iod_title = getattr(node, "module", getattr(node, "name", ""))
                     iod_usage = getattr(node, "usage", "")
-                    iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else iod_title
+                    iod_title_text = f"{iod_title} Module ({iod_usage})" if iod_usage else f"{iod_title} Module"
                     row_style = SPECIAL_COLORS["title"] if colorize else None
                     yield [iod_title_text] + [""] * (len(attr_headers) - 1), row_style, current_module or "Other"
                 # else: skip module title rows for xlsx

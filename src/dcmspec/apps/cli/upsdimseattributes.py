@@ -15,6 +15,7 @@ For more details, use the --help option.
 
 import os
 import argparse
+import sys
 from dcmspec.config import Config
 
 from dcmspec.service_attribute_model import ServiceAttributeModel
@@ -49,6 +50,9 @@ def main():
         poetry run python -m src.dcmspec.apps.cli.upsdimseattributes --dimse N-CREATE --role SCU
 
     """
+    # Use UTF-8 when the output is redirected
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to the configuration file")

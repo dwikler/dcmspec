@@ -54,6 +54,26 @@ def test_select_dimse(sample_metadata_content_and_mapping):
     assert metadata.header == ["Name", "DIMSE1 (SCU/SCP)"]
     assert set(metadata.column_to_attr.values()) == {"elem_name", "dimse1"}
 
+def test_select_dimse_keeps_header_and_column_to_attr_aligned(sample_metadata_content_and_mapping):
+    """Test that header[i] corresponds to column_to_attr[i] when a column before the kept ones is removed."""
+    metadata, content, dimse_mapping, _, _ = sample_metadata_content_and_mapping
+    model = ServiceAttributeModel(metadata, content, dimse_mapping)
+    model.select_dimse("DIMSE2")
+    assert metadata.header == ["Name", "DIMSE2 (SCU/SCP)"]
+    assert metadata.column_to_attr == {0: "elem_name", 1: "dimse2"}
+
+
+def test_select_role_comment_column_aligned_after_select_dimse(sample_metadata_content_and_mapping):
+    """Test that the comment column added by select_role lines up with the Comment header cell."""
+    metadata, content, dimse_mapping, _, set_node_value = sample_metadata_content_and_mapping
+    set_node_value("dimse2", "3\nThis is a comment")
+    model = ServiceAttributeModel(metadata, content, dimse_mapping)
+    model.select_dimse("DIMSE2")
+    model.select_role("SCU")
+    comment_index = metadata.header.index("Comment")
+    assert metadata.column_to_attr[comment_index] == "comment"
+
+
 def test_select_dimse_warns_if_dimse_not_found(sample_metadata_content_and_mapping, caplog):
     """Test that select_dimse logs a warning and does nothing if dimse is not in DIMSE_MAPPING."""
     metadata, content, dimse_mapping, node, _ = sample_metadata_content_and_mapping

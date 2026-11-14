@@ -19,8 +19,13 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [Ubuntu]
-        python-version: ["3.10", "3.11", "3.12"]
+        include:
+          - os: Ubuntu
+            python-version: "3.10"
+          - os: macOS
+            python-version: "3.11"
+          - os: Windows
+            python-version: "3.12"
     steps:
       - uses: actions/checkout@v7
 
@@ -47,8 +52,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          poetry install --with dev
-          poetry run pip install ".[gui,pdf]"
+          poetry install --with dev --extras "gui pdf"
       - name: Run pytest
         shell: bash
         run: poetry run python -m pytest -v tests/unit tests/integration

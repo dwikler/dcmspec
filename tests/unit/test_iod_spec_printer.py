@@ -1,8 +1,10 @@
 """Tests for the IODSpecPrinter class in dcmspec.iod_spec_printer."""
+import io
 import pytest
 
 from anytree import Node
 from openpyxl import load_workbook
+from rich.console import Console
 
 from dcmspec.iod_spec_printer import IODSpecPrinter
 from dcmspec.spec_model import SpecModel
@@ -67,6 +69,30 @@ def test_print_table_prints_module_title_and_attr(iod_spec_model):
     assert "Value1" in result
     assert "Value2" in result
 
+@pytest.fixture
+def module_without_usage_model(iod_spec_model):
+    """Fixture for an IOD SpecModel whose module has no usage, as in a Normalized IOD."""
+    iod_spec_model.content.children[0].usage = None
+    return iod_spec_model
+
+def test_print_tree_module_title_without_usage(module_without_usage_model):
+    """Test that print_tree titles a module without usage as '<name> Module' with no parentheses."""
+    printer = IODSpecPrinter(module_without_usage_model)
+    with printer.console.capture() as capture:
+        printer.print_tree(attr_names=["attr1", "attr2"], colorize=False)
+    result = capture.get()
+    assert "Patient Module" in result
+    assert "Patient Module (" not in result
+
+def test_print_table_module_title_without_usage(module_without_usage_model):
+    """Test that print_table titles a module without usage as '<name> Module' with no parentheses."""
+    printer = IODSpecPrinter(module_without_usage_model)
+    with printer.console.capture() as capture:
+        printer.print_table(colorize=False)
+    result = capture.get()
+    assert "Patient Module" in result
+    assert "Patient Module (" not in result
+
 def test_print_table_column_widths(iod_spec_model):
     """Test that print_table applies column_widths for column sizing."""
     printer = IODSpecPrinter(iod_spec_model)
@@ -93,6 +119,26 @@ def test_print_table_no_color_styles(iod_spec_model, monkeypatch):
     # All styles should be None or default
     assert all(s in (None, "default", "") for s in styles)
 
+def _print_table_to_terminal(model, colorize):
+    """Print the table of the model to a terminal console and return what was written."""
+    stream = io.StringIO()
+    printer = IODSpecPrinter(model)
+    printer.console = Console(file=stream, force_terminal=True, color_system="standard", width=200, highlight=False)
+    printer.print_table(colorize=colorize)
+    return stream.getvalue()
+
+def test_print_table_header_is_not_magenta_without_color(iod_spec_model):
+    """Test that print_table does not style the header in magenta when colorize is False."""
+    output = _print_table_to_terminal(iod_spec_model, colorize=False)
+
+    # Assert that the table was printed with its header, and without the magenta style
+    assert "Attr1" in output
+    assert "\x1b[1;35m" not in output
+
+def test_print_table_header_is_magenta_with_color(iod_spec_model):
+    """Test that print_table styles the header in bold magenta when colorize is True."""
+    assert "\x1b[1;35m" in _print_table_to_terminal(iod_spec_model, colorize=True)
+
 def test_print_table_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_path):
     """Test that print_table sets style=None for all rows when output is set (writing to file)."""
     # Prepare model
@@ -118,6 +164,38 @@ def test_print_table_no_color_when_output_set(monkeypatch, iod_spec_model, tmp_p
     
     # Assert that all styles are None (no color applied)
     assert all(s is None for s in styles), f"Expected no color styles, got {styles}"
+
+def test_print_tree_to_file_does_not_wrap_rows_longer_than_the_width(iod_spec_model, tmp_path):
+    """Test that print_tree writes a very long row on a single line."""
+    long_value = "x" * 1500
+    iod_spec_model.content.children[0].children[0].attr1 = long_value
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(iod_spec_model, output=str(output_file))
+
+    printer.print_tree(attr_names=["attr1"], attr_widths=[1500])
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the long value is not split across lines
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert any(long_value in line for line in lines)
+
+def test_print_csv_to_file_does_not_wrap_long_record(iod_spec_model, tmp_path):
+    """Test that print_csv writes a very long record on a single line."""
+    long_value = "word " * 400
+    iod_spec_model.content.children[0].children[0].attr1 = long_value
+
+    # Simulate output being set (e.g., writing to a file)
+    output_file = tmp_path / "output.txt"
+    printer = IODSpecPrinter(iod_spec_model, output=str(output_file))
+
+    printer.print_csv()
+    printer.console.file.close()  # Flush and release the file before reading it
+
+    # Assert that the long value is not split across lines
+    lines = output_file.read_text(encoding="utf-8").splitlines()
+    assert any(long_value in line for line in lines)
 
 def test_print_tree_prints_module_title_and_attr(iod_spec_model):
     """Test that print_tree outputs the module title and attribute values."""

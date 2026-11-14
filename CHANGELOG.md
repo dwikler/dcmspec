@@ -2,6 +2,37 @@
 
 These release notes summarize key changes, improvements, and breaking updates for each version of **dcmspec**.
 
+## [0.4.2] - 2026-11-14
+
+### Fixed
+
+- `PDFDocHandler.load_document` now accepts `strict_header_check`, so the check for a DICOM tag in the header
+  can be turned off through the `handler_kwargs` of `SpecFactory`
+  ([#117](https://github.com/dwikler/dcmspec/issues/117)).
+- `SpecPrinter` and `IODSpecPrinter` no longer write ANSI escape sequences or wrap rows at 80
+  characters when stdout is redirected, and `--no-color` also removes the magenta table header
+  ([#122](https://github.com/dwikler/dcmspec/issues/122)).
+- `SpecPrinter` and `IODSpecPrinter` no longer wrap rows at 80 characters when writing to a file
+  with `--output`
+  ([#112](https://github.com/dwikler/dcmspec/issues/112)).
+- `ServiceAttributeModel.select_dimse` now keeps indices of `metadata.column_to_attr`
+  aligned with indices of `metadata.header` when filtering DIMSE columns
+  ([#26](https://github.com/dwikler/dcmspec/issues/26)).
+- `SectionImageResolver` now stores `image_paths` with forward slashes on every OS, instead of
+  the OS-specific separator. Section models cached on Windows by an earlier version keep their
+  backslash paths: delete them from the cache to rebuild them
+  ([#156](https://github.com/dwikler/dcmspec/issues/156)).
+- `DOMTableSpecParser` no longer puts the title of a skipped column in `metadata.header` and
+  drops the last one when `skip_columns` is used. Models cached by an earlier version keep the
+  wrong header: delete them from the cache to rebuild them
+  ([#154](https://github.com/dwikler/dcmspec/issues/154)).
+- The IOD Explorer install instructions now use the correct syntax: `poetry install --extras gui`.
+- The `iodmodules` and `iodattributes` apps now handle Normalized IOD tables correctly. Models
+  cached by an earlier version keep the old values: delete them from the cache to rebuild them
+  ([#51](https://github.com/dwikler/dcmspec/issues/51)).
+- The CLI apps no longer fail with a `UnicodeEncodeError` on Windows when their output is
+  redirected with `>` ([#166](https://github.com/dwikler/dcmspec/issues/166)).
+
 ## [0.4.1] - 2026-09-27
 
 ### Added

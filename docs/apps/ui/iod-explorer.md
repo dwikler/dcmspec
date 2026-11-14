@@ -25,7 +25,7 @@ Clone the repository and install dependencies with Poetry:
 ```bash
 git clone https://github.com/dwikler/dcmspec.git
 cd dcmspec
-poetry install --with gui
+poetry install --extras gui
 ```
 
 Or, with pip (from the repo root):

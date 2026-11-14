@@ -13,8 +13,7 @@ CLI scripts and one sample Tkinter UI app that demonstrate the API.
 Install dependencies (all optional extras, needed for full dev/test coverage):
 
 ```bash
-poetry install --with dev
-poetry run pip install ".[gui,pdf]"
+poetry install --with dev --extras "gui pdf"
 ```
 
 Run the test suite:
@@ -126,7 +125,7 @@ See [RELEASE.md](RELEASE.md) for the full workflow; the essentials:
 - `feat/`, `fix/`, `change/` branches are created from (and PR'd back into) the target `release/x.y.z` branch.
   `hotfix/` branches are created from (and PR'd back into) `main`, then propagated into active release branches.
 - CI (`.github/workflows/test.yml`) runs the pytest suite on pushes/PRs to `main` and `release/*` across
-  Python 3.10–3.12 on Ubuntu.
+  Ubuntu with Python 3.10, macOS with 3.11 and Windows with 3.12.
 - Before assuming a `feat/`/`fix/`/`change/`/`test/` branch's target `release/x.y.z` branch, check the GitHub
   milestones (`gh api repos/dwikler/dcmspec/milestones`) and the milestone's linked issues — they're the source
   of truth for which version a change belongs to. It's normal for multiple releases to be in progress at once

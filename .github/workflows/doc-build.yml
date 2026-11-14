@@ -1,0 +1,38 @@
+name: mkdocs-build-only
+
+on:
+  push:
+    branches:
+      - "release/*"
+  pull_request:
+    branches:
+      - main
+      - "release/*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Setup Poetry
+        uses: pronovic/setup-poetry@v3
+        with:
+          version: "2.1.1"
+          cache-venv: "true"
+          cache-poetry: "true"
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Build docs
+        run: poetry run mkdocs build --clean

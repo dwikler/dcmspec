@@ -1,4 +1,6 @@
 """Tests for the SectionImageResolver class in dcmspec.section_image_resolver."""
+import os
+
 from anytree import Node
 from dcmspec.section_image_resolver import SectionImageResolver
 from dcmspec.spec_model import SpecModel
@@ -43,13 +45,13 @@ def test_resolve_downloads_each_image_and_records_paths():
     assert doc_handler.calls == [
         (
             "https://example.org/figures/PS3.3_C.1-1.svg",
-            "/cache/standard/figures/PS3.3_C.1-1.svg",
+            os.path.join("/cache", "standard", "figures", "PS3.3_C.1-1.svg"),
             False,
             True,
         ),
         (
             "https://example.org/figures/PS3.3_C.1-2.svg",
-            "/cache/standard/figures/PS3.3_C.1-2.svg",
+            os.path.join("/cache", "standard", "figures", "PS3.3_C.1-2.svg"),
             False,
             True,
         ),
