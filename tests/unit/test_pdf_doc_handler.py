@@ -321,6 +321,67 @@ def test_load_document_forwards_snap_tolerance_overrides(monkeypatch, patch_dirs
     assert captured["snap"] == {1: 6}
 
 
+def test_load_document_forwards_strict_header_check(monkeypatch, patch_dirs):
+    """load_document forwards strict_header_check through to select_tables."""
+    # Arrange
+    handler = make_handler()
+    dummy_pdf = MagicMock()
+    dummy_pdf.pages = [MagicMock()]
+    dummy_pdf.close = MagicMock()
+    dummy_tables = [{"page": 1, "index": 0, "data": [["A", "B"], ["C", "D"]]}]
+    captured = {}
+
+    def fake_select(tables, table_indices, table_header_rowspan=None, strict_header_check=True):
+        captured["strict"] = strict_header_check
+        return []
+
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
+    monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn, snap=None: dummy_tables)
+    monkeypatch.setattr(handler, "select_tables", fake_select)
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None: {"header": [], "data": []})
+    # Act
+    handler.load_document(
+        cache_file_name="dummy.pdf",
+        page_numbers=[1],
+        table_indices=[(1, 0)],
+        table_id="t",
+        strict_header_check=False,
+    )
+    # Assert
+    assert captured["strict"] is False
+
+
+def test_load_document_strict_header_check_defaults_to_true(monkeypatch, patch_dirs):
+    """load_document keeps the tag-in-header guard on when strict_header_check is not given."""
+    # Arrange
+    handler = make_handler()
+    dummy_pdf = MagicMock()
+    dummy_pdf.pages = [MagicMock()]
+    dummy_pdf.close = MagicMock()
+    dummy_tables = [{"page": 1, "index": 0, "data": [["A", "B"], ["C", "D"]]}]
+    captured = {}
+
+    def fake_select(tables, table_indices, table_header_rowspan=None, strict_header_check=True):
+        captured["strict"] = strict_header_check
+        return []
+
+    monkeypatch.setattr("os.path.exists", lambda path: True)
+    monkeypatch.setattr("pdfplumber.open", lambda path: dummy_pdf)
+    monkeypatch.setattr(handler, "extract_tables_pdfplumber", lambda pdf, pn, snap=None: dummy_tables)
+    monkeypatch.setattr(handler, "select_tables", fake_select)
+    monkeypatch.setattr(handler, "concat_tables", lambda tables, table_id=None: {"header": [], "data": []})
+    # Act
+    handler.load_document(
+        cache_file_name="dummy.pdf",
+        page_numbers=[1],
+        table_indices=[(1, 0)],
+        table_id="t",
+    )
+    # Assert
+    assert captured["strict"] is True
+
+
 def test_select_tables_single_row_header():
     """Test select_tables with a single header row (rowspan=1)."""
     # Arrange

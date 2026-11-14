@@ -6,6 +6,9 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ### Fixed
 
+- `PDFDocHandler.load_document` now accepts `strict_header_check`, so the check for a DICOM tag in the header
+  can be turned off through the `handler_kwargs` of `SpecFactory`
+  ([#117](https://github.com/dwikler/dcmspec/issues/117)).
 - `SpecPrinter` and `IODSpecPrinter` no longer write ANSI escape sequences or wrap rows at 80
   characters when stdout is redirected, and `--no-color` also removes the magenta table header
   ([#122](https://github.com/dwikler/dcmspec/issues/122)).

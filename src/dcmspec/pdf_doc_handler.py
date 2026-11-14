@@ -231,6 +231,7 @@ class PDFDocHandler(DocHandler):
         table_header_rowspan: Optional[dict] = None,
         table_id: Optional[str] = None,
         snap_tolerance_overrides: Optional[dict] = None,
+        strict_header_check: bool = True,
     ) -> dict:
         """Download, cache, and extract the logical CSV table from the PDF.
 
@@ -249,6 +250,9 @@ class PDFDocHandler(DocHandler):
             snap_tolerance_overrides (dict, optional): Per-page pdfplumber ``snap_tolerance`` overrides, keyed by
                 1-indexed page number. Pages not listed use the default (8). Lower the value for a page whose
                 header rule fuses into the first data row. Only applies to the ``pdfplumber`` extractor.
+            strict_header_check (bool): If True (default), raise ValueError when a header cell contains a DICOM
+                tag pattern, a sign that a data row was absorbed into the header (usually a table_header_rowspan
+                that over-counts the header rows). Set False to skip the check. See ``select_tables``.
 
         Returns:
             dict: The specification table dict with keys 'header', 'data', and optionally 'table_id'.
@@ -308,7 +312,9 @@ class PDFDocHandler(DocHandler):
                     self.logger.debug(row)
 
         self.logger.debug(f"Selecting tables with indices: {table_indices}")
-        selected_tables = self.select_tables(all_tables, table_indices, table_header_rowspan)
+        selected_tables = self.select_tables(
+            all_tables, table_indices, table_header_rowspan, strict_header_check=strict_header_check
+        )
         self.logger.debug(f"Concatenating selected tables with table_id: {table_id}")
         spec_table = self.concat_tables(selected_tables, table_id=table_id)
         self.logger.debug(f"Returning spec_table with header: {spec_table.get('header', [])}")
