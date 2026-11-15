@@ -4,6 +4,8 @@ These release notes summarize key changes, improvements, and breaking updates fo
 
 ## [0.4.2] - 2026-11-14
 
+0.4.1 is not available on PyPI, so this release also includes its changes, including breaking ones. See the 0.4.1 section below.
+
 ### Fixed
 
 - `PDFDocHandler.load_document` now accepts `strict_header_check`, so the check for a DICOM tag in the header
